@@ -11,16 +11,29 @@ and let arguments happen before development instead of during it.
 
 ## Run it
 
-No build step. Serve the folder with any static server and open it in a
-laptop-width browser (≥ 1280px — the prototype is deliberately laptop-only, A-28):
+**Easiest — the single file.** `dist/equinix-preday1-prototype.html` is fully
+self-contained (fonts, icons, styles and scripts inlined). Send it anywhere and
+double-click it — no server, no folder structure needed. Rebuild it after
+editing the sources with:
+
+```bash
+node build-standalone.js
+```
+
+**Or serve the sources.** From the repo root:
 
 ```bash
 python3 -m http.server 8080
 # → http://localhost:8080
 ```
 
-Progress persists in `localStorage`. To start fresh, use **Prototype controls →
-First visit**.
+(Don't open the multi-file `index.html` directly from Downloads or a zip
+preview — without its sibling `css/`, `js/` and `assets/` folders it renders
+as bare HTML. That's what the single file in `dist/` is for.)
+
+View it in a laptop-width browser (≥ 1280px — the prototype is deliberately
+laptop-only, A-28). Progress persists in `localStorage`; to start fresh, use
+**Prototype controls → First visit**.
 
 ## What's inside
 

@@ -10,7 +10,9 @@
 const $ = (sel, el=document) => el.querySelector(sel);
 const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ic = (name, cls='') => `<span class="ic ${cls}" style="-webkit-mask-image:url('assets/icons/${name}');mask-image:url('assets/icons/${name}')"></span>`;
+// In the standalone single-file build, ICON_DATA maps icon filenames to data: URIs.
+const iconUrl = name => (typeof ICON_DATA !== 'undefined' && ICON_DATA[name]) ? ICON_DATA[name] : 'assets/icons/' + name;
+const ic = (name, cls='') => `<span class="ic ${cls}" style="-webkit-mask-image:url('${iconUrl(name)}');mask-image:url('${iconUrl(name)}')"></span>`;
 const am = id => `<span class="am" data-am="${id}" title="Assumption ${id} — click for details">${id}</span>`;
 
 function toast(msg, icon='info-circle.svg') {
