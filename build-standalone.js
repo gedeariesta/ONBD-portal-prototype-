@@ -15,6 +15,7 @@ const path = require('path');
 const VERSIONS = {
   v1: { src: '.',  out: 'equinix-preday1-prototype.html' },
   v2: { src: 'v2', out: 'equinix-preday1-prototype-v2.html' },
+  v3: { src: 'v3', out: 'equinix-preday1-portals-v3.html' },
 };
 
 const arg = (process.argv[2] || 'v1').toLowerCase();
@@ -29,8 +30,6 @@ const root = path.join(__dirname, src);
 
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 let css = fs.readFileSync(path.join(root, 'css/styles.css'), 'utf8');
-const dataJs = fs.readFileSync(path.join(root, 'js/data.js'), 'utf8');
-const appJs = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
 
 // Fonts → data URIs (css references ../assets/fonts/*.woff2)
 css = css.replace(/url\('\.\.\/assets\/fonts\/([^']+)'\)/g, (_, f) => {
@@ -46,11 +45,20 @@ for (const f of fs.readdirSync(iconDir)) {
   iconData[f] = 'data:image/svg+xml;base64,' + fs.readFileSync(path.join(iconDir, f)).toString('base64');
 }
 
-// Assemble page: inline css and scripts
+// Assemble page: inline css, then every local script in source order.
 html = html.replace('<link rel="stylesheet" href="css/styles.css">', () => `<style>\n${css}\n</style>`);
-html = html.replace('<script src="js/data.js"></script>',
-  () => `<script>\nconst ICON_DATA = ${JSON.stringify(iconData)};\n</script>\n<script>\n${dataJs}\n</script>`);
-html = html.replace('<script src="js/app.js"></script>', () => `<script>\n${appJs}\n</script>`);
+
+// ICON_DATA must exist before any script that renders an icon.
+html = html.replace(/<script src="js\/[^"]+"><\/script>/, m =>
+  `<script>\nconst ICON_DATA = ${JSON.stringify(iconData)};\n</script>\n` + m);
+
+const scriptTag = /<script src="(js\/[^"]+)"><\/script>/g;
+const scripts = [...html.matchAll(scriptTag)].map(m => m[1]);
+if (!scripts.length) throw new Error('No local scripts found to inline in ' + src);
+for (const rel of scripts) {
+  const code = fs.readFileSync(path.join(root, rel), 'utf8');
+  html = html.replace(`<script src="${rel}"></script>`, () => `<script>\n${code}\n</script>`);
+}
 
 // Rewrite literal icon references (HTML attrs, inline styles, data.js strings)
 for (const [f, uri] of Object.entries(iconData)) {

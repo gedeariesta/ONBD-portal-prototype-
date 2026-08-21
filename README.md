@@ -1,15 +1,18 @@
-# New Hire Pre-Day 1 Portal — interactive prototype
+# Pre-Day 1 portals — interactive prototype
+### New hire, hiring manager, and the handoffs between them
 
-**Two versions live side by side, deliberately.** `v1` is the original first pass;
-`v2` applies the edit notes written against it. v1 is left untouched so the two
-can be cross-compared screen by screen and register row by register row.
+**Three versions live side by side, deliberately.** Each earlier one is left
+untouched so they can be cross-compared screen by screen and register row by
+register row.
 
-| | v1 | v2 |
-|---|---|---|
-| Sources | `index.html`, `css/`, `js/` | `v2/` |
-| Single file | `dist/equinix-preday1-prototype.html` | `dist/equinix-preday1-prototype-v2.html` |
-| Register | 28 assumptions | 47 entries · 46 marked · 1 retired |
-| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED tags on every entry |
+| | v1 | v2 | v3 |
+|---|---|---|---|
+| What it is | Original first pass | Edit notes applied | Both portals, wired together |
+| Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` |
+| Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` |
+| Sides | New hire | New hire | New hire **and** hiring manager |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) |
+| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
 (the real thing runs on ServiceNow Employee Center — this prototypes the
@@ -28,7 +31,7 @@ double-click it — no server, no folder structure needed. Rebuild after editing
 the sources with:
 
 ```bash
-node build-standalone.js v2     # or: v1, or: all
+node build-standalone.js v3     # or: v1, v2, or: all
 ```
 
 **Or serve the sources.** From the repo root:
@@ -37,6 +40,7 @@ node build-standalone.js v2     # or: v1, or: all
 python3 -m http.server 8080
 # v1 → http://localhost:8080
 # v2 → http://localhost:8080/v2/
+# v3 → http://localhost:8080/v3/
 ```
 
 (Don't open the multi-file `index.html` directly from Downloads or a zip
@@ -52,13 +56,29 @@ laptop-only, A-28). Progress persists in `localStorage`; to start fresh, use
 | Stage | What it covers | Where |
 |---|---|---|
 | 1 | Portal shell, task list, phase strip, contacts, assistant | `#/` (landing) |
-| — | **Equipment** — three owners, status table, accessories form, INC *(v2 only)* | `#/equipment` |
+| — | **Equipment** — three owners, status table, accessories form, INC *(v2, v3)* | `#/equipment` |
 | 2 | Personal & contact details — 3-tab wizard, pre-fill distinction, autosave, validation, banking boundary card | `#/details` |
 | 3 | Job description review — scroll-gated acknowledgement + dissent path → Under review | `#/jd` |
 | 4 | Introduction + badge photo — one card, two independently completable sections; conversion variant | `#/intro` |
-| — | **Suggested network** — five people, reasons, bookable 1:1s *(v2 only)* | `#/network` |
+| — | **Suggested network** — the people the manager named, and bookable 1:1s *(v2, v3)* | `#/network` |
 | 5 | Compliance pack — per-document scroll-gated acknowledgements, external Code of Conduct treatment, Japan addendum | `#/policies` |
 | 6 | Task states, persona/country variants, Assumptions & gaps panel, one-screen flow overview | Prototype controls (bottom left) + `#/flow` |
+
+**Hiring manager side (v3 only)**
+
+| Screen | What it covers | Where |
+|---|---|---|
+| Readiness view | Multi-hire selector, readiness score, blockers, your tasks with dispositions, the new hire's progress, other teams | `#/hm/` |
+| First-day details | Blueprint values read-only, availability, Day 1 proxy | `#/hm/logistics` |
+| Order the computer | An order, not a confirmation — with a late-delivery warning | `#/hm/computer` |
+| Application stack | Drawn in its blocked state: no persona, no default stack | `#/hm/software` |
+| Assign a buddy | Suggestion, alternatives, capacity warning, and the visibility conflict | `#/hm/buddy` |
+| Day 1 calendar | The 1:1 already placed; the rest as suggestions | `#/hm/calendar` |
+| Welcome note | Pre-filled, personal line, read-only generated first-week block | `#/hm/welcome` |
+| Name the network | Pick five, write why each — it reaches the new hire verbatim | `#/hm/network` |
+| Forward the introduction | Arrives only after the new hire consents | `#/hm/intro` |
+| Subtraction review | Every manager task by verdict | `#/hm/subtraction` |
+| **The handoffs** | Where the two portals meet — nine connections, live state | `#/handoffs` |
 
 ## The prototype devices
 
@@ -66,17 +86,20 @@ laptop-only, A-28). Progress persists in `localStorage`; to start fresh, use
   assumption register and flow overview.
 - **Prototype controls** (bottom left): switch persona (external /
   contract-to-permanent), country of hire (US / Japan), task-state scenario
-  (first visit, in progress, under review, overdue, all complete) and — in v2 —
-  the runway to Day 1 (two weeks / three months). Clearly labelled: none of it
-  is product UI.
+  (first visit, in progress, under review, overdue, all complete), the runway to
+  Day 1 (two weeks / three months, v2+) and the buddy visibility rule (v3).
+  Clearly labelled: none of it is product UI.
 - **Assumption markers**: small `A-nn` chips on any element that rests on an
   assumption rather than a confirmed requirement. Click one to open the
   register entry; click a register entry to jump to (and flash) the element.
   Entries map to the Open Items tab of the spec workbook. In v2 each entry also
   carries where it came from — **UAT** (seen in the live portal), **1:1**
   (stated by the platform owner), **PRIOR** (already agreed) or **ASSUMED**
-  (still a judgement call) — and the panel ends with the five questions that
-  need answering before build.
+  (still a judgement call) — and the panel ends with the questions that need
+  answering before build. In v3 the panel filters by side: new hire, manager,
+  or the connections between them.
+- **Viewing as** (v3, in the ribbon): switch between the new hire's portal and
+  the hiring manager's. A prototype device — in reality these are two people.
 
 ## Example new hire
 
@@ -103,6 +126,62 @@ Visuals follow the Equinix Brand Center packs supplied with the brief:
 
 Brand assets are Equinix property, included here solely for this internal
 prototype.
+
+## v3 — the two portals, connected
+
+v3 adds the hiring manager's side and wires it to the new hire's. **Both sides
+read and write one shared state**, so a handoff is real rather than illustrated:
+assign a buddy as the manager and the name appears on the new hire's screen;
+order the computer and their equipment table stops saying it is waiting on you.
+
+Switch sides with **Viewing as** in the ribbon. That switch is a prototype
+device — a real manager and a real new hire are different people on different
+screens.
+
+### The nine handoffs — `#/handoffs`
+
+The screen that proves the connections, and the one to open in a review. Each
+row names both ends, the direction, its live state, and the assumption it rests
+on. One row is flagged as a live **conflict**: the manager spec says the new
+hire sees their buddy 72 hours before starting; the new hire prototype shows
+them from assignment. v3 implements both rules and lets you switch between them,
+because the two specifications genuinely disagree.
+
+### The subtraction review — `#/hm/subtraction`
+
+The design problem on the manager's side is the opposite of the new hire's: the
+goal is to reduce what a manager is asked to do, not organise it better. So every
+manager task carries a disposition on screen — **keep · exception-only ·
+automate away · remove · undecided · adds work** — and the review screen groups
+all sixteen by verdict, with the condition each one depends on. Three are struck
+through as tasks that should not exist at all.
+
+Two screens are drawn deliberately unflattering because that is the truth today:
+
+- **Order the computer** is an *order*, not a confirmation. The manager places it
+  and nothing moves until they do — which corrects the workbook's own baseline
+  and makes the case for subtraction larger, not smaller.
+- **Confirm the application stack** renders in its blocked state: no persona
+  means no default stack, so the manager fills an empty list by hand — the
+  opposite of what the task is meant to be.
+
+### Manager-side and connection assumptions
+
+The register now spans both portals and is filterable by side:
+
+- **A-series (47)** — new hire, carried from v2 unchanged.
+- **M-series (18)** — manager side: the readiness score has no agreed formula,
+  what task detail a manager may see is unresolved, persona resolution blocks
+  provisioning, the buddy suggestion's performance signal is withheld for
+  privacy, and the credential task is recommended for deletion.
+- **L-series (9)** — the joins themselves, including the buddy conflict, the
+  introduction forward path that no source describes, and the decision that
+  sensitive new hire tasks report status only and never content.
+
+The panel also records four **source-integrity problems in the workbook itself**
+— a missing manager row in the master inventory, sequence numbers that diverge
+by one from 34 onward, a truncated corporate-card row, and label drift between
+"accessories" and "access".
 
 ## What changed in v2
 
@@ -148,6 +227,7 @@ css/styles.css    v1 — design tokens + all components
 js/data.js        v1 — content: assumption register, documents, copy
 js/app.js         v1 — state, router, all six stages of behaviour
 v2/               v2 — same structure, with its own copy of assets/
+v3/               v3 — both portals; adds js/hm.js for the manager side
 assets/fonts/     Nexa Text (woff2)
 assets/icons/     brand icon subset + Fortress mark
 build-standalone.js  bundles either version into one portable HTML file
