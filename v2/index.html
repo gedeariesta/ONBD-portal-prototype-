@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Equinix — Your onboarding, before Day 1 (prototype v2)</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Persistent prototype indicator (Stage 0, rule 5) -->
+<div class="proto-ribbon">
+  <span><b>Prototype v2</b> — not an approved design</span>
+  <span class="rb-link" id="rbAssume">assumptions</span>
+  <span class="rb-link" id="rbFlow">Flow overview</span>
+</div>
+
+<!-- Header -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="brand" onclick="location.hash='#/'">
+      <img src="assets/icons/fortress.svg" alt="Equinix">
+      <span class="wordmark">EQUINIX</span>
+      <span class="sub">Your onboarding — before Day 1</span>
+    </div>
+    <div class="hdr-spacer"></div>
+    <div class="hdr-you" id="hdrYou"></div>
+  </div>
+</header>
+
+<!-- App -->
+<main id="app"></main>
+
+<!-- Overlay + slide-over panels -->
+<div class="overlay" id="overlay"></div>
+
+<aside class="panel" id="assumePanel" aria-label="Assumptions and gaps">
+  <div class="panel-h">
+    <h2>Assumptions &amp; gaps</h2>
+    <button class="x" aria-label="Close">✕</button>
+  </div>
+  <div class="panel-b" id="assumeBody"></div>
+</aside>
+
+<aside class="panel" id="chatPanel" aria-label="Onboarding assistant">
+  <div class="panel-h">
+    <h2>Onboarding assistant</h2>
+    <button class="x" aria-label="Close">✕</button>
+  </div>
+  <div class="panel-b" id="chatBody"></div>
+  <div class="chat-hand">Prototype: canned answers only. In the real portal this hands off to a person when it should.</div>
+  <div class="chat-in">
+    <input type="text" id="chatInput" placeholder="Ask anything about your onboarding…">
+    <button class="btn primary sm" id="chatSendBtn">Send</button>
+  </div>
+</aside>
+
+<!-- Chat entry point -->
+<button class="chat-fab" id="chatFab">
+  <span class="ic lg" style="-webkit-mask-image:url('assets/icons/comment-smile.svg');mask-image:url('assets/icons/comment-smile.svg')"></span>
+  Questions? Ask here
+</button>
+
+<!-- Prototype controls (Stage 6 — clearly a prototype device) -->
+<button class="proto-fab" id="protoFab">
+  <span class="ic sm" style="-webkit-mask-image:url('assets/icons/exclamation-triangle.svg');mask-image:url('assets/icons/exclamation-triangle.svg')"></span>
+  Prototype controls
+</button>
+<div class="proto-drawer" id="protoDrawer"></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

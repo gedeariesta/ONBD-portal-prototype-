@@ -1,12 +1,31 @@
 #!/usr/bin/env node
-/* Builds dist/equinix-preday1-prototype.html — a single self-contained file.
+/* Builds a single self-contained HTML file per prototype version.
    Inlines styles.css + data.js + app.js into index.html, converts every
    font and icon reference into a data: URI so the file works opened
-   directly (file://, content://), with no server and no sibling folders. */
+   directly (file://, content://), with no server and no sibling folders.
+
+     node build-standalone.js        # v1 → dist/equinix-preday1-prototype.html
+     node build-standalone.js v2     # v2 → dist/equinix-preday1-prototype-v2.html
+     node build-standalone.js all    # both
+*/
 
 const fs = require('fs');
 const path = require('path');
-const root = __dirname;
+
+const VERSIONS = {
+  v1: { src: '.',  out: 'equinix-preday1-prototype.html' },
+  v2: { src: 'v2', out: 'equinix-preday1-prototype-v2.html' },
+};
+
+const arg = (process.argv[2] || 'v1').toLowerCase();
+const targets = arg === 'all' ? Object.keys(VERSIONS) : [arg];
+for (const t of targets) {
+  if (!VERSIONS[t]) throw new Error(`Unknown version "${t}". Use v1, v2 or all.`);
+  build(VERSIONS[t]);
+}
+
+function build({ src, out: outName }) {
+const root = path.join(__dirname, src);
 
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 let css = fs.readFileSync(path.join(root, 'css/styles.css'), 'utf8');
@@ -43,7 +62,9 @@ const leftovers = [...new Set([...html.matchAll(/assets\/[^'"`\s)]*/g)].map(m =>
   .filter(s => s !== 'assets/icons/');
 if (leftovers.length) throw new Error('Unresolved asset references: ' + leftovers.join(', '));
 
-fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
-const out = path.join(root, 'dist/equinix-preday1-prototype.html');
+const distDir = path.join(__dirname, 'dist');
+fs.mkdirSync(distDir, { recursive: true });
+const out = path.join(distDir, outName);
 fs.writeFileSync(out, html);
 console.log(`Wrote ${out} (${(fs.statSync(out).size / 1024).toFixed(0)} KB)`);
+}
