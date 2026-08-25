@@ -1,5 +1,5 @@
 /* ============================================================
-   Equinix — New Hire Pre-Day 1 Portal (prototype)
+   Equinix Pre-Day 1 portals (prototype)
    Design tokens from Equinix Brand Center: Color, Typography (Nexa Text)
    ============================================================ */
 
@@ -47,7 +47,7 @@ body {
   color:var(--ink); background:var(--bg);
   min-width:1180px; /* laptop-only prototype (A-28) */
 }
-h1,h2,h3,h4 { font-weight:800; color:var(--charcoal); line-height:1.25; }
+h1,h2,h3,h4 { font-weight:800; color:var(--charcoal); line-height:1.22; letter-spacing:-.012em; }
 h1{font-size:26px;} h2{font-size:20px;} h3{font-size:16px;} h4{font-size:14px;}
 p{color:var(--ink-soft);}
 a{color:var(--action); text-decoration:none;}
@@ -122,40 +122,65 @@ small{color:var(--ink-faint);}
   cursor:pointer; font-weight:700; background:none; border:none; font-size:13px;
 }
 .crumbs .back:hover{text-decoration:underline;}
+/* Same red rule as the section headings, so a task page and the landing
+   page are recognisably the same portal. */
+.crumbs + h1{position:relative; padding-left:15px; font-size:27px;}
+.crumbs + h1::before{
+  content:''; position:absolute; left:0; top:.2em; bottom:.16em; width:3px;
+  border-radius:2px; background:var(--eq-red);
+}
 
-/* ---------- Hero (landing) ---------- */
+/* ---------- Fortress hex field ----------
+   The brand patterns are built from the Fortress hexagon set on a 20 degree
+   tilt. One large non-repeating sheet, so the tilt never shows a seam. */
+.hexfield::before{
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='520'%3E%3Cdefs%3E%3Cpattern id='h' width='58.89' height='102' patternUnits='userSpaceOnUse' patternTransform='rotate(20)'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.2'%3E%3Cpath d='M29.44 17 58.89 34 58.89 68 29.44 85 0 68 0 34Z'/%3E%3Cpath d='M0 -34 29.44 -17 29.44 17 0 34 -29.44 17 -29.44 -17Z'/%3E%3Cpath d='M58.89 -34 88.33 -17 88.33 17 58.89 34 29.44 17 29.44 -17Z'/%3E%3Cpath d='M0 68 29.44 85 29.44 119 0 136 -29.44 119 -29.44 85Z'/%3E%3Cpath d='M58.89 68 88.33 85 88.33 119 58.89 136 29.44 119 29.44 85Z'/%3E%3C/g%3E%3C/pattern%3E%3C/defs%3E%3Crect width='1400' height='520' fill='url(%23h)'/%3E%3C/svg%3E") center/cover no-repeat;
+  opacity:.13;
+}
+
+/* ---------- Hero (landing) ----------
+   An image box in the brand illustration system: one linear gradient across
+   adjacent hues, the hex field behind it, and one isometric idea. */
 .hero{
   border-radius:var(--radius-lg); overflow:hidden; position:relative;
-  background:linear-gradient(104deg, var(--eq-light-blue) 0%, var(--eq-light-aqua) 62%, var(--eq-light-green) 100%);
-  padding:30px 34px 26px; margin-bottom:26px;
+  background:linear-gradient(104deg, #00408C 0%, #086AE3 54%, #411980 100%);
+  display:grid; grid-template-columns:minmax(0,1fr) 300px; margin-bottom:26px;
 }
-.hero .hex-decor{position:absolute; right:-30px; top:-60px; width:340px; opacity:.5; pointer-events:none;}
-.hero h1{font-size:27px; color:var(--charcoal); margin-bottom:6px; position:relative;}
-.hero .lede{font-size:15px; color:var(--charcoal); font-weight:350; max-width:640px; position:relative;}
-.hero .prog-row{display:flex; align-items:flex-end; gap:40px; margin-top:24px; position:relative;}
-.prog-count{min-width:210px;}
-.prog-count .nums{font-size:13px; font-weight:700; color:var(--eq-dark-blue); margin-bottom:7px; display:flex; justify-content:space-between;}
-.prog-bar{height:8px; background:rgba(255,255,255,.75); border-radius:99px; overflow:hidden;}
+.hero-copy{padding:32px 36px 30px; position:relative; z-index:2; min-width:0;}
+.eyebrow{
+  font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--eq-aqua); margin-bottom:11px;
+}
+.hero h1{font-size:31px; color:var(--white); margin-bottom:8px; letter-spacing:-.018em;}
+.hero .lede{font-size:15px; color:rgba(255,255,255,.9); font-weight:350; max-width:560px;}
+.hero .lede b{color:var(--white); font-weight:700;}
+.hero-art{position:absolute; top:0; right:0; bottom:0; width:340px; z-index:1;}
+.hero-art svg{width:100%; height:100%; display:block;}
+.hero .prog-row{display:flex; align-items:flex-end; gap:36px; margin-top:26px; position:relative;}
+.prog-count{min-width:200px;}
+.prog-count .nums{font-size:13px; font-weight:700; color:var(--white); margin-bottom:7px; display:flex; justify-content:space-between; gap:8px;}
+.prog-bar{height:8px; background:rgba(255,255,255,.24); border-radius:99px; overflow:hidden;}
 .prog-bar i{display:block; height:100%; border-radius:99px;
-  background:linear-gradient(90deg, var(--eq-blue), var(--eq-dark-aqua)); transition:width .45s ease;}
+  background:linear-gradient(90deg, var(--eq-aqua), var(--white)); transition:width .45s ease;}
 /* Milestones */
-.miles{display:flex; align-items:flex-start; flex:1; max-width:640px;}
+.miles{display:flex; align-items:flex-start; flex:1; max-width:560px;}
 .mile{flex:1; position:relative; text-align:center;}
 .mile .dot{
   width:22px; height:22px; border-radius:50%; margin:0 auto 7px; position:relative; z-index:2;
-  background:var(--white); border:2px solid var(--chrome); color:var(--white);
+  background:transparent; border:2px solid rgba(255,255,255,.5); color:var(--eq-dark-blue);
   display:flex; align-items:center; justify-content:center;
 }
-.mile .bar{position:absolute; top:10px; left:calc(-50% + 11px); right:calc(50% + 11px); height:2px; background:var(--chrome); z-index:1;}
+.mile .bar{position:absolute; top:10px; left:calc(-50% + 11px); right:calc(50% + 11px); height:2px; background:rgba(255,255,255,.35); z-index:1;}
 .mile:first-child .bar{display:none;}
-.mile.done .dot{background:var(--eq-dark-green); border-color:var(--eq-dark-green);}
-.mile.done .bar{background:var(--eq-dark-green);}
-.mile.now .dot{background:var(--white); border-color:var(--eq-blue);}
-.mile.now .dot i{width:8px;height:8px;border-radius:50%;background:var(--eq-blue);}
-.mile.now .bar{background:var(--eq-dark-green);}
-.mile .lbl{font-size:12px; font-weight:700; color:var(--carbon); line-height:1.3;}
-.mile.now .lbl{color:var(--eq-dark-blue);}
-.mile.done .lbl{color:var(--eq-dark-green);}
+.mile.done .dot{background:var(--eq-aqua); border-color:var(--eq-aqua);}
+.mile.done .bar{background:var(--eq-aqua);}
+.mile.now .dot{border-color:var(--white);}
+.mile.now .dot i{width:8px;height:8px;border-radius:50%;background:var(--white);}
+.mile.now .bar{background:var(--eq-aqua);}
+.mile .lbl{font-size:12px; font-weight:700; color:rgba(255,255,255,.62); line-height:1.3;}
+.mile.now .lbl{color:var(--white);}
+.mile.done .lbl{color:var(--eq-aqua);}
 
 /* Ready banner (all complete) */
 .ready-banner{
@@ -172,7 +197,12 @@ small{color:var(--ink-faint);}
 
 .section-h{display:flex; align-items:baseline; gap:10px; margin:26px 0 12px;}
 .section-h:first-child{margin-top:0;}
-.section-h h2{font-size:18px;}
+.section-h h2{font-size:18px; position:relative; padding-left:13px;}
+/* Short red rule, the way the brand marks a heading */
+.section-h h2::before{
+  content:''; position:absolute; left:0; top:.24em; bottom:.2em; width:3px;
+  border-radius:2px; background:var(--eq-red);
+}
 .section-h .hint{font-size:13px; color:var(--ink-faint); font-weight:350;}
 
 /* Task cards */
@@ -279,11 +309,13 @@ small{color:var(--ink-faint);}
   font-weight:700; font-size:14px; border-radius:8px; cursor:pointer;
   padding:10px 20px; border:1px solid transparent; transition:background .15s,border-color .15s,color .15s;
 }
-.btn.primary{background:var(--eq-blue); color:var(--white);}
-.btn.primary:hover{background:var(--eq-dark-blue);}
+/* Red is the Fortress colour and the brand's action colour. Blue stays for
+   links and in-page navigation so the two never compete. */
+.btn.primary{background:var(--eq-red); color:var(--white);}
+.btn.primary:hover{background:var(--eq-dark-red);}
 .btn.primary:disabled{background:var(--nickel); cursor:not-allowed; color:var(--white);}
-.btn.secondary{background:var(--white); color:var(--eq-dark-blue); border-color:var(--titanium);}
-.btn.secondary:hover{border-color:var(--eq-blue);}
+.btn.secondary{background:var(--white); color:var(--charcoal); border-color:var(--titanium);}
+.btn.secondary:hover{border-color:var(--charcoal);}
 .btn.quiet{background:none; color:var(--carbon); border:none; font-weight:400; text-decoration:underline; padding:10px 6px;}
 .btn.quiet:hover{color:var(--charcoal);}
 .btn.danger-quiet{background:none; color:var(--eq-dark-red); border:none; font-weight:400; text-decoration:underline; padding:10px 6px;}
@@ -705,7 +737,7 @@ small{color:var(--ink-faint);}
 .miles-mark{position:absolute; right:-26px; top:-2px;}
 .mile .lbl{font-size:11.5px; line-height:1.28; padding:0 6px;}
 
-/* overflow line under Coming up — verbatim from the live portal */
+/* overflow line under Coming up, verbatim from the live portal */
 .overflow-line{
   display:flex; align-items:center; gap:9px; margin:0 0 12px;
   font-size:13.5px; color:var(--charcoal); font-weight:350;
@@ -917,16 +949,16 @@ small{color:var(--ink-faint);}
 .obb li{padding:6px 0; color:var(--carbon); font-weight:350; line-height:1.5;}
 .pc-mark{font-size:9.5px; font-weight:800; color:var(--charcoal); background:var(--eq-aqua); border-radius:3px; padding:1px 5px; margin-left:6px;}
 
-/* keep assumption markers atomic — they must never break across lines */
+/* keep assumption markers atomic, they must never break across lines */
 .am{white-space:nowrap;}
 .eq-table td:first-child{min-width:210px;}
 .eq-item{flex-wrap:wrap;}
 
 /* ============================================================
-   v3 — hiring manager side and the connections between portals
+   v3: hiring manager side and the connections between portals
    ============================================================ */
 
-/* view switch in the ribbon — a prototype device, not product UI */
+/* view switch in the ribbon: a prototype device, not product UI */
 .view-switch{display:inline-flex; align-items:center; gap:6px; margin-left:4px;}
 .view-switch .vs-label{color:var(--platinum); font-size:11px; letter-spacing:.03em;}
 .view-switch .vs{
@@ -958,32 +990,33 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 /* ---------- manager: readiness hero ---------- */
 .hm-hero{
   display:flex; gap:32px; align-items:center; padding:26px 32px; margin-bottom:22px;
-  border-radius:var(--radius-lg);
-  background:linear-gradient(104deg, var(--eq-light-violet) 0%, var(--eq-light-blue) 62%, var(--eq-light-aqua) 100%);
+  border-radius:var(--radius-lg); position:relative; overflow:hidden;
+  background:linear-gradient(104deg, #411980 0%, #086AE3 62%, #00737A 100%);
 }
+.hm-hero > *{position:relative; z-index:2;}
 .ready-ring{position:relative; width:118px; height:118px; flex:none;}
 .ready-ring svg{width:118px; height:118px; display:block;}
 .rr-num{
   position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  font-size:30px; font-weight:800; color:var(--eq-dark-blue);
+  font-size:30px; font-weight:800; color:var(--white);
 }
 .rr-num span{font-size:15px; margin-left:1px;}
 .hm-hero-body{flex:1; min-width:0;}
-.hm-hero-body h1{font-size:23px; margin-bottom:3px;}
-.hm-hero-body .lede{font-size:13.5px; color:var(--charcoal); font-weight:350; margin-bottom:14px;}
+.hm-hero-body h1{font-size:24px; color:var(--white); letter-spacing:-.015em; margin-bottom:3px;}
+.hm-hero-body .lede{font-size:13.5px; color:var(--eq-aqua); font-weight:350; margin-bottom:14px; letter-spacing:.01em;}
 .ready-rows{display:flex; flex-direction:column; gap:7px; max-width:520px;}
 .ready-row{display:flex; align-items:center; gap:12px; font-size:12.5px;}
-.rr-label{width:112px; color:var(--charcoal); font-weight:700; flex:none;}
-.rr-bar{flex:1; height:7px; background:rgba(255,255,255,.75); border-radius:99px; overflow:hidden;}
-.rr-bar i{display:block; height:100%; border-radius:99px; background:var(--eq-dark-blue);}
-.rr-bar i.nh{background:var(--eq-blue);} .rr-bar i.hm{background:var(--eq-dark-violet);} .rr-bar i.tp{background:var(--eq-dark-aqua);}
-.rr-count{width:66px; text-align:right; color:var(--carbon); font-weight:700; flex:none;}
+.rr-label{width:112px; color:rgba(255,255,255,.9); font-weight:700; flex:none;}
+.rr-bar{flex:1; height:7px; background:rgba(255,255,255,.22); border-radius:99px; overflow:hidden;}
+.rr-bar i{display:block; height:100%; border-radius:99px; background:var(--white);}
+.rr-bar i.nh{background:var(--eq-aqua);} .rr-bar i.hm{background:var(--white);} .rr-bar i.tp{background:var(--eq-light-blue);}
+.rr-count{width:66px; text-align:right; color:rgba(255,255,255,.72); font-weight:700; flex:none;}
 .score-caveat{
   display:flex; gap:9px; align-items:flex-start; margin-top:14px; max-width:600px;
-  font-size:11.5px; color:var(--charcoal); font-weight:350; line-height:1.5;
-  background:rgba(255,255,255,.6); border-radius:8px; padding:9px 13px;
+  font-size:11.5px; color:rgba(255,255,255,.88); font-weight:350; line-height:1.5;
+  background:rgba(0,0,0,.22); border-radius:8px; padding:9px 13px;
 }
-.score-caveat .ic{color:var(--eq-dark-orange); margin-top:1px; flex:none;}
+.score-caveat .ic{color:var(--eq-yellow); margin-top:1px; flex:none;}
 
 /* ---------- manager: blockers ---------- */
 .blockers{
@@ -1244,39 +1277,46 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .obb-h{font-size:11.5px; font-weight:800; color:var(--carbon); margin:12px 0 4px;}
 
 /* ============================================================
-   v3 gap-closing pass — carousel, start date, background check,
+   v3 gap-closing pass: carousel, start date, background check,
    the real document pack
    ============================================================ */
 
-/* Inside Equinix carousel (A-35) */
-.carousel{
-  display:flex; align-items:center; gap:26px; margin-bottom:18px;
-  border-radius:var(--radius-lg); padding:20px 28px;
-  background:linear-gradient(102deg, var(--eq-dark-violet) 0%, var(--eq-dark-blue) 58%, var(--eq-dark-aqua) 100%);
-  color:var(--white); position:relative; overflow:hidden;
+/* Inside Equinix showcase (A-35)
+   Built to the brand illustration system: an image box carrying a gradient
+   and one isometric idea, with the copy beside it. */
+.showcase{
+  display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  gap:0; margin-bottom:22px; border-radius:var(--radius-lg); overflow:hidden;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow-1);
 }
-.car-left{flex:1; min-width:0;}
-.car-eyebrow{
-  display:flex; align-items:center; gap:7px; font-size:11px; font-weight:800;
-  letter-spacing:.09em; text-transform:uppercase; color:var(--eq-aqua); margin-bottom:10px;
+.sc-stage{position:relative; min-height:260px;}
+.sc-stage svg{position:absolute; inset:0; width:100%; height:100%; display:block;}
+.sc-stage.hexfield::before{z-index:3; opacity:.1;}
+.sc-num{
+  position:absolute; left:26px; top:20px; font-size:52px; font-weight:800; z-index:4;
+  color:rgba(255,255,255,.34); line-height:1; letter-spacing:-.02em;
 }
-.car-body{display:flex; align-items:baseline; gap:16px;}
-.car-num{font-size:34px; font-weight:800; color:rgba(255,255,255,.32); line-height:1; flex:none;}
-.car-title{font-size:19px; font-weight:800; color:var(--white); line-height:1.2;}
-.car-line{font-size:13.5px; font-weight:350; color:rgba(255,255,255,.82); margin-top:3px;}
-.car-foot{font-size:11.5px; font-weight:350; color:rgba(255,255,255,.6); margin-top:12px;}
-.car-nav{display:flex; align-items:center; gap:12px; flex:none;}
-.car-arrow{
-  width:30px; height:30px; border-radius:50%; border:1px solid rgba(255,255,255,.35);
-  background:none; color:var(--white); cursor:pointer; display:flex; align-items:center; justify-content:center;
+.sc-copy{padding:30px 34px; display:flex; flex-direction:column; justify-content:center;}
+.sc-eyebrow{
+  font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--eq-red); margin-bottom:12px;
 }
-.car-arrow:hover{background:rgba(255,255,255,.16);}
-.car-dots{display:flex; gap:6px;}
-.car-dot{
-  width:7px; height:7px; border-radius:50%; border:none; padding:0; cursor:pointer;
-  background:rgba(255,255,255,.35);
+.sc-title{font-size:26px; line-height:1.15; color:var(--charcoal); margin-bottom:8px;}
+.sc-line{font-size:15px; font-weight:350; color:var(--carbon); line-height:1.55; max-width:420px;}
+.sc-note{font-size:12.5px; font-weight:350; color:var(--ink-faint); line-height:1.55; margin-top:14px; max-width:420px;}
+.sc-thumbs{display:flex; gap:8px; margin-top:22px;}
+.sc-thumb{
+  position:relative; width:52px; height:36px; border-radius:7px; overflow:hidden;
+  border:2px solid transparent; background:none; padding:0; cursor:pointer;
+  transition:border-color .15s, transform .15s;
 }
-.car-dot.on{background:var(--eq-aqua); width:18px; border-radius:99px;}
+.sc-thumb:hover{transform:translateY(-2px);}
+.sc-thumb.on{border-color:var(--charcoal);}
+.sct-swatch{position:absolute; inset:0; display:block;}
+.sct-n{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800; color:rgba(255,255,255,.9);
+}
 
 /* Confirm your start date (A-49) */
 .date-card{

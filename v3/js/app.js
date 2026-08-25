@@ -1,5 +1,5 @@
 /* ============================================================
-   New Hire Pre-Day 1 Portal — interactive prototype  ·  v2
+   New Hire Pre-Day 1 Portal, interactive prototype.  v3
    Equinix design system (Nexa Text, brand palette, brand icons).
 
    v2 applies the edit notes: equipment rebuilt from the live UAT
@@ -17,7 +17,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 // In the standalone single-file build, ICON_DATA maps icon filenames to data: URIs.
 const iconUrl = name => (typeof ICON_DATA !== 'undefined' && ICON_DATA[name]) ? ICON_DATA[name] : 'assets/icons/' + name;
 const ic = (name, cls='') => `<span class="ic ${cls}" style="-webkit-mask-image:url('${iconUrl(name)}');mask-image:url('${iconUrl(name)}')"></span>`;
-const am = id => `<span class="am" data-am="${id}" title="Assumption ${id} — click for details">${id}</span>`;
+const am = id => `<span class="am" data-am="${id}" title="Assumption ${id}, click for details">${id}</span>`;
 
 function toast(msg, icon='info-circle.svg') {
   const t = $('#toast');
@@ -34,10 +34,10 @@ const dueText = d => d.toLocaleDateString('en-GB', { day:'numeric', month:'long'
 
 /* ---------------- state ---------------- */
 const DEFAULT_STATE = () => ({
-  // v3: one state object, two lenses. `view` is a prototype device — a real
+  // v3: one state object, two lenses. `view` is a prototype device. A real
   // manager and a real new hire are different people on different screens.
   view: 'nh',                    // nh | hm
-  buddyRule: 'assignment',       // assignment | 72h   (L-01 — the live conflict)
+  buddyRule: 'assignment',       // assignment | 72h   (L-01, the live conflict)
   persona: 'external',           // external | conversion
   country: 'US',                 // US | JP
   horizon: '2wk',                // 2wk | 3mo  (A-45)
@@ -197,7 +197,7 @@ function renderLanding() {
       name:'Start your background check',
       why:'It runs in the background and takes a while, so the sooner it starts the better',
       est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
-    // Equipment — earliest of the provisioning tasks; nothing gates it today (A-33)
+    // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your workspace accessories',
       why:'First, so it has time to be built, shipped and waiting for you on Day 1',
@@ -236,12 +236,10 @@ function renderLanding() {
         <h2>You’re ready for Day 1, ${esc(HIRE.preferred)}.</h2>
         <p>Everything we needed before your start date is done. Between now and ${startDateText()},
         two things happen without you: your accessories ship, and your badge gets printed. Three days before you start,
-        your first-day details and setup instructions will appear here. More to-dos arrive once you’ve started — but
+        your first-day details and setup instructions turn up here. More to-dos arrive once you’ve started, and
         nothing before then.</p>
       </div>
     </div>` : ''}
-
-    ${insideCarousel()}
 
     ${S.hm.welcome.sent ? `
     <div class="welcome-note" data-assume="L-08">
@@ -252,39 +250,36 @@ function renderLanding() {
       </div>
     </div>` : ''}
 
-    <div class="hero">
-      <svg class="hex-decor" viewBox="0 0 340 300" fill="none" aria-hidden="true">
-        <g stroke="#ffffff" stroke-width="2.5" opacity=".85" transform="rotate(20 170 150)">
-          <path d="M120 40 l50 -28 50 28 v56 l-50 28 -50 -28z"/>
-          <path d="M225 100 l50 -28 50 28 v56 l-50 28 -50 -28z" opacity=".6"/>
-          <path d="M120 160 l50 -28 50 28 v56 l-50 28 -50 -28z" opacity=".4"/>
-        </g>
-      </svg>
-      <h1>Welcome, ${esc(HIRE.preferred)}!</h1>
-      <p class="lede">You start as ${esc(HIRE.role)} on <b>${startDateText()}</b> — ${days} days from now.
-      A few things need doing before then. Work through them in any order; your progress saves as you go.</p>
-      <div class="prog-row" data-assume="A-25 A-44">
-        <div class="prog-count">
-          <div class="nums"><span>${done} of ${tasks.length} tasks complete</span>${am('A-25')}</div>
-          <div class="prog-bar"><i style="width:${(done/tasks.length)*100}%"></i></div>
-        </div>
-        <div class="miles">
-          ${PHASES.map((p,i) => {
-            const st = i === 0 ? (all ? 'done' : 'now') : (all && i === 1 ? 'now' : '');
-            return `<div class="mile ${st}">
-              <div class="bar"></div>
-              <div class="dot">${st==='done' ? ic('check.svg','sm') : st==='now' ? '<i></i>' : ''}</div>
-              <div class="lbl">${p}</div>
-            </div>`;
-          }).join('')}
-          <span class="miles-mark">${am('A-44')}</span>
+    <div class="hero hexfield">
+      ${heroArt()}
+      <div class="hero-copy">
+        <div class="eyebrow">Before Day 1</div>
+        <h1>Welcome, ${esc(HIRE.preferred)}.</h1>
+        <p class="lede">You start as ${esc(HIRE.role)} on <b>${startDateText()}</b>, ${days} days from now.
+        A few things need doing before then. Take them in any order. Your progress saves as you go.</p>
+        <div class="prog-row" data-assume="A-25 A-44">
+          <div class="prog-count">
+            <div class="nums"><span>${done} of ${tasks.length} tasks done</span>${am('A-25')}</div>
+            <div class="prog-bar"><i style="width:${(done/tasks.length)*100}%"></i></div>
+          </div>
+          <div class="miles">
+            ${PHASES.map((p,i) => {
+              const st = i === 0 ? (all ? 'done' : 'now') : (all && i === 1 ? 'now' : '');
+              return `<div class="mile ${st}">
+                <div class="bar"></div>
+                <div class="dot">${st==='done' ? ic('check.svg','sm') : st==='now' ? '<i></i>' : ''}</div>
+                <div class="lbl">${p}</div>
+              </div>`;
+            }).join('')}
+            <span class="miles-mark">${am('A-44')}</span>
+          </div>
         </div>
       </div>
     </div>
 
     ${conv ? `
     <div class="panel-note" style="max-width:820px;">${ic('info-circle.svg')} Because you’re converting from a contract role,
-      some tasks are shorter — we already hold your details from your time here, so you’ll mostly be confirming rather than entering.</div>` : ''}
+      some tasks are shorter. We already hold your details from your time here, so mostly you’ll be checking what we have.</div>` : ''}
 
     <div class="landing-grid">
       <div>
@@ -295,12 +290,12 @@ function renderLanding() {
           <div class="tcard optional ${netReady?'':'pending'}" data-task="#/network" data-assume="A-43 L-06">
             <div class="tic">${ic('users-connected.svg','lg')}</div>
             <div class="t-main">
-              <div class="t-name">Meet your suggested network ${am('A-43')} <span class="chip proposed">Proposed — not in the portal today</span></div>
+              <div class="t-name">Meet your suggested network ${am('A-43')} <span class="chip proposed">Proposed, not in the portal today</span></div>
               <div class="t-why">${netReady
                 ? `${HIRE.manager} has named the people you’ll actually work with, and why each one matters`
-                : `${HIRE.manager} hasn’t named anyone yet — this fills in when she does ${am('L-06')}`}</div>
+                : `${HIRE.manager} hasn’t named anyone yet. This fills in when she does ${am('L-06')}`}</div>
               <div class="t-meta">
-                <span class="m">${ic('clock.svg','sm')}No due date • Optional</span>
+                <span class="m">${ic('clock.svg','sm')}No due date, optional</span>
                 ${booked ? `<span class="mini-prog"><span class="bar"><i style="width:${(booked/netList.length)*100}%"></i></span>${booked} of ${netList.length} booked</span>` : ''}
               </div>
             </div>
@@ -312,14 +307,14 @@ function renderLanding() {
           </div>
         </div>
 
-        <div class="section-h"><h2>Also open now</h2><span class="hint">Yours to do, but they finish in another system — not counted in your progress</span></div>
+        <div class="section-h"><h2>Also open now</h2><span class="hint">Yours to do, but they finish somewhere else, so they don’t count towards your progress</span></div>
         <div class="ocards">
           <div class="ocard live">
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
               <div class="o-name">Right to work documents <span class="chip info">Available now</span></div>
-              <div class="o-note">Country-specific, and nothing is holding it up — you can start whenever you like.
-              You complete it in the Right to Work system rather than here.</div>
+              <div class="o-note">Country-specific, and nothing is holding it up, so start whenever you like.
+              You finish it in the Right to Work system, not here.</div>
             </div>
             <a class="o-go" data-ext="rtw">Open ${ic('external-link.svg','sm')}</a>
           </div>
@@ -346,8 +341,8 @@ function renderLanding() {
                 <span class="u-open">${ic('clock.svg','sm')}${CARD_FLOW.timing}</span>
               </div>
               <div class="u-note">${HIRE.manager} has said you'll travel for work, so a corporate card is being set up for you</div>
-              <div class="u-expl">You'll review the card agreement and sign it electronically on your second day —
-                it is deliberately after you start, not before. Once signed, the card provider sends you an application
+              <div class="u-expl">You'll review the card agreement and sign it electronically on your second day,
+                that timing is on purpose: after you start, not before. Once signed, the card provider sends you an application
                 link directly. Nothing for you to do until then. ${am('L-10')}</div>
             </div>` : ''}
           ${COMING_UP.map((u,i) => `
@@ -361,18 +356,18 @@ function renderLanding() {
               </div>
               ${u.note ? `<div class="u-note">${u.note}</div>` : ''}
               <div class="u-expl">${u.expl}${u.name.includes('first day details') && S.hm.logistics.confirmed
-                ? `<div class="mt8"><b>${HIRE.manager} has already confirmed these:</b> ${esc(S.hm.logistics.whereToBe)}${S.hm.logistics.teamNote ? ' — ' + esc(S.hm.logistics.teamNote) : ''}${S.hm.logistics.available ? '' : ` She’s away on your first day; ${esc(S.hm.logistics.proxy)} will meet you instead.`} ${am('L-07')}</div>` : ''}</div>
+                ? `<div class="mt8"><b>${HIRE.manager} has already confirmed these:</b> ${esc(S.hm.logistics.whereToBe)}${S.hm.logistics.teamNote ? '. ' + esc(S.hm.logistics.teamNote) : ''}${S.hm.logistics.available ? '' : ` She’s away on your first day; ${esc(S.hm.logistics.proxy)} will meet you instead.`} ${am('L-07')}</div>` : ''}</div>
             </div>`).join('')}
         </div>
 
-        <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Deliberately not yours — shown so you know nothing’s been forgotten</span></div>
+        <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Not yours on purpose, listed so you can see nothing has been forgotten</span></div>
         <div class="ocards">
           <div class="ocard" data-assume="A-10 A-11">
             <div class="tic">${ic('banking.svg')}</div>
             <div class="o-main">
               <div class="o-name">Banking and direct deposit ${am('A-11')}</div>
               <div class="o-note">Payroll will be in touch about this separately. Bank details are collected by Payroll in their own
-              secure form — they’re handled differently from the rest of your profile, so they never pass through this portal. ${am('A-10')}</div>
+              secure form. Bank data is handled differently from the rest of your profile, so it never passes through this portal. ${am('A-10')}</div>
             </div>
           </div>
           <div class="ocard">
@@ -387,6 +382,10 @@ function renderLanding() {
 
       ${landingRail()}
     </div>
+
+    <div class="section-h" style="margin-top:34px;"><h2>While you wait</h2>
+      <span class="hint">Reading, not a task</span></div>
+    ${insideCarousel()}
   </div>`;
 }
 
@@ -404,8 +403,8 @@ function taskCard(t) {
         <span class="m">${ic('clock.svg','sm')}About ${t.est} ${t.estMark ? am(t.estMark) : ''}</span>
         ${t.prog ? `<span class="mini-prog"><span class="bar"><i style="width:${(t.prog.done/t.prog.total)*100}%"></i></span>${t.prog.done} of ${t.prog.total}</span>` : ''}
       </div>
-      ${od ? `<div class="overdue-note">${ic('exclamation-circle.svg','sm')}<span>This was due ${dueText(due)} — it’s still open, and it matters for your first day.
-        <b>Stuck on something?</b> <span class="help-link" data-openchat="1">Message Maya</span> — that’s what she’s there for.</span></div>` : ''}
+      ${od ? `<div class="overdue-note">${ic('exclamation-circle.svg','sm')}<span>This was due ${dueText(due)}. It’s still open, and it matters for your first day.
+        <b>Stuck on something?</b> <span class="help-link" data-openchat="1">Message Maya</span>. That’s what she’s there for.</span></div>` : ''}
     </div>
     <div class="t-side">
       ${chip(t.status, od)}
@@ -443,7 +442,7 @@ function buddyRailBlock() {
       <div>
         <div class="c-name">Your onboarding buddy</div>
         <div class="c-role">Not chosen yet</div>
-        <div class="c-extra">${HIRE.manager} picks someone from your team — a person to ask the things you’d rather
+        <div class="c-extra">${HIRE.manager} picks someone from your team, a person to ask the things you’d rather
         not ask your manager, for your first three months and beyond. If she hasn’t by the day before you start, one is
         assigned automatically. ${am('L-01')}</div>
       </div>
@@ -455,13 +454,13 @@ function buddyRailBlock() {
       <div class="avatar peer">${ic('user.svg','sm')}</div>
       <div>
         <div class="c-name">Your onboarding buddy</div>
-        <div class="c-role">Chosen — you’ll meet them shortly before you start</div>
+        <div class="c-role">Chosen. You’ll meet them shortly before you start</div>
         <div class="c-extra">Their details appear here 72 hours before your first day. ${am('L-01')}</div>
       </div>
     </div>`;
   }
   return contactRow(
-    { name: assigned.name, role: `${assigned.role} · your onboarding buddy`, initials: assigned.initials, cls: 'buddy' },
+    { name: assigned.name, role: `Your onboarding buddy, ${assigned.role}`, initials: assigned.initials, cls: 'buddy' },
     `<div class="c-extra">${ic('clock.svg','sm')} ${assigned.tz}<br>Chosen by ${HIRE.manager} ${am('A-31')} ${am('L-01')}</div>`
   );
 }
@@ -473,12 +472,12 @@ function landingRail() {
       <h3>Your people</h3>
       ${contactRow(Object.assign({}, PEOPLE.manager, { phone: S.hm.contactConfirmed ? S.hm.workPhone : null }),
         `<div class="c-extra">${S.hm.contactConfirmed
-            ? `${ic('check.svg','sm')} ${esc(S.hm.workPhone)} — confirmed by ${HIRE.manager.split(' ')[0]} ${am('L-03')}`
+            ? `${ic('check.svg','sm')} ${esc(S.hm.workPhone)}, confirmed by ${HIRE.manager.split(' ')[0]} ${am('L-03')}`
             : `${am('A-32')}`}</div>`)}
       ${buddyRailBlock()}
       ${contactRow(PEOPLE.pex)}
       ${contactRow(PEOPLE.recruiter)}
-      <div class="rail-note">Daniel hands over to Maya a week after your offer was signed — after that, Maya is your first contact.</div>
+      <div class="rail-note">Daniel hands over to Maya a week after your offer was signed. From then on, Maya is your first contact.</div>
     </div>
 
     <div class="rail-card">
@@ -490,22 +489,22 @@ function landingRail() {
             <ul class="mod-list">${INSIDE_MODULES.map(m => `<li>${m}</li>`).join('')}</ul>
             <b>Nothing here is required, and nothing is tracked.</b>
             <div class="intent-note">${ic('bullhorn.svg','sm')}<span><b>Where this is headed:</b> a carousel above your progress tracker, releasing
-            modules as your start date gets closer. Note it currently lives as a <b>Day 1</b> to-do in the live portal — moving it
-            here is a relocation, not just a new presentation.</span></div>
+            modules as your start date gets closer. It currently lives as a <b>Day 1</b> to-do in the live portal, and moving it
+            here is a move, not a re-skin.</span></div>
           </div></li>
         <li><a data-res="ninety">${ic('chevron-right.svg','sm')}Your first 90 days ${am('A-36')}</a>
           <div class="u-expl" data-resbody="ninety">
             The new hire checklist and the matching manager checklist, so you can both see what the other is meant to be doing.
-            Reference only — nothing to tick off.
+            Reference only. Nothing to tick off.
             <div class="intent-note">${ic('bullhorn.svg','sm')}<span><b>Where this is headed:</b> optional tick-off items. The platform already
-            supports this natively — it has a Required/Optional filter and ships optional to-dos as “No due date • Optional”.</span></div>
+            already supports this: it has a Required/Optional filter and ships optional to-dos as “No due date, optional”.</span></div>
           </div></li>
         <li><a data-res="expect">${ic('chevron-right.svg','sm')}What to expect before Day 1</a>
           <div class="u-expl" data-resbody="expect">Finish the tasks above, then it goes quiet until 3 days before you start,
-          when first-day details arrive. Quiet is normal — it means nothing is stuck. More to-dos are assigned once you’ve started.</div></li>
+          when first-day details arrive. Quiet is normal here. It means nothing is stuck. More to-dos arrive once you’ve started.</div></li>
         <li><a data-res="who">${ic('chevron-right.svg','sm')}Who to contact for what</a>
-          <div class="u-expl" data-resbody="who">Your offer or your role — Daniel. These tasks, your start date, logistics — Maya.
-          What the job is actually like day to day — Nina, your buddy. Anything technical with this portal — the assistant, bottom right.</div></li>
+          <div class="u-expl" data-resbody="who">Your offer or your role, ask Daniel. These tasks, your start date and logistics, ask Maya.
+          What the job is actually like day to day, ask Nina, your buddy. Anything technical with this portal, use the assistant at the bottom right.</div></li>
       </ul>
     </div>
   </div>`;
@@ -522,32 +521,69 @@ function namedNetwork() {
 
 /* ---------- Inside Equinix carousel (A-35) ----------
    Rotating chapters at the top of the portal, plus the rail link.
-   No tasks, nothing tracked — access and reading only. */
+   No tasks, nothing tracked. Access and reading only. */
 let carouselTimer = null;
+/* Hero art. Three nested Fortress hexagons on the brand tilt, the innermost
+   filled with a linear gradient. Abstract, one idea, no radial fills. */
+function heroArt() {
+  return `
+  <div class="hero-art" aria-hidden="true">
+    <svg viewBox="0 0 340 300" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="heroCore" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#85F0F8" stop-opacity=".95"/>
+          <stop offset="100%" stop-color="#7739D9" stop-opacity=".55"/>
+        </linearGradient>
+      </defs>
+      <g transform="translate(-40 36) scale(1.3) rotate(20 200 107)">
+        <path d="M118 60 l82 -47 82 47 v94 l-82 47 -82 -47z" fill="none" stroke="rgba(255,255,255,.62)" stroke-width="2"/>
+        <path d="M145 76 l55 -31 55 31 v62 l-55 31 -55 -31z" fill="none" stroke="rgba(255,255,255,.44)" stroke-width="1.5"/>
+        <path d="M172 92 l28 -16 28 16 v32 l-28 16 -28 -16z" fill="url(#heroCore)"/>
+      </g>
+    </svg>
+  </div>`;
+}
+
 function insideCarousel() {
   const i = S.carousel || 0;
   const c = INSIDE_CHAPTERS[i];
+  const a = CHAPTER_ART[i];
   return `
-  <div class="carousel" data-assume="A-35">
-    <div class="car-left">
-      <div class="car-eyebrow">${ic('rocket.svg','sm')}Inside Equinix ${am('A-35')}</div>
-      <div class="car-body">
-        <span class="car-num">${c.n}</span>
-        <div>
-          <div class="car-title">${c.title}</div>
-          <div class="car-line">${c.line}</div>
-        </div>
-      </div>
-      <div class="car-foot">Six short chapters. Nothing here is required and nothing is tracked — read what you want, when you want.</div>
+  <section class="showcase" data-assume="A-35">
+    <div class="sc-stage hexfield">
+      <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="${a.g[0]}"/>
+            <stop offset="55%" stop-color="${a.g[1]}"/>
+            <stop offset="100%" stop-color="${a.g[0]}"/>
+          </linearGradient>
+          <linearGradient id="f1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".92"/>
+            <stop offset="100%" stop-color="#85F0F8" stop-opacity=".72"/>
+          </linearGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#bg)"/>
+        ${a.art}
+      </svg>
+      <span class="sc-num">${c.n}</span>
     </div>
-    <div class="car-nav">
-      <button class="car-arrow" data-car="-1" aria-label="Previous">${ic('chevron-left.svg','sm')}</button>
-      <div class="car-dots">
-        ${INSIDE_CHAPTERS.map((_,k) => `<button class="car-dot ${k===i?'on':''}" data-cardot="${k}" aria-label="Chapter ${k+1}"></button>`).join('')}
+
+    <div class="sc-copy">
+      <div class="sc-eyebrow">Inside Equinix</div>
+      <h2 class="sc-title">${c.title}</h2>
+      <p class="sc-line">${c.line}</p>
+      <p class="sc-note">Six short chapters about the company you are joining. Read them whenever you like.
+      Nothing here is a task and nothing is tracked. ${am('A-35')}</p>
+      <div class="sc-thumbs">
+        ${INSIDE_CHAPTERS.map((ch,k) => `
+          <button class="sc-thumb ${k===i?'on':''}" data-cardot="${k}" title="${ch.title}">
+            <span class="sct-swatch" style="background:linear-gradient(135deg, ${CHAPTER_ART[k].g[0]}, ${CHAPTER_ART[k].g[1]})"></span>
+            <span class="sct-n">${ch.n}</span>
+          </button>`).join('')}
       </div>
-      <button class="car-arrow" data-car="1" aria-label="Next">${ic('chevron-right.svg','sm')}</button>
     </div>
-  </div>`;
+  </section>`;
 }
 
 /* ============================================================
@@ -571,7 +607,7 @@ function renderStartDate() {
           <div class="callout">
             ${ic('exclamation-triangle.svg')}
             <div><b>Nobody has defined what happens next.</b> Who approves a change, how late one can be requested, and what
-            happens to work already in flight — an equipment order placed, a badge queued for print, calendar holds booked —
+            happens to work already in flight, such as an equipment order placed, a badge queued for print or calendar holds booked,
             are all unanswered. The prototype shows the request being made, not resolved. ${am('L-11')}</div>
           </div>
           <button class="btn quiet mt16" id="sdUndo">Cancel the request and keep ${startDateText()}</button>
@@ -584,7 +620,7 @@ function renderStartDate() {
     ${crumbs('Confirm your start date')}
     <div class="task-head" data-assume="A-49">
       <h1>Confirm your start date ${am('A-49')}</h1>
-      <p class="why">Everything else in your list is dated from this, so it is worth two seconds now rather than a reshuffle later.</p>
+      <p class="why">Everything else in your list is dated from this one. Two seconds now saves a reshuffle later.</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
@@ -600,7 +636,7 @@ function renderStartDate() {
 
         ${D.confirmed ? `
           <div class="callout soft mt16">${ic('check-circle.svg')}
-            <div>Confirmed. Your other due dates are set from this — you can see them on each task.</div></div>
+            <div>Confirmed. Your other due dates are set from this one, and you can see them on each task.</div></div>
           <button class="btn quiet mt16" id="sdReopen">Actually, I need to change it</button>
         ` : `
           <div class="mt24" style="display:flex; gap:12px; align-items:center;">
@@ -614,7 +650,7 @@ function renderStartDate() {
             </div>
             <div class="field" style="max-width:none;">
               <label>Anything we should know?</label>
-              <textarea rows="3" id="sdReason" placeholder="Optional — a notice period, a commitment you can't move.">${esc(D.reason)}</textarea>
+              <textarea rows="3" id="sdReason" placeholder="Optional. A notice period, a commitment you can't move.">${esc(D.reason)}</textarea>
               <div class="note">This goes to ${PEOPLE.pex.name} and ${HIRE.manager}. Changing your start date moves every other
               date in this list with it. ${am('L-11')}</div>
             </div>
@@ -639,7 +675,7 @@ function renderBgCheck() {
     ${crumbs('Start your background check')}
     <div class="task-head" data-assume="A-50">
       <h1>Start your background check ${am('A-50')}</h1>
-      <p class="why">It runs on its own once you start it, and it can take a couple of weeks — so the sooner it begins, the less it holds up.</p>
+      <p class="why">It runs on its own once you start it, and it can take a couple of weeks. The sooner it begins, the less it holds up.</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
@@ -647,13 +683,13 @@ function renderBgCheck() {
           <div class="bg-status">
             ${ic('shield-check.svg','xl')}
             <div>
-              <div class="bg-state">${ic('clock.svg','sm')}Running — nothing further from you</div>
+              <div class="bg-state">${ic('clock.svg','sm')}Running. Nothing further from you</div>
               <p>You've handed over what the check needs. It runs with our screening provider from here, and you'll be told
               if anything is missing. ${HIRE.manager} and ${PEOPLE.pex.name} can see that it is running, but not what is in it.</p>
             </div>
           </div>
           <div class="callout soft mt16">${ic('info-circle.svg')}
-            <div>What the check covers, and how long it takes, varies by country. That variation is not represented here —
+            <div>What the check covers, and how long it takes, varies by country. This screen doesn’t show that variation yet.
             the prototype shows one path. ${am('A-50')}</div></div>
           <button class="btn quiet mt16" id="bgUndo">Undo (prototype)</button>
         ` : `
@@ -662,7 +698,7 @@ function renderBgCheck() {
             already filled in, and brings the status back to this page.</p>
           <div class="callout">
             ${ic('external-link.svg')}
-            <div><b>This opens another company's site.</b> You'll finish there and come back — the status appears on this
+            <div><b>This opens another company's site.</b> You'll finish there and come back. The status then appears on this
             page automatically. Nothing about the check is stored in this portal.</div>
           </div>
           <button class="btn primary mt16" id="bgLaunch">${ic('external-link.svg','sm')} Start the check</button>
@@ -748,7 +784,7 @@ function renderDetails() {
     <div class="task-head" data-assume="A-10">
       <h1>Your personal and contact details ${am('A-10')}</h1>
       <p class="why">So we can set up your record, reach you, and know who to call in an emergency.
-      Fields marked <span class="prefill-tag">${ic('check.svg','sm')}From your offer</span> came from what you gave us earlier ${am('A-01')} — check them, change them if they’re wrong. The rest is yours to add.</p>
+      Fields marked <span class="prefill-tag">${ic('check.svg','sm')}From your offer</span> came from what you gave us earlier ${am('A-01')}. Check them, and change anything that’s wrong. The rest is yours to add.</p>
     </div>
     <div class="task-shell" data-assume="A-01">
       <div class="wiz-tabs">
@@ -763,7 +799,7 @@ function renderDetails() {
       </div>
       <div class="wiz-foot">
         ${ro
-          ? `<span class="saved-state">${ic('check-circle.svg','sm')}Submitted — shown read-only. If something changes, tell ${PEOPLE.pex.name}.</span>
+          ? `<span class="saved-state">${ic('check-circle.svg','sm')}Submitted, and read-only from here. If something changes, tell ${PEOPLE.pex.name}.</span>
              <span class="missing"></span>
              <button class="btn secondary" data-goto="#/">Back to your tasks</button>`
           : `<span class="saved-state" id="savedState">${ic('save.svg','sm')}Draft saves automatically as you type</span>
@@ -782,7 +818,7 @@ function tabDetails(jp) {
   return `
     <div class="form-sec">
       <h3>Legal name</h3>
-      <p class="sec-note">This must match your official documents — it’s what goes on your record.</p>
+      <p class="sec-note">This has to match your official documents. It’s what goes on your record.</p>
       <div class="field-row">
         ${inp('legalFirst','First name')}
         ${inp('legalMiddle','Middle name')}
@@ -797,8 +833,8 @@ function tabDetails(jp) {
       <div class="field readonly">
         <label>Country of hire</label>
         <input type="text" value="${esc(d.country)}" readonly>
-        <div class="note">From your offer — it drives what we ask you for. <a data-countryquery="1">This isn’t right</a>
-        ${S.details.queryRaised ? `<b style="color:var(--eq-dark-green)"> — thanks, we’re checking this with you. Keep going in the meantime.</b>` : ''}</div>
+        <div class="note">From your offer. It decides what we ask you for. <a data-countryquery="1">This isn’t right</a>
+        ${S.details.queryRaised ? `<b style="color:var(--eq-dark-green)"> Thanks. We’re checking this with you, so keep going in the meantime.</b>` : ''}</div>
       </div>
     </div>
 
@@ -810,7 +846,7 @@ function tabDetails(jp) {
       <div class="callout">
         ${ic('exclamation-triangle.svg')}
         <div>
-          <b>This overlaps another task, on purpose — and it isn’t agreed yet.</b>
+          <b>This overlaps another task on purpose, and it isn’t agreed yet.</b>
           Right to work is a separate, country-specific task that you complete in its own system. Capturing your document once,
           here, is a <b>proposal</b> to save you doing it twice. It is not a decision. ${am('A-29')}
         </div>
@@ -822,7 +858,7 @@ function tabDetails(jp) {
           <option value="">Choose…</option>
           ${docs.map(o => `<option ${d.idDoc===o.v?'selected':''}>${o.v}</option>`).join('')}
         </select>
-        <div class="note">The list depends on your country of hire. <em>Illustrative — not checked against ${jp ? 'Japanese' : 'US'} legal requirements.</em></div>
+        <div class="note">The list depends on your country of hire. <em>Illustrative. Not checked against ${jp ? 'Japanese' : 'US'} legal requirements.</em></div>
       </div>
 
       ${chosen ? `
@@ -832,7 +868,7 @@ function tabDetails(jp) {
             ${ic('check-circle.svg','lg')}
             <div>
               <div class="fd-name">${esc(d.idFileName)}</div>
-              <div class="fd-who">${ic('lock.svg','sm')} Visible to HR Operations and the right-to-work reviewer only — not to your manager or your team.</div>
+              <div class="fd-who">${ic('lock.svg','sm')} Visible to HR Operations and the right-to-work reviewer only. Not to your manager, and not to your team.</div>
             </div>
             <button class="btn quiet sm" data-removeid="1">Remove</button>
           </div>`
@@ -858,7 +894,7 @@ function tabDetails(jp) {
       </div>
       ${addrDone ? `<span class="verified">${ic('check-circle.svg','sm')}Address verified</span>` : ''}
       <div class="note" style="max-width:520px; margin-top:10px;">This is your home address for your worker record.
-      Where your equipment ships is decided in <a data-goto="#/equipment">your accessories order</a> — it defaults to your office.</div>
+      Where your equipment ships is decided in <a data-goto="#/equipment">your accessories order</a>, and it defaults to your office.</div>
     </div>
 
     <div class="form-sec">
@@ -905,7 +941,7 @@ function tabEmergency() {
   return `
     <div class="form-sec" data-assume="A-08">
       <h3>Emergency contact ${am('A-08')}</h3>
-      <p class="sec-note">Only used in an emergency — never shared with your team. One contact is required; add a second if you’d like a backup.</p>
+      <p class="sec-note">Only used in an emergency, and never shared with your team. One contact is required. Add a second if you’d like a backup.</p>
       ${contactBlock('ec1','Contact 1', false)}
       ${d.ec2on
         ? contactBlock('ec2','Contact 2 <span class="opt" style="font-weight:350">(optional)</span>', true)
@@ -918,7 +954,7 @@ function tabPreferences() {
   return `
     <div class="form-sec" data-assume="A-02">
       <h3>Preferences and voluntary disclosures ${am('A-02')}</h3>
-      <p class="sec-note">The first two are practical. The last two are optional and personal — they’re invitations, not requirements.</p>
+      <p class="sec-note">The first two are practical. The last two are optional and personal. Treat them as invitations, not requirements.</p>
 
       <div class="gcard" data-assume="A-03">
         <h4>Language for messages from us ${am('A-03')}</h4>
@@ -930,7 +966,7 @@ function tabPreferences() {
                 `<option ${d.language===l?'selected':''}>${l}</option>`).join('')}
             </select>
             <div class="note">Emails and portal messages only. <b>Your policy documents are served in the language required
-            for ${esc(d.country)}</b> — that is set by law, not by preference, so it is not a choice here. ${am('A-03')}</div>
+            for ${esc(d.country)}</b>. Law sets that, not preference, so there’s nothing to choose here. ${am('A-03')}</div>
           </div>
         </div>
       </div>
@@ -948,7 +984,7 @@ function tabPreferences() {
           </div>
           <label class="check">
             <input type="checkbox" data-input="updatesOptIn" data-kind="check" ${d.updatesOptIn?'checked':''}>
-            <span>Also send me non-essential updates — team news, tips for Day 1, that sort of thing.</span>
+            <span>Also send me non-essential updates: team news, tips for Day 1, that sort of thing.</span>
           </label>
         </div>
       </div>
@@ -956,13 +992,13 @@ function tabPreferences() {
       <div class="gcard" id="adjustments" data-assume="A-06">
         <h4>Workplace adjustments ${am('A-06')}</h4>
         <div class="gbody">
-          <p class="sec-note" style="margin-bottom:10px;">If there’s anything that would help you do your best work — equipment, setup, how we run your first weeks — we’d genuinely like to know. Entirely optional.</p>
+          <p class="sec-note" style="margin-bottom:10px;">If something would help you do your best work, we want to hear it. Equipment, setup, how we run your first weeks, anything. Entirely optional.</p>
           <div class="field" style="max-width:none;">
             <textarea rows="3" data-input="adjustText" ${d.adjustPrivate?'disabled':''} placeholder="Tell us what would help…">${esc(d.adjustText)}</textarea>
           </div>
           <label class="check">
             <input type="checkbox" data-input="adjustPrivate" data-kind="check" ${d.adjustPrivate?'checked':''}>
-            <span><b>I’d rather discuss this privately.</b> We’ll ask ${PEOPLE.pex.name} to get in touch instead — nothing is stored in this form.</span>
+            <span><b>I’d rather discuss this privately.</b> We’ll ask ${PEOPLE.pex.name} to get in touch instead, and nothing is stored in this form.</span>
           </label>
         </div>
       </div>
@@ -980,18 +1016,18 @@ function tabPreferences() {
           ${sidSelect('sidEthnicity','Race / ethnicity',['Asian','Black or African American','Hispanic or Latino','White','Two or more races','Another identity','Prefer not to say'])}
           ${sidSelect('sidVeteran','Veteran status',['I am a veteran','I am not a veteran','Prefer not to say'])}
           ${sidSelect('sidDisability','Disability status',['Yes','No','Prefer not to say'])}
-          <p class="note"><em>Categories shown are placeholders — the real sets are country-specific and regulatory.</em></p>
-        </div>` : `<p class="sec-note" style="margin:6px 0 0;">Collapsed — expand if you’d like to share. Entirely voluntary.</p>`}
+          <p class="note"><em>Categories shown are placeholders. The real sets are country-specific and set by regulation.</em></p>
+        </div>` : `<p class="sec-note" style="margin:6px 0 0;">Collapsed. Expand it if you’d like to share. Entirely voluntary.</p>`}
       </div>
 
       <div class="boundary" data-assume="A-10 A-11">
         ${ic('lock.svg','lg')}
         <div>
           <h4>Banking and direct deposit ${am('A-10')} ${am('A-11')}</h4>
-          <p>Bank details are collected separately by Payroll, in their own secure form — bank data is handled differently
-          from the rest of this profile. Payroll will be in touch; there’s nothing to prepare.</p>
+          <p>Payroll collects bank details separately, in their own secure form, because bank data is handled differently
+          from the rest of this profile. Payroll will be in touch. Nothing to prepare.</p>
           <p class="excl-note">Tax and W-4, swag sizes and dietary requirements are handled elsewhere too. All four are
-          <b>deliberate exclusions</b>, confirmed — not gaps in this form.</p>
+          <b>left out on purpose</b>, confirmed. They are not gaps in this form.</p>
           <a data-ext="payroll">About Payroll’s process ${ic('external-link.svg','sm')}</a>
         </div>
       </div>
@@ -1016,8 +1052,8 @@ function detailsDoneScreen() {
     <div class="task-shell">
       <div class="confirm-panel">
         <div class="big-check">${ic('check.svg','xl')}</div>
-        <h2>Details submitted — thank you.</h2>
-        <p>Your record is set up with what you gave us. If anything changes before you start — a move, a new number —
+        <h2>Details submitted. Thank you.</h2>
+        <p>Your record is set up with what you gave us. If anything changes before you start, a move or a new number,
         come back here and update it.</p>
         <button class="btn secondary" data-reopen="details">Review what I submitted</button>
         <button class="btn primary" data-goto="#/">Back to your tasks</button>
@@ -1027,8 +1063,8 @@ function detailsDoneScreen() {
 }
 
 /* ============================================================
-   Equipment — rebuilt from the live UAT portal
-   (A-34 · A-37 · A-38 · A-39 · A-41 · A-42)
+   Equipment, rebuilt from the live UAT portal
+   (A-34, A-37, A-38, A-39, A-41, A-42)
    ============================================================ */
 function officeAddress() { return S.country === 'JP' ? HIRE.officeAddressJP : HIRE.officeAddress; }
 
@@ -1040,7 +1076,7 @@ function equipmentTable(forManager) {
       <div class="eqs-h">
         <h3>Equipment orders</h3>
         <span class="eqs-note">${forManager
-          ? `Three items, three different owners — the same table Jordan sees. ${am('M-16')}`
+          ? `Three items, three different owners. The same table Jordan sees. ${am('M-16')}`
           : `Three items, three different owners. This table is the answer to “where is my equipment?” ${am('A-41')}`}</span>
       </div>
       <table class="eq-table">
@@ -1062,10 +1098,10 @@ function equipmentRows(forManager) {
   const E = S.equipment;
   const accStatus = E.submitted ? 'ORDERED' : 'NOT ORDERED YET';
   return [
-    { item:'Computer', icon:'laptop.svg', by:`${HIRE.manager} — your hiring manager`, byCls:'mgr',
+    { item:'Computer', icon:'laptop.svg', by:`${HIRE.manager}, your hiring manager`, byCls:'mgr',
       status: S.hm.computer.ordered ? 'ORDERED' : 'NOT ORDERED YET', ok: S.hm.computer.ordered,
       unblock: S.hm.computer.ordered
-        ? `Ordered by ${HIRE.manager}${S.hm.computer.model ? ' — ' + (COMPUTER_OPTIONS.find(o => o.id === S.hm.computer.model) || {}).label : ''}.`
+        ? `Ordered by ${HIRE.manager}${S.hm.computer.model ? ', ' + (COMPUTER_OPTIONS.find(o => o.id === S.hm.computer.model) || {}).label : ''}.`
         : `Their task: <b>“Order equipment for new hire”</b>. Nothing you can do from here.`,
       marker:'A-41' },
     { item:'Computer accessories', icon:'desktop.svg', by: forManager ? 'Jordan' : 'You', byCls:'you',
@@ -1073,9 +1109,9 @@ function equipmentRows(forManager) {
       unblock: E.submitted
         ? `Ordered. Reference <b>INC6369627</b>.`
         : (forManager
-            ? `Waiting on Jordan’s task — <b>“Order your workspace tech accessories”</b>. Not yours to place.`
-            : `This task — <b>“Order your workspace tech accessories”</b>, below.`) },
-    { item:'Mobile phone', icon:'mobile.svg', by: forManager ? 'Jordan — from Day 1' : 'You — from Day 1', byCls:'you',
+            ? `Waiting on Jordan’s task, <b>“Order your workspace tech accessories”</b>. Not yours to place.`
+            : `This task, <b>“Order your workspace tech accessories”</b>, below.`) },
+    { item:'Mobile phone', icon:'mobile.svg', by: forManager ? 'Jordan, from Day 1' : 'You, from Day 1', byCls:'you',
       status:'NOT ORDERED YET', ok:false,
       unblock:`Task <b>“Order a phone”</b> opens on Day 1, and only if the role needs one.`, marker:'A-40' },
   ];
@@ -1095,7 +1131,7 @@ function renderEquipment() {
     <div class="task-head" data-assume="A-33 A-34">
       <h1>Choose your workspace accessories ${am('A-34')}</h1>
       <p class="why">First on your list, so there’s time to build it, ship it and have it waiting for you. ${am('A-33')}
-      This orders <b>accessories only</b> — your computer is ordered by your manager, and a phone is a Day 1 choice if your role needs one.</p>
+      This orders <b>accessories only</b>. Your manager orders your computer, and a phone is a Day 1 choice if your role needs one.</p>
     </div>
 
     ${equipmentTable(false)}
@@ -1148,7 +1184,7 @@ function renderEquipment() {
           <div class="adjust-link" data-assume="A-06">
             ${ic('users-friends.svg')}
             <div>
-              <b>Need something different?</b> If an adjustment would help you work comfortably, tell us —
+              <b>Need something different?</b> If an adjustment would help you work comfortably, tell us.
               <a data-goto-adjust="1">review adjustments and formal accommodations</a>. Asking changes nothing about your role.
               ${am('A-06')}
             </div>
@@ -1168,8 +1204,8 @@ function renderEquipment() {
           <div class="field mt16">
             <label>Ship to the office address?</label>
             <div class="radio-row col">
-              <label><input type="radio" name="shipOffice" data-ship="yes" ${E.shipOffice==='yes'?'checked':''}>Yes — ship to the address above</label>
-              <label><input type="radio" name="shipOffice" data-ship="no" ${E.shipOffice==='no'?'checked':''}>No — ship to me directly</label>
+              <label><input type="radio" name="shipOffice" data-ship="yes" ${E.shipOffice==='yes'?'checked':''}>Yes, ship to the address above</label>
+              <label><input type="radio" name="shipOffice" data-ship="no" ${E.shipOffice==='no'?'checked':''}>No, ship to me directly</label>
             </div>
           </div>
 
@@ -1180,7 +1216,7 @@ function renderEquipment() {
                 ${d.addr1
                   ? `<div class="home-addr">${esc(d.addr1)}${d.addr2 ? ', '+esc(d.addr2) : ''}<br>${esc(d.city)}, ${esc(d.state)} ${esc(d.zip)}</div>
                      <div class="note">From your personal details. Changing where this parcel goes doesn’t change your home address on your record.</div>`
-                  : `<div class="note">You haven’t added a home address yet — <a data-goto="#/details">add it in your personal details</a> and it’ll appear here.</div>`}
+                  : `<div class="note">You haven’t added a home address yet. <a data-goto="#/details">Add it in your personal details</a> and it’ll appear here.</div>`}
               </div>
             </div>` : ''}
 
@@ -1212,7 +1248,7 @@ function eqReady() {
 function eqMissingText() {
   const E = S.equipment;
   if (!E.choice) return 'Choose what you need to continue.';
-  if (E.choice === 'none') return 'Nothing to ship — you can submit.';
+  if (E.choice === 'none') return 'Nothing to ship, so you can submit.';
   const missing = [];
   if (!E.shipOffice) missing.push('a delivery address');
   if (E.shipPhone.replace(/\D/g,'').length < 7) missing.push('a phone number for the courier');
@@ -1223,7 +1259,7 @@ function eqMissingText() {
 function equipmentSubmitted() {
   const E = S.equipment;
   const picked = E.choice === 'none'
-    ? ['Nothing — no accessories needed']
+    ? ['Nothing, no accessories needed']
     : [E.choice === 'more' ? 'Standard Zoom-optimised headset (automatic)' : 'Standard Zoom-optimised headset']
         .concat(ACCESSORY_OPTIONS.filter(o => E.items[o.id]).map(o => o.label));
 
@@ -1249,7 +1285,7 @@ function equipmentSubmitted() {
           <ul class="inc-list">${picked.map(p => `<li>${ic('check.svg','sm')}${p}</li>`).join('')}</ul>
           ${S.equipment.choice !== 'none' ? `
           <div class="inc-lbl mt16">Shipping to</div>
-          <div class="inc-val">${S.equipment.shipOffice === 'yes' ? officeAddress() : 'Your home address'} · ${esc(S.equipment.shipPhone)}</div>` : ''}
+          <div class="inc-val">${S.equipment.shipOffice === 'yes' ? officeAddress() : 'Your home address'}, ${esc(S.equipment.shipPhone)}</div>` : ''}
           <div class="attach">${ic('file-alt.svg','sm')}<b>Accessories Details.csv</b> <span>attached to the ticket</span></div>
         </div>
 
@@ -1268,8 +1304,8 @@ function equipmentSubmitted() {
           </div>
           <div class="callout soft mt16">
             ${ic('exclamation-triangle.svg')}
-            <div><b>This is how people actually amend orders today</b> — by typing into the ticket after submitting.
-            It works, but it isn’t designed. A proper “change my order” path would be better than a comment thread. ${am('A-42')}</div>
+            <div><b>This is how people actually amend orders today</b>, by typing into the ticket after submitting.
+            It works, but nobody designed it. A proper “change my order” path would beat a comment thread. ${am('A-42')}</div>
           </div>
           <button class="btn secondary mt16" id="eqChange">Change my order</button>
         </div>
@@ -1309,7 +1345,7 @@ function renderNetwork() {
         ${ic('users-connected.svg','xl')}
         <div>
           <h2>${HIRE.manager} hasn’t named anyone yet</h2>
-          <p>This fills in when your manager picks the people you’ll work with most — the ones outside your own team —
+          <p>This fills in when your manager picks the people you’ll work with most, the ones outside your own team,
           and writes a line about why each of them matters. You’ll get their names, her reasons, and times you can book.</p>
           <p class="wp-note">${ic('info-circle.svg','sm')} Nothing is waiting on you. This is here so you can see it exists,
           not so you can chase it. ${am('L-06')}</p>
@@ -1323,14 +1359,14 @@ function renderNetwork() {
     ${crumbs('Your suggested network')}
     <div class="task-head" data-assume="A-43">
       <h1>Your suggested network ${am('A-43')}</h1>
-      <p class="why">${HIRE.manager} has named the people you’ll actually work with — chosen for your role, not your reporting line.
+      <p class="why">${HIRE.manager} has named the people you’ll actually work with, chosen for your role rather than your reporting line.
       Each of them knows you’re starting and knows why they’re on your list.</p>
     </div>
 
     <div class="proposed-banner">
       ${ic('exclamation-triangle.svg','lg')}
       <div>
-        <b>Proposed — this does not exist in the portal today.</b>
+        <b>Proposed. This does not exist in the portal today.</b>
         <p>It needs a new manager task, a notification to each named person, and a booking integration. It may also belong on
         Day 1 rather than before you start. Shown here so the shape can be argued before any of that is built. ${am('A-43')}</p>
       </div>
@@ -1338,7 +1374,7 @@ function renderNetwork() {
 
     <div class="net-grid">
       <div>
-        <div class="section-h"><h2>${list.length} ${list.length===1?'person':'people'}, and why</h2><span class="hint">Optional — book what’s useful, ignore the rest</span></div>
+        <div class="section-h"><h2>${list.length} ${list.length===1?'person':'people'}, and why</h2><span class="hint">Optional. Book what’s useful, ignore the rest</span></div>
         <div class="net-cards">
           ${list.map((p,i) => `
             <div class="net-card ${booked[p.poolIndex]?'booked':''}">
@@ -1346,7 +1382,7 @@ function renderNetwork() {
                 <div class="avatar lg peer">${p.initials}</div>
                 <div class="nc-id">
                   <div class="nc-name">${p.name}</div>
-                  <div class="nc-role">${p.role} · ${p.dept}</div>
+                  <div class="nc-role">${p.role}, ${p.dept}</div>
                 </div>
                 ${booked[p.poolIndex] ? `<span class="chip done">${ic('check.svg','sm')}${esc(booked[p.poolIndex])}</span>` : `<span class="chip waiting">Not booked</span>`}
               </div>
@@ -1366,7 +1402,7 @@ function renderNetwork() {
 
       <div class="rail">
         <div class="rail-card">
-          <h3>What this is — and isn’t</h3>
+          <h3>What this is, and what it isn’t</h3>
           <div class="distinct">
             <div class="dist-row">
               <div class="dr-h">${ic('users-connected.svg','sm')} Your network</div>
@@ -1378,7 +1414,7 @@ function renderNetwork() {
             </div>
             <div class="dist-row">
               <div class="dr-h">${ic('users-three.svg','sm')} Your team</div>
-              <p>Your reporting line, on <a data-goto="#/jd">your job description</a>. <b>This list is deliberately not that</b> —
+              <p>Your reporting line, on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>, on purpose.
               rendering it as a hierarchy would mislead.</p>
             </div>
           </div>
@@ -1387,8 +1423,8 @@ function renderNetwork() {
           <h3>What happened behind this</h3>
           <ol class="mech-list">
             <li>${HIRE.manager} was asked to name <b>at least five</b> people outside your reporting line.</li>
-            <li>She wrote <b>why</b> each one matters to your role — that’s the text on each card.</li>
-            <li>Each person was <b>notified</b> they’d been named, as a heads-up before you reach out.</li>
+            <li>She wrote <b>why</b> each one matters to your role. That’s the text on each card.</li>
+            <li>Each person was <b>told</b> they’d been named, so your first message isn’t a surprise.</li>
             <li>You get the list, the reasons, and times you can book.</li>
           </ol>
           <div class="rail-note">The problem this is meant to solve, in the platform owner’s words:
@@ -1411,7 +1447,7 @@ function renderJD() {
     ${crumbs('Review your job description')}
     <div class="task-head">
       <h1>Review your job description</h1>
-      <p class="why">Confirm the role you’re joining is the one you agreed to. If anything looks different from your conversations, say so — that’s what this step is for.</p>
+      <p class="why">Confirm the role you’re joining is the one you agreed to. If anything looks different from your conversations, say so. That’s what this step is for.</p>
     </div>
 
     ${review ? `
@@ -1419,7 +1455,7 @@ function renderJD() {
       ${ic('info-circle.svg','lg')}
       <div><b>Under review ${am('A-27')}</b>
       <p>You told us something doesn’t match. Recruiting has your note and someone will be in touch within 2 working days.
-      This task stays open — nothing else for you to do on it right now.</p></div>
+      This task stays open, and there’s nothing else for you to do on it right now.</p></div>
     </div>` : ''}
     ${done ? `
     <div class="review-banner ok">
@@ -1435,7 +1471,7 @@ function renderJD() {
             <dt>Job title</dt><dd>${HIRE.role}</dd>
             <dt>Department</dt><dd>${HIRE.dept}</dd>
             <dt>Reports to</dt><dd>${HIRE.manager}</dd>
-            <dt>Location &amp; arrangement</dt><dd>${HIRE.location} · ${HIRE.arrangement}</dd>
+            <dt>Location &amp; arrangement</dt><dd>${HIRE.location}, ${HIRE.arrangement}</dd>
             <dt>Employment type</dt><dd>${HIRE.employmentType}</dd>
             <dt>Start date</dt><dd>${startDateText()}</dd>
           </dl>
@@ -1444,13 +1480,13 @@ function renderJD() {
 
         <div class="rail-card" style="margin-bottom:18px;" data-assume="A-13 A-24">
           <h3 style="display:flex; align-items:center; gap:10px;">The job description ${am('A-13')}</h3>
-          <p style="font-size:12.5px; margin:4px 0 12px;">Placeholder content, marked as such — the real text comes from the official record.</p>
+          <p style="font-size:12.5px; margin:4px 0 12px;">Placeholder content, marked as such. The real text comes from the official record.</p>
           <div class="jd-doc" id="jdDoc">${JD_TEXT}</div>
           <div class="scroll-hint ${jd.scrolled?'ok':''}" id="scrollHint">
-            ${jd.scrolled ? ic('check.svg','sm')+'Read to the end — you can confirm below.' : ic('chevron-down.svg','sm')+'Scroll to the end to unlock the confirmation. '+am('A-24')}
+            ${jd.scrolled ? ic('check.svg','sm')+'Read to the end, so you can confirm below.' : ic('chevron-down.svg','sm')+'Scroll to the end to unlock the confirmation. '+am('A-24')}
           </div>
           <div class="mt16">
-            <span class="internal-link" data-ext="workday">${ic('portal-window.svg')}View in Workday <small>· another Equinix system, same sign-in</small></span>
+            <span class="internal-link" data-ext="workday">${ic('portal-window.svg')}View in Workday <small>another Equinix system, same sign-in</small></span>
           </div>
         </div>
 
@@ -1468,11 +1504,11 @@ function renderJD() {
             <div class="field" style="max-width:none;">
               <label>Tell us what’s different</label>
               <textarea rows="4" id="dissentText" placeholder="What did you agree that you’re not seeing here?">${esc(jd.dissentText)}</textarea>
-              <div class="note">This goes to Recruiting with your name on it — they’ll come back to you directly.</div>
+              <div class="note">This goes to Recruiting with your name on it, and they’ll come back to you directly.</div>
             </div>
             <div style="display:flex; gap:12px;">
               <button class="btn primary" id="dissentSend" disabled>Send to recruiting</button>
-              <button class="btn quiet" id="dissentCancel">Never mind — back to confirming</button>
+              <button class="btn quiet" id="dissentCancel">Never mind, back to confirming</button>
             </div>
           </div>
         </div>` : ''}
@@ -1483,10 +1519,10 @@ function renderJD() {
           <h3>Your team ${am('A-13')}</h3>
           <div class="team-view">
             <div class="tnode"><div class="avatar sm mgr">${HIRE.managerInitials}</div>
-              <div><div class="tn-name">${HIRE.manager}</div><div class="tn-role">Director, FP&amp;A · your manager</div></div></div>
+              <div><div class="tn-name">${HIRE.manager}</div><div class="tn-role">Your manager, Director of FP&amp;A</div></div></div>
             <div class="tline"></div>
             <div class="tnode you"><div class="avatar sm">${HIRE.initials}</div>
-              <div><div class="tn-name">${HIRE.legalFirst} ${HIRE.legalLast} — you</div><div class="tn-role">${HIRE.role}</div></div></div>
+              <div><div class="tn-name">${HIRE.legalFirst} ${HIRE.legalLast}, you</div><div class="tn-role">${HIRE.role}</div></div></div>
             <div class="tline"></div>
             <div class="peer-row">
               ${PEOPLE.peers.map(p => `
@@ -1520,7 +1556,7 @@ function renderIntro() {
     ${crumbs('Introduce yourself and add your photo')}
     <div class="task-head" data-assume="A-16">
       <h1>Introduce yourself and add your photo ${am('A-16')}</h1>
-      <p class="why">Two things in one place — they both help your team meet you before you arrive, but they go to different
+      <p class="why">Two things in one place. Both help your team meet you before you arrive, but they go to different
       places and have different deadlines, so each completes on its own.</p>
     </div>
     <div class="two-sec">
@@ -1531,8 +1567,8 @@ function renderIntro() {
           ${introDone ? chip('done') : (S.intro.text ? chip('inprogress') : chip('notstarted'))}
         </div>
         <div class="due-line">${ic('calendar.svg','sm')}Due <b>${dueText(dueFor('intro'))}</b> ${am('A-22')}</div>
-        <p style="font-size:13.5px; font-weight:350; margin-bottom:12px;">${HIRE.manager} will share this with the team before you start —
-        so nobody has to write a “please welcome…” post from scratch, and you get to describe yourself in your own words.</p>
+        <p style="font-size:13.5px; font-weight:350; margin-bottom:12px;">${HIRE.manager} will share this with the team before you start,
+        so nobody has to write a “please welcome…” post from scratch and you get to describe yourself in your own words.</p>
 
         <div class="field" style="max-width:none;">
           <textarea rows="5" id="introText" maxlength="500" placeholder="A few lines is plenty…">${esc(S.intro.text)}</textarea>
@@ -1552,7 +1588,7 @@ function renderIntro() {
               : `<div class="avatar sm">${HIRE.initials}</div>`}
             <div class="pv-body">
               <div class="pv-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
-              <div class="pv-sub">${HIRE.role} · starts ${dueText(startDate())}</div>
+              <div class="pv-sub">${HIRE.role}, starts ${dueText(startDate())}</div>
               <div class="pv-text" id="pvText">${S.intro.text ? esc(S.intro.text) : '<span class="pv-empty">Your introduction appears here as you write it.</span>'}</div>
             </div>
           </div>
@@ -1576,7 +1612,7 @@ function renderIntro() {
 
         <div class="mt16" style="display:flex; gap:12px; align-items:center;">
           <button class="btn primary" id="saveIntro" ${S.intro.text.trim()?'':'disabled'}>${introDone?'Update introduction':'Save introduction'}</button>
-          ${S.intro.saved && !S.intro.consent ? `<span style="font-size:12.5px; color:var(--carbon);">Saved — it won’t be shared until you tick the consent box.</span>` : ''}
+          ${S.intro.saved && !S.intro.consent ? `<span style="font-size:12.5px; color:var(--carbon);">Saved. It won’t be shared until you tick the consent box.</span>` : ''}
         </div>
       </div>
 
@@ -1585,16 +1621,16 @@ function renderIntro() {
           <h2>Photo for your badge</h2>
           ${photoDone ? chip('done') : (S.photo.uploaded ? chip('inprogress') : chip('notstarted'))}
         </div>
-        <div class="due-line">${ic('calendar.svg','sm')}Due <b>${dueText(dueFor('photo'))}</b> — earlier than your introduction, because your badge needs print time before Day 1</div>
+        <div class="due-line">${ic('calendar.svg','sm')}Due <b>${dueText(dueFor('photo'))}</b>, earlier than your introduction because your badge needs print time before Day 1</div>
         <p style="font-size:13.5px; font-weight:350; margin-bottom:14px;">Send it now and your badge is printed and waiting for you on Day 1.</p>
 
         ${conv && !S.photo.replacing ? convPhotoBlock() : uploadBlock()}
 
         <div class="divider"></div>
         <div class="req-list" data-assume="A-17">
-          <b>Requirements</b> ${am('A-17')} — JPG or PNG · under 5MB · at least 600×600 pixels<br>
-          <b>Guidelines</b> ${am('A-17')} — plain light background · face the camera with both eyes visible · no hats or sunglasses · taken within the last six months<br>
-          <em style="color:var(--ink-faint)">Placeholder values — the real badge specification comes from the workplace team.</em>
+          <b>Requirements</b> ${am('A-17')}: JPG or PNG, under 5MB, at least 600 by 600 pixels<br>
+          <b>Guidelines</b> ${am('A-17')}: plain light background, face the camera with both eyes visible, no hats or sunglasses, taken within the last six months<br>
+          <em style="color:var(--ink-faint)">Placeholder values. The real badge specification comes from the workplace team.</em>
         </div>
 
         ${(!conv || S.photo.replacing) ? `
@@ -1619,8 +1655,8 @@ function uploadBlock() {
         <div class="crop-guide"></div><div class="crop-ring"></div>
       </div>
       <div>
-        <p style="font-size:13px; font-weight:350; margin-bottom:4px;">The circle shows the badge crop — your face should fill it.</p>
-        ${S.photo.done ? `<span class="verified">${ic('check.svg','sm')}Submitted — your badge will be ready on Day 1</span>` : ''}
+        <p style="font-size:13px; font-weight:350; margin-bottom:4px;">The circle shows the badge crop, so your face should fill it.</p>
+        ${S.photo.done ? `<span class="verified">${ic('check.svg','sm')}Submitted. Your badge will be ready on Day 1</span>` : ''}
         <div class="mt8"><button class="btn secondary sm" id="rechoose">Choose a different photo</button></div>
       </div>
     </div>`;
@@ -1643,11 +1679,11 @@ function convPhotoBlock() {
       </div>
       <div>
         <p style="font-size:13.5px; font-weight:350; margin-bottom:6px;"><b>We already have this photo from your time here.</b><br>
-        If it still looks like you, you’re done — one click.</p>
+        If it still looks like you, you’re done in one click.</p>
         ${S.photo.confirmedExisting
-          ? `<span class="verified">${ic('check.svg','sm')}Confirmed — same photo, same badge</span>`
+          ? `<span class="verified">${ic('check.svg','sm')}Confirmed. Same photo, same badge</span>`
           : `<div style="display:flex; gap:10px;">
-              <button class="btn primary sm" id="confirmExisting">Confirm — still me</button>
+              <button class="btn primary sm" id="confirmExisting">Confirm, still me</button>
               <button class="btn secondary sm" id="replacePhoto">Replace this photo</button>
             </div>`}
       </div>
@@ -1671,7 +1707,7 @@ function renderPolicies() {
       <div class="task-shell">
         <div class="confirm-panel">
           <div class="big-check">${ic('check.svg','xl')}</div>
-          <h2>All ${total} acknowledged — this task is closed.</h2>
+          <h2>All ${total} acknowledged. This task is closed.</h2>
           <p>Each acknowledgement was recorded with the document version and the language you read it in.
           The documents stay available here whenever you want them.</p>
           <button class="btn secondary" data-reopen="policies">Reopen the documents</button>
@@ -1686,22 +1722,22 @@ function renderPolicies() {
     ${crumbs('Policies and privacy notices')}
     <div class="task-head">
       <h1>Policies and privacy notices</h1>
-      <p class="why">The documents we need you to read and acknowledge before you start. About 10 minutes ${am('A-23')} — and you can stop
-      anytime; what you’ve acknowledged stays acknowledged.</p>
+      <p class="why">The documents we need you to read and acknowledge before you start. About 10 minutes ${am('A-23')}, and you can stop
+      any time. What you’ve acknowledged stays acknowledged.</p>
     </div>
     <div class="pol-head">
       <div class="prog-count">
         <div class="nums" style="color:var(--eq-dark-blue)"><span>${acked} of ${total} acknowledged</span></div>
         <div class="prog-bar" style="background:var(--cloud)"><i style="width:${(acked/total)*100}%"></i></div>
       </div>
-      <span class="chip info">${ic('globe.svg','sm')}Served in ${docLanguage()} — set by your country of hire, not by preference ${am('A-03')}</span>
-      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan — your list includes a country addendum</span>` : ''}
+      <span class="chip info">${ic('globe.svg','sm')}Served in ${docLanguage()}, set by your country of hire rather than by preference ${am('A-03')}</span>
+      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan, so your list includes a country addendum</span>` : ''}
     </div>
 
     <div class="doc-list">${DOCS.map(d => docCard(d, jp)).join('')}</div>
 
     <div class="read-group">
-      <div class="section-h"><h2>Also here for you — nothing to sign</h2><span class="hint">Reading material, not tasks</span></div>
+      <div class="section-h"><h2>Also here for you, nothing to sign</h2><span class="hint">Reading material, not tasks</span></div>
       <div class="read-cards">
         <div class="read-card">
           <div class="tic">${ic('file-alt.svg')}</div>
@@ -1717,7 +1753,7 @@ function renderPolicies() {
           <div><b>Task closed</b><p>Everything is acknowledged and recorded. The documents stay readable here.</p></div></div>`
       : `<div class="mt24" style="display:flex; align-items:center; gap:16px;">
           <button class="btn primary" id="submitPolicies" ${acked===total?'':'disabled'}>Submit all acknowledgements</button>
-          <span style="font-size:12.5px; color:var(--carbon);">${acked===total ? 'Everything is acknowledged — one click finishes the task.' : `${total-acked} still to acknowledge before you can submit.`}</span>
+          <span style="font-size:12.5px; color:var(--carbon);">${acked===total ? 'Everything is acknowledged. One click finishes the task.' : `${total-acked} still to acknowledge before you can submit.`}</span>
         </div>`}
   </div>`;
 }
@@ -1738,7 +1774,7 @@ function docCard(d, jp) {
       body = `
       <div class="doc-body">
         ${P.cobcVisited
-          ? `<div class="return-banner">${ic('check-circle.svg')}Welcome back — you opened the Code site, so you can acknowledge below.</div>`
+          ? `<div class="return-banner">${ic('check-circle.svg')}Welcome back. You opened the Code site, so you can acknowledge below.</div>`
           : `<div class="ext-banner">${ic('external-link.svg')}
               <span>This one lives on its own Equinix site, not in the portal. It <b>opens in a new tab</b>, you’ll need your
               <b>Equinix sign-in</b>, and when you’ve read it you come back here to acknowledge.</span></div>
@@ -1752,7 +1788,7 @@ function docCard(d, jp) {
           ${d.hasAddendum && jp
             ? `<p>${FILLER[0]}</p>
                <div class="addendum" data-assume="A-20">
-                 <div class="add-h">${ic('flag.svg','sm')}Japan addendum — applies because your country of hire is Japan ${am('A-20')}</div>
+                 <div class="add-h">${ic('flag.svg','sm')}Japan addendum, which applies because your country of hire is Japan ${am('A-20')}</div>
                  ${JP_ADDENDUM_TEXT}
                </div>
                ${FILLER.slice(1).map(p=>`<p>${p}</p>`).join('')}`
@@ -1789,17 +1825,17 @@ function currentPackCard(jp) {
     <div class="rc-top">
       <div class="tic">${ic('file-alt.svg')}</div>
       <div>
-        <div class="o-name">Employee handbook — ${jp ? 'Japan' : 'United States'}
+        <div class="o-name">Employee handbook, ${jp ? 'Japan' : 'United States'}
           <span class="chip waiting">${pack.total} documents ${am('A-51')}</span></div>
         <div class="o-note">${esc(pack.handbook)}${pack.addenda ? `, plus <b>${pack.addenda} ${pack.addendaNote}</b>` : ''}${pack.extras.length ? `, ${pack.extras.join(' and ')}` : ''}.
-        Reference only — nothing to acknowledge.</div>
+        Reference only. Nothing to acknowledge.</div>
       </div>
     </div>
     ${pack.addenda ? `
     <div class="pack-flag">
       ${ic('exclamation-triangle.svg','sm')}
       <span><b>Shown because it is true today, not because it is right.</b> Every US hire receives all ${pack.addenda} state
-      addenda regardless of where they work — so ${pack.addenda - 1} of them do not apply to you. Across all countries the live
+      addenda regardless of where they work, so ${pack.addenda - 1} of them do not apply to you. Across all countries the live
       process sends 416 document instances. Which of those stay pre-Day 1 is the largest open decision in this workstream. ${am('A-51')}</span>
     </div>` : ''}
   </div>`;
@@ -1808,7 +1844,7 @@ function currentPackCard(jp) {
 function ackRow(d, canAck, acked, lang) {
   if (acked) {
     return `<div class="ack-done">${ic('check-circle.svg')}Acknowledged
-      <span class="rec-note">· Version 3.2 · ${esc(lang)} · recorded</span></div>`;
+      <span class="rec-note">Version 3.2, ${esc(lang)}, recorded</span></div>`;
   }
   return `
   <div class="ack-row">
@@ -1834,28 +1870,28 @@ function renderFlow() {
     { x:95, lbl:'Day 1', sub:'and beyond', major:true },
   ];
   const you = [
-    { x:36, r:22, cls:'you', lbl:'Accessories order', sub:'first · due Day −12' },
-    { x:30, r:72, cls:'you', lbl:'Suggested network', sub:'optional · no due date' },
-    { x:44, r:22, cls:'you', lbl:'Badge photo', sub:'due Day −10 · print lead' },
-    { x:52, r:72, cls:'you', lbl:'Job description', sub:'confirm · due Day −7' },
+    { x:36, r:22, cls:'you', lbl:'Accessories order', sub:'first, due Day −12' },
+    { x:30, r:72, cls:'you', lbl:'Suggested network', sub:'optional, no due date' },
+    { x:44, r:22, cls:'you', lbl:'Badge photo', sub:'due Day −10, print lead' },
+    { x:52, r:72, cls:'you', lbl:'Job description', sub:'confirm, due Day −7' },
     { x:60, r:22, cls:'you', lbl:'Introduce yourself', sub:'due Day −7' },
-    { x:70, r:72, cls:'you', lbl:'Personal details', sub:'3 tabs · due Day −4' },
-    { x:78, r:22, cls:'you', lbl:'Policies pack', sub:'6 documents · due Day −4' },
+    { x:70, r:72, cls:'you', lbl:'Personal details', sub:'3 tabs, due Day −4' },
+    { x:78, r:22, cls:'you', lbl:'Policies pack', sub:'6 documents, due Day −4' },
     { x:95, r:50, cls:'day1', lbl:'Day 1', sub:'badge waiting, kit set' },
   ];
   const later = [
-    { x:22, r:30, cls:'later', lbl:'Right to work', sub:'open now · other system' },
+    { x:22, r:30, cls:'later', lbl:'Right to work', sub:'open now, other system' },
     { x:22, r:74, cls:'later', lbl:'Medical check', sub:'country-conditional' },
     { x:44, r:30, cls:'later', lbl:'Benefits enrolment', sub:'opens Day −30' },
     { x:66, r:74, cls:'later', lbl:'Setup instructions', sub:'Day −3' },
     { x:78, r:74, cls:'later', lbl:'First day details', sub:'Day −3' },
     { x:88, r:30, cls:'later', lbl:'Credentials', sub:'Day −1' },
-    { x:97, r:74, cls:'later', lbl:'Phone · Info governance', sub:'Day 1 · Week 1' },
+    { x:97, r:74, cls:'later', lbl:'Phone, info governance', sub:'Day 1, Week 1' },
   ];
   const other = [
-    { x:26, r:50, cls:'other', lbl:'Background check', sub:'running · no action from you' },
-    { x:48, r:50, cls:'other', lbl:'Computer — your manager', sub:'their task, not yours' },
-    { x:70, r:50, cls:'other', lbl:'Banking — Payroll', sub:'their secure form · no date yet' },
+    { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, no action from you' },
+    { x:48, r:50, cls:'other', lbl:'Computer, your manager', sub:'their task, not yours' },
+    { x:70, r:50, cls:'other', lbl:'Banking, Payroll', sub:'their secure form, no date yet' },
     { x:88, r:50, cls:'other', lbl:'Badge printed', sub:'24h lead after your photo' },
   ];
   const lane = (title, icon, nodes, cls='', h=120) => `
@@ -1870,7 +1906,7 @@ function renderFlow() {
   <div class="page flow-page">
     ${crumbs('The whole flow on one screen')}
     <h1>Pre-Day 1, end to end</h1>
-    <p class="flow-sub">Everything between accepting the offer and walking in on Day 1 — what ${HIRE.preferred} does, what opens later,
+    <p class="flow-sub">Everything between accepting the offer and walking in on Day 1: what ${HIRE.preferred} does, what opens later,
     and what other teams handle. This is the review screen: argue with the shape here, not in the individual pages.</p>
 
     <div class="phase-band">
@@ -1884,17 +1920,17 @@ function renderFlow() {
         ${axis.map(a => `<div class="axis-pt ${a.major?'major':''}" style="left:${a.x}%"><div class="apt-dot"></div>
           <div class="apt-lbl">${a.lbl}</div><div class="apt-sub">${a.sub}</div></div>`).join('')}
       </div>
-      ${lane(`What ${HIRE.preferred} does in this portal — “Do these now”`, 'user-circle.svg', you, '', 130)}
-      ${lane('Open elsewhere, or opens later — visible so the list has an end', 'clock.svg', later, '', 130)}
-      ${lane('Handled by other teams — visible, never actioned here', 'users-friends.svg', other, 'other', 100)}
+      ${lane(`What ${HIRE.preferred} does in this portal, under “Do these now”`, 'user-circle.svg', you, '', 130)}
+      ${lane('Open elsewhere, or opens later, visible so the list has an end', 'clock.svg', later, '', 130)}
+      ${lane('Handled by other teams, visible but never actioned here', 'users-friends.svg', other, 'other', 100)}
       <div class="flow-legend">
         <span class="lg-item"><span class="lg-swatch you"></span>Your tasks, in this portal</span>
         <span class="lg-item"><span class="lg-swatch later"></span>Elsewhere or not yet open</span>
-        <span class="lg-item"><span class="lg-swatch other"></span>Other teams — status only</span>
+        <span class="lg-item"><span class="lg-swatch other"></span>Other teams, status only</span>
         <span class="lg-item">${am('A-33')} ${am('A-40')} ${am('A-11')} timing and ownership carry assumptions</span>
       </div>
-      <div class="flow-foot">${ic('info-circle.svg','sm')}<b>More to-dos are assigned after Day 1.</b> This diagram deliberately
-      stops at the start date — the live portal continues through first week and first month. ${am('A-48')}</div>
+      <div class="flow-foot">${ic('info-circle.svg','sm')}<b>More to-dos are assigned after Day 1.</b> This diagram
+      stops at the start date. The live portal carries on through the first week and the first month. ${am('A-48')}</div>
     </div>
   </div>`;
 }
@@ -1912,15 +1948,15 @@ function renderShell() {
   $('#hdrYou').innerHTML = hm
     ? `<div>
          <div class="who">${MANAGER.name}</div>
-         <div class="when">${MANAGER.role} · ${HIRES.length} incoming hires</div>
+         <div class="when">${MANAGER.role}, ${HIRES.length} incoming hires</div>
        </div>
        <div class="avatar mgr">${MANAGER.initials}</div>`
     : `<div>
          <div class="who">${esc(HIRE.preferred)} ${esc(HIRE.legalLast)}</div>
-         <div class="when">Starts <b>${startDateText()}</b> · ${daysToStart()} days to go</div>
+         <div class="when">Starts <b>${startDateText()}</b>, ${daysToStart()} days to go</div>
        </div>
        <div class="avatar">${HIRE.initials}</div>`;
-  $('#hdrSub').textContent = hm ? 'Hiring manager · before Day 1' : 'Your onboarding — before Day 1';
+  $('#hdrSub').textContent = hm ? 'Hiring manager, before Day 1' : 'Your onboarding, before Day 1';
   const live = ASSUMPTIONS.filter(a => a.group !== 'retired').length;
   $('#rbAssume').textContent = `${live} assumptions marked`;
   $$('#viewSwitch .vs').forEach(b => b.classList.toggle('on', (b.dataset.view === 'hm') === hm));
@@ -1939,7 +1975,7 @@ function renderAssumptions(highlightId) {
   const shown = panelSide === 'all' ? all : all.filter(a => a.side === panelSide);
 
   $('#assumeBody').innerHTML = `
-    <div class="panel-note">Where this prototype rests on an assumption rather than a confirmed requirement, the element
+    <div class="panel-note">Where this prototype rests on an assumption instead of a confirmed requirement, the element
     carries a marker like ${am('A-04')}. <b>${live} are marked on screen</b>, out of ${all.length} in the register,
     across both portals. Every entry says where it came from.</div>
 
@@ -1958,7 +1994,7 @@ function renderAssumptions(highlightId) {
       const list = shown.filter(a => a.group===g);
       if (!list.length) return '';
       return `
-      <div class="ag-h ${g==='retired'?'ret':''}">${GROUP_LABELS[g].label} <span class="cnt">· ${list.length} — ${GROUP_LABELS[g].hint}</span></div>
+      <div class="ag-h ${g==='retired'?'ret':''}">${GROUP_LABELS[g].label} <span class="cnt">${list.length}. ${GROUP_LABELS[g].hint}</span></div>
       ${list.map(a => `
         <div class="a-entry ${g==='retired'?'retired':''} ${a.id===highlightId?'hl':''}" data-aentry="${a.id}" id="ae-${a.id}">
           <div class="a-top">
@@ -1966,24 +2002,24 @@ function renderAssumptions(highlightId) {
             <span class="prov ${a.prov.replace(':','')}" title="${PROV_LABELS[a.prov]}">${a.prov}</span>
             <span class="side-tag ${a.side}">${SIDE_LABELS[a.side].label}</span>
             <span class="a-screen">${a.screen}</span>
-            <span class="a-oi">${a.oi !== '—' ? a.oi : ''}</span>
+            <span class="a-oi">${a.oi || ''}</span>
           </div>
           <div class="a-text">${a.assumed}</div>
           <div class="a-resolve"><b>${g==='retired' ? 'What changed:' : 'To resolve:'}</b> ${a.resolve}</div>
-          ${a.nolink ? '<div class="nolink">Global assumption — nothing on screen to highlight.</div>' : ''}
+          ${a.nolink ? '<div class="nolink">Global assumption. Nothing on screen to highlight.</div>' : ''}
         </div>`).join('')}`;
     }).join('')}
 
     ${panelSide === 'all' || panelSide === 'nh' ? `
-    <div class="ag-h">Also closed by observation <span class="cnt">· workbook items</span></div>
+    <div class="ag-h">Also closed by observation <span class="cnt">workbook items</span></div>
     <div class="a-entry retired">
-      <div class="a-text"><b>OI-28</b> — equipment address dependency, and the equipment confirmation gate. Both closed:
+      <div class="a-text"><b>OI-28</b>, the equipment address dependency and the equipment confirmation gate. Both closed:
       shipping defaults to the office address, and no one operates the role-and-location gate.</div>
-      <div class="a-resolve"><b>And:</b> the “false floor” concern is answered by one line of live copy —
+      <div class="a-resolve"><b>And:</b> the “false floor” concern is answered by one line of live copy,
       <i>“More to-dos may be assigned later.”</i></div>
     </div>` : ''}
 
-    <div class="ag-h">Open before build <span class="cnt">· ${OPEN_BEFORE_BUILD.length + HM_OPEN_BEFORE_BUILD.length} questions, no marker</span></div>
+    <div class="ag-h">Open before build <span class="cnt">${OPEN_BEFORE_BUILD.length + HM_OPEN_BEFORE_BUILD.length} questions, no marker</span></div>
     ${panelSide === 'all' || panelSide === 'nh' ? `
       <div class="obb-h">New hire side</div>
       <ol class="obb">${OPEN_BEFORE_BUILD.map(q => `<li>${q}</li>`).join('')}</ol>` : ''}
@@ -1992,16 +2028,16 @@ function renderAssumptions(highlightId) {
       <ol class="obb">${HM_OPEN_BEFORE_BUILD.map(q => `<li>${q}</li>`).join('')}</ol>` : ''}
 
     ${panelSide === 'all' || panelSide === 'hm' ? `
-    <div class="ag-h">Source integrity <span class="cnt">· problems in the workbook itself</span></div>
+    <div class="ag-h">Source integrity <span class="cnt">problems in the workbook itself</span></div>
     <ol class="obb">
       <li><b>The master inventory is missing a manager task.</b> The master tab holds 67 rows; the phase tabs hold 68.
       The missing one is a manager task, and the file’s own phase summary agrees with the phase tab, not the master.</li>
       <li><b>Sequence numbers diverge by one from 34 onward.</b> The same number refers to different tasks depending on
-      which tab you read — one of the two candidates is a manager task, the other a new hire survey. If that number is
+      which tab you read. One of the two candidates is a manager task, the other a new hire survey. If that number is
       used as a build key, tasks will be mismatched.</li>
       <li><b>The corporate card row is truncated.</b> Seven attributes are blank where every other row in the tab is complete.</li>
-      <li><b>Label drift on the equipment task</b> — “accessories” in one tab, “access” in another. Different scopes, so
-      the drift sits on top of a real question rather than being only a typo.</li>
+      <li><b>Label drift on the equipment task</b>: “accessories” in one tab, “access” in another. Different scopes, so
+      the drift sits on top of a real question, not only a typo.</li>
     </ol>` : ''}`;
 
   if (highlightId) {
@@ -2025,16 +2061,16 @@ function closePanels() {
 
 /* ---------- chat panel ---------- */
 const CHAT_ANSWERS = {
-  'When does my equipment arrive?': 'Your accessories ship after you order them — that’s the first task on your list. Your computer is ordered by Priya, your manager, and the status table on that task shows exactly what each item is waiting on.',
-  'Why is my laptop not on my list?': 'Because today your manager orders it, not you. The equipment task shows its status so you can see it’s moving — but the action sits with Priya.',
-  'What if I can’t finish a task in time?': 'Nothing breaks — the task stays open and Maya gets a heads-up so she can help. If a date is genuinely a problem, message her directly and it gets sorted.',
+  'When does my equipment arrive?': 'Your accessories ship once you order them, which is the first task on your list. Your computer is ordered by Priya, your manager, and the status table on that task shows exactly what each item is waiting on.',
+  'Why is my laptop not on my list?': 'Because today your manager orders it, not you. The equipment task shows its status so you can see it moving, but the action sits with Priya.',
+  'What if I can’t finish a task in time?': 'Nothing breaks. The task stays open and Maya gets a nudge so she can help. If a date is a real problem, message her and it gets sorted.',
   'Who sees my emergency contact?': 'Only the people who would need it in an emergency. It’s never shared with your team or your manager.',
-  'When do I hear about pay and banking?': 'Payroll runs that separately, in their own secure form — they’ll contact you directly. It never goes through this portal.',
+  'When do I hear about pay and banking?': 'Payroll runs that separately, in their own secure form, and they’ll contact you directly. It never goes through this portal.',
 };
 function renderChat() {
   $('#chatBody').innerHTML = `
     <div class="chat-msgs" id="chatMsgs">
-      <div class="msg bot">Hi ${esc(HIRE.preferred)} — I’m the onboarding assistant. I can answer questions about your tasks,
+      <div class="msg bot">Hi ${esc(HIRE.preferred)}. I’m the onboarding assistant. I can answer questions about your tasks,
       dates and who to contact. What can I help with?</div>
     </div>
     <div class="chat-quick">
@@ -2045,7 +2081,7 @@ function chatAsk(q) {
   const msgs = $('#chatMsgs');
   msgs.insertAdjacentHTML('beforeend', `<div class="msg me">${esc(q)}</div>`);
   setTimeout(() => {
-    msgs.insertAdjacentHTML('beforeend', `<div class="msg bot">${CHAT_ANSWERS[q] || 'That one needs a human — I’ve flagged it to Maya Chen, who’ll come back to you by email. (Prototype: canned response.)'}</div>`);
+    msgs.insertAdjacentHTML('beforeend', `<div class="msg bot">${CHAT_ANSWERS[q] || 'That one needs a human, so I’ve passed it to Maya Chen. She’ll come back to you by email. (Prototype: canned response.)'}</div>`);
     msgs.parentElement.scrollTop = msgs.parentElement.scrollHeight;
   }, 350);
 }
@@ -2054,7 +2090,7 @@ function chatAsk(q) {
 function renderProtoDrawer() {
   $('#protoDrawer').innerHTML = `
     <h3>${ic('exclamation-triangle.svg','sm')}Prototype controls</h3>
-    <div class="warn-line">A prototype device — none of this exists in the real product. Clock is fixed at ${fmtDate(simToday())}.</div>
+    <div class="warn-line">A prototype device. None of this exists in the real product. Clock is fixed at ${fmtDate(simToday())}.</div>
     <div class="pc-h">Persona</div>
     <div class="pc-row">
       <button class="pc-btn ${S.persona==='external'?'on':''}" data-pc="persona:external">External new hire</button>
@@ -2085,10 +2121,10 @@ function renderProtoDrawer() {
     </div>
     <div class="pc-h">Review screens</div>
     <div class="pc-links">
-      <a data-goto="#/handoffs">${ic('users-connected.svg','sm')} How the two portals connect — 9 handoffs</a>
-      <a data-goto="#/hm/subtraction">${ic('list-tasks.svg','sm')} The subtraction review — manager side</a>
-      <a data-goto="#/flow">${ic('rocket.svg','sm')} Flow overview — the new hire journey</a>
-      <a data-openassume="1">${ic('question-circle.svg','sm')} Assumptions &amp; gaps — ${ASSUMPTIONS.length} entries</a>
+      <a data-goto="#/handoffs">${ic('users-connected.svg','sm')} How the two portals connect, 9 handoffs</a>
+      <a data-goto="#/hm/subtraction">${ic('list-tasks.svg','sm')} The subtraction review, manager side</a>
+      <a data-goto="#/flow">${ic('rocket.svg','sm')} Flow overview, the new hire journey</a>
+      <a data-openassume="1">${ic('question-circle.svg','sm')} Assumptions &amp; gaps, ${ASSUMPTIONS.length} entries</a>
     </div>`;
 }
 
@@ -2115,14 +2151,14 @@ function applyScenario(name) {
     S.hm.card.needed = true;
     S.hm.buddy = { assigned:'nina', notified:true };
     S.hm.contactConfirmed = true;
-    Object.assign(S.hm.logistics, { confirmed:true, whereToBe:'9:00, main reception — ask for me at the desk', available:true });
+    Object.assign(S.hm.logistics, { confirmed:true, whereToBe:'9:00, main reception. Ask for me at the desk', available:true });
   };
   const hmComplete = () => {
     hmPartial(); namePeople();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
     S.hm.software = { confirmed:true, added:['Anaplan','Tableau','Power BI'] };
     S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true, itSetup:true } };
-    S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team — shout if anything is unclear before the 18th.' };
+    S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team. Shout if anything is unclear before the 18th.' };
     S.hm.channels.accepted = true;
   };
 
@@ -2137,7 +2173,7 @@ function applyScenario(name) {
     S.equipment.choice = 'more'; S.equipment.items = { monitor:true };
     S.policies.acked = { aup:true, edpn:true };
     S.policies.read = { aup:true, edpn:true };
-    S.intro.text = 'I’m Jordan — joining the FP&A team from a fintech in Denver. Outside work you’ll usually find me on a trail or attempting sourdough.';
+    S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.network.booked = { 0: slotsFor(0)[0] };
   }
   if (name === 'review') {
@@ -2145,14 +2181,14 @@ function applyScenario(name) {
     S.startdate.confirmed = true; S.bgcheck.launched = true;
     equipComplete(); hmPartial(); namePeople();
     S.jd.state = 'review'; S.jd.dissent = true;
-    S.jd.dissentText = 'The role we discussed was hybrid, two days in office — the summary says something different.';
+    S.jd.dissentText = 'The role we discussed was hybrid, two days in office. The summary says something different.';
   }
   if (name === 'complete') {
     fillDetails(); S.details.submitted = true;
     S.startdate.confirmed = true; S.bgcheck.launched = true;
     equipComplete(); hmComplete();
     S.jd.state = 'done'; S.jd.scrolled = true; S.jd.acked = true;
-    S.intro.text = 'I’m Jordan — joining the FP&A team from a fintech in Denver. I’ll be picking up the forecast for the Americas portfolios. Outside work you’ll usually find me on a trail or attempting sourdough.';
+    S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. I’ll be picking up the forecast for the Americas portfolios. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.intro.consent = true; S.intro.saved = true; S.intro.done = true;
     if (persona === 'conversion') { S.photo.confirmedExisting = true; }
     else { S.photo.uploaded = true; S.photo.consent = true; S.photo.done = true; S.photo.dataUrl = PLACEHOLDER_PHOTO; }
@@ -2262,7 +2298,7 @@ function bindStartDate() {
   const c = $('#sdConfirm');
   if (c) c.addEventListener('click', () => {
     D.confirmed = true; save(); rerender();
-    toast('Start date confirmed — every other due date is set from it.', 'check-circle.svg');
+    toast('Start date confirmed. Every other due date is set from it.', 'check-circle.svg');
   });
   const ch = $('#sdChange');
   if (ch) ch.addEventListener('click', () => {
@@ -2343,7 +2379,7 @@ function bindDetails() {
   }
 }
 function acceptId(file) {
-  if (file.size > 10 * 1024 * 1024) { toast('That file is over 10MB — a smaller one, please.'); return; }
+  if (file.size > 10 * 1024 * 1024) { toast('That file is over 10MB. Try a smaller one.'); return; }
   S.details.data.idFileName = file.name;
   S.details.data._touched = true;
   save(); rerender();
@@ -2392,7 +2428,7 @@ function bindEquipment() {
   const sub = $('#eqSubmit');
   if (sub) sub.addEventListener('click', () => {
     S.equipment.submitted = true; save(); rerender();
-    toast('Order submitted — incident INC6369627 raised with Global Helpdesk Tier 2.', 'check-circle.svg');
+    toast('Order submitted. Incident INC6369627 raised with Global Helpdesk Tier 2.', 'check-circle.svg');
   });
   const send = $('#incSend');
   if (send) send.addEventListener('click', () => {
@@ -2434,7 +2470,7 @@ function bindJD() {
   const confirm = $('#jdConfirm');
   if (confirm) confirm.addEventListener('click', () => {
     S.jd.state = 'done'; save(); rerender();
-    toast('Role confirmed — task complete.', 'check-circle.svg');
+    toast('Role confirmed. Task complete.', 'check-circle.svg');
   });
   const dis = $('#jdDissent');
   if (dis) dis.addEventListener('click', () => {
@@ -2451,7 +2487,7 @@ function bindJD() {
   const send = $('#dissentSend');
   if (send) send.addEventListener('click', () => {
     S.jd.state = 'review'; S.jd.dissent = true; save(); rerender();
-    toast('Sent to Recruiting — they’ll be in touch within 2 working days.');
+    toast('Sent to Recruiting. They’ll be in touch within 2 working days.');
   });
   const cancel = $('#dissentCancel');
   if (cancel) cancel.addEventListener('click', () => { rerender(); });
@@ -2479,7 +2515,7 @@ function bindIntro() {
       $('#introText').value = next; S.intro.text = next; save();
       $('#introText').dispatchEvent(new Event('input'));
       $('#introText').focus();
-    } else toast('Not enough room left for that prompt — 500 characters max.');
+    } else toast('Not enough room left for that prompt. 500 characters max.');
   }));
   $$('[data-chipx]').forEach(x => x.addEventListener('click', e => {
     e.stopPropagation();
@@ -2498,7 +2534,7 @@ function bindIntro() {
     S.intro.saved = true;
     S.intro.done = S.intro.consent && !!S.intro.text.trim();
     save(); rerender();
-    toast(S.intro.consent ? 'Introduction saved — Priya can share it when she’s ready.' : 'Saved. It won’t be shared until you tick the consent box.', 'check-circle.svg');
+    toast(S.intro.consent ? 'Introduction saved. Priya can share it when she’s ready.' : 'Saved. It won’t be shared until you tick the consent box.', 'check-circle.svg');
   });
 
   const dz = $('#dropzone');
@@ -2526,19 +2562,19 @@ function bindIntro() {
   const sp = $('#submitPhoto');
   if (sp) sp.addEventListener('click', () => {
     S.photo.done = true; save(); rerender();
-    toast('Photo submitted — your badge will be printed and waiting on Day 1.', 'check-circle.svg');
+    toast('Photo submitted. Your badge will be printed and waiting on Day 1.', 'check-circle.svg');
   });
   const ce = $('#confirmExisting');
   if (ce) ce.addEventListener('click', () => {
     S.photo.confirmedExisting = true; save(); rerender();
-    toast('Confirmed — same photo, same badge.', 'check-circle.svg');
+    toast('Confirmed. Same photo, same badge.', 'check-circle.svg');
   });
   const rp = $('#replacePhoto');
   if (rp) rp.addEventListener('click', () => { S.photo.replacing = true; save(); rerender(); });
 }
 function loadPhoto(file) {
   if (!/^image\/(jpeg|png)$/.test(file.type)) { toast('JPG or PNG only, please.'); return; }
-  if (file.size > 5 * 1024 * 1024) { toast('That file is over 5MB — a smaller one, please.'); return; }
+  if (file.size > 5 * 1024 * 1024) { toast('That file is over 5MB. Try a smaller one.'); return; }
   const r = new FileReader();
   r.onload = () => { S.photo.uploaded = true; S.photo.dataUrl = r.result; save(); rerender(); };
   r.readAsDataURL(file);
@@ -2568,13 +2604,13 @@ function bindPolicies() {
   }));
   const cobc = $('[data-cobc]');
   if (cobc) cobc.addEventListener('click', () => {
-    toast('Opening codeofbusinessconduct.equinix.com in a new tab (simulated — you’d sign in with your Equinix account).', 'external-link.svg');
+    toast('Opening codeofbusinessconduct.equinix.com in a new tab (simulated, so in the real thing you’d sign in with your Equinix account).', 'external-link.svg');
     setTimeout(() => { S.policies.cobcVisited = true; save(); rerender(); }, 1400);
   });
   const sub = $('#submitPolicies');
   if (sub) sub.addEventListener('click', () => {
     S.policies.submitted = true; save(); rerender();
-    toast('All acknowledgements recorded — task complete.', 'check-circle.svg');
+    toast('All acknowledgements recorded. Task complete.', 'check-circle.svg');
   });
 }
 
@@ -2643,16 +2679,16 @@ document.addEventListener('click', e => {
   const ext = t.closest('[data-ext]');
   if (ext) {
     const which = ext.dataset.ext;
-    toast(which === 'rtw' ? 'This opens the Right to Work system — a separate, country-specific task, not built in this prototype.'
-      : which === 'medical' ? 'This would open the medical-check booking flow. Not built — what it involves is still being confirmed.'
-      : 'This opens another Equinix system — not part of this prototype.', 'external-link.svg');
+    toast(which === 'rtw' ? 'This opens the Right to Work system, a separate country-specific task that isn’t built in this prototype.'
+      : which === 'medical' ? 'This would open the medical-check booking flow. Not built, because what it involves is still being confirmed.'
+      : 'This opens another Equinix system, which is not part of this prototype.', 'external-link.svg');
     return;
   }
 
   if (t.closest('[data-countryquery]')) {
     e.preventDefault();
     S.details.queryRaised = true; save(); rerender();
-    toast('Query raised with Maya — the field stays as it is until we’ve checked.', 'check-circle.svg');
+    toast('Query raised with Maya. The field stays as it is until we’ve checked.', 'check-circle.svg');
     return;
   }
   if (t.closest('[data-removeid]')) {
@@ -2668,7 +2704,7 @@ document.addEventListener('click', e => {
   const book = t.closest('[data-book]');
   if (book) {
     S.network.booked[book.dataset.book] = book.dataset.slot; save(); rerender();
-    toast(`1:1 booked — ${NETWORK_POOL[book.dataset.book].name}, ${book.dataset.slot}. They already know you’re starting.`, 'check-circle.svg');
+    toast(`1:1 booked with ${NETWORK_POOL[book.dataset.book].name}, ${book.dataset.slot}. They already know you’re starting.`, 'check-circle.svg');
     return;
   }
   const unbook = t.closest('[data-unbook]');
@@ -2686,7 +2722,7 @@ document.addEventListener('click', e => {
   if (t.closest('#submitDetails')) {
     if (!requiredFields().filter(f => !validField(f)).length) {
       S.details.submitted = true; save(); rerender();
-      toast('Details submitted — your record is set up.', 'check-circle.svg');
+      toast('Details submitted. Your record is set up.', 'check-circle.svg');
     }
     return;
   }

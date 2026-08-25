@@ -1,27 +1,27 @@
 /* ============================================================
-   Data — content, copy, and the assumption register.  v2
+   Data: content, copy, and the assumption register.  v3
    Everything here is prototype content. Placeholder text is
    marked with an assumption ID and listed in the register.
 
    v2 provenance tags on every register entry:
-     UAT     — seen working in the live ServiceNow UAT portal
-     1:1     — stated by the platform owner, sourced but not seen
-     PRIOR   — from the earlier change request, already agreed
-     ASSUMED — still a judgement call
+     UAT      seen working in the live ServiceNow UAT portal
+     1:1      stated by the platform owner, sourced but not seen
+     PRIOR    from the earlier change request, already agreed
+     ASSUMED  still a judgement call
    ============================================================ */
 
 const SIM = {
   // The prototype runs against a fixed "today" so dates are stable.
   today: new Date(2026, 7, 4),          // 4 August 2026
-  start2wk: new Date(2026, 7, 18),      // 18 August 2026 — the short runway
-  start3mo: new Date(2026, 10, 3),      // 3 November 2026 — the long runway (A-45)
+  start2wk: new Date(2026, 7, 18),      // 18 August 2026, the short runway
+  start3mo: new Date(2026, 10, 3),      // 3 November 2026, the long runway (A-45)
 };
 
 /* Due dates as offsets from the start date, so both runways work (A-45). */
 const DUE_OFFSETS = {
   startdate: -14,   // triggered at offer acceptance (A-49)
   bgcheck: -13,     // launched from the portal, runs externally (A-50)
-  equipment: -12,   // earliest of the provisioning tasks — build and ship lead (A-33)
+  equipment: -12,   // earliest of the provisioning tasks, build and ship lead (A-33)
   photo: -10,       // badge print lead
   jd: -7,
   intro: -7,
@@ -33,7 +33,7 @@ const HIRE = {
   legalFirst: 'Jordan', legalLast: 'Reyes', preferred: 'Jordan',
   initials: 'JR',
   role: 'Senior Financial Analyst',
-  dept: 'Finance — Global FP&A',
+  dept: 'Finance, Global FP&A',
   manager: 'Priya Anand',
   managerInitials: 'PA',
   location: 'Denver, Colorado',
@@ -50,10 +50,10 @@ const HIRE = {
 const PEOPLE = {
   pex: { name: 'Maya Chen', role: 'People Experience coordinator', initials: 'MC', cls: 'pex' },
   recruiter: { name: 'Daniel Okafor', role: 'Recruiter', initials: 'DO', cls: 'rec' },
-  manager: { name: 'Priya Anand', role: 'Director, FP&A · your manager', initials: 'PA', cls: 'mgr' },
+  manager: { name: 'Priya Anand', role: 'Your manager, Director of FP&A', initials: 'PA', cls: 'mgr' },
   buddy: {
-    name: 'Nina Kowalski', role: 'Senior Financial Analyst · your onboarding buddy',
-    initials: 'NK', cls: 'buddy', tz: 'Chicago (CT) — an hour ahead of you',
+    name: 'Nina Kowalski', role: 'Your onboarding buddy, Senior Financial Analyst',
+    initials: 'NK', cls: 'buddy', tz: 'Chicago (CT), an hour ahead of you',
     assignedBy: 'Chosen by Priya Anand when your start date was confirmed.',
   },
   peers: [
@@ -73,17 +73,17 @@ const PHASES = [
 ];
 
 /* ============================================================
-   Assumption register — 47 entries.
+   Assumption register. 82 entries across both portals.
    A-01…A-28 carried from v1 unchanged in numbering.
-   A-29…A-46 and A-48 are new in v2 (A-47 deliberately unused,
+   A-29…A-46 and A-48 are new in v2 (A-47 left unused on purpose,
    reserved for the IBX badge question if it needs its own entry).
-   A-09 is RETIRED — observation answered it.
+   A-09 is retired. Observation answered it.
    ============================================================ */
 const ASSUMPTIONS = [
   /* ---------- Blocks build ---------- */
   { id:'A-01', group:'blocks', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'Pre-filled fields are legal name, personal email, mobile and country of hire. Everything else arrives blank.',
-    resolve:'Confirm the candidate-attested field list with DIO and HR Ops — it is most of the visual difference on Tab 1.', oi:'OI-20' },
+    resolve:'Confirm the candidate-attested field list with DIO and HR Ops. It accounts for most of the visual difference on Tab 1.', oi:'OI-20' },
   { id:'A-02', group:'blocks', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'Tab 3 holds preferred language, contact preferences, workplace adjustments and voluntary self-identification.',
     resolve:'The PRD names only two of the three tabs. Tab 3 contents need a decision from the onboarding PM with HR Ops.', oi:'OI-02' },
@@ -92,28 +92,28 @@ const ASSUMPTIONS = [
     resolve:'Confirm whether this form belongs to this workstream or the payroll team. If ownership lands elsewhere, this becomes an interface spec.', oi:'OI-01' },
   { id:'A-12', group:'blocks', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'No compensation figures are shown anywhere in the portal.',
-    resolve:'Confirm the manager-visibility ruling on sensitive data. Omitting salary is the conservative default — it is already in the signed offer.', oi:'OI-10' },
+    resolve:'Confirm the manager-visibility ruling on sensitive data. Omitting salary is the safe default. The figure is already in the signed offer.', oi:'OI-10' },
   { id:'A-14', group:'blocks', prov:'ASSUMED', screen:'Introduction', route:'#/intro',
     assumed:'The manager forwards the introduction to the team. It is never auto-posted.',
     resolve:'Confirm the sharing model with Janine. Auto-posting would need much stronger consent design.', oi:'OI-11' },
   { id:'A-29', group:'blocks', prov:'PRIOR', screen:'Personal details', route:'#/details',
     assumed:'Identity and right-to-work documents are captured here, on Tab 1, alongside country of hire.',
-    resolve:'This overlaps the separate Right to Work task. Capturing once is a proposal, not an agreed design — the PEX document-sequencing work may already settle which documents come early and which come late.', oi:'—' },
+    resolve:'This overlaps the separate Right to Work task. Capturing once is a proposal, not an agreed design. The PEX document-sequencing work may already settle which documents come early and which come late.', oi:'' },
   { id:'A-34', group:'blocks', prov:'ASSUMED', screen:'Equipment', route:'#/equipment',
     assumed:'This equipment screen is a scoped stand-in for a catalogue owned elsewhere.',
-    resolve:'The real catalogue, its options and its regional variants belong to the EUT team. Confirm what this workstream owns before anyone builds from this screen.', oi:'—' },
+    resolve:'The real catalogue, its options and its regional variants belong to the EUT team. Confirm what this workstream owns before anyone builds from this screen.', oi:'' },
   { id:'A-41', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The hiring manager orders the computer today; the new hire orders accessories only.',
-    resolve:'The target design reverses this — new hire selects, manager confirms. That is a change to what a manager does, and it may already be settled inside the laptop-and-accessory MVP. Decide who leads before either screen is built.', oi:'—' },
+    resolve:'The target design reverses this: new hire selects, manager confirms. That changes what a manager does, and the laptop-and-accessory MVP may have settled it already. Decide who leads before either screen is built.', oi:'' },
   { id:'A-42', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
-    assumed:'The accessories order creates an incident to Global Helpdesk Tier 2, with a CSV attached and an open comment thread — not a request item.',
-    resolve:'The earlier spec assumed RITMs throughout. Amendment-by-comment is observed real behaviour: either support it with an explicit “change my order” path or route amendments somewhere better.', oi:'—' },
+    assumed:'The accessories order creates an incident to Global Helpdesk Tier 2, with a CSV attached and an open comment thread. It is not a request item.',
+    resolve:'The earlier spec assumed RITMs throughout. Amendment by comment is what people actually do. Either support it with a proper “change my order” path, or route amendments somewhere better.', oi:'' },
   { id:'A-43', group:'blocks', prov:'1:1', screen:'Suggested network', route:'#/network',
     assumed:'The manager names at least five people outside the reporting line, writes why each matters, each is notified, and the new hire gets the list plus suggested 1:1 times.',
-    resolve:'Does not exist today. Needs a new manager task, a notification, and a booking integration — and it may belong at Day 1 rather than pre-Day 1. It is not the org chart and not the buddy; keep all three separate.', oi:'—' },
+    resolve:'Does not exist today. It needs a new manager task, a notification and a booking integration, and it may belong at Day 1 instead of pre-Day 1. It is neither the org chart nor the buddy, so keep all three separate.', oi:'' },
   { id:'A-48', group:'blocks', prov:'UAT', screen:'All screens', route:'#/',
-    assumed:'The prototype is a single page. The live platform is two levels — a MyHR hub (carousel, videos, countdown, culture links) and a separate task portal you click into.',
-    resolve:'Declared rather than silently diverged. Decide whether to adopt the split: it changes navigation, the progress model, and where the culture content lives.', oi:'—' },
+    assumed:'The prototype is a single page. The live platform is two levels: a MyHR hub (carousel, videos, countdown, culture links) and a separate task portal you click into.',
+    resolve:'Declared, not silently diverged. Decide whether to adopt the split, because it changes navigation, the progress model and where the culture content lives.', oi:'' },
 
   /* ---------- Content needed ---------- */
   { id:'A-03', group:'content', prov:'PRD', screen:'Personal details / Compliance pack', route:'#/policies',
@@ -127,34 +127,34 @@ const ASSUMPTIONS = [
     resolve:'The interaction pattern is standard; the categories are country-specific and regulatory. PEX and Privacy need to supply the real country list and categories.', oi:'OI-22' },
   { id:'A-13', group:'content', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'The job description text and the three-level team view are plausible placeholders.',
-    resolve:'Real job description content and the org-chart delivery mechanism are needed before build.', oi:'—' },
+    resolve:'Real job description content and the org-chart delivery mechanism are needed before build.', oi:'' },
   { id:'A-17', group:'content', prov:'ASSUMED', screen:'Badge photo', route:'#/intro',
-    assumed:'JPG/PNG, under 5MB, at least 600×600 px, plus four guideline lines — all conventional values.',
+    assumed:'JPG/PNG, under 5MB, at least 600 by 600 px, plus four guideline lines. All conventional values.',
     resolve:'Replace with the real badge specification from the workplace team before build. Printing to the wrong spec is a Day 1 failure.', oi:'OI-13' },
   { id:'A-19', group:'content', prov:'ASSUMED', screen:'Compliance pack', route:'#/policies',
     assumed:'The Securities Trading Policy requires an acknowledgement.',
-    resolve:'Its acknowledgement cell is blank in the commonality workbook. Legal needs to confirm — a missing acknowledgement is a compliance gap.', oi:'OI-06' },
+    resolve:'Its acknowledgement cell is blank in the commonality workbook. Legal needs to confirm. A missing acknowledgement is a compliance gap.', oi:'OI-06' },
   { id:'A-20', group:'content', prov:'ASSUMED', screen:'Compliance pack', route:'#/policies',
     assumed:'Japan is shown as the country-addendum example on the Acceptable Use Policy.',
-    resolve:'Candidate addendum countries are Japan, Korea and France — all pending legal review. The mechanism is the point, not the content.', oi:'OI-08' },
+    resolve:'Candidate addendum countries are Japan, Korea and France, all pending legal review. The mechanism is the point here, not the content.', oi:'OI-08' },
   { id:'A-22', group:'content', prov:'ASSUMED', screen:'Task list', route:'#/',
     assumed:'The job description confirmation and the introduction are due at Day −7.',
-    resolve:'Neither has a due date in any source. Day −7 puts them before the manager needs the introduction for a team announcement.', oi:'—' },
+    resolve:'Neither has a due date in any source. Day −7 puts them before the manager needs the introduction for a team announcement.', oi:'' },
   { id:'A-23', group:'content', prov:'ASSUMED', screen:'Task list', route:'#/',
-    assumed:'Estimated completion times of 2–6 minutes per task.',
-    resolve:'Invented, to test whether time estimates help or intimidate. Worth measuring rather than guessing.', oi:'—' },
+    assumed:'Estimated completion times of 2 to 6 minutes per task.',
+    resolve:'Invented, to test whether time estimates help or intimidate. Measure it before build.', oi:'' },
   { id:'A-30', group:'content', prov:'PRIOR', screen:'Personal details', route:'#/details',
     assumed:'The per-country identity document lists (United States and Japan) are illustrative.',
-    resolve:'Neither list has been checked against the legal requirement for that country. Legal and the Right to Work owner need to supply the real lists before build.', oi:'—' },
+    resolve:'Neither list has been checked against the legal requirement for that country. Legal and the Right to Work owner need to supply the real lists before build.', oi:'' },
   { id:'A-37', group:'content', prov:'UAT', screen:'Equipment', route:'#/equipment',
-    assumed:'Accessories are for the at-home workspace — the in-office workspace already has monitors, keyboard and mouse.',
-    resolve:'Wording mirrors the live form. Confirm it holds in every region, and for hybrid hires with no assigned desk.', oi:'—' },
+    assumed:'Accessories are for the at-home workspace. The in-office workspace already has monitors, keyboard and mouse.',
+    resolve:'Wording mirrors the live form. Confirm it holds in every region, and for hybrid hires with no assigned desk.', oi:'' },
   { id:'A-39', group:'content', prov:'UAT', screen:'Equipment', route:'#/equipment',
-    assumed:'The headset is automatic — everyone receives the standard Zoom-optimised headset. It is not selectable.',
-    resolve:'Mirrors the live form. Confirm whether someone who does not want one has any route to decline.', oi:'—' },
+    assumed:'The headset is automatic. Everyone gets the standard Zoom-optimised headset, and there is nothing to select.',
+    resolve:'Mirrors the live form. Confirm whether someone who does not want one has any route to decline.', oi:'' },
   { id:'A-46', group:'content', prov:'1:1', screen:'Task list', route:'#/',
-    assumed:'A medical check appears for countries that require one — shown here for Japan only.',
-    resolve:'Same family as right to work. Which countries require it, and what the new hire actually has to do, are both unconfirmed.', oi:'—' },
+    assumed:'A medical check appears for countries that require one. Japan is the example shown here.',
+    resolve:'Same family as right to work. Which countries require it, and what the new hire actually has to do, are both unconfirmed.', oi:'' },
 
   /* ---------- Design choice ---------- */
   { id:'A-04', group:'design', prov:'ASSUMED', screen:'Personal details', route:'#/details',
@@ -162,89 +162,89 @@ const ASSUMPTIONS = [
     resolve:'Not mentioned in any source. Needs a worker-record target field if kept.', oi:'OI-17' },
   { id:'A-06', group:'design', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'Workplace adjustments are always visible and optional, with a “discuss privately” route that avoids storing detail.',
-    resolve:'The live accessories form raises adjustments at the point of choosing equipment. v2 mirrors the link there rather than relocating this section — confirm which placement people actually use.', oi:'OI-23' },
+    resolve:'The live accessories form raises adjustments at the point of choosing equipment, so the prototype mirrors the link there and leaves this section where it is. Confirm which placement people actually use.', oi:'OI-23' },
   { id:'A-08', group:'design', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'One emergency contact is required; a second is optional.',
     resolve:'No source specifies how many. One required is the common minimum.', oi:'OI-19' },
   { id:'A-11', group:'design', prov:'ASSUMED', screen:'Task list', route:'#/',
-    assumed:'The banking card carries no date — only “Payroll will be in touch.”',
-    resolve:'Three sources place direct deposit at three different times, and legal review is outstanding in two countries. Showing no date is more honest than picking one. The exclusion itself is now confirmed deliberate.', oi:'OI-03' },
+    assumed:'The banking card carries no date. It says only “Payroll will be in touch.”',
+    resolve:'Three sources place direct deposit at three different times, and legal review is outstanding in two countries. Showing no date is more honest than picking one. The exclusion is confirmed as intended.', oi:'OI-03' },
   { id:'A-15', group:'design', prov:'ASSUMED', screen:'Introduction', route:'#/intro',
     assumed:'A 500-character limit and three optional prompt chips.',
     resolve:'No limit is specified anywhere; one is needed because the text becomes a team post. The prompts address blank-page hesitation.', oi:'OI-12' },
   { id:'A-16', group:'design', prov:'ASSUMED', screen:'Introduction + photo', route:'#/intro',
     assumed:'One card, two independently completable sections.',
-    resolve:'Merge call from the spec, following the pattern the PRD sets for equipment and software: display together, track separately.', oi:'—' },
+    resolve:'Merge call from the spec, following the pattern the PRD sets for equipment and software: display together, track separately.', oi:'' },
   { id:'A-18', group:'design', prov:'ASSUMED', screen:'Badge photo', route:'#/intro',
     assumed:'One consent naming the badge, the internal directory and the Teams profile.',
-    resolve:'The photo is intended to serve other profile surfaces, which is broader than a badge. No consent wording exists in any source — Privacy needs to draft it.', oi:'OI-14' },
+    resolve:'The photo is intended to serve other profile surfaces, which is broader than a badge. No consent wording exists in any source, so Privacy needs to draft it.', oi:'OI-14' },
   { id:'A-21', group:'design', prov:'ASSUMED', screen:'Task list', route:'#/',
     assumed:'Information governance appears under “Coming up” as a first-week item.',
     resolve:'It is the one compliance document placed at Week 1, with no rationale recorded. Shown but not actionable, so the placement is visible and arguable.', oi:'OI-05' },
   { id:'A-24', group:'design', prov:'ASSUMED', screen:'Multiple screens', route:'#/policies',
     assumed:'Acknowledgement checkboxes are disabled until the document has been read to the end.',
-    resolve:'The PRD sets this pattern for the offer letter but does not extend it. Applying it consistently is the defensible reading.', oi:'—' },
+    resolve:'The PRD sets this pattern for the offer letter but does not extend it. Applying it consistently is the defensible reading.', oi:'' },
   { id:'A-25', group:'design', prov:'ASSUMED', screen:'Task list', route:'#/',
-    assumed:'Progress = tasks complete out of tasks assigned, plus a phase strip. v2 replaces the invented four milestones with the live portal’s five phases — see A-44.',
-    resolve:'The requirement is for a progress tracker; no source defines its model. Two levels show immediate progress and overall position.', oi:'—' },
+    assumed:'Progress = tasks complete out of tasks assigned, plus a phase strip. The invented four milestones are gone, replaced by the live portal’s five phases. See A-44.',
+    resolve:'The requirement is for a progress tracker; no source defines its model. Two levels show immediate progress and overall position.', oi:'' },
   { id:'A-26', group:'design', prov:'ASSUMED', screen:'All screens (platform)', route:null,
     assumed:'The ServiceNow object structure is not represented in this prototype.',
     resolve:'Whether these are catalog items, record producers or lifecycle-event activities changes the build, not the design.', oi:'OI-21', nolink:true },
   { id:'A-27', group:'design', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'The dissent path mirrors the offer-letter “report an issue” pattern and puts the task into an Under review state.',
-    resolve:'The PRD defines this pattern for a wrong offer letter, not the job description. Reusing it is consistent; the routing target needs confirming.', oi:'—' },
+    resolve:'The PRD defines this pattern for a wrong offer letter, not the job description. Reusing it is consistent; the routing target needs confirming.', oi:'' },
   { id:'A-28', group:'design', prov:'ASSUMED', screen:'All screens', route:'#/',
-    assumed:'Built for laptop only — no mobile layouts.',
-    resolve:'Worth revisiting before build for the IBX technician persona, who may be more phone-reliant than a desk hire. Analytics from the current portal would settle it.', oi:'—' },
+    assumed:'Built for laptop only. No mobile layouts.',
+    resolve:'Revisit this before build for the IBX technician persona, who may be more phone-reliant than a desk hire. Analytics from the current portal would settle it.', oi:'' },
   { id:'A-31', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
     assumed:'The onboarding buddy is visible from the moment they are assigned, with role, timezone and who chose them.',
-    resolve:'An earlier proposal surfaced the buddy 72 hours before the start date. Showing them from assignment gives the new hire someone to talk to during the quiet weeks — confirm what the buddy programme intends.', oi:'—' },
+    resolve:'An earlier proposal surfaced the buddy 72 hours before the start date. Showing them from assignment gives the new hire someone to talk to during the quiet weeks. Confirm what the buddy programme intends.', oi:'' },
   { id:'A-32', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
     assumed:'The hiring manager is contactable from the portal before Day 1, by Teams and email.',
-    resolve:'Confirm the manager expects to be reachable this early, and that Teams reaches them before the new hire has an Equinix account.', oi:'—' },
+    resolve:'Confirm the manager expects to be reachable this early, and that Teams reaches them before the new hire has an Equinix account.', oi:'' },
   { id:'A-33', group:'design', prov:'1:1', screen:'Task list', route:'#/',
     assumed:'Equipment opens immediately and is the earliest of the provisioning tasks. Confirming the start date and launching the background check now sit ahead of it, because both are triggered at offer acceptance.',
-    resolve:'Nothing gates equipment today — the “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'—' },
+    resolve:'Nothing gates equipment today. The “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'' },
   { id:'A-35', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'ANSWERED. A carousel at the top of the portal rotating chapters 01-06, plus a link in the right-hand rail. No tasks, nothing tracked. Both are now built.',
-    resolve:'The requirement settles the three-way question — it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. Chapter summaries here are placeholder.', oi:'—' },
+    resolve:'The requirement settles the three-way question: it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. Chapter summaries here are placeholder.', oi:'' },
   { id:'A-36', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'The first-90-days checklists are parked as reference only, not as tick-off items.',
-    resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date • Optional”. Revisit whether tick-off is now cheap.', oi:'—' },
+    resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date, optional”. Revisit whether tick-off is now cheap.', oi:'' },
   { id:'A-38', group:'design', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'Shipping defaults to the office address, derived from role and location, with an explicit option to ship home instead. A shipping phone number is required.',
-    resolve:'Replaces the retired A-09. Confirm the office-address lookup exists for every location, and what happens for fully remote hires with no office.', oi:'—' },
+    resolve:'Replaces the retired A-09. Confirm the office-address lookup exists for every location, and what happens for fully remote hires with no office.', oi:'' },
   { id:'A-40', group:'design', prov:'1:1', screen:'Task list', route:'#/',
     assumed:'The mobile phone is a Day 1 optional to-do, not a pre-Day 1 task.',
-    resolve:'Matches the live portal’s placement. Confirm nothing in the pre-Day 1 flow depends on the phone existing.', oi:'—' },
+    resolve:'Matches the live portal’s placement. Confirm nothing in the pre-Day 1 flow depends on the phone existing.', oi:'' },
   { id:'A-44', group:'design', prov:'UAT', screen:'Task list', route:'#/',
-    assumed:'The five phase names are taken verbatim from the live portal: Get ready for Day 1 · Final preparations for Day 1 · Your first day · Your first week · Your first month.',
-    resolve:'Adopted rather than invented, so the prototype does not compete with a mental model new hires already meet. Confirm the names are stable.', oi:'—' },
+    assumed:'The five phase names are taken verbatim from the live portal: Get ready for Day 1, Final preparations for Day 1, Your first day, Your first week, Your first month.',
+    resolve:'Adopted, not invented, so the prototype does not compete with a mental model new hires already meet. Confirm the names are stable.', oi:'' },
   { id:'A-45', group:'design', prov:'1:1', screen:'All screens', route:'#/',
-    assumed:'Start dates are bimodal — many hires have about two weeks, but some start three months out. Both are viewable from the prototype controls.',
-    resolve:'The distribution is on the onboarding dashboard — pull it rather than guess. A list that works at fourteen days can feel empty and confusing at ninety.', oi:'—' },
+    assumed:'Start dates are bimodal. Many hires get about two weeks, some start three months out. Both are viewable from the prototype controls.',
+    resolve:'The distribution is on the onboarding dashboard, so pull it instead of guessing. A list that works at fourteen days can feel empty and confusing at ninety.', oi:'' },
 
   { id:'A-49', group:'blocks', prov:'PRD', screen:'Confirm your start date', route:'#/startdate',
     assumed:'Confirming the start date is its own required task, and requesting a change moves every other due date with it.',
-    resolve:'The future-state workflow carries this as a separate required task that “updates dependent due dates and tasks”. It was missing from the earlier prototype. What is not defined is who approves a change, how far it can move, and what happens to work already in flight — equipment on order, a badge queued for print.', oi:'—' },
+    resolve:'The future-state workflow carries this as a separate required task that “updates dependent due dates and tasks”. It was missing from the earlier prototype. What nobody has defined: who approves a change, how far it can move, and what happens to work already in flight, such as equipment on order or a badge queued for print.', oi:'' },
   { id:'A-50', group:'design', prov:'PRD', screen:'Background check', route:'#/bgcheck',
     assumed:'The background check is launched by the new hire from the portal, with status shown here afterwards.',
-    resolve:'The source has this as a required task with an action, not the passive status card the earlier prototype showed. Country treatments and the status integration are both unconfirmed.', oi:'—' },
+    resolve:'The source has this as a required task with an action, not the passive status card the earlier prototype showed. Country treatments and the status integration are both unconfirmed.', oi:'' },
   { id:'A-51', group:'content', prov:'CURRENT', screen:'Compliance pack', route:'#/policies',
     assumed:'The reference pack the live process sends today is shown alongside the acknowledgement pack, with its real size.',
-    resolve:'A US hire currently receives 28 documents in one bundle — the handbook, 25 state addenda, the benefits booklet and a compliance service — regardless of which state they work in. Across all countries the process serves 416 document instances. Which of those survive pre-Day 1, which move later and which retire is the single largest open decision in this workstream.', oi:'—' },
+    resolve:'A US hire currently receives 28 documents in one bundle whichever state they work in: the handbook, 25 state addenda, the benefits booklet and a compliance service. Across all countries the process serves 416 document instances. Which of those survive pre-Day 1, which move later and which retire is the single largest open decision in this workstream.', oi:'' },
 
-  /* ---------- Retired — observation answered the question ---------- */
+  /* ---------- Retired: observation answered the question ---------- */
   { id:'A-09', group:'retired', prov:'UAT', screen:'Personal details / Equipment', route:'#/equipment',
     assumed:'Was: home address is captured once on Tab 1 and reused for equipment delivery, with the equipment task holding the editable copy.',
-    resolve:'Retired — the direction was wrong. Shipping defaults to the office address, derived from role and location, so the equipment task never waits on personal details. The Tab 1 “ship here” checkbox is gone. Replaced by A-38; workbook item OI-28 closes.', oi:'OI-09 → closed' },
+    resolve:'Retired. The direction was wrong. Shipping defaults to the office address, derived from role and location, so the equipment task never waits on personal details. The Tab 1 “ship here” checkbox is gone. Replaced by A-38; workbook item OI-28 closes.', oi:'OI-09 closed' },
 ];
 
 const GROUP_LABELS = {
   blocks: { label: 'Blocks build', hint: 'Must be answered before development' },
-  content: { label: 'Content needed', hint: 'Mechanism right — someone needs to supply real text or values' },
+  content: { label: 'Content needed', hint: 'Mechanism is right. Someone has to supply the real text or values' },
   design: { label: 'Design choice', hint: 'Defensible, could reasonably go the other way' },
-  retired: { label: 'Retired — answered by observation', hint: 'Was a guess; watching the live portal settled it. Marker removed from the screen.' },
+  retired: { label: 'Retired, answered by observation', hint: 'Was a guess; watching the live portal settled it. Marker removed from the screen.' },
 };
 
 const PROV_LABELS = {
@@ -258,34 +258,34 @@ const PROV_LABELS = {
 
 /* ---------- Open before build (§10) ---------- */
 const OPEN_BEFORE_BUILD = [
-  'Is the manager’s “Order equipment for new hire” task the one being redesigned for the laptop-and-accessory MVP? If so, the confirm-versus-order question is being answered elsewhere and this screen should follow rather than lead.',
+  'Is the manager’s “Order equipment for new hire” task the one being redesigned for the laptop-and-accessory MVP? If so, the confirm-versus-order question is being answered elsewhere, and this screen should follow that decision, not lead it.',
   'The PEX document-sequencing work reportedly already specifies which documents come early and which come late. That would settle most of A-29 and A-30 without guessing.',
-  'Start-date distribution from the onboarding dashboard — the real spread behind A-45.',
+  'Start-date distribution from the onboarding dashboard: the real spread behind A-45.',
   'What is actually inside “Collect your Equinix credentials”? It is a new-hire to-do due one day before start, which complicates the story that managers currently hand over usernames and passwords.',
-  'IBX badge request — covered by the badge photo task or not? Until that is settled, the photo task is neither merged nor split. (A-47 is reserved if it needs its own entry.)',
+  'IBX badge request: covered by the badge photo task or not? Until that is settled, the photo task is neither merged nor split. (A-47 is reserved if it needs its own entry.)',
 ];
 
 /* ---------- Job description placeholder (A-13) ---------- */
 const JD_TEXT = `
 <h4>Purpose of the role</h4>
-<p>You'll help the Global FP&amp;A team understand how the business is performing and where it's heading. That means building the monthly forecast, explaining the variances that matter, and giving leaders numbers they can act on — clearly, and on time.</p>
+<p>You'll help the Global FP&amp;A team understand how the business is performing and where it's heading. That means building the monthly forecast, explaining the variances that matter, and giving leaders numbers they can act on, clearly and on time.</p>
 <h4>What you'll do</h4>
 <ul>
-<li>Own the monthly forecast and variance analysis for your business areas, including commentary that explains the "why", not just the "what".</li>
+<li>Own the monthly forecast and variance analysis for your business areas, including commentary that explains why, not only what.</li>
 <li>Build and maintain planning models for revenue, operating expense and headcount.</li>
 <li>Partner with Accounting during close to make sure actuals land where the forecast expected them to.</li>
 <li>Prepare the monthly review pack for Finance leadership, and present your areas when asked.</li>
 <li>Support the annual planning cycle: targets, submissions, consolidation and the inevitable late changes.</li>
-<li>Improve how the team works — better models, fewer manual steps, clearer outputs.</li>
+<li>Improve how the team works: better models, fewer manual steps, clearer outputs.</li>
 </ul>
 <h4>Who you'll work with</h4>
 <p>You'll report to Priya Anand and sit within Global FP&amp;A. Day to day you'll work with business partners across the region, the Accounting close team, and the other analysts covering neighbouring portfolios. Expect a mix of scheduled rhythm (close, forecast, planning) and ad-hoc questions from leadership.</p>
 <h4>What you'll bring</h4>
 <ul>
 <li>Solid experience in FP&amp;A, corporate finance or a similar analytical role.</li>
-<li>Comfort building and defending a forecast — and explaining it to people who don't live in spreadsheets.</li>
+<li>Comfort building and defending a forecast, and explaining it to people who don't live in spreadsheets.</li>
 <li>Fluency in Excel; familiarity with a planning tool (Anaplan, Adaptive or similar) helps.</li>
-<li>A habit of making things clearer, not just more detailed.</li>
+<li>A habit of making things clearer, not only more detailed.</li>
 </ul>
 <p><em>This is placeholder content for layout and reading-length testing. The real job description comes from the official record.</em></p>
 `;
@@ -294,10 +294,10 @@ const JD_TEXT = `
 const FILLER = [
   'This is placeholder policy text, shown so the reading and acknowledgement flow can be tested at a realistic length. The real document is owned by Legal and served with version control.',
   'It stands in for several paragraphs of real policy content: definitions of the terms the policy uses, the scope it applies to, the obligations that fall on you as an employee, and the situations where those obligations change.',
-  'A real policy would continue here with the substance — what is required, what is prohibited, what needs approval, and who grants it. It would also name the owner of the policy and how often it is reviewed.',
-  'Nothing in this text is a real Equinix policy statement. Substituting invented compliance language for the real thing would be worse than an obvious gap — so this is deliberately generic.',
+  'A real policy would carry the substance here: what is required, what is prohibited, what needs approval, and who grants it. It would also name the owner of the policy and how often it is reviewed.',
+  'Nothing in this text is a real Equinix policy statement. Invented compliance language would be worse than an obvious gap, so this text stays generic on purpose.',
   'It would close with where to go with questions: the policy owner, your manager once you have one, or the People Experience team during pre-boarding.',
-  'When the real content is loaded, this section will carry the approved wording, its version number, and the language served — all recorded against your acknowledgement.',
+  'When the real content is loaded, this section will carry the approved wording, its version number and the language served, all recorded against your acknowledgement.',
   'You have reached the end of this document.',
 ];
 function docBody(paras) { return paras.map(p => `<p>${p}</p>`).join(''); }
@@ -323,20 +323,20 @@ const DOCS = [
 ];
 
 const JP_ADDENDUM_TEXT = `
-  <p style="font-size:12.5px; font-weight:350; margin-bottom:6px;">Additional provisions on copyright, workplace monitoring and personal devices apply in Japan. They appear here, inside the global policy, rather than as a separate document — you acknowledge once, covering both.</p>
-  <p style="font-size:12px; color:var(--carbon); font-weight:350;"><em>Illustrative content — the real addendum is pending legal review.</em></p>
+  <p style="font-size:12.5px; font-weight:350; margin-bottom:6px;">Additional provisions on copyright, workplace monitoring and personal devices apply in Japan. They sit here inside the global policy instead of arriving as a separate document, so you acknowledge once and cover both.</p>
+  <p style="font-size:12px; color:var(--carbon); font-weight:350;"><em>Illustrative content. The real addendum is pending legal review.</em></p>
 `;
 
 /* ---------- Identity / right-to-work documents (A-29, A-30) ---------- */
 const ID_DOCS = {
   US: [
-    { v:'US passport', shoot:'Photograph the photo page — the one with your picture and the machine-readable strip at the bottom.' },
+    { v:'US passport', shoot:'Photograph the photo page, the one with your picture and the machine-readable strip at the bottom.' },
     { v:'Driver’s licence and Social Security card', shoot:'Photograph both sides of your licence, and the front of your Social Security card.' },
     { v:'Permanent resident card', shoot:'Photograph both sides of the card.' },
   ],
   JP: [
-    { v:'My Number card (個人番号カード)', shoot:'Photograph the front only — the side with your photo. Not the back.' },
-    { v:'Residence card (在留カード)', shoot:'Photograph both sides — the front with your photo, the back with your status.' },
+    { v:'My Number card (個人番号カード)', shoot:'Photograph the front only, the side with your photo. Not the back.' },
+    { v:'Residence card (在留カード)', shoot:'Photograph both sides. The front carries your photo, the back your status.' },
     { v:'Passport', shoot:'Photograph the photo page.' },
   ],
 };
@@ -352,12 +352,12 @@ const ACCESSORY_OPTIONS = [
 
 /* ---------- Suggested team network (A-43) ----------
    In v3 this is the pool the MANAGER picks from on H-11. The reason text
-   is a suggested draft the manager edits — the disposition for this task is
+   is a suggested draft the manager edits. The disposition for this task is
    "reduce to accepting a suggestion". Slot times are derived from the start
    date in app.js, so they stay plausible on both runways (A-45). */
 const NETWORK_POOL = [
   { name:'Aisha Bello', initials:'AB', role:'Manager, Corporate Accounting', dept:'Controllership',
-    suggested:true, why:'Your forecast lands against her actuals every close. Worth meeting before your first month-end rather than during it.' },
+    suggested:true, why:'Your forecast lands against her actuals every close. Better to meet her before your first month-end than during it.' },
   { name:'Ravi Menon', initials:'RM', role:'Director, Revenue Operations', dept:'Go-to-market',
     suggested:true, why:'He owns the bookings data your revenue forecast starts from. If a number looks wrong, he usually knows why first.' },
   { name:'Elena Duarte', initials:'ED', role:'Senior Manager, IBX Finance', dept:'Operations Finance',
@@ -376,6 +376,84 @@ const INSIDE_MODULES = [
   'Who we are', 'How we work', 'Our business',
   'What we enable', 'Our road ahead', 'Your role',
 ];
+/* ---------- Inside Equinix showcase art (A-35) ----------
+   Built to the brand illustration system: isometric and flat shapes,
+   linear gradients only, adjacent hues, thin light wireframes, and
+   nothing on the canvas that is not carrying the idea. */
+const CHAPTER_ART = [
+  { g:['#411980','#086AE3'], art:`
+    <g stroke="rgba(255,255,255,.85)" stroke-width="1.6" fill="none">
+      <path d="M200 46 L268 86 L268 166 L200 206 L132 166 L132 86 Z"/>
+      <path d="M200 46 L200 206 M132 86 L268 166 M268 86 L132 166"/>
+    </g>
+    <g opacity=".95">
+      <path d="M200 86 L234 106 L234 146 L200 166 L166 146 L166 106 Z" fill="url(#f1)"/>
+      <path d="M200 86 L234 106 L200 126 L166 106 Z" fill="rgba(255,255,255,.55)"/>
+    </g>
+    <circle cx="200" cy="126" r="7" fill="#85F0F8"/>` },
+
+  { g:['#00408C','#00737A'], art:`
+    <g fill="url(#f1)" opacity=".95">
+      <path d="M96 150 L156 118 L216 150 L156 182 Z"/>
+      <path d="M184 106 L244 74 L304 106 L244 138 Z" opacity=".8"/>
+      <path d="M150 196 L210 164 L270 196 L210 228 Z" opacity=".65"/>
+    </g>
+    <g stroke="rgba(255,255,255,.9)" stroke-width="1.5" fill="none">
+      <path d="M156 150 L244 106 M156 150 L210 196 M244 106 L210 196"/>
+      <circle cx="156" cy="150" r="6"/><circle cx="244" cy="106" r="6"/><circle cx="210" cy="196" r="6"/>
+    </g>` },
+
+  { g:['#00737A','#2A8346'], art:`
+    <g>
+      <path d="M104 190 L134 174 L164 190 L134 206 Z" fill="rgba(255,255,255,.5)"/>
+      <path d="M104 190 L104 206 L134 222 L134 206 Z" fill="url(#f1)"/>
+      <path d="M164 190 L164 206 L134 222 L134 206 Z" fill="rgba(255,255,255,.28)"/>
+
+      <path d="M156 166 L194 144 L232 166 L194 188 Z" fill="rgba(255,255,255,.55)"/>
+      <path d="M156 166 L156 194 L194 216 L194 188 Z" fill="url(#f1)"/>
+      <path d="M232 166 L232 194 L194 216 L194 188 Z" fill="rgba(255,255,255,.3)"/>
+
+      <path d="M218 132 L264 106 L310 132 L264 158 Z" fill="rgba(255,255,255,.6)"/>
+      <path d="M218 132 L218 174 L264 200 L264 158 Z" fill="url(#f1)"/>
+      <path d="M310 132 L310 174 L264 200 L264 158 Z" fill="rgba(255,255,255,.32)"/>
+    </g>
+    <path d="M104 174 L264 84" stroke="#85F0F8" stroke-width="2" fill="none" stroke-dasharray="7 7"/>` },
+
+  { g:['#A20238','#F55200'], art:`
+    <g fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6">
+      <circle cx="200" cy="126" r="86"/><circle cx="200" cy="126" r="62"/>
+    </g>
+    <g>
+      <path d="M200 126 L200 40 A86 86 0 0 1 274 84 Z" fill="url(#f1)" opacity=".9"/>
+      <path d="M200 126 L274 168 A86 86 0 0 1 126 168 Z" fill="rgba(255,255,255,.55)"/>
+      <path d="M200 126 L126 84 A86 86 0 0 1 200 40 Z" fill="rgba(255,255,255,.28)"/>
+    </g>
+    <circle cx="200" cy="126" r="20" fill="#FEDC86"/>` },
+
+  { g:['#200430','#7739D9'], art:`
+    <path d="M40 214 L200 128 L360 214" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.6"/>
+    <path d="M40 214 L200 128 L360 214 L200 236 Z" fill="url(#f1)" opacity=".55"/>
+    <g fill="#85F0F8">
+      <path d="M110 176 L124 168 L138 176 L138 190 L124 198 L110 190 Z" opacity=".9"/>
+      <path d="M186 134 L202 125 L218 134 L218 152 L202 161 L186 152 Z"/>
+      <path d="M268 176 L282 168 L296 176 L296 190 L282 198 L268 190 Z" opacity=".7"/>
+    </g>
+    <path d="M124 176 L202 142 L282 176" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.6"/>` },
+
+  { g:['#00408C','#411980'], art:`
+    <g stroke="rgba(255,255,255,.42)" stroke-width="1.3" fill="none">
+      <path d="M96 132 L132 112 L168 132 L132 152 Z M168 132 L204 112 L240 132 L204 152 Z M240 132 L276 112 L312 132 L276 152 Z"/>
+      <path d="M132 172 L168 152 L204 172 L168 192 Z M204 172 L240 152 L276 172 L240 192 Z"/>
+      <path d="M132 92 L168 72 L204 92 L168 112 Z M204 92 L240 72 L276 92 L240 112 Z"/>
+    </g>
+    <g>
+      <path d="M168 132 L204 112 L240 132 L204 152 Z" fill="rgba(255,255,255,.6)"/>
+      <path d="M168 132 L168 162 L204 182 L204 152 Z" fill="url(#f1)"/>
+      <path d="M240 132 L240 162 L204 182 L204 152 Z" fill="rgba(255,255,255,.3)"/>
+    </g>
+    <circle cx="204" cy="132" r="6" fill="#85F0F8"/>` },
+];
+
 const INSIDE_CHAPTERS = [
   { n:'01', title:'Who we are',      line:'Where Equinix came from, and what the company is for.' },
   { n:'02', title:'How we work',     line:'How decisions get made, and what good looks like here.' },
@@ -391,10 +469,10 @@ const INSIDE_CHAPTERS = [
    reference material that arrives alongside it today. */
 const CURRENT_PACK = {
   US: { handbook:'US Employee Handbook (November 2024)',
-        addenda:25, addendaNote:'state handbook addenda — every US hire receives all of them, whichever state they work in',
+        addenda:25, addendaNote:'state handbook addenda. Every US hire receives all of them, whichever state they work in',
         extras:['2026 Equinix U.S. Benefits Booklet','GovDocs'],
         total:28 },
-  JP: { handbook:'就業規則 — Japanese employment regulations (April 2025)',
+  JP: { handbook:'就業規則, Japanese employment regulations (April 2025)',
         addenda:0, addendaNote:'',
         extras:['Japan-specific employment documents'],
         total:19 },
@@ -404,7 +482,7 @@ const CURRENT_PACK = {
 const CARD_FLOW = {
   managerQuestion: 'Will Jordan travel on behalf of Equinix and need a corporate card?',
   newHireTask: 'Equinix Corporate Card Request',
-  timing: 'Day 2 — after they start, not before',
+  timing: 'Day 2, after they start rather than before',
   mechanics: [
     'You answer yes or no before Jordan starts.',
     'If yes, a task appears for Jordan on Day 2: review the user agreement and sign it electronically.',
@@ -420,23 +498,23 @@ const COMING_UP = [
     note:'Shows what you’ll qualify for and when coverage begins', icon:'shield-check.svg',
     expl:'Benefits enrolment opens 30 days before your start date. It will show what you qualify for and when coverage begins, so there’s nothing to prepare now.' },
   { name:'Equipment setup instructions', opens:'3 days before you start', note:'', icon:'portal-window.svg',
-    expl:'Once your equipment ships, setup instructions arrive here 3 days before you start — so they’re fresh when the box is.' },
+    expl:'Once your equipment ships, setup instructions land here 3 days before you start, so they’re fresh when the box is.' },
   { name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
     expl:'Where to go, who to ask for, what to bring. It arrives 3 days before your start so the details are final, not provisional.' },
   { name:'Collect your Equinix credentials', opens:'1 day before you start',
     note:'', icon:'lock.svg',
-    expl:'A to-do in the live portal, due the day before you start. What it contains is not yet documented — worth pinning down, because it sits awkwardly beside the current practice of managers handing over sign-in details.' },
-  { name:'Order a phone', opens:'Day 1 — optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
-    expl:'A mobile phone is ordered on or after Day 1, and only if your role needs one. It is deliberately not a pre-boarding task.' },
-  { name:'Complete your at-home workspace setup', opens:'No due date • Optional', note:'', icon:'desktop.svg',
-    expl:'An optional to-do with no due date, exactly as the live portal ships it. It is here so the optional-item pattern is visible, not because anything is waiting on you.' },
+    expl:'A to-do in the live portal, due the day before you start. Nobody has documented what is in it, which is worth pinning down: it sits awkwardly beside the current practice of managers handing over sign-in details.' },
+  { name:'Order a phone', opens:'Day 1, optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
+    expl:'A mobile phone is ordered on or after Day 1, and only if your role needs one. Keeping it out of pre-boarding is a choice, not an oversight.' },
+  { name:'Complete your at-home workspace setup', opens:'No due date, optional', note:'', icon:'desktop.svg',
+    expl:'An optional to-do with no due date, exactly as the live portal ships it. It is here so you can see how optional items behave. Nothing is waiting on you.' },
   { name:'Information governance', opens:'Your first week', note:'', icon:'file-alt.svg', marker:'A-21',
-    expl:'This one happens in your first week, after you have your Equinix account — it covers how we handle information once you’re working here.' },
+    expl:'This one happens in your first week, once you have your Equinix account. It covers how we handle information while you work here.' },
 ];
 
 /* ============================================================
-   v3 — HIRING MANAGER SIDE
+   v3: the hiring manager side
    Sourced from HM_Pre_Day_1_Portal_UI_Spec.xlsx. The design problem
    on this side is subtraction: several screens exist in order to be
    argued out of existence, so every manager task carries a disposition.
@@ -455,7 +533,7 @@ const MANAGER = {
   workPhone: '+1 303 555 0188', email: 'priya.anand@equinix.com',
 };
 
-/* M-13 — more than one concurrent hire. The second is read-only:
+/* M-13: more than one concurrent hire. The second is read-only,
    only Jordan has a new-hire side in this prototype. */
 const HIRES = [
   { id:'jordan', name:'Jordan Reyes', initials:'JR', role:'Senior Financial Analyst',
@@ -465,7 +543,7 @@ const HIRES = [
     startsIn:28, note:'Shown so the multi-hire view is visible. Not interactive in this prototype.' },
 ];
 
-/* Task dispositions — the subtraction review, verbatim in intent from the workbook */
+/* Task dispositions: the subtraction review, verbatim in intent from the workbook */
 const DISPOSITIONS = {
   keep:      { label:'Keep',            cls:'keep',      hint:'Genuinely requires manager judgement' },
   reduce:    { label:'Exception-only',  cls:'reduce',    hint:'Visible, but most managers should never touch it' },
@@ -486,16 +564,16 @@ const BUDDY_POOL = [
   { id:'tomas', name:'Tomás Rivera', initials:'TR', role:'Senior Financial Analyst',
     tz:'Denver (MT)', load:2, suggested:false },
 ];
-const BUDDY_LOAD_LIMIT = 3;   // policy P-05 is undefined — this number is invented (M-07)
+const BUDDY_LOAD_LIMIT = 3;   // policy P-05 is undefined, so this number is invented (M-07)
 
 /* Computer options for H-04. Catalogue is owned elsewhere (M-01 / OI-24). */
 const COMPUTER_OPTIONS = [
-  { id:'win-std', label:'Standard Windows laptop', lead:'In stock — 3 days', ok:true },
-  { id:'mac', label:'MacBook Pro', lead:'Backordered — 18 days', ok:false },
-  { id:'win-hp', label:'High-performance Windows laptop', lead:'In stock — 5 days', ok:true },
+  { id:'win-std', label:'Standard Windows laptop', lead:'In stock, 3 days', ok:true },
+  { id:'mac', label:'MacBook Pro', lead:'Backordered, 18 days', ok:false },
+  { id:'win-hp', label:'High-performance Windows laptop', lead:'In stock, 5 days', ok:true },
 ];
 
-/* Default software stack for H-05 — cannot resolve without a persona (M-04 / OI-04) */
+/* Default software stack for H-05. Cannot resolve without a persona (M-04 / OI-04) */
 const SOFTWARE_CATALOG = [
   'Anaplan', 'Tableau', 'Power BI', 'Alteryx', 'Workday Adaptive Planning',
   'Bloomberg Terminal', 'Salesforce', 'Coupa',
@@ -503,26 +581,26 @@ const SOFTWARE_CATALOG = [
 
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
-  { id:'oneToOne', label:'Pick up your new hire — 1:1', time:'12:00–13:00',
+  { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'12:00 to 13:00',
     auto:true, locked:true, note:'Automatically placed, one hour, immediately after the cohort lunch. You can reschedule it, but not delete it.' },
-  { id:'nho', label:'New Hire Orientation', time:'09:00–12:00',
-    auto:true, blueprint:true, note:'From the orientation blueprint for your location. PEX owns this — you cannot move it.' },
-  { id:'teamIntro', label:'Team introduction', time:'14:00–14:30', auto:false },
-  { id:'buddy', label:'Buddy check-in', time:'15:00–15:30', auto:false },
-  { id:'itSetup', label:'IT setup window', time:'15:30–16:30', auto:false },
+  { id:'nho', label:'New Hire Orientation', time:'09:00 to 12:00',
+    auto:true, blueprint:true, note:'From the orientation blueprint for your location. PEX owns it, so you cannot move it.' },
+  { id:'teamIntro', label:'Team introduction', time:'14:00 to 14:30', auto:false },
+  { id:'buddy', label:'Buddy check-in', time:'15:00 to 15:30', auto:false },
+  { id:'itSetup', label:'IT setup window', time:'15:30 to 16:30', auto:false },
 ];
 
 /* Teams channels and distribution lists for H-12 */
 const CHANNEL_SUGGESTIONS = [
-  'Global FP&A — team channel', 'Finance All-Hands — distribution list',
-  'FP&A Analysts — Teams channel', 'Denver Office — distribution list',
+  'Global FP&A, team channel', 'Finance All-Hands, distribution list',
+  'FP&A Analysts, Teams channel', 'Denver Office, distribution list',
 ];
 
 /* Welcome email boilerplate for H-10 (M-08) */
 const WELCOME_BOILERPLATE =
 `Hi Jordan,
 
-Welcome to Equinix — I'm glad you're joining us.
+Welcome to Equinix. I'm glad you're joining us.
 
 Before your first day you'll get access to an onboarding portal with a short list of things to work through. Nothing there should take long, and it will tell you what's needed and by when.
 
@@ -530,7 +608,7 @@ If anything is unclear before you start, reply to this email and I'll pick it up
 
 /* The read-only block the system inserts, generated from the new hire's own task list (M-08) */
 const WELCOME_SYSTEM_BLOCK_NOTE =
-  'Generated from Jordan’s actual task list — not written by you, and not editable.';
+  'Generated from Jordan’s actual task list. You did not write it and you cannot edit it.';
 
 /* ============================================================
    Manager-side (M) and connection (L) assumptions.
@@ -543,107 +621,107 @@ const HM_ASSUMPTIONS = [
   /* ---------- Blocks build ---------- */
   { id:'M-01', side:'hm', group:'blocks', prov:'UAT', screen:'Order the computer', route:'#/hm/computer',
     assumed:'The manager ORDERS the computer today. This is not a confirmation step, and nothing moves until they do it.',
-    resolve:'Corrects the workbook’s own baseline, which described confirm-only per PRD S2-US14 AC2 — that is the target state, not today’s. Confirm whether this task is already being redesigned inside the laptop-and-accessory MVP; if it is, this screen should follow rather than lead.', oi:'OI-24' },
+    resolve:'Corrects the workbook’s own baseline, which described confirm-only per PRD S2-US14 AC2. That is the target state, not today’s. Confirm whether this task is already being redesigned inside the laptop-and-accessory MVP. If it is, this screen should follow that work.', oi:'OI-24' },
   { id:'M-02', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The readiness score is shown as a plain completion ratio across all owners, with no weighting and no threshold.',
     resolve:'Composition, weighting and what counts as a good score are all undefined. A weighted number here would be invented, so the prototype shows only what it can actually compute and says so.', oi:'OI-02' },
   { id:'M-03', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager sees the new hire’s task names and status, but never task content. Sensitive tasks report status only.',
-    resolve:'The walkthrough’s cross-persona visibility principle and the Decision Log’s caution point in different directions, and the persona-by-section visibility matrix is unwritten. This is the conservative reading — argue it before build.', oi:'OI-03' },
+    resolve:'The walkthrough’s cross-persona visibility principle and the Decision Log’s caution point in different directions, and the persona-by-section visibility matrix is unwritten. This is the conservative reading. Argue it before build.', oi:'OI-03' },
   { id:'M-04', side:'hm', group:'blocks', prov:'1:1', screen:'Software stack', route:'#/hm/software',
-    assumed:'H-05 is drawn in its blocked state — the persona cannot be resolved, so the default stack is empty.',
-    resolve:'No full personas list exists in ServiceNow; the job-family fallback under discussion is the approach the PRD analysis rejects as inaccurate. The screen is drawn as it would behave today rather than as it should behave.', oi:'OI-04' },
+    assumed:'H-05 is drawn in its blocked state. The persona cannot be resolved, so the default stack is empty.',
+    resolve:'No full personas list exists in ServiceNow; the job-family fallback under discussion is the approach the PRD analysis rejects as inaccurate. The screen is drawn the way it behaves today, not the way it should.', oi:'OI-04' },
   { id:'M-10', side:'hm', group:'blocks', prov:'1:1', screen:'Team network', route:'#/hm/network',
-    assumed:'Naming the new hire’s network is net-new manager work — the only proposal here that adds load rather than removing it.',
-    resolve:'Everything else on the disposition review subtracts. The case for it is a named new-hire failure — not knowing who to talk to — and that accepting a suggested list can be close to one tap. Needs an explicit decision.', oi:'OI-26' },
+    assumed:'Naming the new hire’s network is net-new manager work, the only proposal here that adds load instead of removing it.',
+    resolve:'Everything else on the disposition review subtracts. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggested list can be close to one tap. It needs an explicit decision.', oi:'OI-26' },
   { id:'M-11', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Portal entry', route:'#/hm/subtraction',
     assumed:'There is no manager credential task. The manager enters by notification using the SSO they already hold.',
-    resolve:'The source row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire SSO logic applied to the wrong persona. Shown struck through so the removal is arguable rather than silent — but confirm no ServiceNow role or licence provisioning is hiding behind it.', oi:'OI-01' },
+    resolve:'The source row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire SSO logic applied to the wrong persona. Shown struck through so the removal is arguable instead of silent. Confirm no ServiceNow role or licence provisioning is hiding behind it.', oi:'OI-01' },
 
   /* ---------- Content needed ---------- */
   { id:'M-12', side:'hm', group:'retired', prov:'PRD', screen:'Corporate card', route:'#/hm/card',
     assumed:'Was: the corporate card is undecided and not built, because the source row was truncated.',
-    resolve:'Superseded. The requirement now specifies the whole flow — a manager yes/no framed around travel, then an e-signature task for the new hire on Day 2, a weekly extract to Accounts Payable, and an application link issued by the card provider. It is a manager decision after all, but not a universal entitlement, and the new hire’s half is post-start rather than pre-Day 1. Built.', oi:'OI-06 → closed' },
+    resolve:'Superseded. The requirement now specifies the whole flow: a manager yes or no framed around travel, an e-signature task for the new hire on Day 2, a weekly extract to Accounts Payable, and an application link issued by the card provider. It is a manager decision after all, though not a universal entitlement, and the new hire’s half sits after they start. Built.', oi:'OI-06 closed' },
   { id:'M-19', side:'hm', group:'content', prov:'PRD', screen:'Corporate card', route:'#/hm/card',
-    assumed:'The manager question is framed around travel — will this person travel on behalf of Equinix — rather than as a generic entitlement.',
+    assumed:'The manager question is framed around travel, will this person travel on behalf of Equinix, instead of as a generic entitlement.',
     resolve:'That is the wording the requirement uses, and it is narrower than “does everyone get a card”. Two things the requirement itself leaves open: what the task is called in the portal, and whether cost centre and approver are captured alongside the yes.', oi:'OI-06' },
   { id:'M-20', side:'hm', group:'design', prov:'PRD', screen:'Start logistics', route:'#/hm/logistics',
     assumed:'Delegation is a standing capability, not a Day 1 field. A proxy can act on the manager’s behalf and see the new hire’s status, and People Experience need the same.',
-    resolve:'Broader than the earlier version of this screen, which treated the proxy as cover for Day 1 only. What a proxy can actually see and do is still undefined, and the requirement gives the same capability to People Experience — who have no screens here at all.', oi:'OI-12' },
+    resolve:'Broader than the earlier version of this screen, which treated the proxy as cover for Day 1 only. What a proxy can actually see and do is still undefined, and the requirement gives the same capability to People Experience, who have no screens here at all.', oi:'OI-12' },
   { id:'M-21', side:'hm', group:'blocks', prov:'PRD', screen:'Team network / welcome note', route:'#/hm/network',
     assumed:'Both of these are drawn as new work, but the underlying platform may already provide them.',
-    resolve:'The platform’s own onboarding module ships “select people to meet”, “select helpful contacts” and “customise a welcome memo”, surfaced on the new hire’s dashboard. Decide whether to use what exists or build alongside it before either screen is costed — it materially changes the argument that the network task adds manager work.', oi:'—' },
+    resolve:'The platform’s own onboarding module ships “select people to meet”, “select helpful contacts” and “customise a welcome memo”, surfaced on the new hire’s dashboard. Decide whether to use what exists or build alongside it before either screen is costed. It materially changes the argument that the network task adds manager work.', oi:'' },
   { id:'M-15', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager guide', route:'#/hm/',
     assumed:'The Manager Onboarding Guide is one artifact with persona variants, persisting as a link in the rail.',
     resolve:'Unresolved whether this is the existing Manager Companion Guide, a superset of it, or something new. The two are scoped differently and there is no settled terminology.', oi:'OI-07' },
   { id:'M-17', side:'hm', group:'content', prov:'ASSUMED', screen:'Order the computer', route:'#/hm/computer',
     assumed:'Three laptop options with invented lead times, one of them backordered so the late-delivery warning is visible.',
-    resolve:'The real catalogue, its options, its regional variants and its actual lead times belong to the EUT team. These values are illustrative.', oi:'—' },
+    resolve:'The real catalogue, its options, its regional variants and its actual lead times belong to the EUT team. These values are illustrative.', oi:'' },
 
   /* ---------- Design choice ---------- */
   { id:'M-05', side:'hm', group:'design', prov:'ASSUMED', screen:'Start logistics', route:'#/hm/logistics',
     assumed:'The orientation blueprint is authoritative. Location facts are read-only; the manager only supplies what the blueprint cannot know.',
-    resolve:'The workflow file asks when manager-provided details should override the blueprint. Read-only is the conservative default — if override is intended, the UI has to make precedence visible or the two sources will silently disagree.', oi:'OI-05' },
+    resolve:'The workflow file asks when manager-provided details should override the blueprint. Read-only is the conservative default. If override is intended, the UI has to make precedence visible, or the two sources will quietly disagree.', oi:'OI-05' },
   { id:'M-06', side:'hm', group:'design', prov:'UAT', screen:'Day 1 calendar', route:'#/hm/calendar',
     assumed:'The Day 1 one-to-one is auto-created and can be rescheduled but not deleted. The other holds are suggestions the manager accepts.',
     resolve:'Automatic placement is specified for the one-to-one only. Whether the remaining holds auto-create is undecided, and it is the single biggest lever on how much work this screen represents.', oi:'OI-13' },
   { id:'M-07', side:'hm', group:'design', prov:'ASSUMED', screen:'Assign a buddy', route:'#/hm/buddy',
-    assumed:'A suggested buddy with a capacity warning at 3 concurrent hires. The performance signal in the suggestion criteria is deliberately NOT surfaced to the manager.',
-    resolve:'Buddy policy — criteria, load limits, decline process — is undefined, so the limit shown is invented. A performance-derived suggestion is a manager-visible inference about another employee and needs a privacy position before it surfaces at all.', oi:'OI-10' },
+    assumed:'A suggested buddy with a capacity warning at 3 concurrent hires. The performance signal in the suggestion criteria is held back from the manager on purpose.',
+    resolve:'Buddy policy is undefined, including criteria, load limits and the decline process, so the limit shown here is invented. A performance-derived suggestion is a manager-visible inference about another employee and needs a privacy position before it surfaces at all.', oi:'OI-10' },
   { id:'M-08', side:'hm', group:'design', prov:'ASSUMED', screen:'Welcome email', route:'#/hm/welcome',
     assumed:'Pre-filled boilerplate, an editable personal message, and a read-only first-week block generated from the new hire’s actual task list.',
-    resolve:'A superset screen, not in the approved workflow file. The generated first-week block is what makes this cheap instead of a blank page — confirm the content can actually be generated.', oi:'—' },
+    resolve:'A superset screen, not in the approved workflow file. The generated first-week block is what makes this cheap instead of a blank page. Confirm the content can actually be generated.', oi:'' },
   { id:'M-09', side:'hm', group:'design', prov:'ASSUMED', screen:'All manager screens', route:'#/hm/',
-    assumed:'Every manager task carries its disposition on screen — keep, exception-only, automate, remove or undecided.',
-    resolve:'The spec’s central instruction is that rendering all screens as equal peers would misrepresent the design intent. Making the disposition visible is a presentation decision the spec asks for but does not specify.', oi:'—' },
+    assumed:'Every manager task carries its disposition on screen: keep, exception-only, automate, remove or undecided.',
+    resolve:'The spec’s central instruction is that rendering all screens as equal peers would misrepresent the design intent. Making the disposition visible is a presentation decision the spec asks for but does not specify.', oi:'' },
   { id:'M-13', side:'hm', group:'design', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'A manager can have several concurrent hires; the prototype shows two, with only one interactive.',
-    resolve:'Filterable views are required and nudges are framed per-person, which implies more than one. No source states the expected volume or how the view should behave at ten.', oi:'—' },
+    resolve:'Filterable views are required and nudges are framed per-person, which implies more than one. No source states the expected volume or how the view should behave at ten.', oi:'' },
   { id:'M-14', side:'hm', group:'design', prov:'ASSUMED', screen:'Start logistics', route:'#/hm/logistics',
     assumed:'The Day 1 proxy is captured with the other logistics and applies to this hire only, not permanently.',
     resolve:'Delegation mechanics are unwritten, so what a proxy can actually see and do is undefined. The field can be drawn; its consequence cannot.', oi:'OI-12' },
   { id:'M-16', side:'hm', group:'design', prov:'UAT', screen:'Readiness view', route:'#/hm/',
-    assumed:'Equipment status uses the live portal’s wording — NOT ORDERED YET, plus who it is waiting on and which task unblocks it.',
-    resolve:'Adopted rather than invented. This is the pattern the live product already uses, and the documented reason equipment sits front and centre.', oi:'—' },
+    assumed:'Equipment status uses the live portal’s wording, NOT ORDERED YET, plus who it is waiting on and which task unblocks it.',
+    resolve:'Adopted, not invented. It is the pattern the live product already uses, and the documented reason equipment sits front and centre.', oi:'' },
   { id:'M-18', side:'hm', group:'design', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager’s own contact details and the Teams channel list are one-click confirmations in the rail, not screens.',
-    resolve:'Both have an “automate the prompt, one-click confirm” disposition. Folding them into the home screen removes two items from the task list, which is the outcome the design intent favours.', oi:'—' },
+    resolve:'Both have an “automate the prompt, one-click confirm” disposition. Folding them into the home screen removes two items from the task list, which is the outcome the design intent favours.', oi:'' },
 ];
 
 const LINK_ASSUMPTIONS = [
   { id:'L-01', side:'link', group:'blocks', prov:'PRIOR', screen:'Buddy → new hire', route:'#/hm/buddy',
     assumed:'CONFLICT, unresolved. The manager assigns the buddy here; the new hire prototype shows that buddy from the moment of assignment; the spec says the contact card appears 72 hours before the start date. Both cannot be right.',
-    resolve:'Use the prototype control to switch between the two rules and see the difference on the new hire’s landing screen. Also unresolved: whether the buddy has accepted before their name is shown, which matters because the manager can reassign up to Day −3 — a reassignment would remove a name the new hire has already seen.', oi:'OI-22' },
+    resolve:'Use the prototype control to switch between the two rules and see the difference on the new hire’s landing screen. Also unresolved: whether the buddy has accepted before their name is shown, which matters because the manager can reassign up to Day −3, and a reassignment would remove a name the new hire has already seen.', oi:'OI-22' },
   { id:'L-02', side:'link', group:'blocks', prov:'ASSUMED', screen:'Introduction → manager', route:'#/hm/intro',
     assumed:'The new hire’s introduction arrives in the manager’s portal with an explicit Forward action. Nothing is posted automatically.',
-    resolve:'Closes the loop on the new hire side’s manager-forward model, but no source specifies a manager-side receive-and-forward screen. The merge analysis keeps the welcome email and the introduction separate without saying where the introduction lands.', oi:'—' },
+    resolve:'Closes the loop on the new hire side’s manager-forward model, but no source specifies a manager-side receive-and-forward screen. The merge analysis keeps the welcome email and the introduction separate without saying where the introduction lands.', oi:'' },
   { id:'L-05', side:'link', group:'blocks', prov:'ASSUMED', screen:'New hire progress → manager', route:'#/hm/',
     assumed:'Sensitive new hire tasks report status only, never content. The manager sees that identity documents are done, not what was uploaded.',
-    resolve:'The same unresolved visibility question as M-03, seen from the join. The prototype makes one specific choice so it can be argued rather than discovered during build.', oi:'OI-03' },
+    resolve:'The same unresolved visibility question as M-03, seen from the join. The prototype makes one specific choice so it can be argued now instead of discovered during build.', oi:'OI-03' },
   { id:'L-10', side:'link', group:'design', prov:'PRD', screen:'Corporate card → new hire', route:'#/hm/card',
     assumed:'The manager’s yes creates a Day 2 task for the new hire. A no creates nothing, and the new hire never sees the subject at all.',
-    resolve:'Matches the requirement, and it is the only handoff here whose negative answer is also a designed outcome. Worth confirming the new hire is told nothing rather than told “not applicable”.', oi:'—' },
+    resolve:'Matches the requirement, and it is the only handoff here whose negative answer is also a designed outcome. Confirm the new hire is told nothing at all, instead of being told “not applicable”.', oi:'' },
   { id:'L-11', side:'link', group:'blocks', prov:'PRD', screen:'Start date → both portals', route:'#/startdate',
     assumed:'Changing the start date moves every dependent due date on both sides, and the manager sees the request.',
-    resolve:'The requirement says the portal updates dependent due dates and tasks. It does not say who approves the change, how late it can be requested, or what happens to work already in flight — an order placed, a badge queued for print, a calendar hold booked.', oi:'—' },
+    resolve:'The requirement says the portal updates dependent due dates and tasks. It does not say who approves the change, how late it can be requested, or what happens to work already in flight: an order placed, a badge queued for print, a calendar hold booked.', oi:'' },
   { id:'L-03', side:'link', group:'design', prov:'ASSUMED', screen:'Manager contact → new hire', route:'#/hm/',
     assumed:'The manager’s confirmed contact details feed the card the new hire sees, and the manager is explicitly told the new hire can reach them before Day 1.',
-    resolve:'Pre-hire contact scope is not settled in any source, and nothing on the manager’s side currently tells them the new hire has their details — or sets any expectation about responding.', oi:'OI-23' },
+    resolve:'Pre-hire contact scope is not settled in any source, and nothing on the manager’s side tells them the new hire has their details, or sets any expectation about responding.', oi:'OI-23' },
   { id:'L-04', side:'link', group:'design', prov:'UAT', screen:'Equipment → both sides', route:'#/hm/computer',
     assumed:'Both sides read one equipment table. The manager’s computer order and the new hire’s accessories order update the same three rows.',
-    resolve:'Confirmed in the live product. The value of the join is that “where is my equipment?” is answered identically on both screens, naming the same person and the same unblocking task.', oi:'—' },
+    resolve:'Confirmed in the live product. The value of the join is that “where is my equipment?” is answered identically on both screens, naming the same person and the same unblocking task.', oi:'' },
   { id:'L-06', side:'link', group:'design', prov:'ASSUMED', screen:'Team network → new hire', route:'#/hm/network',
     assumed:'The people the manager names, and the reasons they write, are shown to the new hire verbatim.',
-    resolve:'No source says whether the reason is shown to the new hire or kept manager-private. Showing it is what makes the task worth doing at all — but it means the manager is writing for an audience, which changes what they write.', oi:'—' },
+    resolve:'No source says whether the reason is shown to the new hire or kept manager-private. Showing it is what makes the task worth doing at all. It also means the manager is writing for an audience, which changes what they write.', oi:'' },
   { id:'L-07', side:'link', group:'design', prov:'ASSUMED', screen:'Logistics → first day details', route:'#/hm/logistics',
     assumed:'What the manager confirms here becomes the new hire’s “Your first day details”, which opens 3 days before the start date.',
-    resolve:'Sequencing assumption drawn from the Day 1 information email at T−3 business days. If the manager has not confirmed by then, the card has to open with blueprint values only.', oi:'—' },
+    resolve:'Sequencing assumption drawn from the Day 1 information email at T−3 business days. If the manager has not confirmed by then, the card has to open with blueprint values only.', oi:'' },
   { id:'L-08', side:'link', group:'design', prov:'ASSUMED', screen:'Welcome email → sequencing', route:'#/hm/welcome',
     assumed:'The manager’s welcome email should land before the new hire is asked to write their introduction. The prototype shows the intended order but does not enforce it.',
-    resolve:'The merge analysis says sequence rather than merge, but nothing enforces the order — and three welcome communications compete for the same week before Day 1.', oi:'—' },
+    resolve:'The merge analysis says sequence, not merge, but nothing enforces the order, and three welcome communications compete for the same week before Day 1.', oi:'' },
   { id:'L-09', side:'link', group:'content', prov:'ASSUMED', screen:'Notifications', route:'#/hm/network',
     assumed:'Named people and the assigned buddy are notified; the prototype shows that a notification was sent but never its content.',
-    resolve:'Notification and reminder design is out of scope for both specs and deserves its own pass. Being named in someone’s network is a message to a third party who did not ask for it.', oi:'—' },
+    resolve:'Notification and reminder design is out of scope for both specs and deserves its own pass. Being named in someone’s network is a message to a third party who did not ask for it.', oi:'' },
 ];
 
 HM_ASSUMPTIONS.forEach(a => ASSUMPTIONS.push(a));
@@ -658,10 +736,10 @@ const SIDE_LABELS = {
 /* Manager-side open questions, shown alongside the new hire's */
 const HM_OPEN_BEFORE_BUILD = [
   'Is the manager’s “Order equipment for new hire” task the one being redesigned for the laptop-and-accessory MVP? It decides whether this screen is ours to design at all.',
-  'What goes into the readiness score — composition, weighting, and what counts as ready? It is the most prominent element on the manager’s home screen.',
+  'What goes into the readiness score: composition, weighting, and what counts as ready? It is the most prominent element on the manager’s home screen.',
   'What new hire task detail can a manager see? The visibility matrix is unwritten and several new hire tasks are plainly sensitive.',
-  'How is persona resolved for provisioning? Until it is, the software stack renders empty and the manager fills it by hand — the opposite of the intended design.',
-  'When does the buddy become visible to the new hire — from assignment, or 72 hours before start? The two prototypes currently disagree.',
+  'How is persona resolved for provisioning? Until it is, the software stack renders empty and the manager fills it by hand, which is the opposite of the intended design.',
+  'When does the buddy become visible to the new hire: from assignment, or 72 hours before start? The two prototypes currently disagree.',
   'Should the team network task exist, given it is the only proposal that adds manager work?',
   'Does the manager override blueprint logistics, and if so how is precedence shown?',
   'Are the remaining Day 1 calendar holds auto-created or manager-driven? It is the biggest lever on that screen’s weight.',
