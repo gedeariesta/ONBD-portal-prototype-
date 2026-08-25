@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Builds Pre_Day_1_Portal_Alignment_Planner.xlsx"""
-import sys
-sys.path.insert(0, '/tmp/claude-0/-home-user-ONBD-portal-prototype-/b3f9c803-e234-5ca7-a4f0-7c2389865b4f/scratchpad')
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -9,7 +9,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 from mk_planner_part1 import PORTAL_MAP
 from mk_planner_part2 import PORTAL_MAP_HM
-from mk_planner_part3 import ALIGNMENT, DOCUMENTS
+from mk_planner_part3 import ALIGNMENT, DOCUMENTS, CLOSED_IN_MOCKUP
 
 # ---- Equinix brand palette (from the Brand Center pack) ----
 CHARCOAL = "2F3541"; CARBON = "5A657B"; CLOUD = "E1E3E7"; SILVER = "F2F3F4"
@@ -78,8 +78,8 @@ readme = [
  ("Scope", "Pre-Day 1 only, two personas. People Experience is named throughout as an audience but has no screens and no UI spec available here — logged as G-19."),
  ("", ""),
  ("HOW TO READ THE TABS", ""),
- ("Portal Map", "Every screen, tab, section and field in the v3 mockups, both sides. Use the Status column to see where each element stands, and the Connects to column to see which elements cross between the two portals."),
- ("Alignment & Gaps", "The comparison. One row per finding, with what the mockup does, what the source says, a verdict and the action. Sort by Priority to get the working list."),
+ ("Portal Map", "Every screen, tab, section and field in the mockups, both sides, after the gap-closing pass. Use the Status column to see where each element stands, and the Connects to column to see which elements cross between the two portals."),
+ ("Alignment & Gaps", "The comparison. One row per finding, with what the mockup does, what the source says, a verdict, the action, and what the mockups were changed to do about it. Sort by Priority to get the working list."),
  ("Pre-Day 1 Documents", "What we ask new hires to read and sign today, from the live Workday business process, mapped against the intended future treatment and against what the mockup shows. This is where the largest single gap sits."),
  ("Consideration (next)", "Not built yet. Reserved for knitting in the handbook guide and the Inside Equinix content — see G-09, which now has a sourced answer to build from."),
  ("", ""),
@@ -98,7 +98,7 @@ readme = [
  ("4 — Monitor", "Aligned today; worth re-checking if a source moves."),
  ("", ""),
  ("SOURCES USED", ""),
- ("Built artifacts", "New Hire portal mockup (v3) and Hiring Manager portal mockup (v3), sharing one state so cross-portal handoffs are real. 74-entry assumption register: 47 new hire, 18 manager, 9 connection."),
+ ("Built artifacts", "New Hire portal mockup (v3) and Hiring Manager portal mockup (v3), sharing one state so cross-portal handoffs are real. 82-entry assumption register: 50 new hire, 21 manager, 11 connection, 2 retired. Eleven cross-portal handoffs."),
  ("Specifications", "Pre_Day_1_Task_UI_Spec.xlsx (New Hire) · HM_Pre_Day_1_Portal_UI_Spec.xlsx (Hiring Manager). No PEX equivalent available."),
  ("Requirements", "Equinix_Onboarding_Reimagined_PRD v1.3 and v1.4. v1.4 is the operative version and adds the corporate card flow, the Data Protection Policy language rule, the Payroll/ADP universal form, the proxy requirement and the Inside Equinix carousel."),
  ("Future state", "Onboarding_Portal_Future_State_Workflow_Template_v3 (Clean Day1) — Pre-Day 1, All Tasks, Key Principles, Decision Log."),
@@ -175,10 +175,10 @@ for i, (lbl, formula) in enumerate([
 # =====================================================================
 ws = wb.create_sheet("Alignment & Gaps")
 cols = ["Ref","Area","Screen(s)","What the mockup does today","Source of truth",
-        "What the source says","Verdict","Action needed","Owner","Priority"]
+        "What the source says","Verdict","Action needed","Owner","Priority","Closed in the mockup?"]
 title_block(ws, "Alignment & Gaps — mockups against the sources",
             "One row per finding. Sort by Priority for the working list. Six rows block build. Four are conflicts between sources, which are the expensive ones "
-            "because both readings are currently being designed towards.", len(cols))
+            "because both readings are currently being designed towards. The last column records what the mockups were changed to do about each one.", len(cols))
 ws.append([]); ws.append(cols)
 style_header(ws, 4, len(cols))
 verdict_map = {
@@ -186,8 +186,18 @@ verdict_map = {
  "GAP OPEN": (LT_YELLOW, "8A5A00"), "CONFLICT": (LT_RED, DK_RED),
  "SUPERSEDED": (LT_VIOLET, DK_VIOLET), "NEW REQUIREMENT": (LT_BLUE, DK_BLUE),
 }
-write_rows(ws, ALIGNMENT, 5, [8,26,20,50,30,62,16,52,18,15],
+ALIGN_ROWS = [tuple(r) + (CLOSED_IN_MOCKUP.get(r[0], ""),) for r in ALIGNMENT]
+write_rows(ws, ALIGN_ROWS, 5, [8,26,20,50,30,62,16,52,18,15,58],
            colour_col=7, colour_map=verdict_map)
+for ri in range(5, 5 + len(ALIGN_ROWS)):
+    v = str(ws.cell(row=ri, column=11).value or "")
+    c = ws.cell(row=ri, column=11)
+    if v.startswith("YES") or v.startswith("ALREADY"):
+        c.fill = PatternFill("solid", fgColor=LT_GREEN); c.font = Font(name=FONT, size=9, color=DK_GREEN)
+    elif v.startswith("PARTLY"):
+        c.fill = PatternFill("solid", fgColor=LT_YELLOW); c.font = Font(name=FONT, size=9, color="8A5A00")
+    elif v.startswith("NO"):
+        c.fill = PatternFill("solid", fgColor=LT_RED); c.font = Font(name=FONT, size=9, color=DK_RED)
 # priority colouring
 for ri in range(5, 5 + len(ALIGNMENT)):
     v = str(ws.cell(row=ri, column=10).value or "")
@@ -209,6 +219,9 @@ for i, (lbl, formula) in enumerate([
     ("Answered by these documents", f'=COUNTIF(G5:G{last},"GAP CLOSED")+COUNTIF(G5:G{last},"SUPERSEDED")+COUNTIF(G5:G{last},"NEW REQUIREMENT")'),
     ("Still open", f'=COUNTIF(G5:G{last},"GAP OPEN")'),
     ("Aligned", f'=COUNTIF(G5:G{last},"ALIGNED")'),
+    ("Closed in the mockup", f'=COUNTIF(K5:K{last},"YES*")+COUNTIF(K5:K{last},"ALREADY*")'),
+    ("Partly closed", f'=COUNTIF(K5:K{last},"PARTLY*")'),
+    ("Not a mockup change", f'=COUNTIF(K5:K{last},"NO*")'),
 ]):
     ws.cell(row=s+1+i, column=1, value=lbl).font = Font(name=FONT, size=9, color=CARBON)
     c = ws.cell(row=s+1+i, column=2, value=formula)
@@ -298,9 +311,7 @@ for k, v in seed:
     b.alignment = Alignment(vertical="top", wrap_text=True)
     r += 1
 
-out = "/home/user/ONBD-portal-prototype-/planning/Pre_Day_1_Portal_Alignment_Planner.xlsx"
-import os
-os.makedirs(os.path.dirname(out), exist_ok=True)
+out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Pre_Day_1_Portal_Alignment_Planner.xlsx")
 wb.save(out)
 print("wrote", out)
 print("portal map rows:", len(rows), "| alignment rows:", len(ALIGNMENT), "| document rows:", len(DOCUMENTS))

@@ -1250,6 +1250,75 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .side-tag.link{color:#8a5a00; border-color:#f7e2ad;}
 .obb-h{font-size:11.5px; font-weight:800; color:var(--carbon); margin:12px 0 4px;}
 
+/* ============================================================
+   v3 gap-closing pass — carousel, start date, background check,
+   the real document pack
+   ============================================================ */
+
+/* Inside Equinix carousel (A-35) */
+.carousel{
+  display:flex; align-items:center; gap:26px; margin-bottom:18px;
+  border-radius:var(--radius-lg); padding:20px 28px;
+  background:linear-gradient(102deg, var(--eq-dark-violet) 0%, var(--eq-dark-blue) 58%, var(--eq-dark-aqua) 100%);
+  color:var(--white); position:relative; overflow:hidden;
+}
+.car-left{flex:1; min-width:0;}
+.car-eyebrow{
+  display:flex; align-items:center; gap:7px; font-size:11px; font-weight:800;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--eq-aqua); margin-bottom:10px;
+}
+.car-body{display:flex; align-items:baseline; gap:16px;}
+.car-num{font-size:34px; font-weight:800; color:rgba(255,255,255,.32); line-height:1; flex:none;}
+.car-title{font-size:19px; font-weight:800; color:var(--white); line-height:1.2;}
+.car-line{font-size:13.5px; font-weight:350; color:rgba(255,255,255,.82); margin-top:3px;}
+.car-foot{font-size:11.5px; font-weight:350; color:rgba(255,255,255,.6); margin-top:12px;}
+.car-nav{display:flex; align-items:center; gap:12px; flex:none;}
+.car-arrow{
+  width:30px; height:30px; border-radius:50%; border:1px solid rgba(255,255,255,.35);
+  background:none; color:var(--white); cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.car-arrow:hover{background:rgba(255,255,255,.16);}
+.car-dots{display:flex; gap:6px;}
+.car-dot{
+  width:7px; height:7px; border-radius:50%; border:none; padding:0; cursor:pointer;
+  background:rgba(255,255,255,.35);
+}
+.car-dot.on{background:var(--eq-aqua); width:18px; border-radius:99px;}
+
+/* Confirm your start date (A-49) */
+.date-card{
+  display:flex; align-items:center; gap:20px; max-width:620px;
+  background:var(--eq-light-blue); border-radius:var(--radius-lg); padding:22px 26px;
+}
+.date-card.ok{background:var(--ok-bg);}
+.date-card .ic{color:var(--eq-dark-blue); flex:none;}
+.date-card.ok .ic{color:var(--ok);}
+.dc-label{font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--eq-dark-blue); opacity:.75;}
+.dc-date{font-size:22px; font-weight:800; color:var(--charcoal); margin-top:3px;}
+.dc-sub{font-size:12.5px; color:var(--carbon); font-weight:350;}
+.date-card > div:nth-child(2){flex:1;}
+
+/* Background check (A-50) */
+.bg-status{display:flex; gap:20px; align-items:flex-start; max-width:680px;
+  background:var(--eq-light-aqua); border-radius:var(--radius-lg); padding:22px 26px;}
+.bg-status .ic{color:var(--eq-dark-aqua); flex:none;}
+.bg-state{display:inline-flex; align-items:center; gap:7px; font-weight:800; font-size:14px; color:var(--eq-dark-aqua); margin-bottom:6px;}
+.bg-status p{font-size:13.5px; font-weight:350; color:var(--charcoal);}
+
+/* The real document pack (A-51) */
+.read-card.stack{flex-direction:column; align-items:stretch; gap:0;}
+.read-card.stack .rc-top{display:flex; gap:13px; align-items:flex-start;}
+.pack-flag{
+  display:flex; gap:9px; align-items:flex-start; margin-top:12px; padding:11px 14px;
+  background:var(--warn-bg); border-radius:8px; font-size:12.5px; color:#7a3a10; font-weight:350; line-height:1.55;
+}
+.pack-flag .ic{color:var(--eq-dark-orange); margin-top:1px; flex:none;}
+.pack-flag b{color:#8a3200;}
+
+/* provenance tags added in this pass */
+.prov.PRD{background:var(--eq-light-blue); color:var(--eq-dark-blue);}
+.prov.CURRENT{background:var(--warn-bg); color:#8a3200;}
+
 </style>
 </head>
 <body>
@@ -1347,7 +1416,9 @@ const SIM = {
 
 /* Due dates as offsets from the start date, so both runways work (A-45). */
 const DUE_OFFSETS = {
-  equipment: -12,   // earliest of all — build and ship lead time (A-33)
+  startdate: -14,   // triggered at offer acceptance (A-49)
+  bgcheck: -13,     // launched from the portal, runs externally (A-50)
+  equipment: -12,   // earliest of the provisioning tasks — build and ship lead (A-33)
   photo: -10,       // badge print lead
   jd: -7,
   intro: -7,
@@ -1442,9 +1513,9 @@ const ASSUMPTIONS = [
     resolve:'Declared rather than silently diverged. Decide whether to adopt the split: it changes navigation, the progress model, and where the culture content lives.', oi:'—' },
 
   /* ---------- Content needed ---------- */
-  { id:'A-03', group:'content', prov:'ASSUMED', screen:'Personal details', route:'#/details',
-    assumed:'Preferred language sits on Tab 3, defaulted from country of hire.',
-    resolve:'Confirm whether language preference comes from the worker record or is captured here. Five policy documents are served by it.', oi:'OI-16' },
+  { id:'A-03', group:'content', prov:'PRD', screen:'Personal details / Compliance pack', route:'#/policies',
+    assumed:'REVISED. Document language is derived from country of hire, not chosen by the new hire. The preference field on Tab 3 now covers communications only, and says so.',
+    resolve:'The requirement is explicit: the privacy notice “must be auto displayed in the employee’s local language for countries where a translated version is required”, English otherwise. Twenty approved translations exist. The earlier version of this assumption had the model backwards. Still to confirm: whether a new hire may override the served language.', oi:'OI-16' },
   { id:'A-05', group:'content', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'Contact preferences = preferred channel (email / text / either) plus an opt-in for non-essential updates.',
     resolve:'The field is named in the source with no definition. Someone needs to define the real options.', oi:'OI-18' },
@@ -1529,11 +1600,11 @@ const ASSUMPTIONS = [
     assumed:'The hiring manager is contactable from the portal before Day 1, by Teams and email.',
     resolve:'Confirm the manager expects to be reachable this early, and that Teams reaches them before the new hire has an Equinix account.', oi:'—' },
   { id:'A-33', group:'design', prov:'1:1', screen:'Task list', route:'#/',
-    assumed:'Equipment opens immediately and sits first in the list, with the earliest due date.',
-    resolve:'Nothing gates it today — the “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'—' },
+    assumed:'Equipment opens immediately and is the earliest of the provisioning tasks. Confirming the start date and launching the background check now sit ahead of it, because both are triggered at offer acceptance.',
+    resolve:'Nothing gates equipment today — the “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'—' },
   { id:'A-35', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
-    assumed:'Inside Equinix is parked here as pre-Day 1 reference reading, with nothing required or tracked.',
-    resolve:'Three positions exist: today it is a Day 1 to-do in the live portal; here it is pre-Day 1 side reference; the stated intent is a carousel above the progress tracker, releasing modules as the start date approaches. Moving it out of Day 1 is a relocation, not a presentation upgrade — pick one of the three.', oi:'—' },
+    assumed:'ANSWERED. A carousel at the top of the portal rotating chapters 01-06, plus a link in the right-hand rail. No tasks, nothing tracked. Both are now built.',
+    resolve:'The requirement settles the three-way question — it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. Chapter summaries here are placeholder.', oi:'—' },
   { id:'A-36', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'The first-90-days checklists are parked as reference only, not as tick-off items.',
     resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date • Optional”. Revisit whether tick-off is now cheap.', oi:'—' },
@@ -1550,6 +1621,16 @@ const ASSUMPTIONS = [
     assumed:'Start dates are bimodal — many hires have about two weeks, but some start three months out. Both are viewable from the prototype controls.',
     resolve:'The distribution is on the onboarding dashboard — pull it rather than guess. A list that works at fourteen days can feel empty and confusing at ninety.', oi:'—' },
 
+  { id:'A-49', group:'blocks', prov:'PRD', screen:'Confirm your start date', route:'#/startdate',
+    assumed:'Confirming the start date is its own required task, and requesting a change moves every other due date with it.',
+    resolve:'The future-state workflow carries this as a separate required task that “updates dependent due dates and tasks”. It was missing from the earlier prototype. What is not defined is who approves a change, how far it can move, and what happens to work already in flight — equipment on order, a badge queued for print.', oi:'—' },
+  { id:'A-50', group:'design', prov:'PRD', screen:'Background check', route:'#/bgcheck',
+    assumed:'The background check is launched by the new hire from the portal, with status shown here afterwards.',
+    resolve:'The source has this as a required task with an action, not the passive status card the earlier prototype showed. Country treatments and the status integration are both unconfirmed.', oi:'—' },
+  { id:'A-51', group:'content', prov:'CURRENT', screen:'Compliance pack', route:'#/policies',
+    assumed:'The reference pack the live process sends today is shown alongside the acknowledgement pack, with its real size.',
+    resolve:'A US hire currently receives 28 documents in one bundle — the handbook, 25 state addenda, the benefits booklet and a compliance service — regardless of which state they work in. Across all countries the process serves 416 document instances. Which of those survive pre-Day 1, which move later and which retire is the single largest open decision in this workstream.', oi:'—' },
+
   /* ---------- Retired — observation answered the question ---------- */
   { id:'A-09', group:'retired', prov:'UAT', screen:'Personal details / Equipment', route:'#/equipment',
     assumed:'Was: home address is captured once on Tab 1 and reused for equipment delivery, with the equipment task holding the editable copy.',
@@ -1565,6 +1646,8 @@ const GROUP_LABELS = {
 
 const PROV_LABELS = {
   UAT: 'Seen in the live UAT portal',
+  PRD: 'Specified in the requirements (v1.4)',
+  CURRENT: 'Measured from the live Workday process',
   '1:1': 'Stated by the platform owner',
   PRIOR: 'Agreed in the earlier change request',
   ASSUMED: 'Still a judgement call',
@@ -1682,11 +1765,51 @@ const NETWORK_POOL = [
     suggested:true, why:'She runs the planning tool you’ll live in. Thirty minutes with her early saves a lot of guessing later.' },
 ];
 
-/* ---------- Inside Equinix modules (A-35) ---------- */
+/* ---------- Inside Equinix (A-35) ----------
+   PRD v1.4 asks for a carousel at the top of the portal rotating chapters
+   01-06, plus a link in the right-hand rail. No tasks, nothing tracked.
+   Chapter titles are real; the one-line summaries are placeholder. */
 const INSIDE_MODULES = [
   'Who we are', 'How we work', 'Our business',
   'What we enable', 'Our road ahead', 'Your role',
 ];
+const INSIDE_CHAPTERS = [
+  { n:'01', title:'Who we are',      line:'Where Equinix came from, and what the company is for.' },
+  { n:'02', title:'How we work',     line:'How decisions get made, and what good looks like here.' },
+  { n:'03', title:'Our business',    line:'What we sell, who buys it, and how the money works.' },
+  { n:'04', title:'What we enable',  line:'What our customers actually do with what we build.' },
+  { n:'05', title:'Our road ahead',  line:'Where the company is heading over the next few years.' },
+  { n:'06', title:'Your role',       line:'How your work connects to all of the above.' },
+];
+
+/* ---------- What the live Workday process actually sends today (A-51) ----------
+   Counts are from the current-state business process document list, not invented.
+   The mockup's acknowledgement pack is the intended future core; this is the
+   reference material that arrives alongside it today. */
+const CURRENT_PACK = {
+  US: { handbook:'US Employee Handbook (November 2024)',
+        addenda:25, addendaNote:'state handbook addenda — every US hire receives all of them, whichever state they work in',
+        extras:['2026 Equinix U.S. Benefits Booklet','GovDocs'],
+        total:28 },
+  JP: { handbook:'就業規則 — Japanese employment regulations (April 2025)',
+        addenda:0, addendaNote:'',
+        extras:['Japan-specific employment documents'],
+        total:19 },
+};
+
+/* ---------- Corporate card (PRD v1.4) ---------- */
+const CARD_FLOW = {
+  managerQuestion: 'Will Jordan travel on behalf of Equinix and need a corporate card?',
+  newHireTask: 'Equinix Corporate Card Request',
+  timing: 'Day 2 — after they start, not before',
+  mechanics: [
+    'You answer yes or no before Jordan starts.',
+    'If yes, a task appears for Jordan on Day 2: review the user agreement and sign it electronically.',
+    'Completed agreements are extracted weekly to Accounts Payable.',
+    'Accounts Payable submit the file to Citi, who send Jordan an application link directly.',
+  ],
+  note: 'Citi cannot host the agreement, so it lives in an Equinix system. Contingent workers are out of scope.',
+};
 
 /* ---------- Coming up ---------- */
 const COMING_UP = [
@@ -1835,9 +1958,18 @@ const HM_ASSUMPTIONS = [
     resolve:'The source row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire SSO logic applied to the wrong persona. Shown struck through so the removal is arguable rather than silent — but confirm no ServiceNow role or licence provisioning is hiding behind it.', oi:'OI-01' },
 
   /* ---------- Content needed ---------- */
-  { id:'M-12', side:'hm', group:'content', prov:'ASSUMED', screen:'Corporate card', route:'#/hm/subtraction',
-    assumed:'The corporate card is shown as undecided and is not built.',
-    resolve:'The source row is truncated — seven attributes are blank. If all employees are moving to the Citi card by default there is nothing for a manager to decide and the task should be removed.', oi:'OI-06' },
+  { id:'M-12', side:'hm', group:'retired', prov:'PRD', screen:'Corporate card', route:'#/hm/card',
+    assumed:'Was: the corporate card is undecided and not built, because the source row was truncated.',
+    resolve:'Superseded. The requirement now specifies the whole flow — a manager yes/no framed around travel, then an e-signature task for the new hire on Day 2, a weekly extract to Accounts Payable, and an application link issued by the card provider. It is a manager decision after all, but not a universal entitlement, and the new hire’s half is post-start rather than pre-Day 1. Built.', oi:'OI-06 → closed' },
+  { id:'M-19', side:'hm', group:'content', prov:'PRD', screen:'Corporate card', route:'#/hm/card',
+    assumed:'The manager question is framed around travel — will this person travel on behalf of Equinix — rather than as a generic entitlement.',
+    resolve:'That is the wording the requirement uses, and it is narrower than “does everyone get a card”. Two things the requirement itself leaves open: what the task is called in the portal, and whether cost centre and approver are captured alongside the yes.', oi:'OI-06' },
+  { id:'M-20', side:'hm', group:'design', prov:'PRD', screen:'Start logistics', route:'#/hm/logistics',
+    assumed:'Delegation is a standing capability, not a Day 1 field. A proxy can act on the manager’s behalf and see the new hire’s status, and People Experience need the same.',
+    resolve:'Broader than the earlier version of this screen, which treated the proxy as cover for Day 1 only. What a proxy can actually see and do is still undefined, and the requirement gives the same capability to People Experience — who have no screens here at all.', oi:'OI-12' },
+  { id:'M-21', side:'hm', group:'blocks', prov:'PRD', screen:'Team network / welcome note', route:'#/hm/network',
+    assumed:'Both of these are drawn as new work, but the underlying platform may already provide them.',
+    resolve:'The platform’s own onboarding module ships “select people to meet”, “select helpful contacts” and “customise a welcome memo”, surfaced on the new hire’s dashboard. Decide whether to use what exists or build alongside it before either screen is costed — it materially changes the argument that the network task adds manager work.', oi:'—' },
   { id:'M-15', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager guide', route:'#/hm/',
     assumed:'The Manager Onboarding Guide is one artifact with persona variants, persisting as a link in the rail.',
     resolve:'Unresolved whether this is the existing Manager Companion Guide, a superset of it, or something new. The two are scoped differently and there is no settled terminology.', oi:'OI-07' },
@@ -1885,6 +2017,12 @@ const LINK_ASSUMPTIONS = [
   { id:'L-05', side:'link', group:'blocks', prov:'ASSUMED', screen:'New hire progress → manager', route:'#/hm/',
     assumed:'Sensitive new hire tasks report status only, never content. The manager sees that identity documents are done, not what was uploaded.',
     resolve:'The same unresolved visibility question as M-03, seen from the join. The prototype makes one specific choice so it can be argued rather than discovered during build.', oi:'OI-03' },
+  { id:'L-10', side:'link', group:'design', prov:'PRD', screen:'Corporate card → new hire', route:'#/hm/card',
+    assumed:'The manager’s yes creates a Day 2 task for the new hire. A no creates nothing, and the new hire never sees the subject at all.',
+    resolve:'Matches the requirement, and it is the only handoff here whose negative answer is also a designed outcome. Worth confirming the new hire is told nothing rather than told “not applicable”.', oi:'—' },
+  { id:'L-11', side:'link', group:'blocks', prov:'PRD', screen:'Start date → both portals', route:'#/startdate',
+    assumed:'Changing the start date moves every dependent due date on both sides, and the manager sees the request.',
+    resolve:'The requirement says the portal updates dependent due dates and tasks. It does not say who approves the change, how late it can be requested, or what happens to work already in flight — an order placed, a badge queued for print, a calendar hold booked.', oi:'—' },
   { id:'L-03', side:'link', group:'design', prov:'ASSUMED', screen:'Manager contact → new hire', route:'#/hm/',
     assumed:'The manager’s confirmed contact details feed the card the new hire sees, and the manager is explicitly told the new hire can reach them before Day 1.',
     resolve:'Pre-hire contact scope is not settled in any source, and nothing on the manager’s side currently tells them the new hire has their details — or sets any expectation about responding.', oi:'OI-23' },
@@ -1979,6 +2117,10 @@ function hmTasks() {
       why:'The people outside your team that Jordan will actually work with.',
       dispNote:'The only item here that adds to your load. It needs a decision, not a design.' },
   ];
+  list.splice(3, 0, { id:'card', label:'Will Jordan need a corporate card?', disp:'undecided', route:'#/hm/card',
+    done: H.card.needed !== null, icon:'banking.svg', marker:'M-19',
+    why:'One question, and only if they will travel on behalf of Equinix.',
+    dispNote:'Was undecided while the source row was truncated. Now specified — and it is genuinely one tap.' });
   if (introReady || H.intro.forwarded) {
     list.push({ id:'intro', label:'Forward Jordan’s introduction to the team', disp:'keep', route:'#/hm/intro',
       done: H.intro.forwarded, icon:'comment-smile.svg', marker:'L-02',
@@ -2031,6 +2173,10 @@ function hmBlockers() {
   COUNTED.forEach(k => {
     if (isOverdue(k)) out.push({ sev:'med', text:`Jordan’s “${NH_TASK_LABELS[k]}” is past its due date and still open.`, action:'See status', route:null });
   });
+  if (S.hm.card.needed === null && days <= 21) {
+    out.push({ sev:'low', text:'The corporate card question is unanswered. If Jordan will travel, they need the agreement ready to sign on their second day.',
+      action:'Answer it', route:'#/hm/card' });
+  }
   if (!S.hm.software.confirmed) {
     out.push({ sev:'low', text:'The application stack cannot be resolved — Jordan’s persona is not mapped. This is a platform gap, not something you can fix here.',
       action:'See why', route:'#/hm/software' });
@@ -2039,6 +2185,7 @@ function hmBlockers() {
 }
 
 const NH_TASK_LABELS = {
+  startdate:'Confirm your start date', bgcheck:'Start your background check',
   equipment:'Choose your workspace accessories', details:'Your personal and contact details',
   jd:'Review your job description', intro:'Introduce yourself and add your photo',
   policies:'Policies and privacy notices',
@@ -2048,6 +2195,9 @@ const NH_TASK_LABELS = {
    names and status only, never content, and sensitive items marked. */
 function nhProgressRows() {
   return [
+    { label:NH_TASK_LABELS.startdate, status:startdateStatus() },
+    { label:NH_TASK_LABELS.bgcheck, status:bgcheckStatus(), sensitive:true,
+      hidden:'You can see the check is running. What it contains is never shown to you.' },
     { label:NH_TASK_LABELS.equipment, status:equipmentStatus() },
     { label:NH_TASK_LABELS.details, status:detailsStatus(), sensitive:true,
       hidden:'Identity documents, emergency contacts and voluntary self-identification are not shown to you.' },
@@ -2327,14 +2477,15 @@ function renderHmLogistics() {
           </div>
 
           ${!L.available ? `
-          <div class="field" data-assume="M-14">
-            <label>Who covers for you? ${am('M-14')}</label>
+          <div class="field" data-assume="M-14 M-20">
+            <label>Who covers for you? ${am('M-14')} ${am('M-20')}</label>
             <select id="lgProxy">
               <option value="">Choose someone…</option>
               ${BUDDY_POOL.map(b => `<option ${L.proxy===b.name?'selected':''}>${b.name}</option>`).join('')}
             </select>
-            <div class="note">This applies to Jordan only, not permanently. What a proxy can actually see and do is undefined —
-            the delegation model has not been written. ${am('M-14')}</div>
+            <div class="note">Named here for Jordan's first day. The requirement is broader than that — a proxy should be able
+            to <b>act on your behalf</b> and <b>see a new hire's status</b> as a standing arrangement, and People Experience
+            need the same capability. What a proxy can actually see and do is still undefined. ${am('M-20')}</div>
           </div>` : ''}
 
           <div class="field" style="max-width:560px;">
@@ -2730,6 +2881,12 @@ function renderHmWelcome() {
           the request arrives in context. Nothing enforces that today — and three welcome messages compete for the same
           week. ${am('L-08')}</span>
         </div>
+        <div class="callout mt16" data-assume="M-21">
+          ${ic('exclamation-triangle.svg')}
+          <div><b>This may already exist.</b> The onboarding platform ships a “customise a welcome memo” capability and a
+          “from my manager” block on the new hire's dashboard. The genuinely additive part of this screen is the read-only
+          first-week block, because it is generated from Jordan's real task list. ${am('M-21')}</div>
+        </div>
       </div>
     </div>
   </div>`;
@@ -2788,6 +2945,14 @@ function renderHmNetwork() {
       </div>
 
       <div class="rail">
+        <div class="rail-card" data-assume="M-21">
+          <h3>Before this is built ${am('M-21')}</h3>
+          <p style="font-size:12.5px; font-weight:350; line-height:1.55;">The onboarding platform already ships
+          <b>“select people to meet”</b> and <b>“select helpful contacts”</b> as manager setup, surfaced on the new hire's
+          dashboard. This screen may be re-creating something that exists.</p>
+          <div class="rail-note">That changes the argument. If the capability is already there, naming a network is not
+          net-new manager work — it is switching something on. Worth settling before it is costed. ${am('M-21')}</div>
+        </div>
         <div class="rail-card">
           <h3>What this triggers</h3>
           <ol class="mech-list">
@@ -2882,6 +3047,67 @@ function renderHmIntro() {
 }
 
 /* ============================================================
+   H-06 — corporate card (PRD v1.4; M-19, L-10)
+   ============================================================ */
+function renderHmCard() {
+  const C = S.hm.card;
+  return `
+  <div class="page">
+    ${hmCrumbs('Corporate card')}
+    <div class="task-head" data-assume="M-19">
+      <h1>Will Jordan need a corporate card? ${am('M-19')}</h1>
+      <p class="why">One question, answered before they start. Everything after it happens without you.</p>
+      ${dispBanner('undecided','This was listed as undecided while the source row was truncated. It is now specified end to end — and it is genuinely one tap.','M-19')}
+    </div>
+
+    <div class="task-shell">
+      <div class="wiz-body">
+        <div class="form-sec">
+          <h3>${CARD_FLOW.managerQuestion}</h3>
+          <p class="sec-note">The question is about travel, not seniority. If they will spend on behalf of Equinix, they need one.</p>
+          <div class="radio-row col mt16">
+            <label><input type="radio" name="cardq" data-card="yes" ${C.needed===true?'checked':''}>
+              <b>Yes</b> — they'll travel on behalf of Equinix</label>
+            <label><input type="radio" name="cardq" data-card="no" ${C.needed===false?'checked':''}>
+              <b>No</b> — not needed for this role</label>
+          </div>
+        </div>
+
+        ${C.needed === true ? `
+        <div class="form-sec" data-assume="L-10">
+          <h3>What your yes sets off</h3>
+          <ol class="mech-list">
+            ${CARD_FLOW.mechanics.map(m => `<li>${m}</li>`).join('')}
+          </ol>
+          <div class="callout soft">
+            ${ic('info-circle.svg')}
+            <div><b>Note the timing.</b> Jordan's half is <b>Day 2</b>, after they start — not pre-Day 1. It has already
+            appeared on their portal as something coming up, so they know it is handled. ${am('L-10')}</div>
+          </div>
+          <div class="callout">
+            ${ic('question-circle.svg')}
+            <div>${CARD_FLOW.note} Two things the requirement leaves open: what the task is finally called in the portal,
+            and whether a cost centre and approver are captured alongside your yes. ${am('M-19')}</div>
+          </div>
+        </div>` : ''}
+
+        ${C.needed === false ? `
+        <div class="callout soft" data-assume="L-10">
+          ${ic('check-circle.svg')}
+          <div>Nothing further happens. Jordan is not asked about a card and never sees the subject — the negative answer
+          is a designed outcome, not an absence. ${am('L-10')}</div>
+        </div>` : ''}
+      </div>
+      ${C.needed !== null ? `<div class="wiz-foot">
+        <span class="saved-state">${ic('check-circle.svg','sm')}Answered — ${C.needed ? 'Jordan will sign the agreement on Day 2' : 'nothing scheduled'}</span>
+        <span class="missing"></span>
+        <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ============================================================
    The subtraction review — this side's argument screen
    ============================================================ */
 const SUBTRACTION = [
@@ -2925,6 +3151,9 @@ const SUBTRACTION = [
     { task:'Assign a buddy', today:'Manual — select a buddy',
       why:'A judgement about people, with a suggestion to make agreement one tap.',
       cond:'Buddy policy defined: criteria, load limits, decline process — and a privacy position on the performance signal.', marker:'M-07' },
+    { task:'Delegation and proxy', today:'Informal — cover is arranged by asking someone',
+      why:'The requirement gives both managers and People Experience a standing proxy who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
+      cond:'A permission model. What a proxy can see and do is undefined.', marker:'M-20' },
     { task:'Confirm new hire start logistics', today:'Partially manual — determine office seating if applicable',
       why:'Narrowed to what only the manager knows: their own availability, cover if they are away, and team-specific instruction.',
       cond:'Blueprint precedence settled, so the manager confirms location facts rather than entering them.', marker:'M-05' },
@@ -2936,9 +3165,9 @@ const SUBTRACTION = [
       cond:'Guide content authored per persona, and its relationship to the existing companion guide resolved.', marker:'M-15' },
   ]},
   { group:'undecided', title:'Undecided — cannot be dispositioned yet', rows:[
-    { task:'Confirm corporate card requirement', today:'Not established — the source row is truncated, seven attributes blank',
-      why:'If all employees move to the same corporate card by default, there is nothing for a manager to decide.',
-      cond:'Resolve whether the card is universal.', marker:'M-12' },
+    { task:'Confirm corporate card requirement — NOW SPECIFIED', today:'Was not established; the source row was truncated with seven attributes blank',
+      why:'Resolved. It is a manager yes/no, but framed around travel rather than entitlement, and the new hire’s half is an e-signature on Day 2. Built — and it belongs under Keep rather than Undecided now.',
+      cond:'Nothing blocking. Two details still open: the task’s final name in the portal, and whether cost centre and approver are captured with the yes.', marker:'M-19' },
     { task:'Secure office location and seating', today:'Manual — determine office seating if applicable',
       why:'The design walkthrough calls this a placeholder and suggests it could probably be taken off the manager’s plate.',
       cond:'Workplace follow-up on work arrangements, parking and badge access level.' },
@@ -3037,6 +3266,18 @@ function handoffRows() {
       done: H.contactConfirmed,
       state: H.contactConfirmed ? 'Confirmed — number shown to Jordan' : 'Unconfirmed — Jordan sees the record value, which may be stale',
       hmRoute:'#/hm/', nhRoute:'#/' },
+    { dir:'hm', from:'Corporate card answer', to:'Day 2 card agreement', marker:'L-10',
+      done: H.card.needed !== null,
+      state: H.card.needed === null ? 'Unanswered — Jordan sees nothing about a card'
+        : H.card.needed ? 'Yes — the agreement is on Jordan’s list for Day 2'
+        : 'No — nothing created, and Jordan never sees the subject',
+      hmRoute:'#/hm/card', nhRoute:'#/' },
+    { dir:'nh', from:'Start date confirmation', to:'Readiness view + every due date', marker:'L-11',
+      done: S.startdate.confirmed || S.startdate.changeRequested,
+      state: S.startdate.changeRequested ? 'Change requested — Priya and PEX can see it, dates unchanged until agreed'
+        : S.startdate.confirmed ? 'Confirmed — every other due date is anchored to it'
+        : 'Not confirmed — the whole schedule is provisional',
+      hmRoute:'#/hm/', nhRoute:'#/startdate' },
     { dir:'nh', from:'Task progress', to:'Readiness view', marker:'L-05',
       done: tasksComplete() > 0,
       state: `${tasksComplete()} of ${COUNTED.length} done — Priya sees status only, never content`,
@@ -3052,7 +3293,7 @@ function renderHandoffs() {
     <div class="crumbs"><button class="back" data-goto="${S.view==='hm'?'#/hm/':'#/'}">${ic('chevron-left.svg','sm')}Back</button>
       <span>/</span><span>How the two portals connect</span></div>
     <h1>Where the two sides meet</h1>
-    <p class="flow-sub">Nine handoffs between the hiring manager’s portal and the new hire’s. Both sides read and write
+    <p class="flow-sub">Eleven handoffs between the hiring manager’s portal and the new hire’s. Both sides read and write
     the same underlying facts in this prototype, so what you change on one appears on the other — use the switch at the
     top to check. <b>${wired} of ${rows.length} are currently live.</b> Every one of them rests on an assumption; the
     marker on each row opens it.</p>
@@ -3112,6 +3353,7 @@ const HM_ROUTES = {
   '#/hm/welcome': renderHmWelcome,
   '#/hm/network': renderHmNetwork,
   '#/hm/intro': renderHmIntro,
+  '#/hm/card': renderHmCard,
   '#/hm/subtraction': renderHmSubtraction,
   '#/handoffs': renderHandoffs,
 };
@@ -3239,6 +3481,16 @@ function bindHm(route) {
     });
   }
 
+  if (route === '#/hm/card') {
+    $$('[data-card]').forEach(r => r.addEventListener('change', () => {
+      S.hm.card.needed = r.dataset.card === 'yes';
+      save(); rerender();
+      toast(S.hm.card.needed
+        ? 'Recorded. The agreement is now on Jordan’s list for Day 2.'
+        : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
+    }));
+  }
+
   if (route === '#/hm/intro') {
     const f = $('#introForward');
     if (f) f.addEventListener('click', () => {
@@ -3331,6 +3583,8 @@ const DEFAULT_STATE = () => ({
   country: 'US',                 // US | JP
   horizon: '2wk',                // 2wk | 3mo  (A-45)
   scenario: 'default',           // default | inprogress | review | overdue | complete
+  startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
+  bgcheck: { launched:false },
   details: { tab:0, submitted:false, queryRaised:false, data:{} },
   equipment: { choice:'', items:{}, shipOffice:'', shipPhone:'', submitted:false, comment:'', comments:[] },
   jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
@@ -3350,6 +3604,7 @@ const DEFAULT_STATE = () => ({
     welcome: { sent:false, body:'', personal:'' },
     network: { named:{}, submitted:false },
     intro: { forwarded:false },
+    card: { needed:null },            // null = unanswered, true/false = decided (L-10)
   },
 });
 
@@ -3416,6 +3671,11 @@ function detailsStatus() {
   const touched = ['addr1','city','zip','ec1name','preferred','channel','idDoc'].some(f => d[f]) || d._touched;
   return touched ? 'inprogress' : 'notstarted';
 }
+function startdateStatus() {
+  if (S.startdate.changeRequested) return 'review';
+  return S.startdate.confirmed ? 'done' : 'notstarted';
+}
+function bgcheckStatus() { return S.bgcheck.launched ? 'done' : 'notstarted'; }
 function equipmentStatus() {
   if (S.equipment.submitted) return 'done';
   return S.equipment.choice ? 'inprogress' : 'notstarted';
@@ -3435,9 +3695,10 @@ function policiesStatus() {
   if (S.policies.submitted) return 'done';
   return Object.values(S.policies.acked).filter(Boolean).length > 0 ? 'inprogress' : 'notstarted';
 }
-const COUNTED = ['equipment','details','jd','intro','policies'];
+const COUNTED = ['startdate','bgcheck','equipment','details','jd','intro','policies'];
 function taskDone(key) {
-  return ({ equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
+  return ({ startdate: startdateStatus()==='done', bgcheck: bgcheckStatus()==='done',
+            equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
             jd: jdStatus()==='done', intro: introStatus()==='done',
             policies: policiesStatus()==='done' })[key];
 }
@@ -3468,7 +3729,16 @@ function renderLanding() {
   const jp = S.country === 'JP';
 
   const tasks = [
-    // Equipment first, earliest due — nothing gates it today (A-33)
+    // Triggered at offer acceptance, so these precede equipment (A-49, A-50)
+    { key:'startdate', route:'#/startdate', icon:'calendar.svg',
+      name:'Confirm your start date',
+      why:'Everything else in this list is dated from it, so it comes first',
+      est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
+    { key:'bgcheck', route:'#/bgcheck', icon:'shield-check.svg',
+      name:'Start your background check',
+      why:'It runs in the background and takes a while, so the sooner it starts the better',
+      est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
+    // Equipment — earliest of the provisioning tasks; nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your workspace accessories',
       why:'First, so it has time to be built, shipped and waiting for you on Day 1',
@@ -3511,6 +3781,8 @@ function renderLanding() {
         nothing before then.</p>
       </div>
     </div>` : ''}
+
+    ${insideCarousel()}
 
     ${S.hm.welcome.sent ? `
     <div class="welcome-note" data-assume="L-08">
@@ -3607,6 +3879,18 @@ function renderLanding() {
         <div class="section-h"><h2>Coming up</h2><span class="hint">Nothing to do yet</span></div>
         <div class="overflow-line">${ic('info-circle.svg','sm')}<b>More to-dos may be assigned later.</b></div>
         <div class="ucards">
+          ${S.hm.card.needed === true ? `
+            <div class="ucard" data-ucard="card" data-assume="L-10">
+              <div class="u-row">
+                ${ic('banking.svg')}
+                <span class="u-name">${CARD_FLOW.newHireTask} ${am('L-10')}</span>
+                <span class="u-open">${ic('clock.svg','sm')}${CARD_FLOW.timing}</span>
+              </div>
+              <div class="u-note">${HIRE.manager} has said you'll travel for work, so a corporate card is being set up for you</div>
+              <div class="u-expl">You'll review the card agreement and sign it electronically on your second day —
+                it is deliberately after you start, not before. Once signed, the card provider sends you an application
+                link directly. Nothing for you to do until then. ${am('L-10')}</div>
+            </div>` : ''}
           ${COMING_UP.map((u,i) => `
             <div class="ucard" data-ucard="${i}" ${u.name.includes('first day details') ? 'data-assume="L-07"' : ''}>
               <div class="u-row">
@@ -3633,10 +3917,10 @@ function renderLanding() {
             </div>
           </div>
           <div class="ocard">
-            <div class="tic">${ic('shield-check.svg')}</div>
+            <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
-              <div class="o-name">Background check <span class="chip info">In progress</span></div>
-              <div class="o-note">No action needed from you. We’ll only get in touch if something is missing.</div>
+              <div class="o-name">Tax forms and withholding <span class="chip info">Payroll</span></div>
+              <div class="o-note">Country-specific, and Payroll runs it on their own timetable. Nothing passes through this portal.</div>
             </div>
           </div>
         </div>
@@ -3701,7 +3985,8 @@ function buddyRailBlock() {
         <div class="c-name">Your onboarding buddy</div>
         <div class="c-role">Not chosen yet</div>
         <div class="c-extra">${HIRE.manager} picks someone from your team — a person to ask the things you’d rather
-        not ask your manager. If she hasn’t by the day before you start, one is assigned automatically. ${am('L-01')}</div>
+        not ask your manager, for your first three months and beyond. If she hasn’t by the day before you start, one is
+        assigned automatically. ${am('L-01')}</div>
       </div>
     </div>`;
   }
@@ -3774,6 +4059,158 @@ function namedNetwork() {
   return Object.keys(named)
     .filter(k => (named[k] || '').trim())
     .map(k => Object.assign({}, NETWORK_POOL[k], { why: named[k], poolIndex: +k }));
+}
+
+/* ---------- Inside Equinix carousel (A-35) ----------
+   Rotating chapters at the top of the portal, plus the rail link.
+   No tasks, nothing tracked — access and reading only. */
+let carouselTimer = null;
+function insideCarousel() {
+  const i = S.carousel || 0;
+  const c = INSIDE_CHAPTERS[i];
+  return `
+  <div class="carousel" data-assume="A-35">
+    <div class="car-left">
+      <div class="car-eyebrow">${ic('rocket.svg','sm')}Inside Equinix ${am('A-35')}</div>
+      <div class="car-body">
+        <span class="car-num">${c.n}</span>
+        <div>
+          <div class="car-title">${c.title}</div>
+          <div class="car-line">${c.line}</div>
+        </div>
+      </div>
+      <div class="car-foot">Six short chapters. Nothing here is required and nothing is tracked — read what you want, when you want.</div>
+    </div>
+    <div class="car-nav">
+      <button class="car-arrow" data-car="-1" aria-label="Previous">${ic('chevron-left.svg','sm')}</button>
+      <div class="car-dots">
+        ${INSIDE_CHAPTERS.map((_,k) => `<button class="car-dot ${k===i?'on':''}" data-cardot="${k}" aria-label="Chapter ${k+1}"></button>`).join('')}
+      </div>
+      <button class="car-arrow" data-car="1" aria-label="Next">${ic('chevron-right.svg','sm')}</button>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   Confirm your start date (A-49, L-11)
+   ============================================================ */
+function renderStartDate() {
+  const D = S.startdate;
+  if (D.changeRequested) {
+    return `
+    <div class="page">
+      ${crumbs('Confirm your start date')}
+      <div class="task-head"><h1>Confirm your start date</h1></div>
+      <div class="review-banner" data-assume="L-11">
+        ${ic('info-circle.svg','lg')}
+        <div><b>Change requested ${am('L-11')}</b>
+        <p>You asked to start on <b>${esc(D.requestedDate)}</b> instead. ${HIRE.manager} and ${PEOPLE.pex.name} can both see
+        the request, and someone will come back to you. Until it is agreed, everything in your list keeps its current dates.</p></div>
+      </div>
+      <div class="task-shell">
+        <div class="wiz-body">
+          <div class="callout">
+            ${ic('exclamation-triangle.svg')}
+            <div><b>Nobody has defined what happens next.</b> Who approves a change, how late one can be requested, and what
+            happens to work already in flight — an equipment order placed, a badge queued for print, calendar holds booked —
+            are all unanswered. The prototype shows the request being made, not resolved. ${am('L-11')}</div>
+          </div>
+          <button class="btn quiet mt16" id="sdUndo">Cancel the request and keep ${startDateText()}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="page">
+    ${crumbs('Confirm your start date')}
+    <div class="task-head" data-assume="A-49">
+      <h1>Confirm your start date ${am('A-49')}</h1>
+      <p class="why">Everything else in your list is dated from this, so it is worth two seconds now rather than a reshuffle later.</p>
+    </div>
+    <div class="task-shell">
+      <div class="wiz-body">
+        <div class="date-card ${D.confirmed?'ok':''}">
+          ${ic('calendar.svg','xl')}
+          <div>
+            <div class="dc-label">Your start date, from your offer</div>
+            <div class="dc-date">${startDateText()}</div>
+            <div class="dc-sub">${daysToStart()} days from today</div>
+          </div>
+          ${D.confirmed ? `<span class="chip done">${ic('check.svg','sm')}Confirmed</span>` : ''}
+        </div>
+
+        ${D.confirmed ? `
+          <div class="callout soft mt16">${ic('check-circle.svg')}
+            <div>Confirmed. Your other due dates are set from this — you can see them on each task.</div></div>
+          <button class="btn quiet mt16" id="sdReopen">Actually, I need to change it</button>
+        ` : `
+          <div class="mt24" style="display:flex; gap:12px; align-items:center;">
+            <button class="btn primary" id="sdConfirm">Yes, that's right</button>
+            <button class="btn quiet" id="sdChange">I need a different date</button>
+          </div>
+          <div class="dissent-box hidden" id="sdBox">
+            <div class="field">
+              <label>What date would work?</label>
+              <input type="text" id="sdDate" placeholder="e.g. 1 September 2026" value="${esc(D.requestedDate)}">
+            </div>
+            <div class="field" style="max-width:none;">
+              <label>Anything we should know?</label>
+              <textarea rows="3" id="sdReason" placeholder="Optional — a notice period, a commitment you can't move.">${esc(D.reason)}</textarea>
+              <div class="note">This goes to ${PEOPLE.pex.name} and ${HIRE.manager}. Changing your start date moves every other
+              date in this list with it. ${am('L-11')}</div>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <button class="btn primary" id="sdSend" disabled>Request this date</button>
+              <button class="btn quiet" id="sdCancel">Never mind</button>
+            </div>
+          </div>
+        `}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   Background check (A-50)
+   ============================================================ */
+function renderBgCheck() {
+  const B = S.bgcheck;
+  return `
+  <div class="page">
+    ${crumbs('Start your background check')}
+    <div class="task-head" data-assume="A-50">
+      <h1>Start your background check ${am('A-50')}</h1>
+      <p class="why">It runs on its own once you start it, and it can take a couple of weeks — so the sooner it begins, the less it holds up.</p>
+    </div>
+    <div class="task-shell">
+      <div class="wiz-body">
+        ${B.launched ? `
+          <div class="bg-status">
+            ${ic('shield-check.svg','xl')}
+            <div>
+              <div class="bg-state">${ic('clock.svg','sm')}Running — nothing further from you</div>
+              <p>You've handed over what the check needs. It runs with our screening provider from here, and you'll be told
+              if anything is missing. ${HIRE.manager} and ${PEOPLE.pex.name} can see that it is running, but not what is in it.</p>
+            </div>
+          </div>
+          <div class="callout soft mt16">${ic('info-circle.svg')}
+            <div>What the check covers, and how long it takes, varies by country. That variation is not represented here —
+            the prototype shows one path. ${am('A-50')}</div></div>
+          <button class="btn quiet mt16" id="bgUndo">Undo (prototype)</button>
+        ` : `
+          <p style="font-size:14px; font-weight:350; max-width:640px; margin-bottom:16px;">
+            The check itself happens with our screening provider, not here. This hands you over to them with your details
+            already filled in, and brings the status back to this page.</p>
+          <div class="callout">
+            ${ic('external-link.svg')}
+            <div><b>This opens another company's site.</b> You'll finish there and come back — the status appears on this
+            page automatically. Nothing about the check is stored in this portal.</div>
+          </div>
+          <button class="btn primary mt16" id="bgLaunch">${ic('external-link.svg','sm')} Start the check</button>
+        `}
+      </div>
+    </div>
+  </div>`;
 }
 
 /* ============================================================
@@ -4025,7 +4462,7 @@ function tabPreferences() {
       <p class="sec-note">The first two are practical. The last two are optional and personal — they’re invitations, not requirements.</p>
 
       <div class="gcard" data-assume="A-03">
-        <h4>Preferred language ${am('A-03')}</h4>
+        <h4>Language for messages from us ${am('A-03')}</h4>
         <div class="gbody">
           <div class="field">
             <label>Language</label>
@@ -4033,7 +4470,8 @@ function tabPreferences() {
               ${['English (US)','English (UK)','Japanese','Spanish','French','German','Portuguese (BR)'].map(l =>
                 `<option ${d.language===l?'selected':''}>${l}</option>`).join('')}
             </select>
-            <div class="note">Defaulted from your country of hire. This sets the language of the policy documents you’ll be asked to read.</div>
+            <div class="note">Emails and portal messages only. <b>Your policy documents are served in the language required
+            for ${esc(d.country)}</b> — that is set by law, not by preference, so it is not a choice here. ${am('A-03')}</div>
           </div>
         </div>
       </div>
@@ -4797,7 +5235,8 @@ function renderPolicies() {
         <div class="nums" style="color:var(--eq-dark-blue)"><span>${acked} of ${total} acknowledged</span></div>
         <div class="prog-bar" style="background:var(--cloud)"><i style="width:${(acked/total)*100}%"></i></div>
       </div>
-      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Country of hire: Japan — your list includes a Japan addendum</span>` : ''}
+      <span class="chip info">${ic('globe.svg','sm')}Served in ${docLanguage()} — set by your country of hire, not by preference ${am('A-03')}</span>
+      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan — your list includes a country addendum</span>` : ''}
     </div>
 
     <div class="doc-list">${DOCS.map(d => docCard(d, jp)).join('')}</div>
@@ -4810,11 +5249,7 @@ function renderPolicies() {
           <div><div class="o-name">Company factsheet</div>
           <div class="o-note">Who we are, what we do, and the numbers that matter. English only.</div></div>
         </div>
-        <div class="read-card">
-          <div class="tic">${ic('file-alt.svg')}</div>
-          <div><div class="o-name">Employee handbook — ${jp ? 'Japan' : 'United States'}</div>
-          <div class="o-note">The reference document for your country. No acknowledgement — it’s here whenever you need it.</div></div>
-        </div>
+        ${currentPackCard(jp)}
       </div>
     </div>
 
@@ -4828,12 +5263,15 @@ function renderPolicies() {
   </div>`;
 }
 
+/* Document language is derived from country of hire, not chosen (A-03). */
+function docLanguage() { return S.country === 'JP' ? 'Japanese' : 'English'; }
+
 function docCard(d, jp) {
   const P = S.policies;
   const open = !!P.open[d.id];
   const read = !!P.read[d.id];
   const acked = !!P.acked[d.id];
-  const lang = S.details.data.language || 'English (US)';
+  const lang = docLanguage();
 
   let body = '';
   if (open) {
@@ -4881,6 +5319,30 @@ function docCard(d, jp) {
       ${ic(open?'chevron-up.svg':'chevron-down.svg','lg')}
     </div>
     ${body}
+  </div>`;
+}
+
+/* What the live process actually sends alongside the acknowledgement pack (A-51). */
+function currentPackCard(jp) {
+  const pack = CURRENT_PACK[jp ? 'JP' : 'US'];
+  return `
+  <div class="read-card stack" data-assume="A-51">
+    <div class="rc-top">
+      <div class="tic">${ic('file-alt.svg')}</div>
+      <div>
+        <div class="o-name">Employee handbook — ${jp ? 'Japan' : 'United States'}
+          <span class="chip waiting">${pack.total} documents ${am('A-51')}</span></div>
+        <div class="o-note">${esc(pack.handbook)}${pack.addenda ? `, plus <b>${pack.addenda} ${pack.addendaNote}</b>` : ''}${pack.extras.length ? `, ${pack.extras.join(' and ')}` : ''}.
+        Reference only — nothing to acknowledge.</div>
+      </div>
+    </div>
+    ${pack.addenda ? `
+    <div class="pack-flag">
+      ${ic('exclamation-triangle.svg','sm')}
+      <span><b>Shown because it is true today, not because it is right.</b> Every US hire receives all ${pack.addenda} state
+      addenda regardless of where they work — so ${pack.addenda - 1} of them do not apply to you. Across all countries the live
+      process sends 416 document instances. Which of those stay pre-Day 1 is the largest open decision in this workstream. ${am('A-51')}</span>
+    </div>` : ''}
   </div>`;
 }
 
@@ -5191,6 +5653,7 @@ function applyScenario(name) {
     S.hm.network.submitted = true;
   };
   const hmPartial = () => {
+    S.hm.card.needed = true;
     S.hm.buddy = { assigned:'nina', notified:true };
     S.hm.contactConfirmed = true;
     Object.assign(S.hm.logistics, { confirmed:true, whereToBe:'9:00, main reception — ask for me at the desk', available:true });
@@ -5206,6 +5669,8 @@ function applyScenario(name) {
 
   if (name === 'inprogress') {
     fillDetails();
+    S.startdate.confirmed = true;
+    S.bgcheck.launched = true;
     hmPartial();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
     S.details.data.ec1name=''; S.details.data.ec1rel=''; S.details.data.ec1phone='';
@@ -5218,12 +5683,14 @@ function applyScenario(name) {
   }
   if (name === 'review') {
     fillDetails(); S.details.submitted = true;
+    S.startdate.confirmed = true; S.bgcheck.launched = true;
     equipComplete(); hmPartial(); namePeople();
     S.jd.state = 'review'; S.jd.dissent = true;
     S.jd.dissentText = 'The role we discussed was hybrid, two days in office — the summary says something different.';
   }
   if (name === 'complete') {
     fillDetails(); S.details.submitted = true;
+    S.startdate.confirmed = true; S.bgcheck.launched = true;
     equipComplete(); hmComplete();
     S.jd.state = 'done'; S.jd.scrolled = true; S.jd.acked = true;
     S.intro.text = 'I’m Jordan — joining the FP&A team from a fintech in Denver. I’ll be picking up the forecast for the Americas portfolios. Outside work you’ll usually find me on a trail or attempting sourdough.';
@@ -5275,6 +5742,8 @@ const PLACEHOLDER_PHOTO = (() => {
    ============================================================ */
 const ROUTES = {
   '#/': renderLanding,
+  '#/startdate': renderStartDate,
+  '#/bgcheck': renderBgCheck,
   '#/equipment': renderEquipment,
   '#/details': renderDetails,
   '#/jd': renderJD,
@@ -5302,12 +5771,75 @@ function render() {
 function rerender() { render(); }
 
 function bindScreen(route) {
+  startCarousel(route === '#/');
   if (route.startsWith('#/hm/')) { bindHm(route); return; }
+  if (route === '#/startdate') return bindStartDate();
+  if (route === '#/bgcheck') return bindBgCheck();
   if (route === '#/details') bindDetails();
   if (route === '#/equipment') bindEquipment();
   if (route === '#/jd') bindJD();
   if (route === '#/intro') bindIntro();
   if (route === '#/policies') bindPolicies();
+}
+
+/* ---------- carousel ---------- */
+function startCarousel(on) {
+  clearInterval(carouselTimer); carouselTimer = null;
+  if (!on) return;
+  carouselTimer = setInterval(() => {
+    if (!$('.carousel')) { clearInterval(carouselTimer); return; }
+    S.carousel = ((S.carousel || 0) + 1) % INSIDE_CHAPTERS.length;
+    const c = INSIDE_CHAPTERS[S.carousel];
+    $('.car-num').textContent = c.n;
+    $('.car-title').textContent = c.title;
+    $('.car-line').textContent = c.line;
+    $$('.car-dot').forEach((d,k) => d.classList.toggle('on', k === S.carousel));
+  }, 6000);
+}
+
+/* ---------- start date bindings ---------- */
+function bindStartDate() {
+  const D = S.startdate;
+  const c = $('#sdConfirm');
+  if (c) c.addEventListener('click', () => {
+    D.confirmed = true; save(); rerender();
+    toast('Start date confirmed — every other due date is set from it.', 'check-circle.svg');
+  });
+  const ch = $('#sdChange');
+  if (ch) ch.addEventListener('click', () => {
+    $('#sdBox').classList.remove('hidden'); ch.classList.add('hidden'); $('#sdConfirm').classList.add('hidden');
+  });
+  const dt = $('#sdDate');
+  if (dt) dt.addEventListener('input', () => {
+    D.requestedDate = dt.value; save();
+    $('#sdSend').disabled = !dt.value.trim();
+  });
+  const rs = $('#sdReason');
+  if (rs) rs.addEventListener('input', () => { D.reason = rs.value; save(); });
+  const sn = $('#sdSend');
+  if (sn) sn.addEventListener('click', () => {
+    D.changeRequested = true; D.confirmed = false; save(); rerender();
+    toast('Request sent to Maya and Priya. Your dates stay as they are until it is agreed.');
+  });
+  const ca = $('#sdCancel');
+  if (ca) ca.addEventListener('click', () => rerender());
+  const ro = $('#sdReopen');
+  if (ro) ro.addEventListener('click', () => { D.confirmed = false; save(); rerender(); });
+  const un = $('#sdUndo');
+  if (un) un.addEventListener('click', () => {
+    D.changeRequested = false; D.requestedDate = ''; D.reason = ''; save(); rerender();
+  });
+}
+
+/* ---------- background check bindings ---------- */
+function bindBgCheck() {
+  const l = $('#bgLaunch');
+  if (l) l.addEventListener('click', () => {
+    toast('Opening the screening provider in a new tab (simulated).', 'external-link.svg');
+    setTimeout(() => { S.bgcheck.launched = true; save(); rerender(); }, 1300);
+  });
+  const u = $('#bgUndo');
+  if (u) u.addEventListener('click', () => { S.bgcheck.launched = false; save(); rerender(); });
 }
 
 /* ---------- details bindings ---------- */
@@ -5632,6 +6164,15 @@ document.addEventListener('click', e => {
     }, 260);
     return;
   }
+
+  const car = t.closest('[data-car]');
+  if (car) {
+    const n = INSIDE_CHAPTERS.length;
+    S.carousel = (((S.carousel || 0) + (+car.dataset.car)) % n + n) % n;
+    save(); rerender(); return;
+  }
+  const dot = t.closest('[data-cardot]');
+  if (dot) { S.carousel = +dot.dataset.cardot; save(); rerender(); return; }
 
   const uc = t.closest('[data-ucard]');
   if (uc) { uc.classList.toggle('open'); return; }

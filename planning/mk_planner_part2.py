@@ -72,11 +72,19 @@ PORTAL_MAP_HM = [
 ("Hiring manager","H-16","Forward the introduction","#/hm/intro","Action","Forward to the team","Action","No","—","Explicit send. Nothing auto-posts.","Team channel","A-14 / L-02","NH OI-11","Open"),
 ("Hiring manager","H-16","Forward the introduction","#/hm/intro","Destination","Where it goes: team channel, under the manager's name","Display ×3","n/a","—","New hire is told it was shared and when.","NH notification","L-02","No source — invented","Open — no source"),
 
+# ---------------- H-06 corporate card (added in the gap-closing pass) ----------------
+("Hiring manager","H-06","Corporate card","#/hm/card","Decision","Will they travel on behalf of Equinix and need a card?","Radio","Yes","Blank","Framed around travel, not entitlement. One tap.","NH Day 2 card","M-19","PRD v1.4","Gap closed"),
+("Hiring manager","H-06","Corporate card","#/hm/card","Consequence","What your yes sets off — four steps to the card provider","Display","n/a","—","Agreement on Day 2, weekly extract to Accounts Payable, provider issues the link.","NH Day 2 card","L-10","PRD v1.4","Gap closed"),
+("Hiring manager","H-06","Corporate card","#/hm/card","Consequence","A no creates nothing, and the new hire never sees the subject","Display","n/a","—","The negative answer is a designed outcome, not an absence.","NH landing","L-10","PRD v1.4","Gap closed"),
+("Hiring manager","H-06","Corporate card","#/hm/card","Open","Task name in the portal; cost centre and approver","Display","n/a","—","Two details the requirement itself leaves open.","—","M-19","PRD v1.4","Open — content needed"),
+("Hiring manager","H-11","Name who they should meet","#/hm/network","Platform","Notice: this capability may already exist natively","Display","n/a","Workday deck","Flags that the platform ships people-to-meet and helpful-contacts already.","—","M-21","Onboarding Workday deck","Open — BLOCKS BUILD"),
+("Hiring manager","H-10","Send a welcome note","#/hm/welcome","Platform","Notice: welcome memo may already exist natively","Display","n/a","Workday deck","Only the generated first-week block is clearly additive.","—","M-21","Onboarding Workday deck","Open — BLOCKS BUILD"),
+
 # ---------------- review screens ----------------
 ("Hiring manager","H-SUB","The subtraction review","#/hm/subtraction","All","19 manager tasks grouped by verdict, with conditions","Review screen","n/a","HM Task Disposition","Remove rows struck through. Six groups: remove, automate, exception-only, keep, undecided, adds work.","—","M-09 / M-11 / M-12","HM Task Disposition","Mockup device"),
-("Shared","HANDOFF","How the two portals connect","#/handoffs","All","Nine handoffs with direction, live state and assumption","Review screen","n/a","Computed","Reads real state, so it shows what is wired right now. Buddy row flagged as a conflict.","Both sides","L-01…L-09","This alignment pass","Mockup device"),
+("Shared","HANDOFF","How the two portals connect","#/handoffs","All","Eleven handoffs with direction, live state and assumption","Review screen","n/a","Computed","Reads real state, so it shows what is wired right now. Buddy row flagged as a conflict.","Both sides","L-01…L-09","This alignment pass","Mockup device"),
 
 # ---------------- prototype devices ----------------
 ("Shared","PROTO","Prototype controls","(bottom left)","Controls","Persona · country · runway · task-state scenario · buddy rule","Prototype control","n/a","—","Clearly labelled as not product UI.","Both sides","A-45 / L-01","NH Stage 6","Mockup device"),
-("Shared","PROTO","Assumptions & gaps panel","(ribbon)","Panel","74 entries, filterable by side, with provenance tags","Panel","n/a","—","47 new hire · 18 manager · 9 connection. Markers on screen link into it.","Both sides","all","NH + HM specs","Mockup device"),
+("Shared","PROTO","Assumptions & gaps panel","(ribbon)","Panel","82 entries, filterable by side, with provenance tags","Panel","n/a","—","50 new hire · 21 manager · 11 connection; 2 retired. Six provenance tags.","Both sides","all","NH + HM specs","Mockup device"),
 ]

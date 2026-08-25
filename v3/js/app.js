@@ -42,6 +42,8 @@ const DEFAULT_STATE = () => ({
   country: 'US',                 // US | JP
   horizon: '2wk',                // 2wk | 3mo  (A-45)
   scenario: 'default',           // default | inprogress | review | overdue | complete
+  startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
+  bgcheck: { launched:false },
   details: { tab:0, submitted:false, queryRaised:false, data:{} },
   equipment: { choice:'', items:{}, shipOffice:'', shipPhone:'', submitted:false, comment:'', comments:[] },
   jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
@@ -61,6 +63,7 @@ const DEFAULT_STATE = () => ({
     welcome: { sent:false, body:'', personal:'' },
     network: { named:{}, submitted:false },
     intro: { forwarded:false },
+    card: { needed:null },            // null = unanswered, true/false = decided (L-10)
   },
 });
 
@@ -127,6 +130,11 @@ function detailsStatus() {
   const touched = ['addr1','city','zip','ec1name','preferred','channel','idDoc'].some(f => d[f]) || d._touched;
   return touched ? 'inprogress' : 'notstarted';
 }
+function startdateStatus() {
+  if (S.startdate.changeRequested) return 'review';
+  return S.startdate.confirmed ? 'done' : 'notstarted';
+}
+function bgcheckStatus() { return S.bgcheck.launched ? 'done' : 'notstarted'; }
 function equipmentStatus() {
   if (S.equipment.submitted) return 'done';
   return S.equipment.choice ? 'inprogress' : 'notstarted';
@@ -146,9 +154,10 @@ function policiesStatus() {
   if (S.policies.submitted) return 'done';
   return Object.values(S.policies.acked).filter(Boolean).length > 0 ? 'inprogress' : 'notstarted';
 }
-const COUNTED = ['equipment','details','jd','intro','policies'];
+const COUNTED = ['startdate','bgcheck','equipment','details','jd','intro','policies'];
 function taskDone(key) {
-  return ({ equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
+  return ({ startdate: startdateStatus()==='done', bgcheck: bgcheckStatus()==='done',
+            equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
             jd: jdStatus()==='done', intro: introStatus()==='done',
             policies: policiesStatus()==='done' })[key];
 }
@@ -179,7 +188,16 @@ function renderLanding() {
   const jp = S.country === 'JP';
 
   const tasks = [
-    // Equipment first, earliest due — nothing gates it today (A-33)
+    // Triggered at offer acceptance, so these precede equipment (A-49, A-50)
+    { key:'startdate', route:'#/startdate', icon:'calendar.svg',
+      name:'Confirm your start date',
+      why:'Everything else in this list is dated from it, so it comes first',
+      est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
+    { key:'bgcheck', route:'#/bgcheck', icon:'shield-check.svg',
+      name:'Start your background check',
+      why:'It runs in the background and takes a while, so the sooner it starts the better',
+      est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
+    // Equipment — earliest of the provisioning tasks; nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your workspace accessories',
       why:'First, so it has time to be built, shipped and waiting for you on Day 1',
@@ -222,6 +240,8 @@ function renderLanding() {
         nothing before then.</p>
       </div>
     </div>` : ''}
+
+    ${insideCarousel()}
 
     ${S.hm.welcome.sent ? `
     <div class="welcome-note" data-assume="L-08">
@@ -318,6 +338,18 @@ function renderLanding() {
         <div class="section-h"><h2>Coming up</h2><span class="hint">Nothing to do yet</span></div>
         <div class="overflow-line">${ic('info-circle.svg','sm')}<b>More to-dos may be assigned later.</b></div>
         <div class="ucards">
+          ${S.hm.card.needed === true ? `
+            <div class="ucard" data-ucard="card" data-assume="L-10">
+              <div class="u-row">
+                ${ic('banking.svg')}
+                <span class="u-name">${CARD_FLOW.newHireTask} ${am('L-10')}</span>
+                <span class="u-open">${ic('clock.svg','sm')}${CARD_FLOW.timing}</span>
+              </div>
+              <div class="u-note">${HIRE.manager} has said you'll travel for work, so a corporate card is being set up for you</div>
+              <div class="u-expl">You'll review the card agreement and sign it electronically on your second day —
+                it is deliberately after you start, not before. Once signed, the card provider sends you an application
+                link directly. Nothing for you to do until then. ${am('L-10')}</div>
+            </div>` : ''}
           ${COMING_UP.map((u,i) => `
             <div class="ucard" data-ucard="${i}" ${u.name.includes('first day details') ? 'data-assume="L-07"' : ''}>
               <div class="u-row">
@@ -344,10 +376,10 @@ function renderLanding() {
             </div>
           </div>
           <div class="ocard">
-            <div class="tic">${ic('shield-check.svg')}</div>
+            <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
-              <div class="o-name">Background check <span class="chip info">In progress</span></div>
-              <div class="o-note">No action needed from you. We’ll only get in touch if something is missing.</div>
+              <div class="o-name">Tax forms and withholding <span class="chip info">Payroll</span></div>
+              <div class="o-note">Country-specific, and Payroll runs it on their own timetable. Nothing passes through this portal.</div>
             </div>
           </div>
         </div>
@@ -412,7 +444,8 @@ function buddyRailBlock() {
         <div class="c-name">Your onboarding buddy</div>
         <div class="c-role">Not chosen yet</div>
         <div class="c-extra">${HIRE.manager} picks someone from your team — a person to ask the things you’d rather
-        not ask your manager. If she hasn’t by the day before you start, one is assigned automatically. ${am('L-01')}</div>
+        not ask your manager, for your first three months and beyond. If she hasn’t by the day before you start, one is
+        assigned automatically. ${am('L-01')}</div>
       </div>
     </div>`;
   }
@@ -485,6 +518,158 @@ function namedNetwork() {
   return Object.keys(named)
     .filter(k => (named[k] || '').trim())
     .map(k => Object.assign({}, NETWORK_POOL[k], { why: named[k], poolIndex: +k }));
+}
+
+/* ---------- Inside Equinix carousel (A-35) ----------
+   Rotating chapters at the top of the portal, plus the rail link.
+   No tasks, nothing tracked — access and reading only. */
+let carouselTimer = null;
+function insideCarousel() {
+  const i = S.carousel || 0;
+  const c = INSIDE_CHAPTERS[i];
+  return `
+  <div class="carousel" data-assume="A-35">
+    <div class="car-left">
+      <div class="car-eyebrow">${ic('rocket.svg','sm')}Inside Equinix ${am('A-35')}</div>
+      <div class="car-body">
+        <span class="car-num">${c.n}</span>
+        <div>
+          <div class="car-title">${c.title}</div>
+          <div class="car-line">${c.line}</div>
+        </div>
+      </div>
+      <div class="car-foot">Six short chapters. Nothing here is required and nothing is tracked — read what you want, when you want.</div>
+    </div>
+    <div class="car-nav">
+      <button class="car-arrow" data-car="-1" aria-label="Previous">${ic('chevron-left.svg','sm')}</button>
+      <div class="car-dots">
+        ${INSIDE_CHAPTERS.map((_,k) => `<button class="car-dot ${k===i?'on':''}" data-cardot="${k}" aria-label="Chapter ${k+1}"></button>`).join('')}
+      </div>
+      <button class="car-arrow" data-car="1" aria-label="Next">${ic('chevron-right.svg','sm')}</button>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   Confirm your start date (A-49, L-11)
+   ============================================================ */
+function renderStartDate() {
+  const D = S.startdate;
+  if (D.changeRequested) {
+    return `
+    <div class="page">
+      ${crumbs('Confirm your start date')}
+      <div class="task-head"><h1>Confirm your start date</h1></div>
+      <div class="review-banner" data-assume="L-11">
+        ${ic('info-circle.svg','lg')}
+        <div><b>Change requested ${am('L-11')}</b>
+        <p>You asked to start on <b>${esc(D.requestedDate)}</b> instead. ${HIRE.manager} and ${PEOPLE.pex.name} can both see
+        the request, and someone will come back to you. Until it is agreed, everything in your list keeps its current dates.</p></div>
+      </div>
+      <div class="task-shell">
+        <div class="wiz-body">
+          <div class="callout">
+            ${ic('exclamation-triangle.svg')}
+            <div><b>Nobody has defined what happens next.</b> Who approves a change, how late one can be requested, and what
+            happens to work already in flight — an equipment order placed, a badge queued for print, calendar holds booked —
+            are all unanswered. The prototype shows the request being made, not resolved. ${am('L-11')}</div>
+          </div>
+          <button class="btn quiet mt16" id="sdUndo">Cancel the request and keep ${startDateText()}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="page">
+    ${crumbs('Confirm your start date')}
+    <div class="task-head" data-assume="A-49">
+      <h1>Confirm your start date ${am('A-49')}</h1>
+      <p class="why">Everything else in your list is dated from this, so it is worth two seconds now rather than a reshuffle later.</p>
+    </div>
+    <div class="task-shell">
+      <div class="wiz-body">
+        <div class="date-card ${D.confirmed?'ok':''}">
+          ${ic('calendar.svg','xl')}
+          <div>
+            <div class="dc-label">Your start date, from your offer</div>
+            <div class="dc-date">${startDateText()}</div>
+            <div class="dc-sub">${daysToStart()} days from today</div>
+          </div>
+          ${D.confirmed ? `<span class="chip done">${ic('check.svg','sm')}Confirmed</span>` : ''}
+        </div>
+
+        ${D.confirmed ? `
+          <div class="callout soft mt16">${ic('check-circle.svg')}
+            <div>Confirmed. Your other due dates are set from this — you can see them on each task.</div></div>
+          <button class="btn quiet mt16" id="sdReopen">Actually, I need to change it</button>
+        ` : `
+          <div class="mt24" style="display:flex; gap:12px; align-items:center;">
+            <button class="btn primary" id="sdConfirm">Yes, that's right</button>
+            <button class="btn quiet" id="sdChange">I need a different date</button>
+          </div>
+          <div class="dissent-box hidden" id="sdBox">
+            <div class="field">
+              <label>What date would work?</label>
+              <input type="text" id="sdDate" placeholder="e.g. 1 September 2026" value="${esc(D.requestedDate)}">
+            </div>
+            <div class="field" style="max-width:none;">
+              <label>Anything we should know?</label>
+              <textarea rows="3" id="sdReason" placeholder="Optional — a notice period, a commitment you can't move.">${esc(D.reason)}</textarea>
+              <div class="note">This goes to ${PEOPLE.pex.name} and ${HIRE.manager}. Changing your start date moves every other
+              date in this list with it. ${am('L-11')}</div>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <button class="btn primary" id="sdSend" disabled>Request this date</button>
+              <button class="btn quiet" id="sdCancel">Never mind</button>
+            </div>
+          </div>
+        `}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   Background check (A-50)
+   ============================================================ */
+function renderBgCheck() {
+  const B = S.bgcheck;
+  return `
+  <div class="page">
+    ${crumbs('Start your background check')}
+    <div class="task-head" data-assume="A-50">
+      <h1>Start your background check ${am('A-50')}</h1>
+      <p class="why">It runs on its own once you start it, and it can take a couple of weeks — so the sooner it begins, the less it holds up.</p>
+    </div>
+    <div class="task-shell">
+      <div class="wiz-body">
+        ${B.launched ? `
+          <div class="bg-status">
+            ${ic('shield-check.svg','xl')}
+            <div>
+              <div class="bg-state">${ic('clock.svg','sm')}Running — nothing further from you</div>
+              <p>You've handed over what the check needs. It runs with our screening provider from here, and you'll be told
+              if anything is missing. ${HIRE.manager} and ${PEOPLE.pex.name} can see that it is running, but not what is in it.</p>
+            </div>
+          </div>
+          <div class="callout soft mt16">${ic('info-circle.svg')}
+            <div>What the check covers, and how long it takes, varies by country. That variation is not represented here —
+            the prototype shows one path. ${am('A-50')}</div></div>
+          <button class="btn quiet mt16" id="bgUndo">Undo (prototype)</button>
+        ` : `
+          <p style="font-size:14px; font-weight:350; max-width:640px; margin-bottom:16px;">
+            The check itself happens with our screening provider, not here. This hands you over to them with your details
+            already filled in, and brings the status back to this page.</p>
+          <div class="callout">
+            ${ic('external-link.svg')}
+            <div><b>This opens another company's site.</b> You'll finish there and come back — the status appears on this
+            page automatically. Nothing about the check is stored in this portal.</div>
+          </div>
+          <button class="btn primary mt16" id="bgLaunch">${ic('external-link.svg','sm')} Start the check</button>
+        `}
+      </div>
+    </div>
+  </div>`;
 }
 
 /* ============================================================
@@ -736,7 +921,7 @@ function tabPreferences() {
       <p class="sec-note">The first two are practical. The last two are optional and personal — they’re invitations, not requirements.</p>
 
       <div class="gcard" data-assume="A-03">
-        <h4>Preferred language ${am('A-03')}</h4>
+        <h4>Language for messages from us ${am('A-03')}</h4>
         <div class="gbody">
           <div class="field">
             <label>Language</label>
@@ -744,7 +929,8 @@ function tabPreferences() {
               ${['English (US)','English (UK)','Japanese','Spanish','French','German','Portuguese (BR)'].map(l =>
                 `<option ${d.language===l?'selected':''}>${l}</option>`).join('')}
             </select>
-            <div class="note">Defaulted from your country of hire. This sets the language of the policy documents you’ll be asked to read.</div>
+            <div class="note">Emails and portal messages only. <b>Your policy documents are served in the language required
+            for ${esc(d.country)}</b> — that is set by law, not by preference, so it is not a choice here. ${am('A-03')}</div>
           </div>
         </div>
       </div>
@@ -1508,7 +1694,8 @@ function renderPolicies() {
         <div class="nums" style="color:var(--eq-dark-blue)"><span>${acked} of ${total} acknowledged</span></div>
         <div class="prog-bar" style="background:var(--cloud)"><i style="width:${(acked/total)*100}%"></i></div>
       </div>
-      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Country of hire: Japan — your list includes a Japan addendum</span>` : ''}
+      <span class="chip info">${ic('globe.svg','sm')}Served in ${docLanguage()} — set by your country of hire, not by preference ${am('A-03')}</span>
+      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan — your list includes a country addendum</span>` : ''}
     </div>
 
     <div class="doc-list">${DOCS.map(d => docCard(d, jp)).join('')}</div>
@@ -1521,11 +1708,7 @@ function renderPolicies() {
           <div><div class="o-name">Company factsheet</div>
           <div class="o-note">Who we are, what we do, and the numbers that matter. English only.</div></div>
         </div>
-        <div class="read-card">
-          <div class="tic">${ic('file-alt.svg')}</div>
-          <div><div class="o-name">Employee handbook — ${jp ? 'Japan' : 'United States'}</div>
-          <div class="o-note">The reference document for your country. No acknowledgement — it’s here whenever you need it.</div></div>
-        </div>
+        ${currentPackCard(jp)}
       </div>
     </div>
 
@@ -1539,12 +1722,15 @@ function renderPolicies() {
   </div>`;
 }
 
+/* Document language is derived from country of hire, not chosen (A-03). */
+function docLanguage() { return S.country === 'JP' ? 'Japanese' : 'English'; }
+
 function docCard(d, jp) {
   const P = S.policies;
   const open = !!P.open[d.id];
   const read = !!P.read[d.id];
   const acked = !!P.acked[d.id];
-  const lang = S.details.data.language || 'English (US)';
+  const lang = docLanguage();
 
   let body = '';
   if (open) {
@@ -1592,6 +1778,30 @@ function docCard(d, jp) {
       ${ic(open?'chevron-up.svg':'chevron-down.svg','lg')}
     </div>
     ${body}
+  </div>`;
+}
+
+/* What the live process actually sends alongside the acknowledgement pack (A-51). */
+function currentPackCard(jp) {
+  const pack = CURRENT_PACK[jp ? 'JP' : 'US'];
+  return `
+  <div class="read-card stack" data-assume="A-51">
+    <div class="rc-top">
+      <div class="tic">${ic('file-alt.svg')}</div>
+      <div>
+        <div class="o-name">Employee handbook — ${jp ? 'Japan' : 'United States'}
+          <span class="chip waiting">${pack.total} documents ${am('A-51')}</span></div>
+        <div class="o-note">${esc(pack.handbook)}${pack.addenda ? `, plus <b>${pack.addenda} ${pack.addendaNote}</b>` : ''}${pack.extras.length ? `, ${pack.extras.join(' and ')}` : ''}.
+        Reference only — nothing to acknowledge.</div>
+      </div>
+    </div>
+    ${pack.addenda ? `
+    <div class="pack-flag">
+      ${ic('exclamation-triangle.svg','sm')}
+      <span><b>Shown because it is true today, not because it is right.</b> Every US hire receives all ${pack.addenda} state
+      addenda regardless of where they work — so ${pack.addenda - 1} of them do not apply to you. Across all countries the live
+      process sends 416 document instances. Which of those stay pre-Day 1 is the largest open decision in this workstream. ${am('A-51')}</span>
+    </div>` : ''}
   </div>`;
 }
 
@@ -1902,6 +2112,7 @@ function applyScenario(name) {
     S.hm.network.submitted = true;
   };
   const hmPartial = () => {
+    S.hm.card.needed = true;
     S.hm.buddy = { assigned:'nina', notified:true };
     S.hm.contactConfirmed = true;
     Object.assign(S.hm.logistics, { confirmed:true, whereToBe:'9:00, main reception — ask for me at the desk', available:true });
@@ -1917,6 +2128,8 @@ function applyScenario(name) {
 
   if (name === 'inprogress') {
     fillDetails();
+    S.startdate.confirmed = true;
+    S.bgcheck.launched = true;
     hmPartial();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
     S.details.data.ec1name=''; S.details.data.ec1rel=''; S.details.data.ec1phone='';
@@ -1929,12 +2142,14 @@ function applyScenario(name) {
   }
   if (name === 'review') {
     fillDetails(); S.details.submitted = true;
+    S.startdate.confirmed = true; S.bgcheck.launched = true;
     equipComplete(); hmPartial(); namePeople();
     S.jd.state = 'review'; S.jd.dissent = true;
     S.jd.dissentText = 'The role we discussed was hybrid, two days in office — the summary says something different.';
   }
   if (name === 'complete') {
     fillDetails(); S.details.submitted = true;
+    S.startdate.confirmed = true; S.bgcheck.launched = true;
     equipComplete(); hmComplete();
     S.jd.state = 'done'; S.jd.scrolled = true; S.jd.acked = true;
     S.intro.text = 'I’m Jordan — joining the FP&A team from a fintech in Denver. I’ll be picking up the forecast for the Americas portfolios. Outside work you’ll usually find me on a trail or attempting sourdough.';
@@ -1986,6 +2201,8 @@ const PLACEHOLDER_PHOTO = (() => {
    ============================================================ */
 const ROUTES = {
   '#/': renderLanding,
+  '#/startdate': renderStartDate,
+  '#/bgcheck': renderBgCheck,
   '#/equipment': renderEquipment,
   '#/details': renderDetails,
   '#/jd': renderJD,
@@ -2013,12 +2230,75 @@ function render() {
 function rerender() { render(); }
 
 function bindScreen(route) {
+  startCarousel(route === '#/');
   if (route.startsWith('#/hm/')) { bindHm(route); return; }
+  if (route === '#/startdate') return bindStartDate();
+  if (route === '#/bgcheck') return bindBgCheck();
   if (route === '#/details') bindDetails();
   if (route === '#/equipment') bindEquipment();
   if (route === '#/jd') bindJD();
   if (route === '#/intro') bindIntro();
   if (route === '#/policies') bindPolicies();
+}
+
+/* ---------- carousel ---------- */
+function startCarousel(on) {
+  clearInterval(carouselTimer); carouselTimer = null;
+  if (!on) return;
+  carouselTimer = setInterval(() => {
+    if (!$('.carousel')) { clearInterval(carouselTimer); return; }
+    S.carousel = ((S.carousel || 0) + 1) % INSIDE_CHAPTERS.length;
+    const c = INSIDE_CHAPTERS[S.carousel];
+    $('.car-num').textContent = c.n;
+    $('.car-title').textContent = c.title;
+    $('.car-line').textContent = c.line;
+    $$('.car-dot').forEach((d,k) => d.classList.toggle('on', k === S.carousel));
+  }, 6000);
+}
+
+/* ---------- start date bindings ---------- */
+function bindStartDate() {
+  const D = S.startdate;
+  const c = $('#sdConfirm');
+  if (c) c.addEventListener('click', () => {
+    D.confirmed = true; save(); rerender();
+    toast('Start date confirmed — every other due date is set from it.', 'check-circle.svg');
+  });
+  const ch = $('#sdChange');
+  if (ch) ch.addEventListener('click', () => {
+    $('#sdBox').classList.remove('hidden'); ch.classList.add('hidden'); $('#sdConfirm').classList.add('hidden');
+  });
+  const dt = $('#sdDate');
+  if (dt) dt.addEventListener('input', () => {
+    D.requestedDate = dt.value; save();
+    $('#sdSend').disabled = !dt.value.trim();
+  });
+  const rs = $('#sdReason');
+  if (rs) rs.addEventListener('input', () => { D.reason = rs.value; save(); });
+  const sn = $('#sdSend');
+  if (sn) sn.addEventListener('click', () => {
+    D.changeRequested = true; D.confirmed = false; save(); rerender();
+    toast('Request sent to Maya and Priya. Your dates stay as they are until it is agreed.');
+  });
+  const ca = $('#sdCancel');
+  if (ca) ca.addEventListener('click', () => rerender());
+  const ro = $('#sdReopen');
+  if (ro) ro.addEventListener('click', () => { D.confirmed = false; save(); rerender(); });
+  const un = $('#sdUndo');
+  if (un) un.addEventListener('click', () => {
+    D.changeRequested = false; D.requestedDate = ''; D.reason = ''; save(); rerender();
+  });
+}
+
+/* ---------- background check bindings ---------- */
+function bindBgCheck() {
+  const l = $('#bgLaunch');
+  if (l) l.addEventListener('click', () => {
+    toast('Opening the screening provider in a new tab (simulated).', 'external-link.svg');
+    setTimeout(() => { S.bgcheck.launched = true; save(); rerender(); }, 1300);
+  });
+  const u = $('#bgUndo');
+  if (u) u.addEventListener('click', () => { S.bgcheck.launched = false; save(); rerender(); });
 }
 
 /* ---------- details bindings ---------- */
@@ -2343,6 +2623,15 @@ document.addEventListener('click', e => {
     }, 260);
     return;
   }
+
+  const car = t.closest('[data-car]');
+  if (car) {
+    const n = INSIDE_CHAPTERS.length;
+    S.carousel = (((S.carousel || 0) + (+car.dataset.car)) % n + n) % n;
+    save(); rerender(); return;
+  }
+  const dot = t.closest('[data-cardot]');
+  if (dot) { S.carousel = +dot.dataset.cardot; save(); rerender(); return; }
 
   const uc = t.closest('[data-ucard]');
   if (uc) { uc.classList.toggle('open'); return; }

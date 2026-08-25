@@ -48,6 +48,10 @@ function hmTasks() {
       why:'The people outside your team that Jordan will actually work with.',
       dispNote:'The only item here that adds to your load. It needs a decision, not a design.' },
   ];
+  list.splice(3, 0, { id:'card', label:'Will Jordan need a corporate card?', disp:'undecided', route:'#/hm/card',
+    done: H.card.needed !== null, icon:'banking.svg', marker:'M-19',
+    why:'One question, and only if they will travel on behalf of Equinix.',
+    dispNote:'Was undecided while the source row was truncated. Now specified — and it is genuinely one tap.' });
   if (introReady || H.intro.forwarded) {
     list.push({ id:'intro', label:'Forward Jordan’s introduction to the team', disp:'keep', route:'#/hm/intro',
       done: H.intro.forwarded, icon:'comment-smile.svg', marker:'L-02',
@@ -100,6 +104,10 @@ function hmBlockers() {
   COUNTED.forEach(k => {
     if (isOverdue(k)) out.push({ sev:'med', text:`Jordan’s “${NH_TASK_LABELS[k]}” is past its due date and still open.`, action:'See status', route:null });
   });
+  if (S.hm.card.needed === null && days <= 21) {
+    out.push({ sev:'low', text:'The corporate card question is unanswered. If Jordan will travel, they need the agreement ready to sign on their second day.',
+      action:'Answer it', route:'#/hm/card' });
+  }
   if (!S.hm.software.confirmed) {
     out.push({ sev:'low', text:'The application stack cannot be resolved — Jordan’s persona is not mapped. This is a platform gap, not something you can fix here.',
       action:'See why', route:'#/hm/software' });
@@ -108,6 +116,7 @@ function hmBlockers() {
 }
 
 const NH_TASK_LABELS = {
+  startdate:'Confirm your start date', bgcheck:'Start your background check',
   equipment:'Choose your workspace accessories', details:'Your personal and contact details',
   jd:'Review your job description', intro:'Introduce yourself and add your photo',
   policies:'Policies and privacy notices',
@@ -117,6 +126,9 @@ const NH_TASK_LABELS = {
    names and status only, never content, and sensitive items marked. */
 function nhProgressRows() {
   return [
+    { label:NH_TASK_LABELS.startdate, status:startdateStatus() },
+    { label:NH_TASK_LABELS.bgcheck, status:bgcheckStatus(), sensitive:true,
+      hidden:'You can see the check is running. What it contains is never shown to you.' },
     { label:NH_TASK_LABELS.equipment, status:equipmentStatus() },
     { label:NH_TASK_LABELS.details, status:detailsStatus(), sensitive:true,
       hidden:'Identity documents, emergency contacts and voluntary self-identification are not shown to you.' },
@@ -396,14 +408,15 @@ function renderHmLogistics() {
           </div>
 
           ${!L.available ? `
-          <div class="field" data-assume="M-14">
-            <label>Who covers for you? ${am('M-14')}</label>
+          <div class="field" data-assume="M-14 M-20">
+            <label>Who covers for you? ${am('M-14')} ${am('M-20')}</label>
             <select id="lgProxy">
               <option value="">Choose someone…</option>
               ${BUDDY_POOL.map(b => `<option ${L.proxy===b.name?'selected':''}>${b.name}</option>`).join('')}
             </select>
-            <div class="note">This applies to Jordan only, not permanently. What a proxy can actually see and do is undefined —
-            the delegation model has not been written. ${am('M-14')}</div>
+            <div class="note">Named here for Jordan's first day. The requirement is broader than that — a proxy should be able
+            to <b>act on your behalf</b> and <b>see a new hire's status</b> as a standing arrangement, and People Experience
+            need the same capability. What a proxy can actually see and do is still undefined. ${am('M-20')}</div>
           </div>` : ''}
 
           <div class="field" style="max-width:560px;">
@@ -799,6 +812,12 @@ function renderHmWelcome() {
           the request arrives in context. Nothing enforces that today — and three welcome messages compete for the same
           week. ${am('L-08')}</span>
         </div>
+        <div class="callout mt16" data-assume="M-21">
+          ${ic('exclamation-triangle.svg')}
+          <div><b>This may already exist.</b> The onboarding platform ships a “customise a welcome memo” capability and a
+          “from my manager” block on the new hire's dashboard. The genuinely additive part of this screen is the read-only
+          first-week block, because it is generated from Jordan's real task list. ${am('M-21')}</div>
+        </div>
       </div>
     </div>
   </div>`;
@@ -857,6 +876,14 @@ function renderHmNetwork() {
       </div>
 
       <div class="rail">
+        <div class="rail-card" data-assume="M-21">
+          <h3>Before this is built ${am('M-21')}</h3>
+          <p style="font-size:12.5px; font-weight:350; line-height:1.55;">The onboarding platform already ships
+          <b>“select people to meet”</b> and <b>“select helpful contacts”</b> as manager setup, surfaced on the new hire's
+          dashboard. This screen may be re-creating something that exists.</p>
+          <div class="rail-note">That changes the argument. If the capability is already there, naming a network is not
+          net-new manager work — it is switching something on. Worth settling before it is costed. ${am('M-21')}</div>
+        </div>
         <div class="rail-card">
           <h3>What this triggers</h3>
           <ol class="mech-list">
@@ -951,6 +978,67 @@ function renderHmIntro() {
 }
 
 /* ============================================================
+   H-06 — corporate card (PRD v1.4; M-19, L-10)
+   ============================================================ */
+function renderHmCard() {
+  const C = S.hm.card;
+  return `
+  <div class="page">
+    ${hmCrumbs('Corporate card')}
+    <div class="task-head" data-assume="M-19">
+      <h1>Will Jordan need a corporate card? ${am('M-19')}</h1>
+      <p class="why">One question, answered before they start. Everything after it happens without you.</p>
+      ${dispBanner('undecided','This was listed as undecided while the source row was truncated. It is now specified end to end — and it is genuinely one tap.','M-19')}
+    </div>
+
+    <div class="task-shell">
+      <div class="wiz-body">
+        <div class="form-sec">
+          <h3>${CARD_FLOW.managerQuestion}</h3>
+          <p class="sec-note">The question is about travel, not seniority. If they will spend on behalf of Equinix, they need one.</p>
+          <div class="radio-row col mt16">
+            <label><input type="radio" name="cardq" data-card="yes" ${C.needed===true?'checked':''}>
+              <b>Yes</b> — they'll travel on behalf of Equinix</label>
+            <label><input type="radio" name="cardq" data-card="no" ${C.needed===false?'checked':''}>
+              <b>No</b> — not needed for this role</label>
+          </div>
+        </div>
+
+        ${C.needed === true ? `
+        <div class="form-sec" data-assume="L-10">
+          <h3>What your yes sets off</h3>
+          <ol class="mech-list">
+            ${CARD_FLOW.mechanics.map(m => `<li>${m}</li>`).join('')}
+          </ol>
+          <div class="callout soft">
+            ${ic('info-circle.svg')}
+            <div><b>Note the timing.</b> Jordan's half is <b>Day 2</b>, after they start — not pre-Day 1. It has already
+            appeared on their portal as something coming up, so they know it is handled. ${am('L-10')}</div>
+          </div>
+          <div class="callout">
+            ${ic('question-circle.svg')}
+            <div>${CARD_FLOW.note} Two things the requirement leaves open: what the task is finally called in the portal,
+            and whether a cost centre and approver are captured alongside your yes. ${am('M-19')}</div>
+          </div>
+        </div>` : ''}
+
+        ${C.needed === false ? `
+        <div class="callout soft" data-assume="L-10">
+          ${ic('check-circle.svg')}
+          <div>Nothing further happens. Jordan is not asked about a card and never sees the subject — the negative answer
+          is a designed outcome, not an absence. ${am('L-10')}</div>
+        </div>` : ''}
+      </div>
+      ${C.needed !== null ? `<div class="wiz-foot">
+        <span class="saved-state">${ic('check-circle.svg','sm')}Answered — ${C.needed ? 'Jordan will sign the agreement on Day 2' : 'nothing scheduled'}</span>
+        <span class="missing"></span>
+        <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ============================================================
    The subtraction review — this side's argument screen
    ============================================================ */
 const SUBTRACTION = [
@@ -994,6 +1082,9 @@ const SUBTRACTION = [
     { task:'Assign a buddy', today:'Manual — select a buddy',
       why:'A judgement about people, with a suggestion to make agreement one tap.',
       cond:'Buddy policy defined: criteria, load limits, decline process — and a privacy position on the performance signal.', marker:'M-07' },
+    { task:'Delegation and proxy', today:'Informal — cover is arranged by asking someone',
+      why:'The requirement gives both managers and People Experience a standing proxy who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
+      cond:'A permission model. What a proxy can see and do is undefined.', marker:'M-20' },
     { task:'Confirm new hire start logistics', today:'Partially manual — determine office seating if applicable',
       why:'Narrowed to what only the manager knows: their own availability, cover if they are away, and team-specific instruction.',
       cond:'Blueprint precedence settled, so the manager confirms location facts rather than entering them.', marker:'M-05' },
@@ -1005,9 +1096,9 @@ const SUBTRACTION = [
       cond:'Guide content authored per persona, and its relationship to the existing companion guide resolved.', marker:'M-15' },
   ]},
   { group:'undecided', title:'Undecided — cannot be dispositioned yet', rows:[
-    { task:'Confirm corporate card requirement', today:'Not established — the source row is truncated, seven attributes blank',
-      why:'If all employees move to the same corporate card by default, there is nothing for a manager to decide.',
-      cond:'Resolve whether the card is universal.', marker:'M-12' },
+    { task:'Confirm corporate card requirement — NOW SPECIFIED', today:'Was not established; the source row was truncated with seven attributes blank',
+      why:'Resolved. It is a manager yes/no, but framed around travel rather than entitlement, and the new hire’s half is an e-signature on Day 2. Built — and it belongs under Keep rather than Undecided now.',
+      cond:'Nothing blocking. Two details still open: the task’s final name in the portal, and whether cost centre and approver are captured with the yes.', marker:'M-19' },
     { task:'Secure office location and seating', today:'Manual — determine office seating if applicable',
       why:'The design walkthrough calls this a placeholder and suggests it could probably be taken off the manager’s plate.',
       cond:'Workplace follow-up on work arrangements, parking and badge access level.' },
@@ -1106,6 +1197,18 @@ function handoffRows() {
       done: H.contactConfirmed,
       state: H.contactConfirmed ? 'Confirmed — number shown to Jordan' : 'Unconfirmed — Jordan sees the record value, which may be stale',
       hmRoute:'#/hm/', nhRoute:'#/' },
+    { dir:'hm', from:'Corporate card answer', to:'Day 2 card agreement', marker:'L-10',
+      done: H.card.needed !== null,
+      state: H.card.needed === null ? 'Unanswered — Jordan sees nothing about a card'
+        : H.card.needed ? 'Yes — the agreement is on Jordan’s list for Day 2'
+        : 'No — nothing created, and Jordan never sees the subject',
+      hmRoute:'#/hm/card', nhRoute:'#/' },
+    { dir:'nh', from:'Start date confirmation', to:'Readiness view + every due date', marker:'L-11',
+      done: S.startdate.confirmed || S.startdate.changeRequested,
+      state: S.startdate.changeRequested ? 'Change requested — Priya and PEX can see it, dates unchanged until agreed'
+        : S.startdate.confirmed ? 'Confirmed — every other due date is anchored to it'
+        : 'Not confirmed — the whole schedule is provisional',
+      hmRoute:'#/hm/', nhRoute:'#/startdate' },
     { dir:'nh', from:'Task progress', to:'Readiness view', marker:'L-05',
       done: tasksComplete() > 0,
       state: `${tasksComplete()} of ${COUNTED.length} done — Priya sees status only, never content`,
@@ -1121,7 +1224,7 @@ function renderHandoffs() {
     <div class="crumbs"><button class="back" data-goto="${S.view==='hm'?'#/hm/':'#/'}">${ic('chevron-left.svg','sm')}Back</button>
       <span>/</span><span>How the two portals connect</span></div>
     <h1>Where the two sides meet</h1>
-    <p class="flow-sub">Nine handoffs between the hiring manager’s portal and the new hire’s. Both sides read and write
+    <p class="flow-sub">Eleven handoffs between the hiring manager’s portal and the new hire’s. Both sides read and write
     the same underlying facts in this prototype, so what you change on one appears on the other — use the switch at the
     top to check. <b>${wired} of ${rows.length} are currently live.</b> Every one of them rests on an assumption; the
     marker on each row opens it.</p>
@@ -1181,6 +1284,7 @@ const HM_ROUTES = {
   '#/hm/welcome': renderHmWelcome,
   '#/hm/network': renderHmNetwork,
   '#/hm/intro': renderHmIntro,
+  '#/hm/card': renderHmCard,
   '#/hm/subtraction': renderHmSubtraction,
   '#/handoffs': renderHandoffs,
 };
@@ -1306,6 +1410,16 @@ function bindHm(route) {
       H.network.submitted = true; save(); rerender();
       toast('Sent to Jordan, and everyone you named has been notified.', 'check-circle.svg');
     });
+  }
+
+  if (route === '#/hm/card') {
+    $$('[data-card]').forEach(r => r.addEventListener('change', () => {
+      S.hm.card.needed = r.dataset.card === 'yes';
+      save(); rerender();
+      toast(S.hm.card.needed
+        ? 'Recorded. The agreement is now on Jordan’s list for Day 2.'
+        : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
+    }));
   }
 
   if (route === '#/hm/intro') {

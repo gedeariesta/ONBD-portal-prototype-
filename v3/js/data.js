@@ -19,7 +19,9 @@ const SIM = {
 
 /* Due dates as offsets from the start date, so both runways work (A-45). */
 const DUE_OFFSETS = {
-  equipment: -12,   // earliest of all — build and ship lead time (A-33)
+  startdate: -14,   // triggered at offer acceptance (A-49)
+  bgcheck: -13,     // launched from the portal, runs externally (A-50)
+  equipment: -12,   // earliest of the provisioning tasks — build and ship lead (A-33)
   photo: -10,       // badge print lead
   jd: -7,
   intro: -7,
@@ -114,9 +116,9 @@ const ASSUMPTIONS = [
     resolve:'Declared rather than silently diverged. Decide whether to adopt the split: it changes navigation, the progress model, and where the culture content lives.', oi:'—' },
 
   /* ---------- Content needed ---------- */
-  { id:'A-03', group:'content', prov:'ASSUMED', screen:'Personal details', route:'#/details',
-    assumed:'Preferred language sits on Tab 3, defaulted from country of hire.',
-    resolve:'Confirm whether language preference comes from the worker record or is captured here. Five policy documents are served by it.', oi:'OI-16' },
+  { id:'A-03', group:'content', prov:'PRD', screen:'Personal details / Compliance pack', route:'#/policies',
+    assumed:'REVISED. Document language is derived from country of hire, not chosen by the new hire. The preference field on Tab 3 now covers communications only, and says so.',
+    resolve:'The requirement is explicit: the privacy notice “must be auto displayed in the employee’s local language for countries where a translated version is required”, English otherwise. Twenty approved translations exist. The earlier version of this assumption had the model backwards. Still to confirm: whether a new hire may override the served language.', oi:'OI-16' },
   { id:'A-05', group:'content', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'Contact preferences = preferred channel (email / text / either) plus an opt-in for non-essential updates.',
     resolve:'The field is named in the source with no definition. Someone needs to define the real options.', oi:'OI-18' },
@@ -201,11 +203,11 @@ const ASSUMPTIONS = [
     assumed:'The hiring manager is contactable from the portal before Day 1, by Teams and email.',
     resolve:'Confirm the manager expects to be reachable this early, and that Teams reaches them before the new hire has an Equinix account.', oi:'—' },
   { id:'A-33', group:'design', prov:'1:1', screen:'Task list', route:'#/',
-    assumed:'Equipment opens immediately and sits first in the list, with the earliest due date.',
-    resolve:'Nothing gates it today — the “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'—' },
+    assumed:'Equipment opens immediately and is the earliest of the provisioning tasks. Confirming the start date and launching the background check now sit ahead of it, because both are triggered at offer acceptance.',
+    resolve:'Nothing gates equipment today — the “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'—' },
   { id:'A-35', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
-    assumed:'Inside Equinix is parked here as pre-Day 1 reference reading, with nothing required or tracked.',
-    resolve:'Three positions exist: today it is a Day 1 to-do in the live portal; here it is pre-Day 1 side reference; the stated intent is a carousel above the progress tracker, releasing modules as the start date approaches. Moving it out of Day 1 is a relocation, not a presentation upgrade — pick one of the three.', oi:'—' },
+    assumed:'ANSWERED. A carousel at the top of the portal rotating chapters 01-06, plus a link in the right-hand rail. No tasks, nothing tracked. Both are now built.',
+    resolve:'The requirement settles the three-way question — it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. Chapter summaries here are placeholder.', oi:'—' },
   { id:'A-36', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'The first-90-days checklists are parked as reference only, not as tick-off items.',
     resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date • Optional”. Revisit whether tick-off is now cheap.', oi:'—' },
@@ -222,6 +224,16 @@ const ASSUMPTIONS = [
     assumed:'Start dates are bimodal — many hires have about two weeks, but some start three months out. Both are viewable from the prototype controls.',
     resolve:'The distribution is on the onboarding dashboard — pull it rather than guess. A list that works at fourteen days can feel empty and confusing at ninety.', oi:'—' },
 
+  { id:'A-49', group:'blocks', prov:'PRD', screen:'Confirm your start date', route:'#/startdate',
+    assumed:'Confirming the start date is its own required task, and requesting a change moves every other due date with it.',
+    resolve:'The future-state workflow carries this as a separate required task that “updates dependent due dates and tasks”. It was missing from the earlier prototype. What is not defined is who approves a change, how far it can move, and what happens to work already in flight — equipment on order, a badge queued for print.', oi:'—' },
+  { id:'A-50', group:'design', prov:'PRD', screen:'Background check', route:'#/bgcheck',
+    assumed:'The background check is launched by the new hire from the portal, with status shown here afterwards.',
+    resolve:'The source has this as a required task with an action, not the passive status card the earlier prototype showed. Country treatments and the status integration are both unconfirmed.', oi:'—' },
+  { id:'A-51', group:'content', prov:'CURRENT', screen:'Compliance pack', route:'#/policies',
+    assumed:'The reference pack the live process sends today is shown alongside the acknowledgement pack, with its real size.',
+    resolve:'A US hire currently receives 28 documents in one bundle — the handbook, 25 state addenda, the benefits booklet and a compliance service — regardless of which state they work in. Across all countries the process serves 416 document instances. Which of those survive pre-Day 1, which move later and which retire is the single largest open decision in this workstream.', oi:'—' },
+
   /* ---------- Retired — observation answered the question ---------- */
   { id:'A-09', group:'retired', prov:'UAT', screen:'Personal details / Equipment', route:'#/equipment',
     assumed:'Was: home address is captured once on Tab 1 and reused for equipment delivery, with the equipment task holding the editable copy.',
@@ -237,6 +249,8 @@ const GROUP_LABELS = {
 
 const PROV_LABELS = {
   UAT: 'Seen in the live UAT portal',
+  PRD: 'Specified in the requirements (v1.4)',
+  CURRENT: 'Measured from the live Workday process',
   '1:1': 'Stated by the platform owner',
   PRIOR: 'Agreed in the earlier change request',
   ASSUMED: 'Still a judgement call',
@@ -354,11 +368,51 @@ const NETWORK_POOL = [
     suggested:true, why:'She runs the planning tool you’ll live in. Thirty minutes with her early saves a lot of guessing later.' },
 ];
 
-/* ---------- Inside Equinix modules (A-35) ---------- */
+/* ---------- Inside Equinix (A-35) ----------
+   PRD v1.4 asks for a carousel at the top of the portal rotating chapters
+   01-06, plus a link in the right-hand rail. No tasks, nothing tracked.
+   Chapter titles are real; the one-line summaries are placeholder. */
 const INSIDE_MODULES = [
   'Who we are', 'How we work', 'Our business',
   'What we enable', 'Our road ahead', 'Your role',
 ];
+const INSIDE_CHAPTERS = [
+  { n:'01', title:'Who we are',      line:'Where Equinix came from, and what the company is for.' },
+  { n:'02', title:'How we work',     line:'How decisions get made, and what good looks like here.' },
+  { n:'03', title:'Our business',    line:'What we sell, who buys it, and how the money works.' },
+  { n:'04', title:'What we enable',  line:'What our customers actually do with what we build.' },
+  { n:'05', title:'Our road ahead',  line:'Where the company is heading over the next few years.' },
+  { n:'06', title:'Your role',       line:'How your work connects to all of the above.' },
+];
+
+/* ---------- What the live Workday process actually sends today (A-51) ----------
+   Counts are from the current-state business process document list, not invented.
+   The mockup's acknowledgement pack is the intended future core; this is the
+   reference material that arrives alongside it today. */
+const CURRENT_PACK = {
+  US: { handbook:'US Employee Handbook (November 2024)',
+        addenda:25, addendaNote:'state handbook addenda — every US hire receives all of them, whichever state they work in',
+        extras:['2026 Equinix U.S. Benefits Booklet','GovDocs'],
+        total:28 },
+  JP: { handbook:'就業規則 — Japanese employment regulations (April 2025)',
+        addenda:0, addendaNote:'',
+        extras:['Japan-specific employment documents'],
+        total:19 },
+};
+
+/* ---------- Corporate card (PRD v1.4) ---------- */
+const CARD_FLOW = {
+  managerQuestion: 'Will Jordan travel on behalf of Equinix and need a corporate card?',
+  newHireTask: 'Equinix Corporate Card Request',
+  timing: 'Day 2 — after they start, not before',
+  mechanics: [
+    'You answer yes or no before Jordan starts.',
+    'If yes, a task appears for Jordan on Day 2: review the user agreement and sign it electronically.',
+    'Completed agreements are extracted weekly to Accounts Payable.',
+    'Accounts Payable submit the file to Citi, who send Jordan an application link directly.',
+  ],
+  note: 'Citi cannot host the agreement, so it lives in an Equinix system. Contingent workers are out of scope.',
+};
 
 /* ---------- Coming up ---------- */
 const COMING_UP = [
@@ -507,9 +561,18 @@ const HM_ASSUMPTIONS = [
     resolve:'The source row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire SSO logic applied to the wrong persona. Shown struck through so the removal is arguable rather than silent — but confirm no ServiceNow role or licence provisioning is hiding behind it.', oi:'OI-01' },
 
   /* ---------- Content needed ---------- */
-  { id:'M-12', side:'hm', group:'content', prov:'ASSUMED', screen:'Corporate card', route:'#/hm/subtraction',
-    assumed:'The corporate card is shown as undecided and is not built.',
-    resolve:'The source row is truncated — seven attributes are blank. If all employees are moving to the Citi card by default there is nothing for a manager to decide and the task should be removed.', oi:'OI-06' },
+  { id:'M-12', side:'hm', group:'retired', prov:'PRD', screen:'Corporate card', route:'#/hm/card',
+    assumed:'Was: the corporate card is undecided and not built, because the source row was truncated.',
+    resolve:'Superseded. The requirement now specifies the whole flow — a manager yes/no framed around travel, then an e-signature task for the new hire on Day 2, a weekly extract to Accounts Payable, and an application link issued by the card provider. It is a manager decision after all, but not a universal entitlement, and the new hire’s half is post-start rather than pre-Day 1. Built.', oi:'OI-06 → closed' },
+  { id:'M-19', side:'hm', group:'content', prov:'PRD', screen:'Corporate card', route:'#/hm/card',
+    assumed:'The manager question is framed around travel — will this person travel on behalf of Equinix — rather than as a generic entitlement.',
+    resolve:'That is the wording the requirement uses, and it is narrower than “does everyone get a card”. Two things the requirement itself leaves open: what the task is called in the portal, and whether cost centre and approver are captured alongside the yes.', oi:'OI-06' },
+  { id:'M-20', side:'hm', group:'design', prov:'PRD', screen:'Start logistics', route:'#/hm/logistics',
+    assumed:'Delegation is a standing capability, not a Day 1 field. A proxy can act on the manager’s behalf and see the new hire’s status, and People Experience need the same.',
+    resolve:'Broader than the earlier version of this screen, which treated the proxy as cover for Day 1 only. What a proxy can actually see and do is still undefined, and the requirement gives the same capability to People Experience — who have no screens here at all.', oi:'OI-12' },
+  { id:'M-21', side:'hm', group:'blocks', prov:'PRD', screen:'Team network / welcome note', route:'#/hm/network',
+    assumed:'Both of these are drawn as new work, but the underlying platform may already provide them.',
+    resolve:'The platform’s own onboarding module ships “select people to meet”, “select helpful contacts” and “customise a welcome memo”, surfaced on the new hire’s dashboard. Decide whether to use what exists or build alongside it before either screen is costed — it materially changes the argument that the network task adds manager work.', oi:'—' },
   { id:'M-15', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager guide', route:'#/hm/',
     assumed:'The Manager Onboarding Guide is one artifact with persona variants, persisting as a link in the rail.',
     resolve:'Unresolved whether this is the existing Manager Companion Guide, a superset of it, or something new. The two are scoped differently and there is no settled terminology.', oi:'OI-07' },
@@ -557,6 +620,12 @@ const LINK_ASSUMPTIONS = [
   { id:'L-05', side:'link', group:'blocks', prov:'ASSUMED', screen:'New hire progress → manager', route:'#/hm/',
     assumed:'Sensitive new hire tasks report status only, never content. The manager sees that identity documents are done, not what was uploaded.',
     resolve:'The same unresolved visibility question as M-03, seen from the join. The prototype makes one specific choice so it can be argued rather than discovered during build.', oi:'OI-03' },
+  { id:'L-10', side:'link', group:'design', prov:'PRD', screen:'Corporate card → new hire', route:'#/hm/card',
+    assumed:'The manager’s yes creates a Day 2 task for the new hire. A no creates nothing, and the new hire never sees the subject at all.',
+    resolve:'Matches the requirement, and it is the only handoff here whose negative answer is also a designed outcome. Worth confirming the new hire is told nothing rather than told “not applicable”.', oi:'—' },
+  { id:'L-11', side:'link', group:'blocks', prov:'PRD', screen:'Start date → both portals', route:'#/startdate',
+    assumed:'Changing the start date moves every dependent due date on both sides, and the manager sees the request.',
+    resolve:'The requirement says the portal updates dependent due dates and tasks. It does not say who approves the change, how late it can be requested, or what happens to work already in flight — an order placed, a badge queued for print, a calendar hold booked.', oi:'—' },
   { id:'L-03', side:'link', group:'design', prov:'ASSUMED', screen:'Manager contact → new hire', route:'#/hm/',
     assumed:'The manager’s confirmed contact details feed the card the new hire sees, and the manager is explicitly told the new hire can reach them before Day 1.',
     resolve:'Pre-hire contact scope is not settled in any source, and nothing on the manager’s side currently tells them the new hire has their details — or sets any expectation about responding.', oi:'OI-23' },
