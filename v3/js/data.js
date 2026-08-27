@@ -74,7 +74,7 @@ const PHASES = [
 ];
 
 /* ============================================================
-   Assumption register. 91 entries across both portals.
+   Assumption register. 92 entries across both portals.
    A-01…A-28 carried from v1 unchanged in numbering.
    A-29…A-46 and A-48 are new in v2 (A-47 left unused on purpose,
    reserved for the IBX badge question if it needs its own entry).
@@ -151,8 +151,8 @@ const ASSUMPTIONS = [
     assumed:'Accessories are for the at-home workspace. The in-office workspace already has monitors, keyboard and mouse.',
     resolve:'Wording mirrors the live form. Confirm it holds in every region, and for hybrid hires with no assigned desk.', oi:'' },
   { id:'A-39', group:'content', prov:'UAT', screen:'Equipment', route:'#/equipment',
-    assumed:'The headset is automatic. Everyone gets the standard Zoom-optimised headset, and there is nothing to select.',
-    resolve:'Mirrors the live form. Confirm whether someone who does not want one has any route to decline.', oi:'' },
+    assumed:'The headset is automatic. Everyone gets the standard Zoom-optimized headset, and the choice field offers only “Headset only” or “Headset and other accessories”.',
+    resolve:'UAT answers the question this entry was asking, and the answer is no. The required choice field has two options and neither is a refusal, so a hire who already owns a headset either accepts a second one or leaves a required field empty. An earlier version of this prototype invented an “I don’t need anything” option, which has been removed because it does not exist. Whether that matters is a decision for the equipment owner, not a defect.', oi:'' },
   { id:'A-46', group:'content', prov:'1:1', screen:'Task list', route:'#/',
     assumed:'A medical check appears for countries that require one. Japan is the example shown here.',
     resolve:'Same family as right to work. Which countries require it, and what the new hire actually has to do, are both unconfirmed.', oi:'' },
@@ -208,7 +208,7 @@ const ASSUMPTIONS = [
     resolve:'Nothing gates equipment today. The “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'' },
   { id:'A-35', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'ANSWERED, and now filled with the real thing. Six chapters from the live Inside Equinix site, with their real titles, headlines and content. Chapter 03 is “What we do”, not the “Our business” this prototype previously guessed at. No tasks, nothing tracked.',
-    resolve:'The requirement settles the three-way question: it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. The chapter content is no longer placeholder, but the videos are named rather than embedded.', oi:'' },
+    resolve:'The requirement settles the three-way question: it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. The chapter content is no longer placeholder, but the videos are named rather than embedded. UAT settles the placement question: Inside Equinix is a to-do inside “Your first day at Equinix”, not a pre-Day 1 item, so putting it in front of a new hire before they start is a move, not a reuse.', oi:'' },
   { id:'A-36', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'The first-90-days checklists are parked as reference only, not as tick-off items.',
     resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date, optional”. Revisit whether tick-off is now cheap.', oi:'' },
@@ -248,6 +248,10 @@ const ASSUMPTIONS = [
   { id:'A-55', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The accessories order is raised as an incident at Urgency 3 - Low, and its Summary tab shows the stored record rather than a written summary: checkbox values render as true and false, the HR task SysID is on display, and the accessories choice is stored as the sentence “Headset and other accessories”.',
     resolve:'Two separate problems. Urgency: nothing ships until this incident is worked, and the desk is incomplete on Day 1 if it is not, so Low is the wrong default for an order with a hard date behind it. Confirm whether urgency is derived from the start date at all. Summary: it is readable by someone who knows the form and confusing to a new hire checking their own order, which is exactly who has the tab open. Neither needs a redesign, both need a decision before this reaches production.', oi:'' },
+
+  { id:'A-56', group:'blocks', prov:'UAT', screen:'All to-dos', route:'#/todos',
+    assumed:'The platform already ships a to-do view: a phase rail, one phase open at a time, a count for that phase only, and filters for Assigned to, Type and Sort by. The prototype now carries both that view and its own task list, so the two can be compared.',
+    resolve:'The counting model is the decision. The platform counts within a phase, so a new hire in Get Ready for Day 1 sees a small number and no sense of what is still coming. This prototype counts the whole pre-Day 1 list instead. Which is less alarming has never been tested, and the answer changes the home screen. Also worth noting: the filters exist and cost nothing, so any argument for a simpler list has to say why they are being given up. Two Day 1 to-dos were on screen that no source of ours names, Welcome to MyHR and Complete your enterprise training, and two more in that phase were below the fold.', oi:'' },
 
   /* ---------- Retired: observation answered the question ---------- */
   { id:'A-09', group:'retired', prov:'UAT', screen:'Personal details / Equipment', route:'#/equipment',
@@ -519,6 +523,40 @@ const INSIDE_CHAPTERS = [
 const REFLECT_NOTE =
   'Capture your thoughts, including any questions or areas where you want to learn more. ' +
   'You will revisit these in your upcoming conversation with your manager or onboarding buddy.';
+
+/* ---------- The live to-do timeline (A-56) ----------
+   UAT shows the platform's own to-do UI: a phase rail on the left, one phase
+   open at a time, a per-phase count, and a filter bar of Assigned to, Type
+   and Sort by. To-dos carry a state line rather than a due date, and the
+   phase header counts only that phase.
+
+   Phases 2 and 3 are what the screens actually showed, including the counts.
+   Phase 1 is this prototype's own task list, and phases 4 and 5 were not
+   captured, so they say so. */
+const PHASE_TODOS = {
+  1: { seen:true, total:2, items:[
+    { name:'Complete your at-home workspace setup', state:'No due date, optional' },
+    { name:'Collect your Equinix credentials',      state:'Due in 1 day' },
+  ] },
+  2: { seen:true, total:6, items:[
+    { name:'Inside Equinix',                   state:'Upcoming to-do', marker:'A-35' },
+    { name:'Order a phone',                    state:'Upcoming to-do, optional', marker:'A-40' },
+    { name:'Welcome to MyHR',                  state:'Upcoming to-do' },
+    { name:'Complete your enterprise training', state:'Upcoming to-do' },
+  ], note:'Four of the six were on screen. The other two were below the fold.' },
+  3: { seen:false, total:null, items:[
+    { name:'Information governance', state:'Upcoming to-do', marker:'A-21' },
+  ], note:'Not captured in UAT. This one item comes from the compliance workbook, not from the platform.' },
+  4: { seen:false, total:null, items:[], note:'Not captured in UAT, and nothing in the sources names what sits here.' },
+};
+
+/* The live filter bar. None of it is wired in the prototype, and the labels
+   are copied so the team can see what the platform already offers (A-56). */
+const TODO_FILTERS = [
+  { label:'Assigned to', value:'Assigned to me' },
+  { label:'Type',        value:'Required, optional' },
+  { label:'Sort by',     value:'Recommended' },
+];
 
 /* ---------- Readiness tracker, two levels (A-52 / M-22) ----------
    The hiring manager mockup v6.1 tracks the whole hiring readiness checklist,

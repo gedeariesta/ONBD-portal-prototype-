@@ -1444,7 +1444,89 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 }
 .rt-in-foot .ic{color:var(--eq-dark-orange); flex:none; margin-top:1px;}
 
+/* ---------- The platform's own to-do timeline, from UAT (A-56) ---------- */
+.live-link{
+  display:flex; align-items:center; gap:14px; margin-top:26px; padding:16px 20px;
+  background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--eq-red);
+  border-radius:var(--radius); cursor:pointer; box-shadow:var(--shadow-1); transition:border-color .15s;
+}
+.live-link:hover{border-color:var(--eq-red);}
+.live-link > .ic{color:var(--eq-dark-red); flex:none;}
+.live-link div{flex:1;}
+.live-link b{font-size:14px; color:var(--charcoal);}
+.live-link p{font-size:12.5px; font-weight:350; color:var(--carbon); margin-top:3px; line-height:1.55;}
+.td-bar{
+  display:inline-block; background:var(--eq-red); color:var(--white);
+  font-weight:800; font-size:13px; padding:7px 15px; border-radius:6px; margin:22px 0 14px;
+}
+.td-wrap{
+  display:grid; grid-template-columns:250px minmax(0,1fr); gap:0;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  overflow:hidden; box-shadow:var(--shadow-1);
+}
+.td-rail{padding:20px 18px; border-right:1px solid var(--line); background:var(--silver);}
+.td-rail-h{font-size:16px; font-weight:800; color:var(--charcoal); margin-bottom:14px;}
+.td-phase{
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  background:none; border:none; font-family:inherit; font-size:13px; font-weight:400;
+  color:var(--eq-dark-red); padding:9px 11px; cursor:pointer; border-radius:7px; position:relative;
+}
+.td-phase:hover{background:var(--eq-light-red);}
+.td-phase.on{background:var(--eq-red); color:var(--white); font-weight:700;}
+.td-dot{
+  width:13px; height:13px; border-radius:50%; flex:none;
+  border:2px solid var(--eq-red); background:var(--white);
+}
+.td-phase.on .td-dot{border-color:var(--white);}
+.td-phase.past .td-dot{background:var(--eq-red);}
+.td-pname{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.td-all{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--carbon); margin-top:14px; padding:0 11px;}
+.td-main{padding:20px 24px 24px; min-width:0;}
+.td-head{
+  display:flex; align-items:center; gap:14px; border:1px solid var(--eq-red);
+  border-radius:8px; padding:11px 16px; margin-bottom:14px;
+}
+.td-head h2{font-size:17px; margin:0; flex:none;}
+.td-rule{flex:1; height:1px; background:var(--nickel);}
+.td-count{font-size:12.5px; color:var(--carbon); flex:none;}
+.td-filters{display:flex; gap:26px; margin-bottom:12px; flex-wrap:wrap;}
+.td-filter{display:flex; flex-direction:column; gap:3px;}
+.tdf-lbl{font-size:11px; color:var(--ink-faint);}
+.tdf-val{
+  display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--charcoal);
+  border-bottom:1px solid var(--titanium); padding-bottom:4px; min-width:150px;
+}
+.td-overflow{
+  background:var(--silver); color:var(--carbon); font-size:12.5px;
+  padding:9px 14px; border-radius:6px; margin-bottom:6px;
+}
+.td-list{margin-top:2px;}
+.td-item{
+  display:flex; align-items:center; gap:13px; padding:14px 4px;
+  border-bottom:1px solid var(--line); cursor:default;
+}
+.td-item[data-goto]{cursor:pointer;}
+.td-item[data-goto]:hover{background:var(--silver);}
+.td-body{flex:1; min-width:0;}
+.td-name{font-size:14px; font-weight:400; color:var(--eq-dark-red);}
+.td-item.done .td-name{color:var(--carbon); text-decoration:line-through;}
+.td-state{font-size:12.5px; color:var(--carbon); margin-top:2px;}
+.td-note{
+  display:flex; gap:9px; align-items:flex-start; margin-top:16px; padding:11px 14px;
+  background:var(--eq-light-blue); border-radius:8px;
+  font-size:12.5px; font-weight:350; color:var(--charcoal); line-height:1.55;
+}
+.td-note .ic{color:var(--eq-dark-blue); flex:none; margin-top:1px;}
+
 /* ---------- The live HR case, as UAT shows it (A-54 / A-55) ---------- */
+.case-top{
+  display:flex; align-items:center; gap:14px; padding:13px 20px;
+  border-bottom:1px solid var(--line); flex-wrap:wrap;
+}
+.case-num{font-size:15px; font-weight:800; color:var(--charcoal);}
+.case-when{font-size:12.5px; color:var(--carbon);}
+.case-hide{margin-left:auto; font-size:12.5px; font-weight:700; color:var(--eq-dark-red);}
+.req{font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--eq-red); margin-left:6px;}
 .eqs-bar{
   background:var(--eq-red); color:var(--white); font-weight:800; font-size:14px;
   padding:9px 16px; border-radius:8px 8px 0 0; margin:-1px -1px 0;

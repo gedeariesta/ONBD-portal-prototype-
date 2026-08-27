@@ -44,6 +44,7 @@ const DEFAULT_STATE = () => ({
   scenario: 'default',           // default | inprogress | review | overdue | complete
   trackerOpen: null,             // which readiness step is expanded (A-52)
   incTab: 'activity',            // incident tab: activity | attachments | summary (A-54)
+  todoPhase: 0,                  // which phase the live to-do view is showing (A-56)
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
   details: { tab:0, submitted:false, queryRaised:false, data:{} },
@@ -182,11 +183,9 @@ function chip(status, overdue) {
 /* ============================================================
    Landing / task list
    ============================================================ */
-function renderLanding() {
-  const done = tasksComplete();
-  const all = allComplete();
-  const days = daysToStart();
-  const conv = S.persona === 'conversion';
+/* The seven counted pre-Day 1 tasks. Shared, so the landing page and the
+   platform's own to-do view read the same list (A-56). */
+function taskList() {
   const jp = S.country === 'JP';
 
   const tasks = [
@@ -224,6 +223,16 @@ function renderLanding() {
       prog: policiesStatus()==='inprogress'
         ? { done:Object.values(S.policies.acked).filter(Boolean).length, total:DOCS.length } : null },
   ];
+  return tasks;
+}
+
+function renderLanding() {
+  const done = tasksComplete();
+  const all = allComplete();
+  const days = daysToStart();
+  const conv = S.persona === 'conversion';
+  const jp = S.country === 'JP';
+  const tasks = taskList();
 
   const booked = Object.keys(S.network.booked).length;
   const netList = namedNetwork();          // written by the manager (L-06)
@@ -267,7 +276,7 @@ function renderLanding() {
           <div class="miles">
             ${PHASES.map((p,i) => {
               const st = i === 0 ? (all ? 'done' : 'now') : (all && i === 1 ? 'now' : '');
-              return `<div class="mile ${st}">
+              return `<div class="mile ${st}" data-goto="#/todos" data-phase="${i}" title="See what sits in this phase">
                 <div class="bar"></div>
                 <div class="dot">${st==='done' ? ic('check.svg','sm') : st==='now' ? '<i></i>' : ''}</div>
                 <div class="lbl">${p}</div>
@@ -383,6 +392,14 @@ function renderLanding() {
       </div>
 
       ${landingRail()}
+    </div>
+
+    <div class="live-link" data-goto="#/todos">
+      ${ic('list-tasks.svg','lg')}
+      <div><b>See the platform's own to-do view</b>
+      <p>The live portal groups these by phase and counts one phase at a time. Worth comparing against the
+      list above before either model is agreed. ${am('A-56')}</p></div>
+      ${ic('chevron-right.svg','lg')}
     </div>
 
     <div class="section-h" style="margin-top:34px;"><h2>Everything else in motion</h2>
@@ -1232,6 +1249,13 @@ function officeAddress() { return S.country === 'JP' ? HIRE.officeAddressJP : HI
    the start date and the manager's email, before the table itself (A-54). */
 function caseParties() {
   return `
+    <div class="case-top">
+      <span class="case-num">HRC0943697</span>
+      <span class="chip done">Ready</span>
+      <span class="case-when">Created 21d ago</span>
+      <span class="case-when">Last updated just now</span>
+      <span class="case-hide">Hide details</span>
+    </div>
     <div class="case-parties" data-assume="A-54">
       <div class="cp-side">
         <div class="cp-lbl">New hire</div>
@@ -1289,14 +1313,14 @@ function equipmentRows(forManager) {
       status: S.hm.computer.ordered ? 'ORDERED' : 'NOT ORDERED YET', ok: S.hm.computer.ordered,
       unblock: S.hm.computer.ordered
         ? `Ordered by ${mgr}${S.hm.computer.model ? ', ' + (COMPUTER_OPTIONS.find(o => o.id === S.hm.computer.model) || {}).label : ''}.`
-        : `To place an order for a computer the hiring manager, ${mgr}, must complete the
+        : `To place an order for a computer the hiring manager, ${mgr}, must first complete the
            <b>“Order equipment for new hire ${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})”</b> task.`,
       marker:'A-41' },
     { item:'Computer accessories', icon:'desktop.svg',
       status: E.submitted ? 'INC6369627' : 'NOT ORDERED YET', ok:E.submitted,
       unblock: E.submitted
         ? `New, with Global Helpdesk Tier 2. ${forManager ? 'Ordered by ' + hire + '.' : ''}`
-        : `To place an order for accessories the new hire, ${hire}, must complete the
+        : `To place an order for computer accessories the new hire, ${hire}, must complete the
            <b>“Order your workspace tech accessories”</b> task.` },
     { item:'Mobile phone', icon:'mobile.svg',
       status:'NOT ORDERED YET', ok:false,
@@ -1309,7 +1333,7 @@ function renderEquipment() {
   const E = S.equipment;
   if (E.submitted) return equipmentSubmitted();
 
-  const needsShipping = E.choice && E.choice !== 'none';
+  const needsShipping = !!E.choice;
   const shipHome = E.shipOffice === 'no';
   const d = S.details.data;
 
@@ -1330,24 +1354,25 @@ function renderEquipment() {
           <h3>Order your workspace tech accessories</h3>
           <div class="callout soft">
             ${ic('info-circle.svg')}
-            <div><b>These are for your at-home workspace.</b> Your in-office workspace will already be supplied with
-            monitor(s), keyboard and mouse. ${am('A-37')}</div>
+            <div><b>These are for your at-home workspace.</b> You have the option of an Equinix-approved headset, or
+            that headset plus additional equipment such as a camera, speakerphone, monitor, keyboard and mouse.
+            Your in-office workspace will already be supplied with monitor(s), keyboard and mouse. ${am('A-37')}</div>
           </div>
 
           <div class="field mt16">
-            <label>What do you need?</label>
+            <label>Select accessories <span class="req">required</span></label>
             <select id="eqChoice">
               <option value="" ${!E.choice?'selected':''}>-- None --</option>
-              <option value="none" ${E.choice==='none'?'selected':''}>I don’t need anything</option>
               <option value="headset" ${E.choice==='headset'?'selected':''}>Headset only</option>
               <option value="more" ${E.choice==='more'?'selected':''}>Headset and other accessories</option>
             </select>
+            <div class="note">Two options, and neither of them is “no thank you”. The headset comes either way. ${am('A-39')}</div>
           </div>
 
           ${E.choice === 'more' ? `
             <div class="callout soft">
               ${ic('check-circle.svg')}
-              <div>You will receive our standard <b>Zoom-optimised headset</b> in addition to the boxes you check below. ${am('A-39')}</div>
+              <div>You will receive our standard <b>Zoom-optimized headset</b> in addition to the boxes you check below. ${am('A-39')}</div>
             </div>
             <div class="acc-grid">
               ${ACCESSORY_OPTIONS.map(o => `
@@ -1360,14 +1385,10 @@ function renderEquipment() {
           ${E.choice === 'headset' ? `
             <div class="callout soft">
               ${ic('check-circle.svg')}
-              <div>You’ll receive our standard <b>Zoom-optimised headset</b>. ${am('A-39')}</div>
+              <div>You will receive our standard <b>Zoom-optimized headset</b>. ${am('A-39')}</div>
             </div>` : ''}
 
-          ${E.choice === 'none' ? `
-            <div class="callout soft">
-              ${ic('info-circle.svg')}
-              <div>Nothing will be shipped. You can come back and change this any time before your start date.</div>
-            </div>` : ''}
+
 
           <div class="adjust-link" data-assume="A-06">
             ${ic('users-friends.svg')}
@@ -1427,7 +1448,6 @@ function renderEquipment() {
 function eqReady() {
   const E = S.equipment;
   if (!E.choice) return false;
-  if (E.choice === 'none') return true;
   if (!E.shipOffice) return false;
   if (E.shipPhone.replace(/\D/g,'').length < 7) return false;
   if (E.shipOffice === 'no' && !S.details.data.addr1) return false;
@@ -1436,7 +1456,6 @@ function eqReady() {
 function eqMissingText() {
   const E = S.equipment;
   if (!E.choice) return 'Choose what you need to continue.';
-  if (E.choice === 'none') return 'Nothing to ship, so you can submit.';
   const missing = [];
   if (!E.shipOffice) missing.push('a delivery address');
   if (E.shipPhone.replace(/\D/g,'').length < 7) missing.push('a phone number for the courier');
@@ -1446,10 +1465,8 @@ function eqMissingText() {
 
 function equipmentSubmitted() {
   const E = S.equipment;
-  const picked = E.choice === 'none'
-    ? ['Nothing, no accessories needed']
-    : [E.choice === 'more' ? 'Standard Zoom-optimised headset (automatic)' : 'Standard Zoom-optimised headset']
-        .concat(ACCESSORY_OPTIONS.filter(o => E.items[o.id]).map(o => o.label));
+  const picked = ['Standard Zoom-optimized headset (automatic)']
+    .concat(E.choice === 'more' ? ACCESSORY_OPTIONS.filter(o => E.items[o.id]).map(o => o.label) : []);
 
   return `
   <div class="page">
@@ -1474,8 +1491,7 @@ function equipmentSubmitted() {
 function incidentCard(picked) {
   const E = S.equipment;
   const tab = S.incTab || 'activity';
-  const choiceLabel = E.choice === 'none' ? 'I don’t need anything'
-    : E.choice === 'headset' ? 'Headset only' : 'Headset and other accessories';
+  const choiceLabel = E.choice === 'headset' ? 'Headset only' : 'Headset and other accessories';
 
   return `
   <div class="inc-card mt24" data-assume="A-42 A-54 A-55">
@@ -2480,8 +2496,90 @@ const PLACEHOLDER_PHOTO = (() => {
 /* ============================================================
    Router + events
    ============================================================ */
+/* ============================================================
+   The platform's own to-do timeline (A-56)
+
+   Drawn from UAT. The prototype's landing page is the designed future
+   state; this is what the platform ships today, so both can be seen and
+   compared rather than argued about from memory.
+   ============================================================ */
+function renderTodos() {
+  const phase = S.todoPhase || 0;
+  const tasks = taskList();
+  const P = PHASE_TODOS[phase];
+
+  // Phase 0 is this prototype's own list, so it reports live state.
+  const items = phase === 0
+    ? tasks.filter(t => COUNTED.includes(t.key)).map(t => ({
+        name: t.name, state: t.status === 'done' ? 'Completed'
+          : t.status === 'notstarted' ? `Due ${dueText(dueFor(t.key))}` : 'In progress',
+        done: t.status === 'done', route: t.route }))
+    : P.items;
+  const total = phase === 0 ? COUNTED.length : (P.total != null ? P.total : P.items.length);
+  const done = phase === 0 ? items.filter(i => i.done).length : 0;
+
+  return `
+  <div class="page">
+    ${crumbs('All to-dos')}
+    <h1>All to-dos</h1>
+    <p class="why">This is the platform's own view, as UAT shows it: one phase at a time, with its own count.
+    Your task list on the home screen is the designed alternative. Both are here so the difference is visible. ${am('A-56')}</p>
+
+    <div class="td-bar">Tasks/To-Dos</div>
+    <div class="td-wrap" data-assume="A-56 A-44">
+      <div class="td-rail">
+        <div class="td-rail-h">Timeline</div>
+        ${PHASES.map((p, i) => `
+          <button class="td-phase ${i === phase ? 'on' : ''} ${i < phase ? 'past' : ''}" data-todophase="${i}">
+            <span class="td-dot"></span><span class="td-pname">${p}</span>
+          </button>`).join('')}
+        <div class="td-all">${ic('list-tasks.svg','sm')} View all to-dos</div>
+      </div>
+
+      <div class="td-main">
+        <div class="td-head">
+          <h2>${PHASES[phase]}</h2>
+          <span class="td-rule"></span>
+          <span class="td-count">${done} of ${total} to-dos completed</span>
+        </div>
+
+        <div class="td-filters">
+          ${TODO_FILTERS.map(f => `
+            <div class="td-filter"><span class="tdf-lbl">${f.label}</span>
+              <span class="tdf-val">${f.value} ${ic('chevron-down.svg','sm')}</span></div>`).join('')}
+        </div>
+
+        <div class="td-overflow">More to-dos may be assigned later.</div>
+
+        ${items.length ? `<div class="td-list">
+          ${items.map(i => `
+            <div class="td-item ${i.done ? 'done' : ''}" ${i.route ? `data-goto="${i.route}"` : ''}>
+              <div class="avatar sm">${HIRE.initials}</div>
+              <div class="td-body">
+                <div class="td-name">${i.name}${i.marker ? ' ' + am(i.marker) : ''}</div>
+                <div class="td-state">${i.state}</div>
+              </div>
+              ${i.route ? ic('chevron-right.svg','lg') : ''}
+            </div>`).join('')}
+        </div>` : ''}
+
+        ${phase !== 0 && PHASE_TODOS[phase] && PHASE_TODOS[phase].note ? `
+          <div class="td-note">${ic('exclamation-triangle.svg','sm')}<span>${PHASE_TODOS[phase].note} ${am('A-56')}</span></div>` : ''}
+
+        ${phase === 0 ? `
+          <div class="td-note">${ic('info-circle.svg','sm')}<span>The platform counts only this phase, so a new hire
+          sees a small number and no sense of what is still coming. The home screen counts the whole pre-Day 1 list
+          instead. Which is less alarming is worth testing. ${am('A-25')}</span></div>` : ''}
+      </div>
+    </div>
+
+    <div class="mt24"><button class="btn primary" data-goto="#/">Back to your tasks</button></div>
+  </div>`;
+}
+
 const ROUTES = {
   '#/': renderLanding,
+  '#/todos': renderTodos,
   '#/startdate': renderStartDate,
   '#/bgcheck': renderBgCheck,
   '#/equipment': renderEquipment,
@@ -2887,6 +2985,10 @@ document.addEventListener('click', e => {
     return;
   }
 
+  // the live to-do timeline: switch phase (A-56)
+  const tp = t.closest('[data-todophase]');
+  if (tp) { S.todoPhase = +tp.dataset.todophase; save(); rerender(); return; }
+
   // incident tabs, as the live ticket has them (A-54)
   const itab = t.closest('[data-inctab]');
   if (itab) { S.incTab = itab.dataset.inctab; save(); rerender(); return; }
@@ -2900,6 +3002,7 @@ document.addEventListener('click', e => {
 
   const nav = t.closest('[data-goto]');
   if (nav) { closePanels(); $('#protoDrawer').classList.remove('show');
+    if (nav.dataset.phase != null) { S.todoPhase = +nav.dataset.phase; save(); }
     if (location.hash === nav.dataset.goto) rerender(); else location.hash = nav.dataset.goto; return; }
   const tc = t.closest('[data-task]');
   if (tc && !t.closest('[data-openchat]')) { location.hash = tc.dataset.task; return; }
