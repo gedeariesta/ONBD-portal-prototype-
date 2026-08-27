@@ -32,10 +32,10 @@ function hmTasks() {
       dueOff:-4, sys:'ServiceNow', srcDue:true,
       why:'Which applications Jordan gets on day one.',
       dispNote:'Blocked today. Without a resolved persona the stack renders empty and you fill it by hand.' },
-    { id:'buddy', label:'Choose an onboarding buddy', disp:'keep', route:'#/hm/buddy',
-      done: !!H.buddy.assigned, icon:'users-friends.svg', marker:'M-07', dueOff:-2, sys:'Onboarding portal', srcDue:true,
-      why:'Someone for Jordan to ask the questions they won’t ask you.',
-      dispNote:'Genuinely your judgement. A suggestion makes it one tap when you agree with it.' },
+    { id:'buddy', label:'Name who they should meet', disp:'keep', route:'#/hm/buddy',
+      done: !!H.buddy.assigned && H.buddy.accepted, icon:'users-friends.svg', marker:'M-07', dueOff:-2, sys:'Onboarding portal', srcDue:true,
+      why:'A buddy on the team, an ambassador outside it, and anyone else worth meeting early.',
+      dispNote:'Two screens merged into one. Your judgement, so it stays, but nothing is suggested for you.' },
     { id:'calendar', label:'Set up their first day', disp:'automate', route:'#/hm/calendar',
       done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06', dueOff:-5, sys:'Outlook', marker2:'M-23',
       why:'The holds that make Day 1 work.',
@@ -44,10 +44,6 @@ function hmTasks() {
       done: H.welcome.sent, icon:'email.svg', marker:'M-08', dueOff:-2, sys:'Email', srcDue:true,
       why:'The first thing Jordan hears from you rather than from a system.',
       dispNote:'Written for you. Reduced to adding a personal line and pressing send.' },
-    { id:'network', label:'Name who they should meet', disp:'add', route:'#/hm/network',
-      done: H.network.submitted, icon:'users-connected.svg', marker:'M-10', dueOff:-4, sys:'Onboarding portal', marker2:'M-23',
-      why:'The people outside your team that Jordan will actually work with.',
-      dispNote:'The only item here that adds to your load. It needs a decision, not a design.' },
   ];
   list.splice(3, 0, { id:'card', label:'Will Jordan need a corporate card?', disp:'undecided', route:'#/hm/card',
     done: H.card.needed !== null, icon:'banking.svg', marker:'M-19', dueOff:-7, sys:'Accounts Payable', marker2:'M-23',
@@ -75,19 +71,32 @@ function thirdPartyTasks() {
 }
 
 /* ---------- readiness score (M-02) ---------- */
+/* Two numbers, not one. A single percentage cannot answer "am I done or are
+   they done", which is the first thing a manager asks (M-02 revised).
+   Other teams are reported as status, not as a bar: they will not be users
+   in this system, and the manager does not need their progress to the task. */
 function readiness() {
   const nhTotal = COUNTED.length, nhDone = tasksComplete();
   const hmList = hmTasks(), hmTotal = hmList.length, hmDoneN = hmList.filter(t => t.done).length;
-  const tp = thirdPartyTasks(), tpTotal = tp.length, tpDone = tp.filter(t => t.state === 'ready').length;
-  const total = nhTotal + hmTotal + tpTotal, done = nhDone + hmDoneN + tpDone;
+  const tp = thirdPartyTasks();
   return {
-    pct: Math.round((done / total) * 100), done, total,
-    rows: [
-      { label:'Jordan’s tasks', done:nhDone, total:nhTotal, cls:'nh' },
-      { label:'Your tasks', done:hmDoneN, total:hmTotal, cls:'hm' },
-      { label:'Other teams', done:tpDone, total:tpTotal, cls:'tp' },
-    ],
+    mine:  { label:'Your tasks',     done:hmDoneN, total:hmTotal, pct: Math.round((hmDoneN / hmTotal) * 100), cls:'hm' },
+    theirs:{ label:'Jordan’s tasks', done:nhDone,  total:nhTotal, pct: Math.round((nhDone / nhTotal) * 100),  cls:'nh' },
+    others: tp,
+    pct: Math.round(((hmDoneN + nhDone) / (hmTotal + nhTotal)) * 100),
   };
+}
+
+/* Overdue is its own state, and it is loud. Managers roll up their sleeves
+   and do their day job too, so anything at risk has to be unmissable (M-28). */
+function overdueItems() {
+  const out = [];
+  COUNTED.forEach(k => { if (isOverdue(k)) out.push({ who:'Jordan', what:NH_TASK_LABELS[k], route:null }); });
+  hmTasks().forEach(t => {
+    if (t.done || t.dueOff == null) return;
+    if (addDays(startDate(), t.dueOff) < simToday()) out.push({ who:'You', what:t.label, route:t.route });
+  });
+  return out;
 }
 
 /* ---------- blockers ---------- */
@@ -99,12 +108,12 @@ function hmBlockers() {
       action:'Order it', route:'#/hm/computer' });
   }
   if (!S.hm.buddy.assigned && days <= 21) {
-    out.push({ sev:'med', text:'No buddy assigned yet. If you do not choose one, a buddy is auto-assigned from the pool the day before Jordan starts.',
-      action:'Choose a buddy', route:'#/hm/buddy' });
+    out.push({ sev:'med', text:'No buddy named yet. If you do not name one, a buddy is auto-assigned the day before Jordan starts.',
+      action:'Name someone', route:'#/hm/buddy' });
+  } else if (S.hm.buddy.assigned && !S.hm.buddy.accepted) {
+    out.push({ sev:'med', text:'The buddy has been asked but has not accepted. Nothing can go in their calendar until they do.',
+      action:'See status', route:'#/hm/buddy', marker:'M-27' });
   }
-  COUNTED.forEach(k => {
-    if (isOverdue(k)) out.push({ sev:'med', text:`Jordan’s “${NH_TASK_LABELS[k]}” is past its due date and still open.`, action:'See status', route:null });
-  });
   if (S.hm.card.needed === null && days <= 21) {
     out.push({ sev:'low', text:'The corporate card question is unanswered. If Jordan will travel, they need the agreement ready to sign on their second day.',
       action:'Answer it', route:'#/hm/card' });
@@ -173,30 +182,31 @@ function renderHmHome() {
     </div>
 
     <div class="hm-hero hexfield" data-assume="M-02">
-      <div class="ready-ring">
-        <svg viewBox="0 0 120 120" aria-hidden="true">
-          <defs>
-            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#85F0F8"/>
-              <stop offset="100%" stop-color="#FFFFFF"/>
-            </linearGradient>
-          </defs>
-          <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="11"/>
-          <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad)" stroke-width="11"
-            stroke-linecap="round" stroke-dasharray="${(R.pct/100)*326.7} 326.7" transform="rotate(-90 60 60)"/>
-        </svg>
-        <div class="rr-num">${R.pct}<span>%</span></div>
+      <div class="ready-rings">
+        ${[R.mine, R.theirs].map((r, i) => `
+          <div class="ready-ring">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="ringGrad${i}" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="${i ? '#CCE3FF' : '#85F0F8'}"/>
+                  <stop offset="100%" stop-color="#FFFFFF"/>
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="11"/>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad${i})" stroke-width="11"
+                stroke-linecap="round" stroke-dasharray="${(r.pct/100)*326.7} 326.7" transform="rotate(-90 60 60)"/>
+            </svg>
+            <div class="rr-num">${r.pct}<span>%</span></div>
+            <div class="rr-cap">${r.label}<br><b>${r.done} of ${r.total}</b></div>
+          </div>`).join('')}
       </div>
       <div class="hm-hero-body">
         <h1>${hire.name} starts in ${daysToStart()} days</h1>
         <p class="lede">${startDateText()}. ${hire.role}, ${hire.loc}, ${hire.arrangement}</p>
-        <div class="ready-rows">
-          ${R.rows.map(r => `
-            <div class="ready-row">
-              <span class="rr-label">${r.label}</span>
-              <span class="rr-bar"><i class="${r.cls}" style="width:${(r.done/r.total)*100}%"></i></span>
-              <span class="rr-count">${r.done} of ${r.total}</span>
-            </div>`).join('')}
+        <div class="other-teams" data-assume="M-02">
+          <span class="ot-lbl">Other teams</span>
+          ${R.others.map(t => `<span class="ot-pill ${t.state}">${t.label}: ${t.note}</span>`).join('')}
+          <span class="ot-note">Status only. They are not users in this system, so there is nothing to count. ${am('M-02')}</span>
         </div>
         <div class="score-caveat">${ic('exclamation-triangle.svg','sm')}
           <span>This is a plain count of tasks done over tasks assigned. There is no agreed formula for a readiness
@@ -204,6 +214,21 @@ function renderHmHome() {
         </div>
       </div>
     </div>
+
+    ${(() => { const od = overdueItems(); return od.length ? `
+    <div class="overdue-bar" data-assume="M-28">
+      <div class="od-h">${ic('exclamation-triangle.svg','xl')}
+        <div><b>${od.length} thing${od.length>1?'s are':' is'} overdue</b>
+        <span>Past the date, still open, and Day 1 is in ${daysToStart()} days. ${am('M-28')}</span></div>
+      </div>
+      ${od.map(o => `
+        <div class="od-row">
+          <span class="od-who">${o.who}</span>
+          <span class="od-what">${o.what}</span>
+          ${o.route ? `<button class="btn sm od-btn" data-goto="${o.route}">Do it now</button>`
+            : `<span class="od-none">Jordan's to finish. A nudge has gone out.</span>`}
+        </div>`).join('')}
+    </div>` : ''; })()}
 
     ${blockers.length ? `
     <div class="blockers" data-assume="M-16">
@@ -311,7 +336,7 @@ function hmTaskCard(t, seq) {
 
 function hmRail() {
   const H = S.hm;
-  const buddy = H.buddy.assigned ? BUDDY_POOL.find(b => b.id === H.buddy.assigned) : null;
+  const buddy = H.buddy.assigned ? orgPerson(H.buddy.assigned) : null;
   return `
   <div class="rail">
     <div class="rail-card" data-assume="L-03">
@@ -436,7 +461,7 @@ function renderHmLogistics() {
             <label>Who covers for you? ${am('M-14')} ${am('M-20')}</label>
             <select id="lgProxy">
               <option value="">Choose someone…</option>
-              ${BUDDY_POOL.map(b => `<option ${L.proxy===b.name?'selected':''}>${b.name}</option>`).join('')}
+              ${ORG_PEOPLE.filter(p => p.team).map(b => `<option ${L.proxy===b.name?'selected':''}>${b.name}</option>`).join('')}
             </select>
             <div class="note">Named here for Jordan's first day. The requirement is broader than that: a proxy should be able
             to <b>act on your behalf</b> and <b>see a new hire's status</b> as a standing arrangement, and People Experience
@@ -600,26 +625,73 @@ function renderHmSoftware() {
 /* ============================================================
    H-07: assign a buddy  (and the L-01 visibility conflict)
    ============================================================ */
-function renderHmBuddy() {
-  const B = S.hm.buddy;
-  const suggested = BUDDY_POOL.find(b => b.suggested);
-  const assigned = B.assigned ? BUDDY_POOL.find(b => b.id === B.assigned) : null;
+/* ============================================================
+   H-07: name who they should meet  (M-07 revised, M-26)
+
+   One screen, three roles. No suggested people: the direction is a plain
+   list of everyone in the org, because on first rollout anybody can be a
+   buddy and the certified programme is years away. A name is not enough
+   either. It has to be accepted before it counts.
+   ============================================================ */
+function renderHmMeet() {
+  const B = S.hm.buddy, A = S.hm.ambassador, N = S.hm.network;
+  const buddy = B.assigned ? orgPerson(B.assigned) : null;
+  const amb = A.assigned ? orgPerson(A.assigned) : null;
+  const others = Object.keys(N.named).filter(id => id !== B.assigned && id !== A.assigned);
+  const withWhy = others.filter(id => (N.named[id] || '').trim()).length;
+
+  const picker = (role, current) => `
+    <select data-pickperson="${role}">
+      <option value="">Select from the org…</option>
+      ${ORG_PEOPLE
+        .filter(p => role !== 'buddy' || p.team || p.dept === 'Global FP&A')
+        .map(p => `<option value="${p.id}" ${current === p.id ? 'selected' : ''}>${p.name}, ${p.role}, ${p.dept}</option>`).join('')}
+    </select>`;
+
+  const slot = (role, person, title, hint, marker) => `
+    <div class="form-sec meet-sec" ${marker ? `data-assume="${marker}"` : ''}>
+      <h3>${title} ${marker ? am(marker) : ''}</h3>
+      <p class="sec-note">${hint}</p>
+      ${person ? `
+        <div class="meet-card">
+          <div class="avatar lg ${role === 'buddy' ? 'buddy' : 'peer'}">${person.initials}</div>
+          <div class="bd-body">
+            <div class="bd-name">${person.name}${person.ecn ? ' <span class="chip info">Employee Connection Network</span>' : ''}</div>
+            <div class="bd-role">${person.role}, ${person.dept}</div>
+            <div class="meet-state ${S.hm[role].accepted ? 'ok' : ''}">
+              ${ic(S.hm[role].accepted ? 'check-circle.svg' : 'clock.svg','sm')}
+              ${S.hm[role].accepted
+                ? 'Accepted. Their first month with Jordan can be booked.'
+                : S.hm[role].notified
+                  ? 'Invited. Waiting for them to accept.'
+                  : 'Not invited yet.'}
+            </div>
+          </div>
+          <div class="meet-actions">
+            ${!S.hm[role].notified ? `<button class="btn primary sm" data-invite="${role}">Ask them</button>` : ''}
+            ${S.hm[role].notified && !S.hm[role].accepted ? `<button class="btn secondary sm" data-accept="${role}">Simulate acceptance</button>` : ''}
+            <button class="btn quiet sm" data-clearperson="${role}">Change</button>
+          </div>
+        </div>` : picker(role, '')}
+    </div>`;
 
   return `
   <div class="page">
-    ${hmCrumbs('Choose an onboarding buddy')}
+    ${hmCrumbs('Name who they should meet')}
     <div class="task-head">
-      <h1>Choose an onboarding buddy</h1>
-      <p class="why">One person for Jordan to ask the things they will not ask you. Culture and logistics, not the job itself.</p>
-      ${dispBanner('keep', 'This one is your judgement, which is why it stays. The suggestion makes it one tap when you agree with it.')}
+      <h1>Name who they should meet</h1>
+      <p class="why">Two named roles and anyone else worth an early conversation. A buddy is on their team.
+      An ambassador is somewhere else in the business. Both are your call, and both have to say yes before
+      anything is booked.</p>
+      ${dispBanner('keep', 'Two screens became one. The suggestion logic is gone, because on first rollout anybody can be a buddy and there is nothing to suggest from yet.', 'M-07')}
     </div>
 
     <div class="conflict-banner" data-assume="L-01">
       ${ic('exclamation-triangle.svg','lg')}
       <div>
-        <b>Unresolved: when does Jordan see this name? ${am('L-01')}</b>
-        <p>The specification says the buddy’s contact card appears to the new hire <b>72 hours before their start date</b>.
-        The new hire prototype shows the buddy <b>as soon as you assign one</b>, which right now is ${daysToStart()} days early.
+        <b>Unresolved: when does Jordan see these names? ${am('L-01')}</b>
+        <p>The specification says the buddy’s contact card appears <b>72 hours before the start date</b>.
+        The new hire prototype shows the buddy <b>as soon as you name one</b>, which right now is ${daysToStart()} days early.
         Both cannot be right, and you can change your mind up to 3 days before Jordan starts, which would remove a name
         they had already seen.</p>
         <div class="conflict-toggle">
@@ -633,65 +705,65 @@ function renderHmBuddy() {
 
     <div class="task-shell">
       <div class="wiz-body">
-        <div class="form-sec" data-assume="M-07">
-          <h3>Suggested ${am('M-07')}</h3>
-          <div class="buddy-card suggested ${B.assigned===suggested.id?'on':''}">
-            <div class="avatar lg buddy">${suggested.initials}</div>
-            <div class="bd-body">
-              <div class="bd-name">${suggested.name}</div>
-              <div class="bd-role">${suggested.role}, ${suggested.tz}</div>
-              <div class="bd-load">${ic('users-friends.svg','sm')}Currently supporting ${suggested.load} new starter${suggested.load===1?'':'s'}</div>
-            </div>
-            ${B.assigned===suggested.id
-              ? `<span class="chip done">${ic('check.svg','sm')}Assigned</span>`
-              : `<button class="btn primary sm" data-assignbuddy="${suggested.id}">Assign</button>`}
-          </div>
-          <div class="callout soft">
-            ${ic('lock.svg')}
-            <div><b>We are not showing you why this person is suggested.</b> The suggestion criteria include a
-            performance signal, which would make this screen show you an inference about another employee’s performance.
-            There is no privacy position on that yet, so the prototype holds it back. The capacity limit below is invented too. ${am('M-07')}</div>
-          </div>
-        </div>
+        ${slot('buddy', buddy, 'Buddy',
+          'Someone on Jordan’s team or in their function, for culture and logistics and the questions they would rather not ask you. Any employee can do it today. There is no certified list to pick from yet.', 'M-07')}
 
-        <div class="form-sec">
-          <h3>Or choose someone else</h3>
-          <div class="buddy-list">
-            ${BUDDY_POOL.filter(b => !b.suggested).map(b => {
-              const over = b.load >= BUDDY_LOAD_LIMIT;
+        ${slot('ambassador', amb, 'Ambassador',
+          'Cross-functional. Someone who helps Jordan navigate, connect and get things done outside the reporting line. Expected for executive hires, optional for everyone else. An Employee Connection Network is one place to look. The name of this role is not settled.', 'M-26')}
+
+        <div class="form-sec" data-assume="M-10 L-06">
+          <h3>Anyone else they should meet ${am('M-10')}</h3>
+          <p class="sec-note">Up to fifteen people. Write why each one matters, because Jordan sees the reason you write.</p>
+          <div class="meet-others">
+            ${ORG_PEOPLE.filter(p => p.id !== B.assigned && p.id !== A.assigned).map(p => {
+              const on = N.named[p.id] !== undefined;
               return `
-              <div class="buddy-card ${B.assigned===b.id?'on':''} ${over?'over':''}">
-                <div class="avatar peer">${b.initials}</div>
-                <div class="bd-body">
-                  <div class="bd-name">${b.name}</div>
-                  <div class="bd-role">${b.role}, ${b.tz}</div>
-                  <div class="bd-load ${over?'warn':''}">${ic(over?'exclamation-triangle.svg':'users-friends.svg','sm')}
-                    ${over ? `Already supporting ${b.load}, at the limit` : `Currently supporting ${b.load}`}</div>
-                </div>
-                ${B.assigned===b.id
-                  ? `<span class="chip done">${ic('check.svg','sm')}Assigned</span>`
-                  : `<button class="btn secondary sm" data-assignbuddy="${b.id}">Assign</button>`}
+              <div class="meet-row ${on ? 'on' : ''}">
+                <label class="mr-top">
+                  <input type="checkbox" data-meetperson="${p.id}" ${on ? 'checked' : ''}>
+                  <div class="avatar sm peer">${p.initials}</div>
+                  <div class="mr-body">
+                    <div class="mr-name">${p.name}</div>
+                    <div class="mr-role">${p.role}, ${p.dept}</div>
+                  </div>
+                </label>
+                ${on ? `<textarea class="mr-why" rows="2" data-meetwhy="${p.id}"
+                  placeholder="Why should Jordan meet them? They will read this.">${esc(N.named[p.id] || '')}</textarea>` : ''}
               </div>`;
             }).join('')}
           </div>
+          <div class="meet-count">${others.length} named, ${withWhy} with a reason written${others.length > 15 ? '. That is over the fifteen this screen expects' : ''}</div>
         </div>
 
-        ${assigned ? `
+        <div class="callout soft" data-assume="M-21">
+          ${ic('exclamation-triangle.svg')}
+          <div><b>This may already exist.</b> The onboarding platform ships <b>“select people to meet”</b> and
+          <b>“select helpful contacts”</b> as manager setup, surfaced on the new hire’s dashboard. If that is what it
+          sounds like, this screen is not net-new manager work, it is switching something on. Settle it before this
+          is costed. ${am('M-21')}</div>
+        </div>
+
         <div class="form-sec">
-          <h3>What happens now</h3>
+          <h3>What happens after that</h3>
           <div class="happens">
-            <div class="hp-row done">${ic('check-circle.svg','sm')}<span><b>${assigned.name}</b> is assigned as Jordan’s buddy.</span></div>
-            <div class="hp-row ${B.notified?'done':''}">${ic(B.notified?'check-circle.svg':'clock.svg','sm')}
-              <span>${B.notified ? `${assigned.name.split(' ')[0]} has been notified` : `${assigned.name.split(' ')[0]} will be notified within 30 minutes`}
-              including what being a buddy involves. ${am('L-09')}</span></div>
-            <div class="hp-row ${buddyVisibleToNH()?'done':''}">${ic(buddyVisibleToNH()?'check-circle.svg':'clock.svg','sm')}
+            <div class="hp-row ${B.notified || A.notified ? 'done' : ''}">${ic(B.notified || A.notified ? 'check-circle.svg' : 'clock.svg','sm')}
+              <span>Everyone named is asked, not told, and has to accept. ${am('L-09')}</span></div>
+            <div class="hp-row ${B.accepted ? 'done' : ''}">${ic(B.accepted ? 'check-circle.svg' : 'clock.svg','sm')}
+              <span>Once the buddy accepts, the system reads their calendar and books the first month.
+              Nothing here does that yet. ${am('M-27')}</span></div>
+            <div class="hp-row ${buddyVisibleToNH() ? 'done' : ''}">${ic(buddyVisibleToNH() ? 'check-circle.svg' : 'clock.svg','sm')}
               <span>${buddyVisibleToNH()
-                ? `Jordan can see ${assigned.name.split(' ')[0]}’s contact card now.`
-                : `Jordan will see the contact card 72 hours before starting.`} ${am('L-01')}</span></div>
-            <div class="hp-row">${ic('info-circle.svg','sm')}<span>You can change this until 3 days before Jordan starts.
-              If you do not choose anyone, a buddy is auto-assigned the day before.</span></div>
+                ? 'Jordan can see the buddy contact card now.'
+                : 'Jordan sees the contact card 72 hours before starting.'} ${am('L-01')}</span></div>
+            <div class="hp-row">${ic('info-circle.svg','sm')}<span>You can change any of this until 3 days before Jordan starts.
+              If you name nobody, a buddy is auto-assigned the day before.</span></div>
           </div>
-        </div>` : ''}
+        </div>
+
+        <div class="mt24">
+          <button class="btn primary" data-meetsubmit="1" ${buddy ? '' : 'disabled'}>
+            ${N.submitted ? 'Update Jordan’s list' : 'Send to Jordan'}</button>
+        </div>
       </div>
     </div>
   </div>`;
@@ -847,98 +919,6 @@ function renderHmWelcome() {
   </div>`;
 }
 
-/* ============================================================
-   H-11: name the team network  (flows to the new hire, L-06)
-   ============================================================ */
-function renderHmNetwork() {
-  const N = S.hm.network;
-  const named = N.named || {};
-  const count = Object.keys(named).filter(k => (named[k] || '').trim()).length;
-  const need = 5;
-
-  return `
-  <div class="page">
-    ${hmCrumbs('Name who they should meet')}
-    <div class="task-head" data-assume="M-10">
-      <h1>Name who they should meet ${am('M-10')}</h1>
-      <p class="why">People outside your team that Jordan will actually work with. Not your org chart, and not their buddy.</p>
-      ${dispBanner('add', 'This is the only thing here that adds to your workload instead of removing something. It exists because new hires say they do not know who to talk to. It needs a decision, not only a design.', 'M-10')}
-    </div>
-
-    <div class="net-grid">
-      <div>
-        <div class="section-h">
-          <h2>Suggested. Edit the reasons or swap people out</h2>
-          <span class="hint">${count} of ${need} named</span>
-        </div>
-        <div class="net-cards">
-          ${NETWORK_POOL.map((p,i) => {
-            const on = Object.prototype.hasOwnProperty.call(named, i);
-            return `
-            <div class="net-card hm ${on?'on':''}">
-              <div class="nc-top">
-                <label class="check">
-                  <input type="checkbox" data-netpick="${i}" ${on?'checked':''}>
-                  <span></span>
-                </label>
-                <div class="avatar peer">${p.initials}</div>
-                <div class="nc-id">
-                  <div class="nc-name">${p.name}</div>
-                  <div class="nc-role">${p.role}, ${p.dept}</div>
-                </div>
-                ${p.suggested ? '<span class="chip info">Suggested</span>' : '<span class="chip waiting">Not suggested</span>'}
-              </div>
-              ${on ? `
-              <div class="nc-reason">
-                <label>Why should Jordan meet ${p.name.split(' ')[0]}? <span class="req">Required</span></label>
-                <textarea rows="2" data-netwhy="${i}" placeholder="What they work on together, and why it matters.">${esc(named[i] || '')}</textarea>
-                <div class="note">${ic('info-circle.svg','sm')} Jordan reads this exactly as you write it. ${am('L-06')}</div>
-              </div>` : ''}
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-
-      <div class="rail">
-        <div class="rail-card" data-assume="M-21">
-          <h3>Before this is built ${am('M-21')}</h3>
-          <p style="font-size:12.5px; font-weight:350; line-height:1.55;">The onboarding platform already ships
-          <b>“select people to meet”</b> and <b>“select helpful contacts”</b> as manager setup, surfaced on the new hire's
-          dashboard. This screen may be re-creating something that exists.</p>
-          <div class="rail-note">That changes the argument. If the capability is already there, naming a network is not
-          net-new manager work. It is switching something on. Settle this before it is costed. ${am('M-21')}</div>
-        </div>
-        <div class="rail-card">
-          <h3>What this triggers</h3>
-          <ol class="mech-list">
-            <li>Each person you name is <b>told</b> they were named, so Jordan’s first message is not a surprise. ${am('L-09')}</li>
-            <li>Jordan gets the list <b>with your reasons</b>, and times they can book. ${am('L-06')}</li>
-            <li>Nothing is scheduled without Jordan choosing to.</li>
-          </ol>
-          <div class="rail-note">Five people is the stated minimum. Nobody has said what happens if a manager names
-          three, or twelve.</div>
-        </div>
-        <div class="rail-card">
-          <h3>Keep these separate</h3>
-          <div class="distinct">
-            <div class="dist-row"><div class="dr-h">${ic('users-connected.svg','sm')}This list</div>
-              <p>Several people, outside your team, for the <b>job</b>.</p></div>
-            <div class="dist-row"><div class="dr-h">${ic('user-circle.svg','sm')}The buddy</div>
-              <p>One person, for <b>culture and logistics</b>. <a data-goto="#/hm/buddy">Assigned separately</a>.</p></div>
-            <div class="dist-row"><div class="dr-h">${ic('users-three.svg','sm')}Your team</div>
-              <p>The reporting line. <b>This list is not that, on purpose.</b> Showing a hierarchy here would mislead.</p></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt24" style="display:flex; gap:16px; align-items:center;">
-      <button class="btn primary" id="netSubmit" ${count>=need?'':'disabled'}>${N.submitted?'Update Jordan’s list':'Send to Jordan'}</button>
-      <span style="font-size:12.5px; color:var(--carbon);">
-        ${count>=need ? `${count} people, each with a reason. Ready to send.` : `Name ${need-count} more, each with a reason.`}</span>
-    </div>
-  </div>`;
-}
 
 /* ============================================================
    Forward the introduction (L-02). Closes the loop on the
@@ -1181,7 +1161,7 @@ function renderHmSubtraction() {
    ============================================================ */
 function handoffRows() {
   const H = S.hm;
-  const buddy = H.buddy.assigned ? BUDDY_POOL.find(b => b.id === H.buddy.assigned) : null;
+  const buddy = H.buddy.assigned ? orgPerson(H.buddy.assigned) : null;
   const namedCount = Object.keys(H.network.named || {}).filter(k => (H.network.named[k]||'').trim()).length;
   return [
     { dir:'hm', from:'Order equipment', to:'Equipment status table', marker:'L-04',
@@ -1303,10 +1283,10 @@ const HM_ROUTES = {
   '#/hm/logistics': renderHmLogistics,
   '#/hm/computer': renderHmComputer,
   '#/hm/software': renderHmSoftware,
-  '#/hm/buddy': renderHmBuddy,
+  '#/hm/buddy': renderHmMeet,
   '#/hm/calendar': renderHmCalendar,
   '#/hm/welcome': renderHmWelcome,
-  '#/hm/network': renderHmNetwork,
+  '#/hm/network': renderHmMeet,
   '#/hm/intro': renderHmIntro,
   '#/hm/card': renderHmCard,
   '#/hm/subtraction': renderHmSubtraction,
@@ -1371,14 +1351,43 @@ function bindHm(route) {
     });
   }
 
-  if (route === '#/hm/buddy') {
-    $$('[data-assignbuddy]').forEach(b => b.addEventListener('click', () => {
-      H.buddy.assigned = b.dataset.assignbuddy;
-      H.buddy.notified = true;
+  if (route === '#/hm/buddy' || route === '#/hm/network') {
+    $$('[data-pickperson]').forEach(sel => sel.addEventListener('change', () => {
+      const role = sel.dataset.pickperson;
+      if (!sel.value) return;
+      H[role] = { assigned: sel.value, notified: false, accepted: false };
       save(); rerender();
-      const who = BUDDY_POOL.find(x => x.id === H.buddy.assigned);
-      toast(`${who.name} assigned and notified. ${buddyVisibleToNH() ? 'Jordan can see them now.' : 'Hidden from Jordan until 72h before start.'}`, 'check-circle.svg');
+      toast(`${orgPerson(sel.value).name} chosen. They have not been asked yet.`);
     }));
+    $$('[data-invite]').forEach(b => b.addEventListener('click', () => {
+      const role = b.dataset.invite;
+      H[role].notified = true; save(); rerender();
+      const who = orgPerson(H[role].assigned);
+      toast(`${who.name} has been asked, with the start date and who is hiring. Nothing is booked until they accept.`, 'check-circle.svg');
+    }));
+    $$('[data-accept]').forEach(b => b.addEventListener('click', () => {
+      const role = b.dataset.accept;
+      H[role].accepted = true; save(); rerender();
+      toast(`${orgPerson(H[role].assigned).name} accepted. A prototype control, so you can see the state that follows.`, 'check-circle.svg');
+    }));
+    $$('[data-clearperson]').forEach(b => b.addEventListener('click', () => {
+      const role = b.dataset.clearperson;
+      H[role] = { assigned:null, notified:false, accepted:false }; save(); rerender();
+    }));
+    $$('[data-meetperson]').forEach(cb => cb.addEventListener('change', () => {
+      const id = cb.dataset.meetperson;
+      if (cb.checked) H.network.named[id] = H.network.named[id] || '';
+      else delete H.network.named[id];
+      save(); rerender();
+    }));
+    $$('[data-meetwhy]').forEach(ta => ta.addEventListener('input', () => {
+      H.network.named[ta.dataset.meetwhy] = ta.value; save();
+    }));
+    const ms = $('[data-meetsubmit]');
+    if (ms) ms.addEventListener('click', () => {
+      H.network.submitted = true; save(); rerender();
+      toast('Sent to Jordan, and everyone you named has been asked.', 'check-circle.svg');
+    });
     $$('[data-buddyrule]').forEach(b => b.addEventListener('click', () => {
       S.buddyRule = b.dataset.buddyrule; save(); rerender();
       toast(S.buddyRule === 'assignment'
@@ -1415,25 +1424,6 @@ function bindHm(route) {
     });
     const re = $('#wcReopen');
     if (re) re.addEventListener('click', () => { H.welcome.sent = false; save(); rerender(); });
-  }
-
-  if (route === '#/hm/network') {
-    $$('[data-netpick]').forEach(cb => cb.addEventListener('change', () => {
-      const i = cb.dataset.netpick;
-      if (cb.checked) H.network.named[i] = NETWORK_POOL[i].why || '';
-      else delete H.network.named[i];
-      save(); rerender();
-    }));
-    $$('[data-netwhy]').forEach(ta => ta.addEventListener('input', () => {
-      H.network.named[ta.dataset.netwhy] = ta.value; save();
-      const count = Object.keys(H.network.named).filter(k => (H.network.named[k]||'').trim()).length;
-      const b = $('#netSubmit'); if (b) b.disabled = count < 5;
-    }));
-    const s = $('#netSubmit');
-    if (s) s.addEventListener('click', () => {
-      H.network.submitted = true; save(); rerender();
-      toast('Sent to Jordan, and everyone you named has been notified.', 'check-circle.svg');
-    });
   }
 
   if (route === '#/hm/card') {

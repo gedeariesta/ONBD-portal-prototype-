@@ -1134,7 +1134,8 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   background:var(--eq-light-red); border:1px solid #f6c2c8; border-radius:var(--radius); padding:16px 20px;
 }
 .conflict-banner .ic{color:var(--eq-dark-red); flex:none; margin-top:1px;}
-.conflict-banner b{display:block; margin-bottom:4px; color:var(--eq-dark-red);}
+.conflict-banner > div > b{display:block; margin-bottom:4px; color:var(--eq-dark-red);}
+.conflict-banner p b{color:#7a1119;}
 .conflict-banner p{font-size:13px; font-weight:350; color:#7a1119; line-height:1.55;}
 .conflict-toggle{display:flex; align-items:center; gap:9px; margin-top:12px; flex-wrap:wrap; font-size:12.5px; color:#7a1119;}
 .pc-btn.sm{padding:4px 11px; font-size:11.5px; border-color:var(--eq-dark-red); color:var(--eq-dark-red);}
@@ -1443,6 +1444,102 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   font-size:11.5px; font-weight:350; color:var(--carbon); line-height:1.55;
 }
 .rt-in-foot .ic{color:var(--eq-dark-orange); flex:none; margin-top:1px;}
+
+/* ---------- Decide first: an ordered shortlist over the register ---------- */
+.decide{
+  background:var(--eq-light-red); border:1px solid #ffd0d5; border-radius:var(--radius);
+  padding:16px 18px 8px; margin-bottom:18px;
+}
+.dc-h{display:flex; align-items:flex-start; gap:12px; margin-bottom:12px;}
+.dc-h .ic{color:var(--eq-red); flex:none;}
+.dc-h b{display:block; font-size:15px; color:var(--charcoal);}
+.dc-h span{font-size:12px; font-weight:350; color:var(--carbon); line-height:1.5;}
+.dc-item{display:flex; gap:12px; padding:12px 0; border-top:1px solid #ffd0d5;}
+.dc-n{
+  width:22px; height:22px; border-radius:50%; flex:none; background:var(--eq-red); color:var(--white);
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;
+}
+.dc-body{min-width:0;}
+.dc-head{font-size:13.5px; font-weight:800; color:var(--charcoal); margin-bottom:4px;}
+.dc-why{font-size:12.5px; font-weight:350; color:var(--carbon); line-height:1.55;}
+.dc-when{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--eq-dark-red); margin-top:6px;}
+
+/* ---------- Overdue, and it has to be unmissable (M-28) ---------- */
+.overdue-bar{
+  background:var(--eq-dark-red); border-radius:var(--radius-lg);
+  padding:18px 22px 8px; margin-bottom:22px; box-shadow:0 4px 18px rgba(173,5,12,.28);
+}
+.od-h{display:flex; align-items:flex-start; gap:14px; margin-bottom:12px;}
+.od-h .ic{color:var(--white); flex:none;}
+.od-h b{display:block; font-size:19px; font-weight:800; color:var(--white); letter-spacing:-.015em;}
+.od-h span{font-size:13px; font-weight:350; color:rgba(255,255,255,.86);}
+.od-row{
+  display:flex; align-items:center; gap:14px; padding:11px 0;
+  border-top:1px solid rgba(255,255,255,.22); font-size:13.5px;
+}
+.od-who{
+  font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--eq-dark-red); background:var(--white); border-radius:4px; padding:3px 8px; flex:none;
+}
+.od-what{flex:1; color:var(--white); font-weight:700;}
+.od-btn{background:var(--white); color:var(--eq-dark-red); border:none; font-weight:800;}
+.od-btn:hover{background:var(--eq-light-red);}
+.od-none{font-size:12.5px; color:rgba(255,255,255,.72); font-weight:350;}
+
+/* two rings, because one number cannot say whose tasks it is counting */
+.ready-rings{display:flex; gap:22px; flex:none;}
+.ready-ring{width:104px;}
+.ready-ring svg{width:104px; height:104px;}
+.rr-cap{
+  text-align:center; font-size:11px; font-weight:350; color:rgba(255,255,255,.78);
+  margin-top:7px; line-height:1.4;
+}
+.rr-cap b{color:var(--white); font-weight:800; font-size:12.5px;}
+.ready-ring .rr-num{height:104px; font-size:24px;}
+.other-teams{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+.ot-lbl{font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.6);}
+.ot-pill{
+  font-size:12px; color:var(--white); background:rgba(0,0,0,.22);
+  border-radius:99px; padding:4px 11px; font-weight:350;
+}
+.ot-pill.ready{background:rgba(42,131,70,.45);}
+.ot-note{font-size:11.5px; color:rgba(255,255,255,.64); font-weight:350; width:100%;}
+
+/* ---------- Name who they should meet: buddy, ambassador, others ---------- */
+.meet-sec .sec-note{max-width:680px; margin-bottom:12px;}
+.meet-card{
+  display:flex; align-items:center; gap:16px; padding:16px 18px;
+  border:1px solid var(--line); border-radius:var(--radius); background:var(--surface);
+}
+.meet-card .bd-body{flex:1; min-width:0;}
+.meet-state{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--carbon); margin-top:5px;}
+.meet-state .ic{color:var(--eq-dark-orange);}
+.meet-state.ok{color:var(--ok);} .meet-state.ok .ic{color:var(--ok);}
+.meet-actions{display:flex; align-items:center; gap:8px; flex:none;}
+.meet-others{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;}
+.meet-row{
+  padding:10px 13px; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface);
+}
+.mr-top{display:flex; align-items:center; gap:11px; cursor:pointer;}
+.mr-why{
+  width:100%; margin-top:9px; font-family:inherit; font-size:12.5px; line-height:1.5;
+  padding:8px 10px; border:1px solid var(--titanium); border-radius:7px; resize:vertical; outline:none;
+}
+.mr-why:focus{border-color:var(--eq-blue);}
+.meet-row:hover{border-color:var(--nickel);}
+.meet-row.on{border-color:var(--eq-blue); background:var(--eq-light-blue);}
+.meet-row input{accent-color:var(--eq-blue); width:16px; height:16px; flex:none;}
+.mr-body{min-width:0;}
+.mr-name{font-size:13.5px; font-weight:700; color:var(--charcoal);}
+.mr-role{font-size:12px; color:var(--carbon); font-weight:350;}
+.meet-count{font-size:12.5px; color:var(--ink-faint); margin-top:10px;}
+.role-tag{
+  font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+  border-radius:4px; padding:2px 6px; margin-left:6px; vertical-align:2px;
+}
+.role-tag.buddy{color:var(--eq-dark-green); background:var(--eq-light-green);}
+.role-tag.ambassador{color:var(--eq-dark-violet); background:var(--eq-light-violet);}
+.role-tag.other{color:var(--carbon); background:var(--cloud);}
 
 /* ---------- The platform's own to-do timeline, from UAT (A-56) ---------- */
 .live-link{

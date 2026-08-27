@@ -74,7 +74,7 @@ const PHASES = [
 ];
 
 /* ============================================================
-   Assumption register. 92 entries across both portals.
+   Assumption register. 99 entries across both portals.
    A-01…A-28 carried from v1 unchanged in numbering.
    A-29…A-46 and A-48 are new in v2 (A-47 left unused on purpose,
    reserved for the IBX badge question if it needs its own entry).
@@ -214,7 +214,7 @@ const ASSUMPTIONS = [
     resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date, optional”. Revisit whether tick-off is now cheap.', oi:'' },
   { id:'A-38', group:'design', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'Shipping defaults to the office address, derived from role and location, with an explicit option to ship home instead. A shipping phone number is required.',
-    resolve:'Replaces the retired A-09, and UAT confirms the form verbatim: the office address block, the “Ship to the office address?” radio with “Yes, ship to the address above” and “No, ship to me directly”, and the required phone number with country code. Still open: whether the office-address lookup exists for every location, and what happens for fully remote hires with no office.', oi:'' },
+    resolve:'Replaces the retired A-09, and UAT confirms the form verbatim: the office address block, the “Ship to the office address?” radio with “Yes, ship to the address above” and “No, ship to me directly”, and the required phone number with country code. The open problem is not the form, it is the second option. Letting somebody who has not started yet redirect a laptop to an address of their choosing is the shape of a fraud, and the same question applies to a hybrid hire with a real claim to home delivery. Whether the answer is a restriction, a verification step or an approval, it belongs in the requirements even if it never appears on a screen. Also still open: whether the office-address lookup exists for every location, and what happens for a fully remote hire with no office.', oi:'' },
   { id:'A-40', group:'design', prov:'1:1', screen:'Task list', route:'#/',
     assumed:'The mobile phone is a Day 1 optional to-do, not a pre-Day 1 task.',
     resolve:'Matches the live portal’s placement. Confirm nothing in the pre-Day 1 flow depends on the phone existing.', oi:'' },
@@ -253,6 +253,16 @@ const ASSUMPTIONS = [
     assumed:'The platform already ships a to-do view: a phase rail, one phase open at a time, a count for that phase only, and filters for Assigned to, Type and Sort by. The prototype now carries both that view and its own task list, so the two can be compared.',
     resolve:'The counting model is the decision. The platform counts within a phase, so a new hire in Get Ready for Day 1 sees a small number and no sense of what is still coming. This prototype counts the whole pre-Day 1 list instead. Which is less alarming has never been tested, and the answer changes the home screen. Also worth noting: the filters exist and cost nothing, so any argument for a simpler list has to say why they are being given up. Two Day 1 to-dos were on screen that no source of ours names, Welcome to MyHR and Complete your enterprise training, and two more in that phase were below the fold.', oi:'' },
 
+  { id:'A-57', group:'design', prov:'1:1', screen:'All screens', route:'#/',
+    assumed:'Match the live feature set, not the mechanism behind it. Where this prototype mirrors today’s wording or flow, that is a starting point to argue from, not a decision to inherit.',
+    resolve:'Stated directly: the trap in this kind of project is “but we do it this way”, and the answer is to open up what is possible rather than design inside the existing box. So the working rule is to list what the live portal does, make sure nothing is quietly dropped, and then decide the how separately. Where this prototype does follow today’s mechanism, such as the accessories incident and its comment thread, that is recorded as observed behaviour with a documented reason, not as a preference.', oi:'' },
+  { id:'A-58', group:'blocks', prov:'1:1', screen:'Equipment', route:'#/equipment',
+    assumed:'PROPOSED. If the start date is more than 14 days out, the new hire gets a window to change the equipment selection. Inside 14 days, the default ships and there is no window.',
+    resolve:'A rule offered in conversation, not written down anywhere, and it would settle A-41 and M-01: the manager places a default order, the new hire adjusts it while there is still time, and nobody has to decide who owns the choice in the abstract. Needs the real build and ship lead time behind it, because 14 days and a 5 to 7 business day lead do not obviously fit together (M-24).', oi:'' },
+  { id:'A-59', group:'blocks', prov:'1:1', screen:'Compliance pack', route:'#/policies',
+    assumed:'The privacy notice pack has gaps that the country list hides. Germany is not covered by the shared EU addendum. There is a Canadian French version but no French French one, which leaves the francophone African countries without a usable translation. Equinix employs people in 38 countries, not the 36 usually quoted, and about three have no usable version.',
+    resolve:'Counted from the hire data in Workday against the IBX and office lists, so the number is checkable. The direction is consolidation: one global core plus addenda should cover most countries, with a handful of genuinely bespoke ones, and the target is roughly five templates rather than fifty. Language is a separate axis: internal English is enough for tier one material, while anything where comprehension is legally load-bearing needs real translation. The privacy notice team owns the files. This workstream owns telling them what is missing.', oi:'' },
+
   /* ---------- Retired: observation answered the question ---------- */
   { id:'A-09', group:'retired', prov:'UAT', screen:'Personal details / Equipment', route:'#/equipment',
     assumed:'Was: home address is captured once on Tab 1 and reused for equipment delivery, with the equipment task holding the editable copy.',
@@ -274,6 +284,38 @@ const PROV_LABELS = {
   PRIOR: 'Agreed in the earlier change request',
   ASSUMED: 'Still a judgement call',
 };
+
+/* ---------- Decide first (my read, not an agreed order) ----------
+   Asked for directly: given all of this, what are the priorities, and what
+   needs thinking about this week. So this is an ordered shortlist rather
+   than another flat register. The ordering is a judgement call and is meant
+   to be argued with. Everything here already has an entry of its own. */
+const DECIDE_FIRST = [
+  { ids:['A-41','M-01','A-58'], head:'Who chooses the computer, and when',
+    why:'Three sources disagree. The requirements file says the manager picks, the live build has the new hire picking, and a 14 day rule was floated that would settle both. Nothing ships until this is answered, and it is the single largest saving on the manager’s list.',
+    when:'This week. It blocks the equipment screens on both sides.' },
+  { ids:['A-55','M-24'], head:'The equipment dates do not add up',
+    why:'The order is raised at low urgency, dated Day −7, against a 5 to 7 business day lead with no stock integration behind it. On those numbers a laptop can arrive after the start date, and the automatic loaner stops being an edge case.',
+    when:'This week. It is checkable against real lead times without waiting for anyone.' },
+  { ids:['M-03','L-05','M-29'], head:'Who can see what',
+    why:'The visibility matrix is unwritten, several new hire tasks are plainly sensitive, and a third portal for People Experience is now on the list. Three personas cannot be designed without it.',
+    when:'Before either portal is costed.' },
+  { ids:['A-51','A-59'], head:'The document pack, and the gaps inside it',
+    why:'416 document instances today, a US bundle of 28 where 24 addenda do not apply, Germany uncovered by the shared EU addendum, and no French French version for the francophone countries. Consolidation is the goal and the privacy notice team owns the files.',
+    when:'Start now, because it depends on another team’s calendar.' },
+  { ids:['M-04'], head:'Whether software provisioning is in phase one at all',
+    why:'The persona cannot be resolved, an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine. If phase one carries no software, this screen is premature rather than blocked.',
+    when:'Before the manager task list is fixed.' },
+  { ids:['M-26','M-27','M-10'], head:'Two roles, and what makes a name count',
+    why:'A buddy and a second cross-functional role, one of which has no agreed name. Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
+    when:'Alongside the buddy programme, which is being written now.' },
+  { ids:['A-38'], head:'Shipping to an address a new hire chooses',
+    why:'A person who has not started yet can redirect a laptop. Whether the answer is a restriction, a verification or an approval, it belongs in the requirements.',
+    when:'Before the equipment flow is built.' },
+  { ids:['L-01'], head:'When the new hire sees their buddy',
+    why:'The two prototypes disagree, and the manager can change their mind up to three days before a start, which would remove a name the new hire had already seen.',
+    when:'Cheap to settle. Both behaviours are already built, so pick one.' },
+];
 
 /* ---------- Open before build (§10) ---------- */
 const OPEN_BEFORE_BUILD = [
@@ -716,6 +758,43 @@ const BUDDY_POOL = [
 ];
 const BUDDY_LOAD_LIMIT = 3;   // policy P-05 is undefined, so this number is invented (M-07)
 
+/* ---------- Who a manager can name (M-07 revised, M-26) ----------
+   The direction is a plain list of people in the org, with no suggestion
+   logic at all: "anybody can be a buddy" on first rollout, and the certified
+   buddy programme is years out. Two named roles, plus everyone else.
+
+     Buddy       within the team or function. Culture and logistics, and the
+                 questions someone would rather not ask their manager.
+     Ambassador  cross-functional. Helps a new hire navigate, connect and get
+                 things done. May come from an Employee Connection Network.
+                 Expected for executives, optional for everyone else.
+
+   The working name for the second role is a placeholder. "Ambassador"
+   collides with the Employee Connection Networks, and nobody has settled on
+   a better one. */
+const PEOPLE_ROLES = {
+  buddy:      { label:'Buddy', hint:'On their team or in their function' },
+  ambassador: { label:'Ambassador', hint:'Cross-functional, and a working name only' },
+  other:      { label:'Someone to meet', hint:'Anyone else worth an early conversation' },
+};
+
+const ORG_PEOPLE = [
+  { id:'nina',   name:'Nina Kowalski',  initials:'NK', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true },
+  { id:'marcus', name:'Marcus Webb',    initials:'MW', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true },
+  { id:'dana',   name:'Dana Kim',       initials:'DK', role:'Financial Analyst II',       dept:'Global FP&A',        team:true },
+  { id:'tomas',  name:'Tomás Rivera',   initials:'TR', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true },
+  { id:'aisha',  name:'Aisha Bello',    initials:'AB', role:'Manager, Corporate Accounting', dept:'Controllership' },
+  { id:'ravi',   name:'Ravi Menon',     initials:'RM', role:'Director, Revenue Operations', dept:'Go-to-market' },
+  { id:'elena',  name:'Elena Duarte',   initials:'ED', role:'Senior Manager, IBX Finance', dept:'Operations Finance' },
+  { id:'tom',    name:'Tom Byrne',      initials:'TB', role:'Business Partner, Sales Finance', dept:'Commercial Finance' },
+  { id:'grace',  name:'Grace Lim',      initials:'GL', role:'Manager, FP&A Systems',      dept:'Finance Systems' },
+  { id:'yusuf',  name:'Yusuf Demir',    initials:'YD', role:'Manager, Treasury',          dept:'Corporate Finance' },
+  { id:'priyanka', name:'Priyanka Rao', initials:'PR', role:'Senior Analyst, Investor Relations', dept:'Finance' },
+  { id:'lena',   name:'Lena Fischer',   initials:'LF', role:'Program Manager, Sustainability', dept:'Corporate Affairs', ecn:true },
+  { id:'sam',    name:'Samuel Adeyemi', initials:'SA', role:'Lead Engineer, Platform',    dept:'Digital Services',   ecn:true },
+];
+const orgPerson = id => ORG_PEOPLE.find(p => p.id === id);
+
 /* Computer options for H-04. Catalogue is owned elsewhere (M-01 / OI-24). */
 const COMPUTER_OPTIONS = [
   { id:'win-std', label:'Standard Windows laptop', lead:'In stock, 3 days', ok:true },
@@ -773,14 +852,14 @@ const HM_ASSUMPTIONS = [
     assumed:'The manager ORDERS the computer today. This is not a confirmation step, and nothing moves until they do it.',
     resolve:'Corrects the workbook’s own baseline, which described confirm-only per PRD S2-US14 AC2. That is the target state, not today’s. Confirm whether this task is already being redesigned inside the laptop-and-accessory MVP. If it is, this screen should follow that work.', oi:'OI-24' },
   { id:'M-02', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
-    assumed:'The readiness score is shown as a plain completion ratio across all owners, with no weighting and no threshold.',
-    resolve:'Composition, weighting and what counts as a good score are all undefined. A weighted number here would be invented, so the prototype shows only what it can actually compute and says so.', oi:'OI-02' },
+    assumed:'REVISED. Two numbers, not one: your tasks and their tasks, each as its own ring. Other teams report status only, with no progress bar.',
+    resolve:'One combined percentage could not answer the first question a manager asks, which is whether the number is about them or about the new hire. Other teams came out of the count because they will not be users in this system, so there is nothing to count and the manager does not need their progress task by task. Still undefined: weighting, and what a good score even is.', oi:'OI-02' },
   { id:'M-03', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager sees the new hire’s task names and status, but never task content. Sensitive tasks report status only.',
     resolve:'The walkthrough’s cross-persona visibility principle and the Decision Log’s caution point in different directions, and the persona-by-section visibility matrix is unwritten. This is the conservative reading. Argue it before build.', oi:'OI-03' },
   { id:'M-04', side:'hm', group:'blocks', prov:'1:1', screen:'Software stack', route:'#/hm/software',
     assumed:'H-05 is drawn in its blocked state. The persona cannot be resolved, so the default stack is empty.',
-    resolve:'No full personas list exists in ServiceNow; the job-family fallback under discussion is the approach the PRD analysis rejects as inaccurate. The screen is drawn the way it behaves today, not the way it should.', oi:'OI-04' },
+    resolve:'No full personas list exists in ServiceNow, and the job-family fallback under discussion is the approach the requirements analysis rejects as inaccurate. Two things have since changed the question. Phase one may carry no software provisioning at all, which would make this screen premature rather than blocked. And an application rationalisation is running, so the list of applications to provision is itself moving. Also unanswered: how access is actually granted, whether that is tied to the person through the identity layer or to the machine, because it decides whether this belongs beside the hardware order at all.', oi:'OI-04' },
   { id:'M-10', side:'hm', group:'blocks', prov:'1:1', screen:'Team network', route:'#/hm/network',
     assumed:'Naming the new hire’s network is net-new manager work, the only proposal here that adds load instead of removing it.',
     resolve:'Everything else on the disposition review subtracts. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggested list can be close to one tap. It needs an explicit decision.', oi:'OI-26' },
@@ -806,7 +885,7 @@ const HM_ASSUMPTIONS = [
     resolve:'Unresolved whether this is the existing Manager Companion Guide, a superset of it, or something new. The two are scoped differently and there is no settled terminology.', oi:'OI-07' },
   { id:'M-17', side:'hm', group:'content', prov:'ASSUMED', screen:'Order the computer', route:'#/hm/computer',
     assumed:'Three laptop options with invented lead times, one of them backordered so the late-delivery warning is visible.',
-    resolve:'The real catalogue, its options, its regional variants and its actual lead times belong to the EUT team. These values are illustrative.', oi:'' },
+    resolve:'The real catalogue, its options, its regional variants and its actual lead times belong to the End User Technology team, and these values are illustrative. The harder point is that there is no integration behind them: nothing in the portal knows whether a model is in stock or how long the supplier will take, so a lead time shown here is a promise nobody can keep yet. Either wire it or stop showing a number.', oi:'' },
 
   /* ---------- Design choice ---------- */
   { id:'M-05', side:'hm', group:'design', prov:'ASSUMED', screen:'Start logistics', route:'#/hm/logistics',
@@ -816,8 +895,8 @@ const HM_ASSUMPTIONS = [
     assumed:'The Day 1 one-to-one is auto-created and can be rescheduled but not deleted. The other holds are suggestions the manager accepts.',
     resolve:'Automatic placement is specified for the one-to-one only. Whether the remaining holds auto-create is undecided, and it is the single biggest lever on how much work this screen represents.', oi:'OI-13' },
   { id:'M-07', side:'hm', group:'design', prov:'ASSUMED', screen:'Assign a buddy', route:'#/hm/buddy',
-    assumed:'A suggested buddy with a capacity warning at 3 concurrent hires. The performance signal in the suggestion criteria is held back from the manager on purpose.',
-    resolve:'Buddy policy is undefined, including criteria, load limits and the decline process, so the limit shown here is invented. A performance-derived suggestion is a manager-visible inference about another employee and needs a privacy position before it surfaces at all.', oi:'OI-10' },
+    assumed:'REVISED. No suggestions at all. A plain list of people in the org, because on first rollout anybody can be a buddy. The capacity warning and the withheld performance signal are both gone with it.',
+    resolve:'The earlier design suggested a buddy and hid why. The direction is simpler and it removes the privacy problem entirely: pick from everyone in the function, and revisit suggestion logic when a certified buddy programme exists, which is years out rather than months. What is still undefined is the decline process, which now matters more because acceptance is a real step (M-27).', oi:'OI-10' },
   { id:'M-08', side:'hm', group:'design', prov:'ASSUMED', screen:'Welcome email', route:'#/hm/welcome',
     assumed:'Pre-filled boilerplate, an editable personal message, and a read-only first-week block generated from the new hire’s actual task list.',
     resolve:'A superset screen, not in the approved workflow file. The generated first-week block is what makes this cheap instead of a blank page. Confirm the content can actually be generated.', oi:'' },
@@ -845,6 +924,18 @@ const HM_ASSUMPTIONS = [
   { id:'M-25', side:'hm', group:'blocks', prov:'PRIOR', screen:'Software stack', route:'#/hm/software',
     assumed:'CONFLICT, unresolved. This prototype draws the application stack blocked, because no persona resolves. The mockup shows eight applications auto-assigned from the job family in Workday, with the manager reviewing rather than building the list.',
     resolve:'The platform owner said no full persona list exists and that the job-family fallback is the approach the requirements analysis rejects as inaccurate. The mockup shows that fallback working. One of the two is out of date. This is the single biggest difference between the two manager screens, and it decides whether this task is a review or a data-entry job.', oi:'OI-04' },
+  { id:'M-26', side:'hm', group:'content', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
+    assumed:'Two named roles, not one. A buddy on the team or in the function, and a second cross-functional person who helps the new hire navigate and connect. Expected for executive hires, optional for everyone else, and one screen covers both plus anyone else worth meeting.',
+    resolve:'The buddy programme currently plans for one role and will need to carry two. The second role has no agreed name: “ambassador” is the placeholder here and it collides with the Employee Connection Networks, which are also a sensible place to find one. Somebody has to name it before it reaches a screen a new hire reads.', oi:'' },
+  { id:'M-27', side:'hm', group:'blocks', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
+    assumed:'Naming someone is a request, not an assignment. They are asked, they accept, and only then is anything booked. Once accepted, the system reads their calendar and books the first month.',
+    resolve:'“Assigned and approved and committed” is the bar, and this prototype only draws the first half. The booking side needs a calendar integration nobody has scoped, and the acceptance step needs a decision on what happens when someone says no three days before a start date.', oi:'' },
+  { id:'M-28', side:'hm', group:'design', prov:'1:1', screen:'Readiness view', route:'#/hm/',
+    assumed:'Overdue is its own state and it is loud. Anything past its date and still open appears in red above everything else, with a route straight to the task.',
+    resolve:'The earlier version of this screen folded overdue items into a general attention list, on the assumption that a manager has enough control to work it out. That is too much credit. Managers are doing their own job alongside this, so a risk to Day 1 has to be unmissable. The open question is the other half of the same balance: how far to go before the screen is telling an experienced manager how to do their job.', oi:'' },
+  { id:'M-29', side:'hm', group:'blocks', prov:'1:1', screen:'Not built', route:null, nolink:true,
+    assumed:'There is a third portal. People Experience need their own view: every pending start at once, and the ability to open one hire and see roughly what that hire sees.',
+    resolve:'Named as the next thing to design. It matters because the problem statement is that nobody has visibility at any point, and this prototype currently answers that for two of the three people who need it. What People Experience actually validate, background check clearance among them, has to be settled before the view can be drawn.', oi:'' },
   { id:'M-18', side:'hm', group:'design', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager’s own contact details and the Teams channel list are one-click confirmations in the rail, not screens.',
     resolve:'Both have an “automate the prompt, one-click confirm” disposition. Folding them into the home screen removes two items from the task list, which is the outcome the design intent favours.', oi:'' },
@@ -865,7 +956,7 @@ const LINK_ASSUMPTIONS = [
     resolve:'Matches the requirement, and it is the only handoff here whose negative answer is also a designed outcome. Confirm the new hire is told nothing at all, instead of being told “not applicable”.', oi:'' },
   { id:'L-11', side:'link', group:'blocks', prov:'PRD', screen:'Start date → both portals', route:'#/startdate',
     assumed:'Changing the start date moves every dependent due date on both sides, and the manager sees the request.',
-    resolve:'The requirement says the portal updates dependent due dates and tasks. It does not say who approves the change, how late it can be requested, or what happens to work already in flight: an order placed, a badge queued for print, a calendar hold booked.', oi:'' },
+    resolve:'The requirement says the portal updates dependent due dates and tasks. It does not say who approves the change, how late it can be requested, or what happens to work already in flight: an order placed, a badge queued for print, a calendar hold booked. Two consequences have since been named. The request lands on People Experience rather than on the manager, and the offer letter has to be reissued, which puts a document outside this portal on the critical path of a date change made inside it.', oi:'' },
   { id:'L-03', side:'link', group:'design', prov:'ASSUMED', screen:'Manager contact → new hire', route:'#/hm/',
     assumed:'The manager’s confirmed contact details feed the card the new hire sees, and the manager is explicitly told the new hire can reach them before Day 1.',
     resolve:'Pre-hire contact scope is not settled in any source, and nothing on the manager’s side tells them the new hire has their details, or sets any expectation about responding.', oi:'OI-23' },

@@ -61,7 +61,9 @@ const DEFAULT_STATE = () => ({
     logistics: { confirmed:false, whereToBe:'', available:true, proxy:'', teamNote:'' },
     computer: { ordered:false, model:'', reason:'' },
     software: { confirmed:false, added:[] },
-    buddy: { assigned:null, notified:false },
+    // A name is not a commitment. Both roles have to accept (M-27).
+    buddy: { assigned:null, notified:false, accepted:false },
+    ambassador: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
     welcome: { sent:false, body:'', personal:'' },
     network: { named:{}, submitted:false },
@@ -457,7 +459,7 @@ function contactRow(p, extra='') {
    rule (L-01). Both branches are real states, not placeholders. */
 function buddyRailBlock() {
   const B = S.hm.buddy;
-  const assigned = B.assigned ? BUDDY_POOL.find(x => x.id === B.assigned) : null;
+  const assigned = B.assigned ? orgPerson(B.assigned) : null;
   if (!assigned) {
     return `
     <div class="contact pending" data-assume="L-01">
@@ -533,13 +535,22 @@ function landingRail() {
   </div>`;
 }
 
-/* The network the MANAGER named, in pool order (L-06). Empty until
-   they submit it, which is what the new hire's waiting state reflects. */
+/* Everyone the MANAGER named, with their role (L-06). Keyed by person id
+   now that the buddy, the ambassador and the rest live on one screen.
+   Empty until submitted, which is what the new hire's waiting state shows. */
 function namedNetwork() {
-  const named = S.hm.network.named || {};
-  return Object.keys(named)
-    .filter(k => (named[k] || '').trim())
-    .map(k => Object.assign({}, NETWORK_POOL[k], { why: named[k], poolIndex: +k }));
+  const H = S.hm, out = [];
+  const add = (id, role) => {
+    const p = orgPerson(id);
+    if (p) out.push(Object.assign({}, p, { meetRole: role, accepted: H[role] ? H[role].accepted : true,
+      why: H.network.named[id] || '' }));
+  };
+  if (H.buddy.assigned) add(H.buddy.assigned, 'buddy');
+  if (H.ambassador && H.ambassador.assigned) add(H.ambassador.assigned, 'ambassador');
+  Object.keys(H.network.named || {}).forEach(id => {
+    if (id !== H.buddy.assigned && !(H.ambassador && id === H.ambassador.assigned)) add(id, 'other');
+  });
+  return out;
 }
 
 /* ---------- Inside Equinix carousel (A-35) ----------
@@ -1583,9 +1594,10 @@ function incidentCard(picked) {
 /* Slots sit in the week after the start date, so they stay plausible
    on both the two-week and three-month runways (A-45). */
 const SLOT_TIMES = ['10:00', '14:30', '09:00'];
-function slotsFor(i) {
+function slotsFor(id) {
+  const i = ORG_PEOPLE.findIndex(p => p.id === id);
   return SLOT_TIMES.map((t, j) => {
-    const d = addDays(startDate(), 5 + i + j * 2);
+    const d = addDays(startDate(), 5 + Math.max(i, 0) + j * 2);
     return `${d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' })}, ${t}`;
   });
 }
@@ -1638,24 +1650,26 @@ function renderNetwork() {
         <div class="section-h"><h2>${list.length} ${list.length===1?'person':'people'}, and why</h2><span class="hint">Optional. Book what’s useful, ignore the rest</span></div>
         <div class="net-cards">
           ${list.map((p,i) => `
-            <div class="net-card ${booked[p.poolIndex]?'booked':''}">
+            <div class="net-card ${booked[p.id]?'booked':''}">
               <div class="nc-top">
-                <div class="avatar lg peer">${p.initials}</div>
+                <div class="avatar lg ${p.meetRole === 'buddy' ? 'buddy' : 'peer'}">${p.initials}</div>
                 <div class="nc-id">
-                  <div class="nc-name">${p.name}</div>
+                  <div class="nc-name">${p.name} <span class="role-tag ${p.meetRole}">${PEOPLE_ROLES[p.meetRole].label}</span></div>
                   <div class="nc-role">${p.role}, ${p.dept}</div>
                 </div>
-                ${booked[p.poolIndex] ? `<span class="chip done">${ic('check.svg','sm')}${esc(booked[p.poolIndex])}</span>` : `<span class="chip waiting">Not booked</span>`}
+                ${booked[p.id] ? `<span class="chip done">${ic('check.svg','sm')}${esc(booked[p.id])}</span>` : `<span class="chip waiting">Not booked</span>`}
               </div>
-              <div class="nc-why">
+              ${p.why ? `<div class="nc-why">
                 <div class="ncw-h">${ic('comment-lines.svg','sm')} Why ${HIRE.manager.split(' ')[0]} picked them</div>
-                ${p.why}
-              </div>
-              ${booked[p.poolIndex]
-                ? `<div class="nc-slots"><button class="btn quiet sm" data-unbook="${p.poolIndex}">Cancel this 1:1</button></div>`
+                ${esc(p.why)}
+              </div>` : ''}
+              ${p.meetRole !== 'other' && !p.accepted
+                ? `<div class="nc-slots"><span class="ncs-lbl">${p.name.split(' ')[0]} has been asked and has not accepted yet, so there is nothing to book.</span></div>`
+                : booked[p.id]
+                ? `<div class="nc-slots"><button class="btn quiet sm" data-unbook="${p.id}">Cancel this 1:1</button></div>`
                 : `<div class="nc-slots">
                     <span class="ncs-lbl">Suggested times:</span>
-                    ${slotsFor(p.poolIndex).map(s => `<button class="slot-btn" data-book="${p.poolIndex}" data-slot="${esc(s)}">${s}</button>`).join('')}
+                    ${slotsFor(p.id).map(x => `<button class="slot-btn" data-book="${p.id}" data-slot="${esc(x)}">${x}</button>`).join('')}
                   </div>`}
             </div>`).join('')}
         </div>
@@ -1671,7 +1685,12 @@ function renderNetwork() {
             </div>
             <div class="dist-row">
               <div class="dr-h">${ic('user-circle.svg','sm')} Your buddy</div>
-              <p>One person, for <b>culture and logistics</b>. Different purpose, different person.</p>
+              <p>One person on your team, for <b>culture and logistics</b>. The questions you would rather not ask your manager.</p>
+            </div>
+            <div class="dist-row">
+              <div class="dr-h">${ic('users-friends.svg','sm')} Your ambassador</div>
+              <p>One person <b>outside your function</b>, to help you navigate and make connections.
+              The name of this role is a placeholder. ${am('M-26')}</p>
             </div>
             <div class="dist-row">
               <div class="dr-h">${ic('users-three.svg','sm')} Your team</div>
@@ -1683,9 +1702,9 @@ function renderNetwork() {
         <div class="rail-card">
           <h3>What happened behind this</h3>
           <ol class="mech-list">
-            <li>${HIRE.manager} was asked to name <b>at least five</b> people outside your reporting line.</li>
-            <li>She wrote <b>why</b> each one matters to your role. That’s the text on each card.</li>
-            <li>Each person was <b>told</b> they’d been named, so your first message isn’t a surprise.</li>
+            <li>${HIRE.manager} named a <b>buddy</b>, an <b>ambassador</b> and anyone else worth meeting early.</li>
+            <li>Where she wrote a reason, it is on the card. She knows you can see it.</li>
+            <li>Each of them was <b>asked</b>, not told, and had to accept. ${am('M-27')}</li>
             <li>You get the list, the reasons, and times you can book.</li>
           </ol>
           <div class="rail-note">The problem this is meant to solve, in the platform owner’s words:
@@ -2240,6 +2259,23 @@ function renderAssumptions(highlightId) {
     carries a marker like ${am('A-04')}. <b>${live} are marked on screen</b>, out of ${all.length} in the register,
     across both portals. Every entry says where it came from.</div>
 
+    <div class="decide">
+      <div class="dc-h">${ic('list-tasks.svg','lg')}
+        <div><b>Decide first</b>
+        <span>Eight things, in the order I would take them. My read, not an agreed order, and every one has its own
+        entry below.</span></div>
+      </div>
+      ${DECIDE_FIRST.map((d, i) => `
+        <div class="dc-item">
+          <span class="dc-n">${i + 1}</span>
+          <div class="dc-body">
+            <div class="dc-head">${d.head} ${d.ids.map(x => am(x)).join(' ')}</div>
+            <div class="dc-why">${d.why}</div>
+            <div class="dc-when">${ic('clock.svg','sm')}${d.when}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+
     <div class="side-filter">
       <button class="sf ${panelSide==='all'?'on':''}" data-side="all">All <span>${all.length}</span></button>
       <button class="sf ${panelSide==='nh'?'on':''}" data-side="nh">New hire <span>${bySide.nh}</span></button>
@@ -2405,12 +2441,16 @@ function applyScenario(name) {
 
   const namePeople = () => {
     S.hm.network.named = {};
-    [0,1,2,3,4].forEach(i => { S.hm.network.named[i] = NETWORK_POOL[i].why; });
+    NETWORK_POOL.filter(p => p.suggested).forEach((p, i) => {
+      const id = ORG_PEOPLE[4 + i] ? ORG_PEOPLE[4 + i].id : null;
+      if (id) S.hm.network.named[id] = p.why;
+    });
     S.hm.network.submitted = true;
   };
   const hmPartial = () => {
     S.hm.card.needed = true;
-    S.hm.buddy = { assigned:'nina', notified:true };
+    S.hm.buddy = { assigned:'nina', notified:true, accepted:true };
+    S.hm.ambassador = { assigned:'lena', notified:true, accepted:true };
     S.hm.contactConfirmed = true;
     Object.assign(S.hm.logistics, { confirmed:true, whereToBe:'9:00, main reception. Ask for me at the desk', available:true });
   };
@@ -3063,7 +3103,7 @@ document.addEventListener('click', e => {
   const book = t.closest('[data-book]');
   if (book) {
     S.network.booked[book.dataset.book] = book.dataset.slot; save(); rerender();
-    toast(`1:1 booked with ${NETWORK_POOL[book.dataset.book].name}, ${book.dataset.slot}. They already know you’re starting.`, 'check-circle.svg');
+    toast(`1:1 booked with ${orgPerson(book.dataset.book).name}, ${book.dataset.slot}. They already know you’re starting.`, 'check-circle.svg');
     return;
   }
   const unbook = t.closest('[data-unbook]');
