@@ -32,6 +32,7 @@ const DUE_OFFSETS = {
 const HIRE = {
   legalFirst: 'Jordan', legalLast: 'Reyes', preferred: 'Jordan',
   initials: 'JR',
+  username: 'jreyes',            // the live case names people as "Name (username)" (A-54)
   role: 'Senior Financial Analyst',
   dept: 'Finance, Global FP&A',
   manager: 'Priya Anand',
@@ -73,7 +74,7 @@ const PHASES = [
 ];
 
 /* ============================================================
-   Assumption register. 89 entries across both portals.
+   Assumption register. 91 entries across both portals.
    A-01…A-28 carried from v1 unchanged in numbering.
    A-29…A-46 and A-48 are new in v2 (A-47 left unused on purpose,
    reserved for the IBX badge question if it needs its own entry).
@@ -106,8 +107,8 @@ const ASSUMPTIONS = [
     assumed:'The hiring manager orders the computer today; the new hire orders accessories only.',
     resolve:'The target design reverses this: new hire selects, manager confirms. That changes what a manager does, and the laptop-and-accessory MVP may have settled it already. Decide who leads before either screen is built.', oi:'' },
   { id:'A-42', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
-    assumed:'The accessories order creates an incident to Global Helpdesk Tier 2, with a CSV attached and an open comment thread. It is not a request item.',
-    resolve:'The earlier spec assumed RITMs throughout. Amendment by comment is what people actually do. Either support it with a proper “change my order” path, or route amendments somewhere better.', oi:'' },
+    assumed:'The accessories order creates an incident to Global Helpdesk Tier 2, with the whole order attached as Accessories Details.csv at around 782 bytes, and an open comment thread. It is not a request item.',
+    resolve:'The earlier spec assumed RITMs throughout. Amendment by comment is what people actually do, and UAT shows it: “can you please add a webcam” typed into the ticket for an item that was left unticked on the form minutes earlier. Either support it with a proper “change my order” path, or route amendments somewhere better. Nothing reads the CSV back, so today a person at the other end has to reconcile the two.', oi:'' },
   { id:'A-43', group:'blocks', prov:'1:1', screen:'Suggested network', route:'#/network',
     assumed:'The manager names at least five people outside the reporting line, writes why each matters, each is notified, and the new hire gets the list plus suggested 1:1 times.',
     resolve:'Does not exist today. It needs a new manager task, a notification and a booking integration, and it may belong at Day 1 instead of pre-Day 1. It is neither the org chart nor the buddy, so keep all three separate.', oi:'' },
@@ -213,7 +214,7 @@ const ASSUMPTIONS = [
     resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date, optional”. Revisit whether tick-off is now cheap.', oi:'' },
   { id:'A-38', group:'design', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'Shipping defaults to the office address, derived from role and location, with an explicit option to ship home instead. A shipping phone number is required.',
-    resolve:'Replaces the retired A-09. Confirm the office-address lookup exists for every location, and what happens for fully remote hires with no office.', oi:'' },
+    resolve:'Replaces the retired A-09, and UAT confirms the form verbatim: the office address block, the “Ship to the office address?” radio with “Yes, ship to the address above” and “No, ship to me directly”, and the required phone number with country code. Still open: whether the office-address lookup exists for every location, and what happens for fully remote hires with no office.', oi:'' },
   { id:'A-40', group:'design', prov:'1:1', screen:'Task list', route:'#/',
     assumed:'The mobile phone is a Day 1 optional to-do, not a pre-Day 1 task.',
     resolve:'Matches the live portal’s placement. Confirm nothing in the pre-Day 1 flow depends on the phone existing.', oi:'' },
@@ -240,6 +241,13 @@ const ASSUMPTIONS = [
   { id:'A-53', group:'blocks', prov:'PRIOR', screen:'Equipment', route:'#/equipment',
     assumed:'CONFLICT, unresolved. This prototype has the new hire choosing accessories before Day 1. The manager mockup has peripherals and accessories ordered by the new hire on Day 1, through IT self-service.',
     resolve:'Both cannot be right, and the difference is a fortnight of shipping time. Pre-Day 1 means the desk is complete on the first morning. Day 1 self-service means it is not. Decide which, because the accessories task is the earliest thing on the new hire’s list today.', oi:'' },
+
+  { id:'A-54', group:'design', prov:'UAT', screen:'Equipment', route:'#/equipment',
+    assumed:'The equipment screens follow the live HR case: both people named as “Name (username)” with the employment start date and the manager’s email above the table, status written as a full sentence quoting the task that unblocks it, and the incident shown with its Activity, Attachments and Summary tabs.',
+    resolve:'Taken from the UAT screens rather than invented, so the future state does not quietly drop wording people already recognise. Two things to settle: the live status line for the phone reads “To place an order for a mobile phone new hire, Alp Basol (abasol), must complete” and is missing an article, and the case shows a photo for the manager but initials for the new hire. Both are small, and both are easier to fix before the push to production than after.', oi:'' },
+  { id:'A-55', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
+    assumed:'The accessories order is raised as an incident at Urgency 3 - Low, and its Summary tab shows the stored record rather than a written summary: checkbox values render as true and false, the HR task SysID is on display, and the accessories choice is stored as the sentence “Headset and other accessories”.',
+    resolve:'Two separate problems. Urgency: nothing ships until this incident is worked, and the desk is incomplete on Day 1 if it is not, so Low is the wrong default for an order with a hard date behind it. Confirm whether urgency is derived from the start date at all. Summary: it is readable by someone who knows the form and confusing to a new hire checking their own order, which is exactly who has the tab open. Neither needs a redesign, both need a decision before this reaches production.', oi:'' },
 
   /* ---------- Retired: observation answered the question ---------- */
   { id:'A-09', group:'retired', prov:'UAT', screen:'Personal details / Equipment', route:'#/equipment',
@@ -633,6 +641,7 @@ NETWORK_POOL.push(
 
 const MANAGER = {
   name: 'Priya Anand', initials: 'PA', role: 'Director, FP&A',
+  username: 'panand',
   workPhone: '+1 303 555 0188', email: 'priya.anand@equinix.com',
 };
 

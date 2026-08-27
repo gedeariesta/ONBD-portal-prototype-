@@ -852,11 +852,12 @@ small{color:var(--ink-faint);}
 /* INC confirmation (A-42) */
 .inc-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); overflow:hidden; max-width:940px;}
 .inc-h{display:flex; align-items:center; gap:12px; padding:15px 22px; background:var(--charcoal);}
+.inc-h .inc-team{margin-left:auto;}
 .inc-num{font-weight:800; font-size:15px; color:var(--white); letter-spacing:.02em;}
 .inc-team{font-size:12.5px; color:var(--nickel); margin-left:auto;}
-.inc-body{display:grid; grid-template-columns:1fr 1fr; gap:0;}
-.inc-sec{padding:20px 22px;}
-.inc-sec + .inc-sec{border-left:1px solid var(--line);}
+/* single column now that the incident is tabbed, as the live one is */
+.inc-body{padding:20px 22px;}
+.inc-body .inc-add{margin-top:8px;}
 .inc-lbl{font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px;}
 .inc-val{font-size:13.5px; color:var(--charcoal); font-weight:350;}
 .inc-list{list-style:none; font-size:13.5px;}
@@ -1442,6 +1443,52 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   font-size:11.5px; font-weight:350; color:var(--carbon); line-height:1.55;
 }
 .rt-in-foot .ic{color:var(--eq-dark-orange); flex:none; margin-top:1px;}
+
+/* ---------- The live HR case, as UAT shows it (A-54 / A-55) ---------- */
+.eqs-bar{
+  background:var(--eq-red); color:var(--white); font-weight:800; font-size:14px;
+  padding:9px 16px; border-radius:8px 8px 0 0; margin:-1px -1px 0;
+}
+.case-parties{
+  display:grid; grid-template-columns:1fr 1fr; gap:26px;
+  padding:18px 20px; border-bottom:1px solid var(--line); background:var(--silver);
+}
+.cp-lbl{font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint);}
+.cp-who{display:flex; align-items:center; gap:9px; margin-top:5px; font-size:14px; font-weight:700; color:var(--charcoal);}
+.cp-val{font-size:13.5px; color:var(--charcoal); margin-top:3px;}
+.mt12{margin-top:12px;}
+
+/* incident header and tabs */
+.inc-meta{
+  display:flex; gap:36px; padding:14px 20px; border-bottom:1px solid var(--line); flex-wrap:wrap;
+}
+.inc-who{display:flex; align-items:center; gap:8px; margin-top:5px; font-size:13.5px; font-weight:700; color:var(--charcoal);}
+.inc-val.urg{color:var(--eq-dark-orange); font-weight:700;}
+.inc-tabs{display:flex; gap:2px; padding:0 20px; border-bottom:1px solid var(--line); background:var(--silver);}
+.inc-tab{
+  background:none; border:none; font-family:inherit; font-size:13.5px; font-weight:700;
+  color:var(--carbon); padding:11px 18px; cursor:pointer; border-radius:6px 6px 0 0;
+}
+.inc-tab:hover{color:var(--charcoal);}
+.inc-tab.on{background:var(--eq-red); color:var(--white);}
+
+/* activity feed */
+.inc-feed{margin-top:16px; border-top:1px solid var(--line);}
+.inc-ev{display:flex; align-items:flex-start; gap:12px; padding:13px 0; border-bottom:1px solid var(--line);}
+.ev-body{flex:1; min-width:0;}
+.ev-name{font-size:14px; font-weight:700; color:var(--charcoal);}
+.ev-text{font-size:13.5px; font-weight:350; color:var(--carbon); margin-top:2px;}
+.ev-file{font-size:13.5px; font-weight:700; color:var(--eq-dark-red); margin-top:2px;}
+.ev-size{font-size:12.5px; color:var(--ink-faint);}
+.ev-when{display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--ink-faint); flex:none;}
+
+/* summary tab: the stored record, shown as the live tab shows it */
+.inc-summary{margin:12px 0 0;}
+.inc-summary dt{font-size:13px; font-weight:800; color:var(--charcoal); margin-top:13px;}
+.inc-summary dd{font-size:13.5px; font-weight:350; color:var(--carbon); margin:2px 0 0;}
+.inc-summary dd.raw, .mono{font-family:ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size:12.5px;}
+.inc-summary dd.raw{color:var(--eq-dark-violet);}
+.inc-note{font-size:12.5px; font-weight:350; color:var(--carbon); line-height:1.55; margin-top:12px; max-width:640px;}
 
 /* Confirm your start date (A-49) */
 .date-card{

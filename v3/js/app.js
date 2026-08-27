@@ -43,6 +43,7 @@ const DEFAULT_STATE = () => ({
   horizon: '2wk',                // 2wk | 3mo  (A-45)
   scenario: 'default',           // default | inprogress | review | overdue | complete
   trackerOpen: null,             // which readiness step is expanded (A-52)
+  incTab: 'activity',            // incident tab: activity | attachments | summary (A-54)
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
   details: { tab:0, submitted:false, queryRaised:false, data:{} },
@@ -1227,50 +1228,80 @@ function officeAddress() { return S.country === 'JP' ? HIRE.officeAddressJP : HI
 
 /* One equipment table, rendered on both sides (L-04). Whichever side you
    change it from, the other sees the same three rows and the same blocker. */
+/* The live case names both people at the top of the equipment section, with
+   the start date and the manager's email, before the table itself (A-54). */
+function caseParties() {
+  return `
+    <div class="case-parties" data-assume="A-54">
+      <div class="cp-side">
+        <div class="cp-lbl">New hire</div>
+        <div class="cp-who"><div class="avatar sm">${HIRE.initials}</div>
+          <span>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</span></div>
+        <div class="cp-lbl mt12">Employment start date</div>
+        <div class="cp-val">${startDate().toISOString().slice(0,10)}</div>
+      </div>
+      <div class="cp-side">
+        <div class="cp-lbl">Hiring manager</div>
+        <div class="cp-who"><div class="avatar sm mgr">${MANAGER.initials}</div>
+          <span>${MANAGER.name} (${MANAGER.username})</span></div>
+        <div class="cp-lbl mt12">Hiring manager email</div>
+        <div class="cp-val">${MANAGER.email}</div>
+      </div>
+    </div>`;
+}
+
 function equipmentTable(forManager) {
   return `
-    <div class="eq-status" data-assume="A-41 A-42 M-16 L-04">
+    <div class="eq-status" data-assume="A-41 A-42 M-16 L-04 A-54">
+      <div class="eqs-bar">Equipment orders for ${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</div>
+      ${caseParties()}
       <div class="eqs-h">
-        <h3>Equipment orders</h3>
         <span class="eqs-note">${forManager
           ? `Three items, three different owners. The same table Jordan sees. ${am('M-16')}`
           : `Three items, three different owners. This table is the answer to “where is my equipment?” ${am('A-41')}`}</span>
       </div>
       <table class="eq-table">
-        <thead><tr><th>Item</th><th>Ordered by</th><th>Status</th><th>What unblocks it</th></tr></thead>
+        <thead><tr><th>Equipment</th><th>Status</th></tr></thead>
         <tbody>
           ${equipmentRows(forManager).map(r => `
             <tr>
               <td><span class="eq-item">${ic(r.icon)} ${r.item}${r.marker ? ' '+am(r.marker) : ''}</span></td>
-              <td><span class="owner ${r.byCls}">${r.by}</span></td>
-              <td><span class="status-pill ${r.ok?'ok':''}">${r.ok ? ic('check.svg','sm') : ''}${r.status}</span></td>
-              <td class="eq-unblock">${r.unblock}</td>
+              <td class="eq-unblock">
+                <span class="status-pill ${r.ok?'ok':''}">${r.ok ? ic('check.svg','sm') : ''}${r.status}</span>
+                ${r.unblock}
+              </td>
             </tr>`).join('')}
         </tbody>
       </table>
     </div>`;
 }
 
+/* Status wording follows the live case as closely as it can. The live strings
+   name the person as "Name (username)" and quote the task title in full
+   (A-54). Ownership is carried in the sentence, the way the live table does
+   it, rather than in a separate column. */
 function equipmentRows(forManager) {
   const E = S.equipment;
-  const accStatus = E.submitted ? 'ORDERED' : 'NOT ORDERED YET';
+  const hire = `<b>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</b>`;
+  const mgr = `<b>${MANAGER.name} (${MANAGER.username})</b>`;
   return [
-    { item:'Computer', icon:'laptop.svg', by:`${HIRE.manager}, your hiring manager`, byCls:'mgr',
+    { item:'Computer', icon:'laptop.svg',
       status: S.hm.computer.ordered ? 'ORDERED' : 'NOT ORDERED YET', ok: S.hm.computer.ordered,
       unblock: S.hm.computer.ordered
-        ? `Ordered by ${HIRE.manager}${S.hm.computer.model ? ', ' + (COMPUTER_OPTIONS.find(o => o.id === S.hm.computer.model) || {}).label : ''}.`
-        : `Their task: <b>“Order equipment for new hire”</b>. Nothing you can do from here.`,
+        ? `Ordered by ${mgr}${S.hm.computer.model ? ', ' + (COMPUTER_OPTIONS.find(o => o.id === S.hm.computer.model) || {}).label : ''}.`
+        : `To place an order for a computer the hiring manager, ${mgr}, must complete the
+           <b>“Order equipment for new hire ${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})”</b> task.`,
       marker:'A-41' },
-    { item:'Computer accessories', icon:'desktop.svg', by: forManager ? 'Jordan' : 'You', byCls:'you',
-      status:accStatus, ok:E.submitted,
+    { item:'Computer accessories', icon:'desktop.svg',
+      status: E.submitted ? 'INC6369627' : 'NOT ORDERED YET', ok:E.submitted,
       unblock: E.submitted
-        ? `Ordered. Reference <b>INC6369627</b>.`
-        : (forManager
-            ? `Waiting on Jordan’s task, <b>“Order your workspace tech accessories”</b>. Not yours to place.`
-            : `This task, <b>“Order your workspace tech accessories”</b>, below.`) },
-    { item:'Mobile phone', icon:'mobile.svg', by: forManager ? 'Jordan, from Day 1' : 'You, from Day 1', byCls:'you',
+        ? `New, with Global Helpdesk Tier 2. ${forManager ? 'Ordered by ' + hire + '.' : ''}`
+        : `To place an order for accessories the new hire, ${hire}, must complete the
+           <b>“Order your workspace tech accessories”</b> task.` },
+    { item:'Mobile phone', icon:'mobile.svg',
       status:'NOT ORDERED YET', ok:false,
-      unblock:`Task <b>“Order a phone”</b> opens on Day 1, and only if the role needs one.`, marker:'A-40' },
+      unblock:`To place an order for a mobile phone the new hire, ${hire}, must complete the
+        <b>“Order a phone”</b> task, which is available on their first day.`, marker:'A-40' },
   ];
 }
 
@@ -1430,46 +1461,103 @@ function equipmentSubmitted() {
 
     ${equipmentTable(false)}
 
-    <div class="inc-card mt24" data-assume="A-42">
-      <div class="inc-h">
-        <div class="inc-num">INC6369627 ${am('A-42')}</div>
-        <span class="chip inprogress">New</span>
-        <span class="inc-team">Global Helpdesk Tier 2</span>
-      </div>
-      <div class="inc-body">
-        <div class="inc-sec">
-          <div class="inc-lbl">What you ordered</div>
-          <ul class="inc-list">${picked.map(p => `<li>${ic('check.svg','sm')}${p}</li>`).join('')}</ul>
-          ${S.equipment.choice !== 'none' ? `
-          <div class="inc-lbl mt16">Shipping to</div>
-          <div class="inc-val">${S.equipment.shipOffice === 'yes' ? officeAddress() : 'Your home address'}, ${esc(S.equipment.shipPhone)}</div>` : ''}
-          <div class="attach">${ic('file-alt.svg','sm')}<b>Accessories Details.csv</b> <span>attached to the ticket</span></div>
-        </div>
-
-        <div class="inc-sec">
-          <div class="inc-lbl">Comments</div>
-          <div class="inc-thread">
-            ${S.equipment.comments.map(c => `
-              <div class="inc-msg">
-                <div class="avatar sm">${HIRE.initials}</div>
-                <div><div class="im-name">${HIRE.legalFirst} ${HIRE.legalLast}</div><div class="im-text">${esc(c)}</div></div>
-              </div>`).join('') || `<div class="inc-empty">No comments yet.</div>`}
-          </div>
-          <div class="inc-add">
-            <input type="text" id="incComment" placeholder="e.g. can you please add a webcam">
-            <button class="btn secondary sm" id="incSend">Add comment</button>
-          </div>
-          <div class="callout soft mt16">
-            ${ic('exclamation-triangle.svg')}
-            <div><b>This is how people actually amend orders today</b>, by typing into the ticket after submitting.
-            It works, but nobody designed it. A proper “change my order” path would beat a comment thread. ${am('A-42')}</div>
-          </div>
-          <button class="btn secondary mt16" id="eqChange">Change my order</button>
-        </div>
-      </div>
-    </div>
+    ${incidentCard(picked)}
 
     <div class="mt24"><button class="btn primary" data-goto="#/">Back to your tasks</button></div>
+  </div>`;
+}
+
+/* The incident as it actually appears in the live portal: a header carrying
+   the number, state, requester and urgency, then three tabs. Drawn from the
+   UAT screens so the team can see today's behaviour, including the parts
+   that are awkward (A-42, A-54, A-55). */
+function incidentCard(picked) {
+  const E = S.equipment;
+  const tab = S.incTab || 'activity';
+  const choiceLabel = E.choice === 'none' ? 'I don’t need anything'
+    : E.choice === 'headset' ? 'Headset only' : 'Headset and other accessories';
+
+  return `
+  <div class="inc-card mt24" data-assume="A-42 A-54 A-55">
+    <div class="inc-h">
+      <div class="inc-num">INC6369627 ${am('A-42')}</div>
+      <span class="chip inprogress">New</span>
+      <span class="inc-team">Created just now</span>
+    </div>
+
+    <div class="inc-meta">
+      <div><div class="inc-lbl">Requested by</div>
+        <div class="inc-who"><div class="avatar sm">${HIRE.initials}</div>
+          <span>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</span></div></div>
+      <div><div class="inc-lbl">Urgency</div>
+        <div class="inc-val urg">3 - Low ${am('A-55')}</div></div>
+      <div><div class="inc-lbl">Assignment group</div>
+        <div class="inc-val">Global Helpdesk Tier 2</div></div>
+    </div>
+
+    <div class="inc-tabs">
+      <button class="inc-tab ${tab==='activity'?'on':''}" data-inctab="activity">Activity</button>
+      <button class="inc-tab ${tab==='attachments'?'on':''}" data-inctab="attachments">Attachments</button>
+      <button class="inc-tab ${tab==='summary'?'on':''}" data-inctab="summary">Summary</button>
+    </div>
+
+    <div class="inc-body">
+      ${tab === 'activity' ? `
+        <div class="inc-lbl">Additional comments</div>
+        <div class="inc-add">
+          <input type="text" id="incComment" placeholder="Type your message here…">
+          <button class="btn primary sm" id="incSend">Post</button>
+        </div>
+        <div class="inc-feed">
+          ${E.comments.slice().reverse().map(c => `
+            <div class="inc-ev">
+              <div class="avatar sm">${HIRE.initials}</div>
+              <div class="ev-body"><div class="ev-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
+                <div class="ev-text">${esc(c)}</div></div>
+              <span class="ev-when">${ic('clock.svg','sm')}just now</span>
+            </div>`).join('')}
+          <div class="inc-ev">
+            <div class="avatar sm">${HIRE.initials}</div>
+            <div class="ev-body"><div class="ev-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
+              <div class="ev-file">Accessories Details.csv</div><div class="ev-size">782 B</div></div>
+            <span class="ev-when">${ic('clock.svg','sm')}just now</span>
+          </div>
+          <div class="inc-ev">
+            <div class="avatar sm">${HIRE.initials}</div>
+            <div class="ev-body"><div class="ev-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
+              <div class="ev-text">INC6369627 Created</div></div>
+            <span class="ev-when">${ic('clock.svg','sm')}just now</span>
+          </div>
+        </div>
+        <div class="callout soft mt16">
+          ${ic('exclamation-triangle.svg')}
+          <div><b>This is how people amend orders today</b>, by typing into the ticket after submitting.
+          It works, but nobody designed it. A proper “change my order” path would beat a comment thread. ${am('A-42')}</div>
+        </div>
+        <button class="btn secondary mt16" id="eqChange">Change my order</button>`
+      : tab === 'attachments' ? `
+        <div class="inc-lbl">Attachments</div>
+        <div class="attach">${ic('file-alt.svg','sm')}<b>Accessories Details.csv</b> <span>782 B</span></div>
+        <p class="inc-note">The whole order travels as one CSV on the ticket. Nothing in the portal reads it back,
+        so a change has to be made by a person at the other end. ${am('A-42')}</p>`
+      : `
+        <div class="inc-lbl">Summary</div>
+        <dl class="inc-summary">
+          <dt>HR task SysID</dt><dd class="mono">443ab46133968f981b4ee642cd5c7bf9</dd>
+          <dt>Requested For</dt><dd>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</dd>
+          <dt>Select accessories</dt><dd>${choiceLabel}</dd>
+          ${ACCESSORY_OPTIONS.map(o => `
+            <dt>${o.label}</dt><dd class="raw">${E.items[o.id] ? 'true' : 'false'}</dd>`).join('')}
+          <dt>Ship to the office address?</dt><dd class="raw">${E.shipOffice === 'yes' ? 'true' : 'false'}</dd>
+        </dl>
+        <div class="callout soft mt16">
+          ${ic('exclamation-triangle.svg')}
+          <div><b>This tab shows the stored record, not a summary a person would write.</b>
+          Checkboxes read as <span class="mono">true</span> and <span class="mono">false</span>, the system ID is on
+          display, and the accessories choice is stored as a sentence. Readable by someone who knows the form,
+          confusing to someone checking their own order. ${am('A-55')}</div>
+        </div>`}
+    </div>
   </div>`;
 }
 
@@ -2798,6 +2886,10 @@ document.addEventListener('click', e => {
     else go();
     return;
   }
+
+  // incident tabs, as the live ticket has them (A-54)
+  const itab = t.closest('[data-inctab]');
+  if (itab) { S.incTab = itab.dataset.inctab; save(); rerender(); return; }
 
   // readiness tracker: open one step's own fulfilment tracker (A-52)
   const rt = t.closest('[data-rtstep]');
