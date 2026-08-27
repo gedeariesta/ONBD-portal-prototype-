@@ -73,7 +73,7 @@ const PHASES = [
 ];
 
 /* ============================================================
-   Assumption register. 82 entries across both portals.
+   Assumption register. 89 entries across both portals.
    A-01…A-28 carried from v1 unchanged in numbering.
    A-29…A-46 and A-48 are new in v2 (A-47 left unused on purpose,
    reserved for the IBX badge question if it needs its own entry).
@@ -206,8 +206,8 @@ const ASSUMPTIONS = [
     assumed:'Equipment opens immediately and is the earliest of the provisioning tasks. Confirming the start date and launching the background check now sit ahead of it, because both are triggered at offer acceptance.',
     resolve:'Nothing gates equipment today. The “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'' },
   { id:'A-35', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
-    assumed:'ANSWERED. A carousel at the top of the portal rotating chapters 01-06, plus a link in the right-hand rail. No tasks, nothing tracked. Both are now built.',
-    resolve:'The requirement settles the three-way question: it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. Chapter summaries here are placeholder.', oi:'' },
+    assumed:'ANSWERED, and now filled with the real thing. Six chapters from the live Inside Equinix site, with their real titles, headlines and content. Chapter 03 is “What we do”, not the “Our business” this prototype previously guessed at. No tasks, nothing tracked.',
+    resolve:'The requirement settles the three-way question: it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. The chapter content is no longer placeholder, but the videos are named rather than embedded.', oi:'' },
   { id:'A-36', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'The first-90-days checklists are parked as reference only, not as tick-off items.',
     resolve:'The parking decision stands, but the original worry is answered: the platform has a Required/Optional filter natively and already ships optional items as “No due date, optional”. Revisit whether tick-off is now cheap.', oi:'' },
@@ -233,6 +233,13 @@ const ASSUMPTIONS = [
   { id:'A-51', group:'content', prov:'CURRENT', screen:'Compliance pack', route:'#/policies',
     assumed:'The reference pack the live process sends today is shown alongside the acknowledgement pack, with its real size.',
     resolve:'A US hire currently receives 28 documents in one bundle whichever state they work in: the handbook, 25 state addenda, the benefits booklet and a compliance service. Across all countries the process serves 416 document instances. Which of those survive pre-Day 1, which move later and which retire is the single largest open decision in this workstream.', oi:'' },
+
+  { id:'A-52', group:'blocks', prov:'PRIOR', screen:'Readiness tracker', route:'#/',
+    assumed:'Readiness is shown as two trackers, one inside the other. The outer stepper covers every owner. Opening a step shows that item’s own fulfilment stages, and where it is stuck.',
+    resolve:'The outer level is adopted from the hiring manager mockup v6.1, which tracks the whole readiness checklist rather than only manager tasks. The inner stages are only partly evidenced: the ServiceNow request, the routing to IT Procurement, the 5 to 7 day lead time and the automatic loaner are all stated there, and the rest is proposed. Whoever owns each fulfilment queue has to confirm the real stages and whether their status can be read at all.', oi:'' },
+  { id:'A-53', group:'blocks', prov:'PRIOR', screen:'Equipment', route:'#/equipment',
+    assumed:'CONFLICT, unresolved. This prototype has the new hire choosing accessories before Day 1. The manager mockup has peripherals and accessories ordered by the new hire on Day 1, through IT self-service.',
+    resolve:'Both cannot be right, and the difference is a fortnight of shipping time. Pre-Day 1 means the desk is complete on the first morning. Day 1 self-service means it is not. Decide which, because the accessories task is the earliest thing on the new hire’s list today.', oi:'' },
 
   /* ---------- Retired: observation answered the question ---------- */
   { id:'A-09', group:'retired', prov:'UAT', screen:'Personal details / Equipment', route:'#/equipment',
@@ -372,10 +379,9 @@ const NETWORK_POOL = [
    PRD v1.4 asks for a carousel at the top of the portal rotating chapters
    01-06, plus a link in the right-hand rail. No tasks, nothing tracked.
    Chapter titles are real; the one-line summaries are placeholder. */
-const INSIDE_MODULES = [
-  'Who we are', 'How we work', 'Our business',
-  'What we enable', 'Our road ahead', 'Your role',
-];
+/* The rail link lists the same six chapters as the showcase, so there is one
+   source for the titles. */
+function insideModules() { return INSIDE_CHAPTERS.map(c => `${c.n} ${c.title}`); }
 /* ---------- Inside Equinix showcase art (A-35) ----------
    Built to the brand illustration system: isometric and flat shapes,
    linear gradients only, adjacent hues, thin light wireframes, and
@@ -454,13 +460,110 @@ const CHAPTER_ART = [
     <circle cx="204" cy="132" r="6" fill="#85F0F8"/>` },
 ];
 
+/* Chapter titles, headlines and content come from the live Inside Equinix
+   site. Chapter 03 is "What we do", not the "Our business" an earlier version
+   of this prototype guessed at. Every chapter there closes with a reflection
+   prompt pointing at the manager or buddy conversation, which is the part
+   that reaches back into this portal (L-12). */
 const INSIDE_CHAPTERS = [
-  { n:'01', title:'Who we are',      line:'Where Equinix came from, and what the company is for.' },
-  { n:'02', title:'How we work',     line:'How decisions get made, and what good looks like here.' },
-  { n:'03', title:'Our business',    line:'What we sell, who buys it, and how the money works.' },
-  { n:'04', title:'What we enable',  line:'What our customers actually do with what we build.' },
-  { n:'05', title:'Our road ahead',  line:'Where the company is heading over the next few years.' },
-  { n:'06', title:'Your role',       line:'How your work connects to all of the above.' },
+  { n:'01', title:'Who we are',
+    head:'You’ve joined a team that connects much more than technology.',
+    line:'We connect people with opportunity, and businesses with the digital infrastructure they need to grow. It started with a belief that the internet should be neutral, open and reliable for everyone, and that belief still shapes how we build.',
+    facts:[['1998','Founded'],['13,600+','Employees'],['10,000+','Customers'],['36','Countries'],['76','Markets']],
+    watch:'Welcome to Equinix, with Adaire Fox-Martin, CEO and President',
+    reflect:['What part of our story speaks to you most?','How do you see yourself contributing to what’s next?'] },
+
+  { n:'02', title:'How we work',
+    head:'Our Values guide how we show up in our work and with each other.',
+    line:'Our strength is being able to care deeply and pursue excellence at the same time. Five values, each with a short film from someone who lives it.',
+    list:['Foster belonging','Create clarity always','Keep customers at the center','Take accountability','Adapt with speed'],
+    watch:'How we live our values, with Brandi Galvin Morandi, Chief People Officer',
+    reflect:['Which value feels most natural to you?','Which one do you want to grow into?'] },
+
+  { n:'03', title:'What we do',
+    head:'You might be wondering: so what exactly do we do?',
+    line:'A short film on how our work makes everyday experiences possible, and helps businesses everywhere move faster, safer and smarter.',
+    watch:'Equinix 101, four minutes',
+    reflect:['How would you explain what Equinix does to a friend?','What part of the business story helped you get it?'] },
+
+  { n:'04', title:'What we enable',
+    head:'Around the world, every day, people rely on Equinix, though they may not know it.',
+    line:'Freeze a single minute anywhere on the globe and connections are being made, businesses are growing, lives are changing. Six of those stories, plus how to get involved through the Equinix Foundation.',
+    list:['Globalizing school curricula, São Bernardo do Campo','Making the job market more fluid, Lagos','Powering carbon neutral communities, Helsinki','Traveling to see loved ones, Mumbai','Increasing crop yield, Bandung','Getting a faster diagnosis, Sydney'],
+    watch:'One Minute In, impact stories',
+    reflect:['Which story of our impact made you proud or surprised?','What kind of impact do you want your work to have?'] },
+
+  { n:'05', title:'Our road ahead',
+    head:'Equinix is built for this moment.',
+    line:'By 2030 we intend to be the leading technology infrastructure company of the 21st century. The strategy is where that ambition meets action, and it runs on five moves.',
+    list:['Serve better','Solve smarter','Build bolder','Run simpler','Grow together'],
+    reflect:['What is one thing you’re most excited to help make possible here?','What is one strength you bring that can help others succeed?'] },
+
+  { n:'06', title:'Your role',
+    head:'You are the catalyst for what’s next.',
+    line:'Equinix is built on connection, and now you’re part of shaping where it goes from here. Bring your curiosity, your care and your ideas.',
+    watch:'Your role in shaping what comes next, with Adaire Fox-Martin',
+    reflect:['What sparked a question you want to bring to your first week?'] },
+];
+
+/* Verbatim from the site, and the reason the reflection prompts matter here:
+   they are written to be picked up in a conversation, not stored in a form. */
+const REFLECT_NOTE =
+  'Capture your thoughts, including any questions or areas where you want to learn more. ' +
+  'You will revisit these in your upcoming conversation with your manager or onboarding buddy.';
+
+/* ---------- Readiness tracker, two levels (A-52 / M-22) ----------
+   The hiring manager mockup v6.1 tracks the whole hiring readiness checklist,
+   not only the manager's own tasks: their tasks plus PEX, IT fulfilment and
+   badge or workspace items, each carrying its own status. That is two
+   trackers, one inside the other, so it is built as two.
+
+   Outer steps are adopted from that mockup. The inner fulfilment stages are
+   the part that is only partly evidenced: the ServiceNow request, the routing
+   to IT Procurement, the 5 to 7 day lead time and the automatic loaner are
+   all stated there. Everything else in the stage lists is proposed. */
+const READINESS = [
+  { id:'equipment', label:'Equipment', icon:'laptop.svg', sys:'ServiceNow',
+    owners:'The manager, the new hire and End User Technology',
+    stages:[
+      { label:'Order placed',        note:'The computer is the manager’s order. Accessories are the new hire’s.' },
+      { label:'With IT Procurement', note:'A request is raised and routed. Lead time runs 5 to 7 business days.' },
+      { label:'Built and imaged',    note:'Standard build for the role, then the image is applied.' },
+      { label:'Shipped',             note:'To the office address, unless the new hire asked for it at home.' },
+      { label:'Waiting on the desk', note:'If this would miss Day 1, a loaner is issued automatically.' },
+    ] },
+  { id:'apps', label:'Applications', icon:'portal-window.svg', sys:'ServiceNow',
+    owners:'The manager and IT',
+    stages:[
+      { label:'Persona resolved',   note:'The role decides the default stack. No persona means no default.' },
+      { label:'Stack confirmed',    note:'The manager confirms the defaults and adds anything role-specific.' },
+      { label:'Licences requested', note:'Each application raises its own request and carries its own status.' },
+      { label:'Active on Day 1',    note:'Access switches on with the start date, not before.' },
+    ] },
+  { id:'workspace', label:'Badge and workspace', icon:'id-card.svg', sys:'Workplace Services',
+    owners:'The new hire, the manager and Workplace Services',
+    stages:[
+      { label:'Photo submitted',  note:'The new hire uploads it. Badge print needs the lead time.' },
+      { label:'Site confirmed',   note:'The manager confirms the location, access level and parking.' },
+      { label:'Badge queued',     note:'Access zones are set from the confirmed site.' },
+      { label:'Ready at reception', note:'Collected on the first morning.' },
+    ] },
+  { id:'people', label:'People', icon:'users-friends.svg', sys:'Onboarding portal',
+    owners:'The manager',
+    stages:[
+      { label:'Buddy chosen',     note:'From the team, and changeable up to three days before the start date.' },
+      { label:'Buddy told',       note:'They are notified, including what being a buddy involves.' },
+      { label:'Network named',    note:'The people outside the reporting line, with a reason for each.' },
+      { label:'Introduction out', note:'The manager forwards it. Nothing is posted automatically.' },
+    ] },
+  { id:'paperwork', label:'Paperwork', icon:'file-alt.svg', sys:'Workday and HR Operations',
+    owners:'The new hire, HR Operations and the background check provider',
+    stages:[
+      { label:'Start date confirmed', note:'Every other due date is anchored to it.' },
+      { label:'Background check',     note:'Launched from the portal, then it runs elsewhere.' },
+      { label:'Details submitted',    note:'Personal record, emergency contact and preferences.' },
+      { label:'Policies acknowledged', note:'The pack the new hire has to read and sign off.' },
+    ] },
 ];
 
 /* ---------- What the live Workday process actually sends today (A-51) ----------
@@ -635,7 +738,7 @@ const HM_ASSUMPTIONS = [
     assumed:'Naming the new hire’s network is net-new manager work, the only proposal here that adds load instead of removing it.',
     resolve:'Everything else on the disposition review subtracts. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggested list can be close to one tap. It needs an explicit decision.', oi:'OI-26' },
   { id:'M-11', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Portal entry', route:'#/hm/subtraction',
-    assumed:'There is no manager credential task. The manager enters by notification using the SSO they already hold.',
+    assumed:'There is no manager credential task. The manager enters by notification using the SSO they already hold, and the mockup names the channel: a Teams message from the onboarding assistant once the offer is accepted in Workday.',
     resolve:'The source row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire SSO logic applied to the wrong persona. Shown struck through so the removal is arguable instead of silent. Confirm no ServiceNow role or licence provisioning is hiding behind it.', oi:'OI-01' },
 
   /* ---------- Content needed ---------- */
@@ -683,6 +786,18 @@ const HM_ASSUMPTIONS = [
   { id:'M-16', side:'hm', group:'design', prov:'UAT', screen:'Readiness view', route:'#/hm/',
     assumed:'Equipment status uses the live portal’s wording, NOT ORDERED YET, plus who it is waiting on and which task unblocks it.',
     resolve:'Adopted, not invented. It is the pattern the live product already uses, and the documented reason equipment sits front and centre.', oi:'' },
+  { id:'M-22', side:'hm', group:'design', prov:'PRIOR', screen:'Readiness tracker', route:'#/hm/',
+    assumed:'The readiness tracker covers the whole checklist, not only manager tasks: their tasks plus People Experience, IT fulfilment and the badge and workspace items, each carrying its own status.',
+    resolve:'Taken from the manager mockup v6.1, which states exactly this. It changes what the manager’s home screen is for: less a to-do list, more a single place to see whether Day 1 will work. Confirm the manager is meant to see other teams’ fulfilment status at all, because M-03 says they cannot see the new hire’s task content.', oi:'' },
+  { id:'M-23', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
+    assumed:'Manager tasks carry due dates and a recommended order. Four are taken from the mockup, at Day −7 for equipment and location, Day −4 for the application stack and Day −2 for the welcome note and the buddy. The rest are proposed.',
+    resolve:'The mockup dates only five tasks. The corporate card, the Day 1 calendar, the team network and forwarding the introduction have no date in any source, so those four are marked. Someone has to set them, because a task with no date is a task with no nudge.', oi:'' },
+  { id:'M-24', side:'hm', group:'blocks', prov:'PRIOR', screen:'Order the computer', route:'#/hm/computer',
+    assumed:'CONFLICT, unresolved. The mockup dates the equipment order at Day −7 and states a lead time of 5 to 7 business days.',
+    resolve:'Seven business days from Day −7 lands after the start date. Either the due date is wrong, the lead time is wrong, or the automatic loaner is not an edge case but the normal outcome. The prototype raises it as a blocker on the manager’s home screen so the collision is visible rather than discovered on somebody’s first morning.', oi:'' },
+  { id:'M-25', side:'hm', group:'blocks', prov:'PRIOR', screen:'Software stack', route:'#/hm/software',
+    assumed:'CONFLICT, unresolved. This prototype draws the application stack blocked, because no persona resolves. The mockup shows eight applications auto-assigned from the job family in Workday, with the manager reviewing rather than building the list.',
+    resolve:'The platform owner said no full persona list exists and that the job-family fallback is the approach the requirements analysis rejects as inaccurate. The mockup shows that fallback working. One of the two is out of date. This is the single biggest difference between the two manager screens, and it decides whether this task is a review or a data-entry job.', oi:'OI-04' },
   { id:'M-18', side:'hm', group:'design', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager’s own contact details and the Teams channel list are one-click confirmations in the rail, not screens.',
     resolve:'Both have an “automate the prompt, one-click confirm” disposition. Folding them into the home screen removes two items from the task list, which is the outcome the design intent favours.', oi:'' },
@@ -719,6 +834,9 @@ const LINK_ASSUMPTIONS = [
   { id:'L-08', side:'link', group:'design', prov:'ASSUMED', screen:'Welcome email → sequencing', route:'#/hm/welcome',
     assumed:'The manager’s welcome email should land before the new hire is asked to write their introduction. The prototype shows the intended order but does not enforce it.',
     resolve:'The merge analysis says sequence, not merge, but nothing enforces the order, and three welcome communications compete for the same week before Day 1.', oi:'' },
+  { id:'L-12', side:'link', group:'design', prov:'PRIOR', screen:'Inside Equinix → manager and buddy', route:'#/',
+    assumed:'Every Inside Equinix chapter closes with a reflection prompt that says the new hire will revisit their notes in a conversation with their manager or onboarding buddy. Nothing is stored, and nothing is tracked.',
+    resolve:'That is verbatim from the live site, and it is a promise this portal currently does not keep: neither the manager nor the buddy is told the prompts exist, or given the questions. Either wire it, by putting the same questions in front of the manager before the first 1:1, or change the wording. A prompt that points at a conversation nobody has scheduled is worse than no prompt.', oi:'' },
   { id:'L-09', side:'link', group:'content', prov:'ASSUMED', screen:'Notifications', route:'#/hm/network',
     assumed:'Named people and the assigned buddy are notified; the prototype shows that a notification was sent but never its content.',
     resolve:'Notification and reminder design is out of scope for both specs and deserves its own pass. Being named in someone’s network is a message to a third party who did not ask for it.', oi:'' },

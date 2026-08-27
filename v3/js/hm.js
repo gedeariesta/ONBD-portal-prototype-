@@ -20,41 +20,42 @@ function hmTasks() {
   const introReady = S.intro.saved && S.intro.consent && S.intro.text.trim();
   const list = [
     { id:'logistics', label:'Confirm the first-day details', disp:'keep', route:'#/hm/logistics',
-      done: H.logistics.confirmed, icon:'calendar.svg',
+      done: H.logistics.confirmed, icon:'calendar.svg', dueOff:-7, sys:'Workplace Services', srcDue:true,
       why:'Only you know whether you’ll actually be there, and who covers if you’re not.',
       dispNote:'Kept, but narrowed. The location facts come from the orientation blueprint, not from you.' },
     { id:'computer', label:'Order equipment for your new hire', disp:'reduce', route:'#/hm/computer',
-      done: H.computer.ordered, icon:'laptop.svg', marker:'M-01',
+      done: H.computer.ordered, icon:'laptop.svg', marker:'M-01', dueOff:-7, sys:'ServiceNow', srcDue:true,
       why:'Nothing ships until you place this order. Jordan can see it’s waiting on you.',
       dispNote:'Should become an exception-only override once persona catalogues and central budget land.' },
     { id:'software', label:'Confirm the application stack', disp:'reduce', route:'#/hm/software',
       done: H.software.confirmed, icon:'portal-window.svg', marker:'M-04', blocked:true,
+      dueOff:-4, sys:'ServiceNow', srcDue:true,
       why:'Which applications Jordan gets on day one.',
       dispNote:'Blocked today. Without a resolved persona the stack renders empty and you fill it by hand.' },
     { id:'buddy', label:'Choose an onboarding buddy', disp:'keep', route:'#/hm/buddy',
-      done: !!H.buddy.assigned, icon:'users-friends.svg', marker:'M-07',
+      done: !!H.buddy.assigned, icon:'users-friends.svg', marker:'M-07', dueOff:-2, sys:'Onboarding portal', srcDue:true,
       why:'Someone for Jordan to ask the questions they won’t ask you.',
       dispNote:'Genuinely your judgement. A suggestion makes it one tap when you agree with it.' },
     { id:'calendar', label:'Set up their first day', disp:'automate', route:'#/hm/calendar',
-      done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06',
+      done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06', dueOff:-5, sys:'Outlook', marker2:'M-23',
       why:'The holds that make Day 1 work.',
       dispNote:'Your 1:1 is already placed automatically. The rest should be too, and then this becomes a glance rather than a task.' },
     { id:'welcome', label:'Send a welcome note', disp:'reduce', route:'#/hm/welcome',
-      done: H.welcome.sent, icon:'email.svg', marker:'M-08',
+      done: H.welcome.sent, icon:'email.svg', marker:'M-08', dueOff:-2, sys:'Email', srcDue:true,
       why:'The first thing Jordan hears from you rather than from a system.',
       dispNote:'Written for you. Reduced to adding a personal line and pressing send.' },
     { id:'network', label:'Name who they should meet', disp:'add', route:'#/hm/network',
-      done: H.network.submitted, icon:'users-connected.svg', marker:'M-10',
+      done: H.network.submitted, icon:'users-connected.svg', marker:'M-10', dueOff:-4, sys:'Onboarding portal', marker2:'M-23',
       why:'The people outside your team that Jordan will actually work with.',
       dispNote:'The only item here that adds to your load. It needs a decision, not a design.' },
   ];
   list.splice(3, 0, { id:'card', label:'Will Jordan need a corporate card?', disp:'undecided', route:'#/hm/card',
-    done: H.card.needed !== null, icon:'banking.svg', marker:'M-19',
+    done: H.card.needed !== null, icon:'banking.svg', marker:'M-19', dueOff:-7, sys:'Accounts Payable', marker2:'M-23',
     why:'One question, and only if they will travel on behalf of Equinix.',
     dispNote:'Was undecided while the source row was truncated. Now specified, and it really is one tap.' });
   if (introReady || H.intro.forwarded) {
     list.push({ id:'intro', label:'Forward Jordan’s introduction to the team', disp:'keep', route:'#/hm/intro',
-      done: H.intro.forwarded, icon:'comment-smile.svg', marker:'L-02',
+      done: H.intro.forwarded, icon:'comment-smile.svg', marker:'L-02', dueOff:-2, sys:'Teams', marker2:'M-23',
       why:'Jordan wrote it and agreed you can share it. It goes nowhere until you send it.',
       dispNote:'Arrived because Jordan completed their side. Nothing is posted automatically.' });
   }
@@ -111,6 +112,13 @@ function hmBlockers() {
   if (!S.hm.software.confirmed) {
     out.push({ sev:'low', text:'The application stack cannot be resolved, because Jordan’s persona is not mapped. That is a platform gap, not something you can fix here.',
       action:'See why', route:'#/hm/software' });
+  }
+  // The manager mockup dates the computer order at Day −7 and states a 5 to 7
+  // business day lead time. Seven business days from Day −7 lands after the
+  // start date, so the due date and the lead time disagree (M-24).
+  if (!S.hm.computer.ordered) {
+    out.push({ sev:'high', text:'The equipment due date and the equipment lead time disagree. Ordering at Day −7 with a 5 to 7 business day lead can land after Jordan starts.',
+      action:'See the tracker', route:null, marker:'M-24' });
   }
   return out;
 }
@@ -204,7 +212,7 @@ function renderHmHome() {
       ${blockers.map(b => `
         <div class="bl-row ${b.sev}">
           <span class="bl-dot"></span>
-          <span class="bl-text">${b.text}</span>
+          <span class="bl-text">${b.text}${b.marker ? ' '+am(b.marker) : ''}</span>
           ${b.route ? `<button class="btn quiet sm" data-goto="${b.route}">${b.action} →</button>` : ''}
         </div>`).join('')}
     </div>` : `
@@ -212,14 +220,17 @@ function renderHmHome() {
       ${ic('check-circle.svg','lg')}<span>Nothing is blocked. Jordan is on track for ${startDateText()}.</span>
     </div>`}
 
+    ${readinessTracker('hm')}
+
     <div class="hm-grid">
       <div>
         <div class="section-h">
           <h2>Your tasks</h2>
-          <span class="hint">${hmDone()} of ${tasks.length} done. Each shows whether it should exist at all ${am('M-09')}</span>
+          <span class="hint">${hmDone()} of ${tasks.length} done, in the order that keeps Day 1 safe.
+          Each shows whether it should exist at all ${am('M-09')}</span>
         </div>
         <div class="tcards">
-          ${tasks.map(t => hmTaskCard(t)).join('')}
+          ${tasks.map((t,i) => hmTaskCard(t, i+1)).join('')}
         </div>
         <div class="subtraction-link" data-goto="#/hm/subtraction">
           ${ic('list-tasks.svg','lg')}
@@ -271,14 +282,21 @@ function renderHmHome() {
   </div>`;
 }
 
-function hmTaskCard(t) {
+function hmTaskCard(t, seq) {
   const d = DISPOSITIONS[t.disp];
+  const due = t.dueOff != null ? addDays(startDate(), t.dueOff) : null;
+  const late = due && due < simToday() && !t.done;
   return `
   <div class="tcard hm ${t.done?'done':''} ${t.blocked?'blocked':''}" data-task="${t.route}" ${t.marker?`data-assume="${t.marker}"`:''}>
     <div class="tic">${ic(t.icon,'lg')}</div>
     <div class="t-main">
+      ${seq ? `<div class="t-seq">Step ${seq}</div>` : ''}
       <div class="t-name">${t.label}${t.marker ? ' '+am(t.marker) : ''}</div>
       <div class="t-why">${t.why}</div>
+      <div class="t-meta">
+        ${due ? `<span class="m ${late?'overdue':''}">${ic('calendar.svg','sm')}Due ${dueText(due)}${t.srcDue ? '' : ' '+am('M-23')}</span>` : ''}
+        ${t.sys ? `<span class="sys-tag sm">${t.sys}</span>` : ''}
+      </div>
       <div class="disp-line">
         <span class="disp ${d.cls}">${d.label}</span>
         <span class="disp-note">${t.dispNote}</span>

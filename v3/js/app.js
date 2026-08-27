@@ -42,6 +42,7 @@ const DEFAULT_STATE = () => ({
   country: 'US',                 // US | JP
   horizon: '2wk',                // 2wk | 3mo  (A-45)
   scenario: 'default',           // default | inprogress | review | overdue | complete
+  trackerOpen: null,             // which readiness step is expanded (A-52)
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
   details: { tab:0, submitted:false, queryRaised:false, data:{} },
@@ -383,6 +384,10 @@ function renderLanding() {
       ${landingRail()}
     </div>
 
+    <div class="section-h" style="margin-top:34px;"><h2>Everything else in motion</h2>
+      <span class="hint">Owned by other people, shown so you can see it moving</span></div>
+    ${readinessTracker('nh')}
+
     <div class="section-h" style="margin-top:34px;"><h2>While you wait</h2>
       <span class="hint">Reading, not a task</span></div>
     ${insideCarousel()}
@@ -486,7 +491,7 @@ function landingRail() {
         <li><a data-res="inside">${ic('chevron-right.svg','sm')}Inside Equinix ${am('A-35')}</a>
           <div class="u-expl" data-resbody="inside">
             Six short modules, here whenever you want them:
-            <ul class="mod-list">${INSIDE_MODULES.map(m => `<li>${m}</li>`).join('')}</ul>
+            <ul class="mod-list">${insideModules().map(m => `<li>${m}</li>`).join('')}</ul>
             <b>Nothing here is required, and nothing is tracked.</b>
             <div class="intent-note">${ic('bullhorn.svg','sm')}<span><b>Where this is headed:</b> a carousel above your progress tracker, releasing
             modules as your start date gets closer. It currently lives as a <b>Day 1</b> to-do in the live portal, and moving it
@@ -523,6 +528,143 @@ function namedNetwork() {
    Rotating chapters at the top of the portal, plus the rail link.
    No tasks, nothing tracked. Access and reading only. */
 let carouselTimer = null;
+/* ============================================================
+   Readiness tracker, two levels (A-52 / M-22)
+
+   The outer stepper is the whole readiness checklist across every owner.
+   Open a step and it shows its own fulfilment tracker, which is where a
+   stall stays visible instead of being averaged into a percentage.
+   ============================================================ */
+
+/* How far each step has got. `at` is the stage in progress, so stages before
+   it are done and `at === stages.length` means the step is finished.
+   `blocked` marks a stage that cannot advance for a reason worth showing. */
+function readinessState() {
+  const E = S.equipment, H = S.hm, d = daysToStart();
+  const out = {};
+
+  // Equipment. Both orders have to exist before anything moves, then the
+  // simulated clock walks it forward so the prototype controls can show it.
+  const bothOrdered = H.computer.ordered && E.submitted;
+  let eq = 0;
+  if (H.computer.ordered || E.submitted) eq = 0;
+  if (bothOrdered) { eq = 1; if (d <= 9) eq = 2; if (d <= 6) eq = 3; if (d <= 3) eq = 4; }
+  out.equipment = { at: eq, note: bothOrdered ? '' :
+    (H.computer.ordered ? 'Waiting on the accessories order.'
+      : E.submitted ? 'Waiting on the manager to order the computer.'
+      : 'Neither order has been placed.') };
+
+  // Applications. The persona cannot be resolved, so this one is stuck at
+  // its first stage on purpose. That is the honest state today (M-04).
+  out.apps = H.software.confirmed
+    ? { at: 2, note: 'Confirmed by hand, because nothing could be suggested.' }
+    : { at: 0, blocked: true, note: 'No persona is mapped for this role, so there is no default stack to confirm.' };
+
+  // Badge and workspace.
+  let ws = 0;
+  const photoDone = S.photo.done || S.photo.confirmedExisting;
+  if (photoDone) ws = 1;
+  if (photoDone && H.logistics.confirmed) ws = 2;
+  if (photoDone && H.logistics.confirmed && d <= 5) ws = 3;
+  out.workspace = { at: ws, note: photoDone ? '' : 'Badge print needs the photo first.' };
+
+  // People.
+  let pp = 0;
+  if (H.buddy.assigned) pp = 1;
+  if (H.buddy.assigned && H.buddy.notified) pp = 2;
+  if (pp === 2 && H.network.submitted) pp = 3;
+  if (pp === 3 && H.intro.forwarded) pp = 4;
+  out.people = { at: pp, note: H.buddy.assigned ? '' : 'No buddy chosen yet.' };
+
+  // Paperwork.
+  let pw = 0;
+  if (S.startdate.confirmed) pw = 1;
+  if (pw === 1 && S.bgcheck.launched) pw = 2;
+  if (pw === 2 && S.details.submitted) pw = 3;
+  if (pw === 3 && S.policies.submitted) pw = 4;
+  out.paperwork = { at: pw, note: S.startdate.confirmed ? '' : 'Everything else is dated from the start date.' };
+
+  return out;
+}
+
+/* The outer stepper. `who` changes only the framing, never the facts. */
+function readinessTracker(who) {
+  const st = readinessState();
+  const open = S.trackerOpen;
+  const steps = READINESS.map(r => {
+    const s = st[r.id];
+    const total = r.stages.length;
+    const done = s.at >= total;
+    const cls = done ? 'done' : s.blocked ? 'stuck' : s.at > 0 ? 'now' : 'wait';
+    return { r, s, total, done, cls };
+  });
+  const complete = steps.filter(x => x.done).length;
+  const lineW = steps.length > 1 ? (complete / (steps.length - 1)) * 100 : 0;
+
+  return `
+  <section class="rtrack" data-assume="A-52 M-22">
+    <div class="rt-head">
+      <div>
+        <div class="rt-title">Onboarding readiness</div>
+        <div class="rt-sub">Everything that has to be true before Day 1, whoever owns it.
+          ${who === 'hm' ? 'Your tasks are only part of it.' : 'Most of this happens without you.'}
+          Open a step to see where it actually is. ${am('A-52')}</div>
+      </div>
+      <div class="rt-count">${complete} of ${steps.length} ready</div>
+    </div>
+
+    <div class="rt-steps">
+      <div class="rt-rule"></div>
+      <div class="rt-rule fill" style="width:${Math.min(lineW, 100)}%"></div>
+      ${steps.map((x, i) => `
+        <button class="rt-step ${x.cls} ${open === x.r.id ? 'open' : ''}" data-rtstep="${x.r.id}">
+          <span class="rt-dot">${x.done ? ic('check.svg','sm') : x.cls === 'stuck' ? ic('exclamation-circle.svg','sm') : ic(x.r.icon,'sm')}</span>
+          <span class="rt-lbl">${x.r.label}</span>
+          <span class="rt-stage">${x.done ? 'Ready' : x.cls === 'stuck' ? 'Stuck' : `${x.s.at} of ${x.total}`}</span>
+        </button>`).join('')}
+    </div>
+
+    ${open ? innerTracker(steps.find(x => x.r.id === open)) : ''}
+  </section>`;
+}
+
+/* The tracker inside the tracker. One step, every fulfilment stage it has,
+   and the stage it is actually sitting on. */
+function innerTracker(x) {
+  if (!x) return '';
+  const { r, s, total } = x;
+  return `
+  <div class="rt-inner">
+    <div class="rt-in-head">
+      <span class="rt-in-name">${ic(r.icon,'lg')} ${r.label}</span>
+      <span class="sys-tag">${r.sys}</span>
+      <span class="rt-in-owners">${r.owners}</span>
+      <button class="rt-close" data-rtstep="${r.id}" aria-label="Close">✕</button>
+    </div>
+    ${s.note ? `<div class="rt-in-note ${s.blocked ? 'stuck' : ''}">${s.blocked ? ic('exclamation-circle.svg','sm') : ic('info-circle.svg','sm')}<span>${s.note}</span></div>` : ''}
+    <ol class="rt-stages">
+      ${r.stages.map((g, i) => {
+        const cls = i < s.at ? 'done' : i === s.at ? (s.blocked ? 'stuck' : 'now') : 'wait';
+        return `
+        <li class="rt-stg ${cls}">
+          <span class="rt-stg-dot">${cls === 'done' ? ic('check.svg','sm') : ''}</span>
+          <div>
+            <div class="rt-stg-lbl">${g.label}
+              ${cls === 'now' ? '<span class="rt-chip now">In progress</span>' : ''}
+              ${cls === 'stuck' ? '<span class="rt-chip stuck">Cannot start</span>' : ''}
+              ${i >= s.at && cls === 'wait' ? '<span class="rt-chip wait">Not yet</span>' : ''}</div>
+            <div class="rt-stg-note">${g.note}</div>
+          </div>
+        </li>`;
+      }).join('')}
+    </ol>
+    <div class="rt-in-foot">${ic('exclamation-triangle.svg','sm')}
+      <span>The stages inside a step are only partly evidenced. The request, the routing to IT
+      Procurement, the 5 to 7 day lead time and the automatic loaner come from the manager mockup.
+      The rest is proposed, and the dates here move with the prototype clock. ${am('A-52')}</span></div>
+  </div>`;
+}
+
 /* Hero art. Three nested Fortress hexagons on the brand tilt, the innermost
    filled with a linear gradient. Abstract, one idea, no radial fills. */
 function heroArt() {
@@ -570,20 +712,35 @@ function insideCarousel() {
     </div>
 
     <div class="sc-copy">
-      <div class="sc-eyebrow">Inside Equinix</div>
-      <h2 class="sc-title">${c.title}</h2>
+      <div class="sc-eyebrow">Inside Equinix <span class="sc-ch">${c.n} ${c.title}</span></div>
+      <h2 class="sc-title">${c.head}</h2>
       <p class="sc-line">${c.line}</p>
-      <p class="sc-note">Six short chapters about the company you are joining. Read them whenever you like.
-      Nothing here is a task and nothing is tracked. ${am('A-35')}</p>
+
+      ${c.facts ? `<div class="sc-facts">${c.facts.map(f => `
+        <div class="sc-fact"><b>${f[0]}</b><span>${f[1]}</span></div>`).join('')}</div>` : ''}
+
+      ${c.list ? `<ul class="sc-list">${c.list.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
+
+      ${c.watch ? `<div class="sc-watch">${ic('image.svg','sm')}<span>${c.watch}</span></div>` : ''}
+
       <div class="sc-thumbs">
         ${INSIDE_CHAPTERS.map((ch,k) => `
-          <button class="sc-thumb ${k===i?'on':''}" data-cardot="${k}" title="${ch.title}">
+          <button class="sc-thumb ${k===i?'on':''}" data-cardot="${k}" title="${ch.n} ${ch.title}">
             <span class="sct-swatch" style="background:linear-gradient(135deg, ${CHAPTER_ART[k].g[0]}, ${CHAPTER_ART[k].g[1]})"></span>
             <span class="sct-n">${ch.n}</span>
           </button>`).join('')}
       </div>
     </div>
-  </section>`;
+  </section>
+
+  <div class="reflect" data-assume="A-35 L-12">
+    <div class="rf-h">${ic('comment-smile.svg','lg')}<h3>Reflection prompt</h3></div>
+    <ul class="rf-q">${c.reflect.map(q => `<li>${q}</li>`).join('')}</ul>
+    <p class="rf-note">${REFLECT_NOTE} ${am('L-12')}</p>
+  </div>
+
+  <p class="sc-foot">Six short chapters about the company you are joining. Read them whenever you like.
+  Nothing here is a task and nothing is tracked. ${am('A-35')}</p>`;
 }
 
 /* ============================================================
@@ -2640,6 +2797,13 @@ document.addEventListener('click', e => {
     if (location.hash !== a.route) { location.hash = a.route; setTimeout(go, 150); }
     else go();
     return;
+  }
+
+  // readiness tracker: open one step's own fulfilment tracker (A-52)
+  const rt = t.closest('[data-rtstep]');
+  if (rt) {
+    S.trackerOpen = S.trackerOpen === rt.dataset.rtstep ? null : rt.dataset.rtstep;
+    save(); rerender(); return;
   }
 
   const nav = t.closest('[data-goto]');
