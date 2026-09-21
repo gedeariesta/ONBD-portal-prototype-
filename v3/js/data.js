@@ -107,9 +107,9 @@ const ASSUMPTIONS = [
   { id:'A-34', group:'blocks', prov:'ASSUMED', screen:'Equipment', route:'#/equipment',
     assumed:'This equipment screen is a scoped stand-in for a catalogue owned elsewhere.',
     resolve:'The real catalogue, its options and its regional variants belong to the EUT team. Confirm what this workstream owns before anyone builds from this screen.', oi:'' },
-  { id:'A-41', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
+  { id:'A-41', group:'retired', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The hiring manager orders the computer today; the new hire orders accessories only.',
-    resolve:'The target design reverses this: new hire selects, manager confirms. That changes what a manager does, and the laptop-and-accessory MVP may have settled it already. Decide who leads before either screen is built.', oi:'' },
+    resolve:'Reversed, and the prototype now draws the target state: the new hire selects and orders both the computer and the accessories, and the manager confirms nothing (A-60). What is still unbuilt is the exception path the reversal implies, for the cases where a manager does have to step in.', oi:'' },
   { id:'A-42', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The accessories order creates an incident to Global Helpdesk Tier 2, with the whole order attached as Accessories Details.csv at around 782 bytes, and an open comment thread. It is not a request item.',
     resolve:'The earlier spec assumed RITMs throughout. Amendment by comment is what people actually do, and UAT shows it: “can you please add a webcam” typed into the ticket for an item that was left unticked on the form minutes earlier. Either support it with a proper “change my order” path, or route amendments somewhere better. Nothing reads the CSV back, so today a person at the other end has to reconcile the two.', oi:'' },
@@ -804,20 +804,22 @@ const PEOPLE_ROLES = {
   other:      { label:'Someone to meet', hint:'Anyone else worth an early conversation' },
 };
 
+/* `tz` is required: the new hire's rail shows a buddy's working hours, and
+   before this every one of these rendered "undefined" there. */
 const ORG_PEOPLE = [
-  { id:'nina',   name:'Nina Kowalski',  initials:'NK', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true },
-  { id:'marcus', name:'Marcus Webb',    initials:'MW', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true },
-  { id:'dana',   name:'Dana Kim',       initials:'DK', role:'Financial Analyst II',       dept:'Global FP&A',        team:true },
-  { id:'tomas',  name:'Tomás Rivera',   initials:'TR', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true },
-  { id:'aisha',  name:'Aisha Bello',    initials:'AB', role:'Manager, Corporate Accounting', dept:'Controllership' },
-  { id:'ravi',   name:'Ravi Menon',     initials:'RM', role:'Director, Revenue Operations', dept:'Go-to-market' },
-  { id:'elena',  name:'Elena Duarte',   initials:'ED', role:'Senior Manager, IBX Finance', dept:'Operations Finance' },
-  { id:'tom',    name:'Tom Byrne',      initials:'TB', role:'Business Partner, Sales Finance', dept:'Commercial Finance' },
-  { id:'grace',  name:'Grace Lim',      initials:'GL', role:'Manager, FP&A Systems',      dept:'Finance Systems' },
-  { id:'yusuf',  name:'Yusuf Demir',    initials:'YD', role:'Manager, Treasury',          dept:'Corporate Finance' },
-  { id:'priyanka', name:'Priyanka Rao', initials:'PR', role:'Senior Analyst, Investor Relations', dept:'Finance' },
-  { id:'lena',   name:'Lena Fischer',   initials:'LF', role:'Program Manager, Sustainability', dept:'Corporate Affairs', ecn:true },
-  { id:'sam',    name:'Samuel Adeyemi', initials:'SA', role:'Lead Engineer, Platform',    dept:'Digital Services',   ecn:true },
+  { id:'nina',   name:'Nina Kowalski',  initials:'NK', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true, tz:'Chicago (CT), an hour ahead of you' },
+  { id:'marcus', name:'Marcus Webb',    initials:'MW', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true, tz:'Denver (MT), your hours' },
+  { id:'dana',   name:'Dana Kim',       initials:'DK', role:'Financial Analyst II',       dept:'Global FP&A',        team:true, tz:'Denver (MT), your hours' },
+  { id:'tomas',  name:'Tomás Rivera',   initials:'TR', role:'Senior Financial Analyst',   dept:'Global FP&A',        team:true, tz:'Denver (MT), your hours' },
+  { id:'aisha',  name:'Aisha Bello',    initials:'AB', role:'Manager, Corporate Accounting', dept:'Controllership',  tz:'Dallas (CT), an hour ahead of you' },
+  { id:'ravi',   name:'Ravi Menon',     initials:'RM', role:'Director, Revenue Operations', dept:'Go-to-market',     tz:'Denver (MT), your hours' },
+  { id:'elena',  name:'Elena Duarte',   initials:'ED', role:'Senior Manager, IBX Finance', dept:'Operations Finance', tz:'Miami (ET), two hours ahead of you' },
+  { id:'tom',    name:'Tom Byrne',      initials:'TB', role:'Business Partner, Sales Finance', dept:'Commercial Finance', tz:'Denver (MT), your hours' },
+  { id:'grace',  name:'Grace Lim',      initials:'GL', role:'Manager, FP&A Systems',      dept:'Finance Systems',    tz:'Singapore (SGT), 14 hours ahead of you' },
+  { id:'yusuf',  name:'Yusuf Demir',    initials:'YD', role:'Manager, Treasury',          dept:'Corporate Finance',  tz:'Amsterdam (CET), eight hours ahead of you' },
+  { id:'priyanka', name:'Priyanka Rao', initials:'PR', role:'Senior Analyst, Investor Relations', dept:'Finance',    tz:'Denver (MT), your hours' },
+  { id:'lena',   name:'Lena Fischer',   initials:'LF', role:'Program Manager, Sustainability', dept:'Corporate Affairs', ecn:true, tz:'Frankfurt (CET), eight hours ahead of you' },
+  { id:'sam',    name:'Samuel Adeyemi', initials:'SA', role:'Lead Engineer, Platform',    dept:'Digital Services',   ecn:true, tz:'London (GMT), seven hours ahead of you' },
 ];
 const orgPerson = id => ORG_PEOPLE.find(p => p.id === id);
 
@@ -1097,8 +1099,8 @@ const LINK_ASSUMPTIONS = [
     assumed:'The manager’s confirmed contact details feed the card the new hire sees, and the manager is explicitly told the new hire can reach them before Day 1.',
     resolve:'Pre-hire contact scope is not settled in any source, and nothing on the manager’s side tells them the new hire has their details, or sets any expectation about responding.', oi:'OI-23' },
   { id:'L-04', side:'link', group:'design', prov:'UAT', screen:'Equipment → both sides', route:'#/hm/computer',
-    assumed:'Both sides read one equipment table. The manager’s computer order and the new hire’s accessories order update the same three rows.',
-    resolve:'Confirmed in the live product. The value of the join is that “where is my equipment?” is answered identically on both screens, naming the same person and the same unblocking task.', oi:'' },
+    assumed:'Both sides read one equipment table. The new hire’s computer choice and their accessories order update the same three rows, and the manager reads the result.',
+    resolve:'Confirmed in the live product, though the direction has since reversed: both orders are now the new hire’s (A-60), so this join runs new hire to manager rather than the other way. The value of it is unchanged: “where is my equipment?” is answered identically on both screens, naming the same person and the same unblocking task.', oi:'' },
   { id:'L-06', side:'link', group:'design', prov:'ASSUMED', screen:'Team network → new hire', route:'#/hm/network',
     assumed:'The people the manager names, and the reasons they write, are shown to the new hire verbatim.',
     resolve:'No source says whether the reason is shown to the new hire or kept manager-private. Showing it is what makes the task worth doing at all. It also means the manager is writing for an audience, which changes what they write.', oi:'' },

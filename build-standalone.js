@@ -65,6 +65,20 @@ for (const [f, uri] of Object.entries(iconData)) {
   html = html.split(`assets/icons/${f}`).join(uri);
 }
 
+// Brand logos are raster, and only the ones actually referenced are carried:
+// the folder also holds the full lockups, which the app does not use.
+const logoDir = path.join(root, 'assets/logos');
+if (fs.existsSync(logoDir)) {
+  for (const f of fs.readdirSync(logoDir)) {
+    const ref = `assets/logos/${f}`;
+    if (!html.includes(ref)) continue;
+    const ext = path.extname(f).slice(1).toLowerCase();
+    const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    const b64 = fs.readFileSync(path.join(logoDir, f)).toString('base64');
+    html = html.split(ref).join(`data:${mime};base64,${b64}`);
+  }
+}
+
 // The only acceptable leftover is the runtime fallback path inside iconUrl().
 const leftovers = [...new Set([...html.matchAll(/assets\/[^'"`\s)]*/g)].map(m => m[0]))]
   .filter(s => s !== 'assets/icons/');

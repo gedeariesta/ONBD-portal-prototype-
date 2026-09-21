@@ -492,7 +492,7 @@ function buddyRailBlock() {
   }
   return contactRow(
     { name: assigned.name, role: `Your onboarding buddy, ${assigned.role}`, initials: assigned.initials, cls: 'buddy' },
-    `<div class="c-extra">${ic('clock.svg','sm')} ${assigned.tz}<br>Chosen by ${HIRE.manager} ${am('A-31')} ${am('L-01')}</div>`
+    `<div class="c-extra">${assigned.tz ? `${ic('clock.svg','sm')} ${assigned.tz}<br>` : ''}Chosen by ${HIRE.manager} ${am('A-31')} ${am('L-01')}</div>`
   );
 }
 
@@ -670,7 +670,7 @@ function innerTracker(x) {
       <span class="rt-in-name">${ic(r.icon,'lg')} ${r.label}</span>
       <span class="sys-tag">${r.sys}</span>
       <span class="rt-in-owners">${r.owners}</span>
-      <button class="rt-close" data-rtstep="${r.id}" aria-label="Close">✕</button>
+      <button class="rt-close" data-rtstep="${r.id}" aria-label="Close">${ic('times.svg','sm')}</button>
     </div>
     ${s.note ? `<div class="rt-in-note ${s.blocked ? 'stuck' : ''}">${s.blocked ? ic('exclamation-circle.svg','sm') : ic('info-circle.svg','sm')}<span>${s.note}</span></div>` : ''}
     <ol class="rt-stages">
@@ -906,8 +906,8 @@ function renderBgCheck() {
             </div>
           </div>
           <div class="callout soft mt16">${ic('info-circle.svg')}
-            <div>What the check covers, and how long it takes, varies by country. This screen doesn’t show that variation yet.
-            the prototype shows one path. ${am('A-50')}</div></div>
+            <div>What the check covers, and how long it takes, varies by country. This screen shows one path
+            and does not yet show that variation. ${am('A-50')}</div></div>
           <button class="btn quiet mt16" id="bgUndo">Undo (prototype)</button>
         ` : `
           <p style="font-size:14px; font-weight:350; max-width:640px; margin-bottom:16px;">
@@ -1016,7 +1016,7 @@ function renderDetails() {
         ${tabs.map((t,i) => `
           <button class="wiz-tab ${i===tab?'on':''}" data-tab="${i}">
             ${t}
-            <span class="tab-count ${counts[i].done===counts[i].total?'ok':''}" data-tabcount="${i}">${counts[i].done===counts[i].total ? '✓' : counts[i].done+' of '+counts[i].total}</span>
+            <span class="tab-count ${counts[i].done===counts[i].total?'ok':''}" data-tabcount="${i}">${counts[i].done===counts[i].total ? ic('check.svg','sm') : counts[i].done+' of '+counts[i].total}</span>
           </button>`).join('')}
       </div>
       <div class="wiz-body">
@@ -1119,7 +1119,7 @@ function tabDetails(jp) {
       </div>
       ${addrDone ? `<span class="verified">${ic('check-circle.svg','sm')}Address verified</span>` : ''}
       <div class="note" style="max-width:520px; margin-top:10px;">This is your home address for your worker record.
-      Where your equipment ships is decided in <a data-goto="#/equipment">your accessories order</a>, and it defaults to your office.</div>
+      Where your equipment ships is decided in <a data-goto="#/equipment">your equipment order</a>, and it defaults to your office.</div>
     </div>
 
     <div class="form-sec">
@@ -1648,9 +1648,9 @@ function equipmentSubmitted() {
 
   return `
   <div class="page">
-    ${crumbs('Choose your workspace accessories')}
+    ${crumbs('Choose your equipment')}
     <div class="task-head">
-      <h1>Your accessories order</h1>
+      <h1>Your equipment order</h1>
       <p class="why">Submitted. Here’s where it went and how to change it.</p>
     </div>
 
@@ -2018,7 +2018,7 @@ function renderIntro() {
         </div>
         <div class="chips-row" id="chipsRow">
           ${CHIP_SCAFFOLDS.filter(c => !S.intro.dismissed.includes(c.id)).map(c => `
-            <button class="p-chip" data-chip="${c.id}">${c.label}<span class="x" data-chipx="${c.id}" title="Dismiss">✕</span></button>`).join('')}
+            <button class="p-chip" data-chip="${c.id}">${c.label}<span class="x" data-chipx="${c.id}" title="Dismiss">${ic('times.svg','sm')}</span></button>`).join('')}
           ${CHIP_SCAFFOLDS.some(c => !S.intro.dismissed.includes(c.id)) ? am('A-15') : ''}
         </div>
 
@@ -2081,7 +2081,7 @@ function renderIntro() {
           <span>I’m OK with this photo being used for my building access badge, the internal employee directory, and my Teams profile. ${am('A-18')}</span>
         </label>
         <div class="mt16">
-          <button class="btn primary" id="submitPhoto" ${S.photo.uploaded && S.photo.consent ? '' : 'disabled'}>${S.photo.done ? 'Photo submitted ✓' : 'Submit photo'}</button>
+          <button class="btn primary" id="submitPhoto" ${S.photo.uploaded && S.photo.consent ? '' : 'disabled'}>${S.photo.done ? ic('check.svg','sm')+' Photo submitted' : 'Submit photo'}</button>
         </div>` : ''}
       </div>
     </div>
@@ -2521,11 +2521,11 @@ function closePanels() {
 
 /* ---------- chat panel ---------- */
 const CHAT_ANSWERS = {
-  'When does my equipment arrive?': 'Your accessories ship once you order them, which is the first task on your list. Your computer is ordered by Priya, your manager, and the status table on that task shows exactly what each item is waiting on.',
-  'Why is my laptop not on my list?': 'Because today your manager orders it, not you. The equipment task shows its status so you can see it moving, but the action sits with Priya.',
+  'When does my equipment arrive?': 'It ships once you place the order, on the \u201cChoose your equipment\u201d task. Lead times run about 5 to 7 business days, and the status table on that task shows what each item is waiting on. If it would land after your start date, you are issued a loaner.',
+  'Why is my laptop not on my list?': 'It is. Your computer and your accessories are both on the \u201cChoose your equipment\u201d task, and you place the order yourself. The status table on that task shows where it is once it is in.',
   'What if I can’t finish a task in time?': 'Nothing breaks. The task stays open and Maya gets a nudge so she can help. If a date is a real problem, message her and it gets sorted.',
   'Who sees my emergency contact?': 'Only the people who would need it in an emergency. It’s never shared with your team or your manager.',
-  'When do I hear about pay and banking?': 'Payroll runs that separately, in their own secure form, and they’ll contact you directly. It never goes through this portal.',
+  'When do I hear about pay and banking?': 'Your bank details are on the pay and banking tab of your personal details task, and you can change them there later. They are encrypted and your manager never sees them. Your tax forms are separate and Payroll will contact you about those.',
 };
 function renderChat() {
   $('#chatBody').innerHTML = `
@@ -2962,7 +2962,7 @@ function touchSave() {
 function updateWizardChrome() {
   tabCounts().forEach((c,i) => {
     const el = $(`[data-tabcount="${i}"]`);
-    if (el) { el.textContent = c.done===c.total ? '✓' : `${c.done} of ${c.total}`; el.classList.toggle('ok', c.done===c.total); }
+    if (el) { el.innerHTML = c.done===c.total ? ic('check.svg','sm') : `${c.done} of ${c.total}`; el.classList.toggle('ok', c.done===c.total); }
   });
   const missing = requiredFields().filter(f => !validField(f));
   const line = $('#missingLine');

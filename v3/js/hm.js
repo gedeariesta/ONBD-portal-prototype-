@@ -216,7 +216,7 @@ function hmWaitingOnNewHire() {
 
 const NH_TASK_LABELS = {
   startdate:'Confirm your start date', bgcheck:'Start your background check',
-  equipment:'Choose your workspace accessories', details:'Your personal and contact details',
+  equipment:'Choose your equipment', details:'Your personal and contact details',
   jd:'Review your job description', intro:'Introduce yourself and add your photo',
   policies:'Policies and privacy notices',
 };

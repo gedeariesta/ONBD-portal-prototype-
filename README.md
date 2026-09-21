@@ -119,17 +119,40 @@ runway.
 
 ## Design system
 
-Visuals follow the Equinix Brand Center packs supplied with the brief:
+v3 is built against the **Equinix Design System** pack, not an approximation
+of it. `css/styles.css` carries the system's own tokens under their real
+names, so a developer reading this file sees what they would use in build:
 
-- **Type**: Nexa Text (woff2, in `assets/fonts/`) — the brand's primary typeface.
-- **Color**: brand palette tokens in `css/styles.css` (`--eq-*` and neutral
-  ramp Black → Charcoal → Carbon → … → Silver → White). Red is reserved for
-  the brand mark; blue `#086AE3` carries interaction, per accessibility
-  guidance (WCAG AA, no color-only type).
-- **Icons**: a curated subset of the Equinix brand icon set (`assets/icons/`),
-  rendered via CSS mask so they inherit text color.
-- **Illustration**: airy adjacent-color linear gradients and the
-  Fortress-derived hexagon motif, used sparingly.
+- **Colour**: the Pantone-matched palette as `--eqx-*`, plus the semantic
+  aliases (`--text-*`, `--surface-*`, `--border-*`, `--status-*`) and the four
+  signature gradients at their canonical 135°. The prototype's older `--eq-*`
+  shorthands remain as aliases onto these, so nothing had to be hunted down.
+- **Type**: Nexa Text at the system's weight map — Book 400 for body, Regular
+  500, Bold 700, Heavy 850 and Black 900 for display. Headings take the Heavy
+  cut with the tighter tracking. Nothing is set below the system's 11px floor.
+- **Components**: buttons are full pills with a 2px border and a 0.98 press —
+  **primary is black**, brand red is the variant kept for genuinely
+  brand-level moments. Inputs, badges and the red-underline tab indicator
+  follow the shipped component specs.
+- **Brand mark**: the official ridge mark, extracted from the supplied
+  lockup. The earlier stand-in used the wrong red (`#ED1C24`) and the wrong
+  construction. `assets/logos/` also holds the full lockups.
+- **Icons**: a curated line-icon subset (`assets/icons/`) rendered via CSS
+  mask so they inherit text colour. The system documents Lucide as its own
+  stand-in pending an in-house set, so this is a like-for-like substitution.
+  Semantic ✓/✕ glyphs were replaced with icons; Unicode arrows stay, which
+  the system permits as inline affordances.
+- **Voice**: sentence case throughout, second person for the reader, no
+  emoji, and the wordmark set in letterspaced caps only as the logo.
+
+**Accessibility.** Every text/background pair on every screen is measured,
+not eyeballed: 0 failures against WCAG AA. Two of the fixes were the system's
+own defaults — `--text-tertiary` (Platinum) is 3.09:1 on white and fails for
+small text, so muted UI text resolves to Carbon and Platinum is kept for
+placeholders and disabled controls, which is what it is for; and the success
+badge pairing lands at 4.30:1, so its ink is one step darker here. Warning
+text follows the system's own Badge pattern — dark ink on a tint, never
+orange on white.
 
 Brand assets are Equinix property, included here solely for this internal
 prototype.
