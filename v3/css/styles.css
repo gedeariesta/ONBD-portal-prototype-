@@ -33,6 +33,13 @@
   --ok:var(--eq-dark-green); --ok-bg:var(--eq-light-green);
   --warn:var(--eq-dark-orange); --warn-bg:var(--eq-light-orange);
   --review:var(--eq-dark-violet); --review-bg:var(--eq-light-violet);
+  /* Task-state palette, used by the manager's progress donut and the status
+     strip. Validated for colour-vision deficiency: worst adjacent pair is
+     16.7 deltaE (deutan), well clear of the 8 threshold, and all four clear
+     3:1 against the surface. "Not started" is deliberately the one grey slot,
+     because it is the absence of a state rather than a state; every segment
+     is direct-labelled so nothing is carried by colour alone. */
+  --st-done:#2A8346; --st-doing:#086AE3; --st-late:#F55200; --st-none:#8B93A3;
   --radius:10px; --radius-lg:14px;
   --shadow-1:0 1px 2px rgba(47,53,65,.05);
   --shadow-2:0 4px 16px rgba(47,53,65,.10);
@@ -1052,10 +1059,25 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 
 /* ---------- manager: readiness hero ---------- */
 .hm-hero{
-  display:flex; gap:32px; align-items:center; padding:26px 32px; margin-bottom:22px;
+  display:flex; gap:32px; align-items:center; padding:24px 32px; margin-bottom:16px;
   border-radius:var(--radius-lg); position:relative; overflow:hidden;
   background:linear-gradient(104deg, #00305F 0%, #0A4FA8 58%, #086AE3 100%);
 }
+.hm-hero-fig{flex:none; text-align:right; color:var(--white);}
+.hhf-num{font-size:40px; font-weight:800; line-height:1; letter-spacing:-.025em;}
+.hhf-num span{font-size:20px; margin-left:1px;}
+.hhf-cap{font-size:12px; font-weight:350; color:rgba(255,255,255,.8); margin-top:5px;}
+
+/* The two figures side by side, on the surface rather than the gradient */
+.hm-figs{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; margin-bottom:22px; align-items:start;}
+.hm-fig-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-1); padding:15px 18px;
+}
+.hfc-h{margin-bottom:12px;}
+.hfc-h b{font-size:14px; color:var(--charcoal); display:block;}
+.hfc-h span{font-size:11.5px; color:var(--ink-faint); font-weight:350; line-height:1.45; display:block; margin-top:3px;}
+.hm-figs .others-strip{margin-bottom:0;}
 .hm-hero > *{position:relative; z-index:2;}
 .ready-ring{position:relative; width:118px; height:118px; flex:none;}
 .ready-ring svg{width:118px; height:118px; display:block;}
@@ -1080,6 +1102,64 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   background:rgba(0,0,0,.22); border-radius:8px; padding:9px 13px;
 }
 .score-caveat .ic{color:var(--eq-yellow); margin-top:1px; flex:none;}
+
+/* ---------- Jordan's journey as one figure (M-02) ---------- */
+.dk-sw{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block;}
+.dk-sw.done{background:var(--st-done);}  .dk-sw.doing{background:var(--st-doing);}
+.dk-sw.late{background:var(--st-late);}  .dk-sw.none{background:var(--st-none);}
+.don-seg.done{stroke:var(--st-done);}    .don-seg.doing{stroke:var(--st-doing);}
+.don-seg.late{stroke:var(--st-late);}    .don-seg.none{stroke:var(--st-none);}
+
+.nh-donut{display:flex; align-items:center; gap:22px;}
+.don-fig{position:relative; width:120px; height:120px; flex:none;}
+.don-fig svg{width:120px; height:120px; display:block;}
+.don-mid{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.don-mid b{font-size:27px; font-weight:800; color:var(--charcoal); line-height:1; letter-spacing:-.02em;}
+.don-mid b span{font-size:14px; margin-left:1px;}
+.don-cap{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:3px;}
+.don-key{list-style:none; display:flex; flex-direction:column; gap:6px; min-width:172px;}
+.don-key li{display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--carbon);}
+.don-key li.zero{opacity:.45;}
+.don-key .dk-l{flex:1;}
+.don-key .dk-n{color:var(--charcoal); font-weight:800; font-variant-numeric:tabular-nums;}
+
+/* ---------- Everyone else, as one strip ---------- */
+.others-strip{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-1); padding:15px 18px; margin-bottom:22px;
+}
+.os-h{display:flex; align-items:baseline; gap:10px; margin-bottom:11px;}
+.os-h b{font-size:14px; color:var(--charcoal);}
+.os-h span{font-size:12px; color:var(--ink-faint); font-weight:350;}
+.os-bar{display:flex; gap:2px; border-radius:7px; overflow:visible;}
+.os-seg{
+  flex:1; height:38px; display:flex; align-items:center; justify-content:center;
+  position:relative; cursor:default; outline:none;
+}
+.os-seg:first-child{border-radius:7px 0 0 7px;} .os-seg:last-child{border-radius:0 7px 7px 0;}
+.os-seg.done{background:var(--st-done);} .os-seg.doing{background:var(--st-doing);} .os-seg.none{background:var(--st-none);}
+.os-seg-l{
+  font-size:11.5px; font-weight:700; color:var(--white); padding:0 10px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.os-tip{
+  position:absolute; bottom:calc(100% + 9px); left:50%; transform:translateX(-50%) translateY(4px);
+  background:var(--charcoal); color:var(--cloud); border-radius:8px; padding:10px 13px;
+  width:230px; display:flex; flex-direction:column; gap:3px; z-index:20;
+  opacity:0; pointer-events:none; transition:opacity .13s, transform .13s; box-shadow:var(--shadow-2);
+}
+.os-seg:hover .os-tip, .os-seg:focus .os-tip{opacity:1; transform:translateX(-50%) translateY(0);}
+.os-tip::after{
+  content:''; position:absolute; top:100%; left:50%; margin-left:-6px;
+  border:6px solid transparent; border-top-color:var(--charcoal);
+}
+.os-tip b{color:var(--white); font-size:13px;}
+.os-tip-owner{font-size:11.5px; color:var(--nickel);}
+.os-tip-state{font-size:10.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; margin-top:2px;}
+.os-tip-state.done{color:#7FE0A0;} .os-tip-state.doing{color:var(--eq-aqua);} .os-tip-state.none{color:var(--nickel);}
+.os-tip-note{font-size:11.5px; color:var(--cloud); font-weight:350; line-height:1.45; margin-top:2px;}
+.os-key{list-style:none; display:flex; gap:16px; margin-top:10px;}
+.os-key li{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-faint);}
 
 /* ---------- manager: blockers ---------- */
 .blockers{

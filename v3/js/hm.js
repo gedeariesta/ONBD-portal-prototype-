@@ -172,6 +172,107 @@ function nhProgressRows() {
   ];
 }
 
+/* ---------- Jordan's journey, as one figure (M-02) ----------
+   Four mutually exclusive states over the new hire's task list. A donut
+   rather than a stacked bar because the manager's question is "how far
+   through are they", which is a single share, and the centre can carry it.
+   Every slice is direct-labelled in the legend with its count, so identity
+   never rests on colour. */
+function nhStateCounts() {
+  const rows = nhProgressRows();
+  const out = { done:0, doing:0, late:0, none:0 };
+  const keyFor = { startdate:'startdate', bgcheck:'bgcheck', equipment:'equipment',
+    details:'details', jd:'jd', intro:'intro', policies:'policies' };
+  const keys = Object.keys(keyFor);
+  rows.forEach((r, i) => {
+    if (r.status === 'done') return out.done++;
+    if (isOverdue(keys[i])) return out.late++;
+    if (r.status === 'inprogress' || r.status === 'review') return out.doing++;
+    out.none++;
+  });
+  return out;
+}
+
+function nhProgressDonut() {
+  const c = nhStateCounts();
+  const total = c.done + c.doing + c.late + c.none;
+  const pct = total ? Math.round((c.done / total) * 100) : 0;
+  const segs = [
+    { k:'done',  label:'Complete',    n:c.done,  cls:'done' },
+    { k:'doing', label:'In progress', n:c.doing, cls:'doing' },
+    { k:'late',  label:'Overdue',     n:c.late,  cls:'late' },
+    { k:'none',  label:'Not started', n:c.none,  cls:'none' },
+  ];
+  const R = 52, C = 2 * Math.PI * R;
+  let off = 0;
+  const arcs = segs.filter(s => s.n > 0).map(s => {
+    const len = (s.n / total) * C;
+    // 2px surface gap between fills, per the mark spec
+    const a = `<circle class="don-seg ${s.cls}" cx="60" cy="60" r="${R}" fill="none" stroke-width="15"
+      stroke-dasharray="${Math.max(len - 2, 0.5)} ${C - Math.max(len - 2, 0.5)}"
+      stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"
+      data-seg="${s.k}"><title>${s.label}: ${s.n} of ${total}</title></circle>`;
+    off += len;
+    return a;
+  }).join('');
+
+  return `
+  <div class="nh-donut" data-assume="M-02">
+    <div class="don-fig">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Jordan's tasks: ${segs.map(s => `${s.n} ${s.label.toLowerCase()}`).join(', ')}">
+        <circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--cloud)" stroke-width="15"/>
+        ${arcs}
+      </svg>
+      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">complete</span></div>
+    </div>
+    <ul class="don-key">
+      ${segs.map(s => `
+        <li class="${s.n ? '' : 'zero'}">
+          <span class="dk-sw ${s.cls}"></span>
+          <span class="dk-l">${s.label}</span>
+          <b class="dk-n">${s.n}</b>
+        </li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+/* ---------- Everyone else, as one strip (M-02) ----------
+   Not a pie: three third-party items are three equal thirds, and a pie of
+   equal thirds says nothing except "there are three". Equal segments
+   coloured by state, hover naming the owner, carries what was actually
+   wanted: see at a glance whether anything outside the two portals is
+   stuck, and who owns it. */
+function othersStrip() {
+  const rows = thirdPartyTasks();
+  const cls = st => st === 'ready' ? 'done' : st === 'running' ? 'doing' : 'none';
+  const word = st => st === 'ready' ? 'Done' : st === 'running' ? 'Running' : 'Waiting';
+  return `
+  <div class="others-strip" data-assume="M-02">
+    <div class="os-h">
+      <b>Everyone else</b>
+      <span>Three teams, none of them users of this portal. ${am('M-02')}</span>
+    </div>
+    <div class="os-bar">
+      ${rows.map(r => `
+        <div class="os-seg ${cls(r.state)}" tabindex="0"
+          aria-label="${r.label}, ${r.owner}, ${word(r.state)}">
+          <span class="os-seg-l">${r.label}</span>
+          <div class="os-tip">
+            <b>${r.label}</b>
+            <span class="os-tip-owner">${r.owner}</span>
+            <span class="os-tip-state ${cls(r.state)}">${word(r.state)}</span>
+            <span class="os-tip-note">${r.note}</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <ul class="os-key">
+      <li><span class="dk-sw done"></span>Done</li>
+      <li><span class="dk-sw doing"></span>Running</li>
+      <li><span class="dk-sw none"></span>Waiting on someone</li>
+    </ul>
+  </div>`;
+}
+
 /* ============================================================
    H-00: readiness view (the manager's home)
    ============================================================ */
@@ -197,38 +298,29 @@ function renderHmHome() {
       <span class="hires-mark">${am('M-13')}</span>
     </div>
 
+    ${/* The hero states the fact; the figures sit below it on the surface
+          where they can carry labels and hover. Two white-on-gradient rings
+          could not be labelled without fighting the background. */''}
     <div class="hm-hero hexfield" data-assume="M-02">
-      <div class="ready-rings">
-        ${[R.mine, R.theirs].map((r, i) => `
-          <div class="ready-ring">
-            <svg viewBox="0 0 120 120" aria-hidden="true">
-              <defs>
-                <linearGradient id="ringGrad${i}" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="${i ? '#CCE3FF' : '#85F0F8'}"/>
-                  <stop offset="100%" stop-color="#FFFFFF"/>
-                </linearGradient>
-              </defs>
-              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="11"/>
-              <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad${i})" stroke-width="11"
-                stroke-linecap="round" stroke-dasharray="${(r.pct/100)*326.7} 326.7" transform="rotate(-90 60 60)"/>
-            </svg>
-            <div class="rr-num">${r.pct}<span>%</span></div>
-            <div class="rr-cap">${r.label}<br><b>${r.done} of ${r.total}</b></div>
-          </div>`).join('')}
-      </div>
       <div class="hm-hero-body">
         <h1>${hire.name} starts in ${daysToStart()} days</h1>
         <p class="lede">${startDateText()}. ${hire.role}, ${hire.loc}, ${hire.arrangement}</p>
-        <div class="other-teams" data-assume="M-02">
-          <span class="ot-lbl">Other teams</span>
-          ${R.others.map(t => `<span class="ot-pill ${t.state}">${t.label}: ${t.note}</span>`).join('')}
-          <span class="ot-note pnote">Status only. They are not users in this system, so there is nothing to count. ${am('M-02')}</span>
-        </div>
-        <div class="score-caveat pnote">${ic('exclamation-triangle.svg','sm')}
-          <span>This is a plain count of tasks done over tasks assigned. There is no agreed formula for a readiness
-          score, no weighting, and no definition of what “ready” means. ${am('M-02')}</span>
-        </div>
       </div>
+      <div class="hm-hero-fig">
+        <div class="hhf-num">${R.mine.pct}<span>%</span></div>
+        <div class="hhf-cap">of your ${R.mine.total} tasks done</div>
+      </div>
+    </div>
+
+    <div class="hm-figs">
+      <div class="hm-fig-card">
+        <div class="hfc-h"><b>Jordan\u2019s journey</b>
+          <span class="pnote">A plain count of tasks done over tasks assigned. No agreed formula,
+          no weighting, and no definition of what \u201cready\u201d means. ${am('M-02')}</span>
+        </div>
+        ${nhProgressDonut()}
+      </div>
+      ${othersStrip()}
     </div>
 
     ${(() => { const od = overdueItems(); return od.length ? `
