@@ -213,6 +213,50 @@ The panel also records four **source-integrity problems in the workbook itself**
 by one from 34 onward, a truncated corporate-card row, and label drift between
 "accessories" and "access".
 
+## The coordinator portal — the third lens
+
+v3 now carries all three personas on one shared state. Switch with **Viewing
+as** in the ribbon.
+
+Built from `PEX_Coordinator_Portal_UI_Spec.xlsx` and the sample portals Janine
+circulated. That spec is explicit that it is a **strawman written before the
+PEX team were asked what they need**, and that roughly two thirds of it is
+inference. The provenance is carried onto the screens: switch on **design
+notes** and every queue shows its PRD citation, every inferred screen says so.
+
+**The design problem is different again.** The new hire portal organises tasks.
+The manager portal removes them. The coordinator portal manages a *caseload* —
+one person, many hires, all in flight, each at a different point. So the home
+screen is not "here are your tasks", it is "here are the hires that need you
+today, and why". A third task list would be unusable at thirty hires.
+
+| Screen | What it does | Where |
+|---|---|---|
+| **Today** | Triage. Twelve sourced working queues — late, blocked, no buddy, no Day 1 host, persona unmapped, compliance, right to work, badge, equipment ETA, escalations, unverified data, moved start dates. Each row names the hire, the reason, **who it is waiting on**, and acts inline. | `#/pex/` |
+| **Caseload** | Every hire, the PRD's eight filters verbatim, saved public or private views, a per-row stepper, and reminders sent per party from the row. | `#/pex/caseload` |
+| **Hire record** | New hire, manager and other teams **side by side** — the thing the live HR case does not do today. Plus equipment, outstanding items and one activity stream across all three actors. | `#/pex/hire/<id>` |
+| **Blueprints** | Per-location orientation content, PEX-only editing. Publishing reopens the manager's confirmed first-day task and changes what the new hire is told. | `#/pex/blueprints` |
+
+**Jordan is a live record.** Twenty-four hires are modelled; Jordan's row reads
+the same shared state the other two portals write, so drilling in from the
+caseload lands in the record that actually exists. That is the argument for a
+third lens rather than a separate mock-up.
+
+**What is deliberately not built.** Coordinator task queues grouped by task
+type (OI-05 — nobody knows whether coordinators work by hire or by type), the
+nudge digest (OI-08 — review-before-send or summary email is unstated), and a
+dedicated escalations screen, which the spec itself argues is probably just a
+saved filter on the existing case list.
+
+**The four questions on the screens.** Caseload size (OI-01) is a prototype
+control, because the spec says that single number decides the shape — at five
+a plain list is the home screen, at fifty only triage works. Visibility (OI-07)
+takes the middle of three readings: the coordinator sees *that* a sensitive
+item was provided, never its content. Readiness (OI-06) stays the same plain
+count the manager sees rather than inventing a formula on the third portal.
+And the boundary with the Tableau PEX Ops view (OI-02) is recorded: this
+answers "what do I do next", that one answers "how are we doing".
+
 ## The 1:1 changes
 
 Applied from the meeting notes and handwritten follow-ups. v3 only; v1 and

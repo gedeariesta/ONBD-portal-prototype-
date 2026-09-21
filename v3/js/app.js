@@ -59,6 +59,15 @@ const DEFAULT_STATE = () => ({
   // People Experience owns the orientation blueprint. When they change it,
   // the manager's confirmation goes stale and has to be re-taken (M-32).
   pexUpdate: false,
+  // ---- People Experience coordinator lens (third portal) ----
+  pex: {
+    filters: {}, savedView: 'all', nudged: {},
+    size: 24,               // OI-01: the number that decides the whole design
+    blueprint: { loc:'Denver, CO', from:'09:00', until:'13:00', dirty:false,
+      where:'1225 17th Street, main reception, ground floor',
+      expect:'Orientation, then lunch with the other new starters.',
+      host:'Ask for the People Experience desk' },
+  },
   jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
   intro: { text:'', consent:false, useBadge:false, saved:false, dismissed:[], done:false },
   photo: { uploaded:false, dataUrl:null, consent:false, done:false, confirmedExisting:false, replacing:false },
@@ -2386,8 +2395,14 @@ function crumbs(here) {
 }
 
 function renderShell() {
-  const hm = S.view === 'hm';
-  $('#hdrYou').innerHTML = hm
+  const hm = S.view === 'hm', pex = S.view === 'pex';
+  $('#hdrYou').innerHTML = pex
+    ? `<div>
+         <div class="who">${PEOPLE.pex.name}</div>
+         <div class="when">${PEOPLE.pex.role}, ${pexCaseload().length} hires in flight</div>
+       </div>
+       <div class="avatar pex">${PEOPLE.pex.initials}</div>`
+    : hm
     ? `<div>
          <div class="who">${MANAGER.name}</div>
          <div class="when">${MANAGER.role}, ${HIRES.length} incoming hires</div>
@@ -2398,24 +2413,27 @@ function renderShell() {
          <div class="when">Starts <b>${startDateText()}</b>, ${daysToStart()} days to go</div>
        </div>
        <div class="avatar">${HIRE.initials}</div>`;
-  $('#hdrSub').textContent = hm ? 'Hiring manager, before Day 1' : 'Your onboarding, before Day 1';
+  $('#hdrSub').textContent = pex ? 'People Experience, coordinator view'
+    : hm ? 'Hiring manager, before Day 1' : 'Your onboarding, before Day 1';
   const live = ASSUMPTIONS.filter(a => a.group !== 'retired').length;
   // “marked” promised on-screen chips; those now sit behind the design-notes switch
   $('#rbAssume').textContent = `${live} assumptions`;
-  $$('#viewSwitch .vs').forEach(b => b.classList.toggle('on', (b.dataset.view === 'hm') === hm));
+  $$('#viewSwitch .vs').forEach(b => b.classList.toggle('on', b.dataset.view === S.view));
   document.body.classList.toggle('hm-side', hm);
 }
 
 /* ---------- assumptions panel ---------- */
-let panelSide = 'all';   // all | nh | hm | link
+let panelSide = 'all';   // all | nh | hm | pex | link
 
 function renderAssumptions(highlightId) {
   const groups = ['blocks','content','design','retired'];
   const all = ASSUMPTIONS;
   const live = all.filter(a => a.group !== 'retired').length;
-  const bySide = { nh:0, hm:0, link:0 };
-  all.forEach(a => bySide[a.side]++);
-  const shown = panelSide === 'all' ? all : all.filter(a => a.side === panelSide);
+  // A-series entries predate the side key, so they default to the new hire.
+  const sideOf = a => a.side || 'nh';
+  const bySide = { nh:0, hm:0, pex:0, link:0 };
+  all.forEach(a => bySide[sideOf(a)]++);
+  const shown = panelSide === 'all' ? all : all.filter(a => sideOf(a) === panelSide);
 
   $('#assumeBody').innerHTML = `
     <div class="panel-note">Where this prototype rests on an assumption instead of a confirmed requirement, the element
@@ -2443,6 +2461,7 @@ function renderAssumptions(highlightId) {
       <button class="sf ${panelSide==='all'?'on':''}" data-side="all">All <span>${all.length}</span></button>
       <button class="sf ${panelSide==='nh'?'on':''}" data-side="nh">New hire <span>${bySide.nh}</span></button>
       <button class="sf ${panelSide==='hm'?'on':''}" data-side="hm">Manager <span>${bySide.hm}</span></button>
+      <button class="sf ${panelSide==='pex'?'on':''}" data-side="pex">Coordinator <span>${bySide.pex}</span></button>
       <button class="sf ${panelSide==='link'?'on':''}" data-side="link">Connections <span>${bySide.link}</span></button>
     </div>
 
@@ -2460,7 +2479,7 @@ function renderAssumptions(highlightId) {
           <div class="a-top">
             <span class="a-id ${a.side}">${a.id}</span>
             <span class="prov ${a.prov.replace(':','')}" title="${PROV_LABELS[a.prov]}">${a.prov}</span>
-            <span class="side-tag ${a.side}">${SIDE_LABELS[a.side].label}</span>
+            <span class="side-tag ${sideOf(a)}">${SIDE_LABELS[sideOf(a)].label}</span>
             <span class="a-screen">${a.screen}</span>
             <span class="a-oi">${a.oi || ''}</span>
           </div>
@@ -2508,7 +2527,7 @@ function renderAssumptions(highlightId) {
 function openAssumptions(id) {
   if (id) {
     const entry = ASSUMPTIONS.find(a => a.id === id);
-    if (entry && panelSide !== 'all' && entry.side !== panelSide) panelSide = 'all';
+    if (entry && panelSide !== 'all' && (entry.side || 'nh') !== panelSide) panelSide = 'all';
   }
   renderAssumptions(id);
   $('#assumePanel').classList.add('show');
@@ -2567,6 +2586,12 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.country==='US'?'on':''}" data-pc="country:US">United States</button>
       <button class="pc-btn ${S.country==='JP'?'on':''}" data-pc="country:JP">Japan</button>
     </div>
+    <div class="pc-h">Caseload size <span class="pc-mark">OI-01</span></div>
+    <div class="pc-row">
+      ${[5, 12, 24].map(n => `<button class="pc-btn ${S.pex.size===n?'on':''}" data-pc="pexsize:${n}">${n} hires</button>`).join('')}
+    </div>
+    <div class="pc-sub">The spec's first open item, and the one that decides the shape: at five a plain list is
+    the home screen, at fifty only triage works.</div>
     <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
     <div class="pc-row">
       <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Blueprint unchanged</button>
@@ -2605,9 +2630,9 @@ function renderProtoDrawer() {
 }
 
 function applyScenario(name) {
-  const { persona, country, horizon, view, buddyRule, notes } = S;
+  const { persona, country, horizon, view, buddyRule, notes, pex } = S;
   S = seedDetails(DEFAULT_STATE());
-  Object.assign(S, { persona, country, horizon, view, buddyRule, notes, scenario: name });
+  Object.assign(S, { persona, country, horizon, view, buddyRule, notes, pex, scenario: name });
   syncCountry();
 
   const fillDetails = () => {
@@ -2808,16 +2833,19 @@ const ROUTES = {
   '#/policies': renderPolicies,
   '#/flow': renderFlow,
 };
-Object.assign(ROUTES, HM_ROUTES);   // hiring manager screens (js/hm.js)
+Object.assign(ROUTES, HM_ROUTES);    // hiring manager screens (js/hm.js)
+Object.assign(ROUTES, PEX_ROUTES);  // coordinator screens (js/pex.js)
 
 function render() {
   const route = location.hash || '#/';
   // The route decides the lens, so a deep link lands on the right side.
-  if (route.startsWith('#/hm/')) S.view = 'hm';
+  if (route.startsWith('#/pex/')) S.view = 'pex';
+  else if (route.startsWith('#/hm/')) S.view = 'hm';
   else if (route !== '#/handoffs') S.view = 'nh';
   if (route !== '#/details') S.details._viewing = false;
   if (route !== '#/policies') S.policies._viewing = false;
-  const fn = ROUTES[route] || renderLanding;
+  // #/pex/hire/<id> carries a parameter, so it cannot come from the table.
+  const fn = route.startsWith('#/pex/hire/') ? renderPexHire : (ROUTES[route] || renderLanding);
   $('#app').innerHTML = fn();
   renderShell();
   renderProtoDrawer();
@@ -2833,6 +2861,7 @@ function rerender() { render(); }
 
 function bindScreen(route) {
   startCarousel(route === '#/');
+  if (route.startsWith('#/pex/')) { bindPex(); return; }
   if (route.startsWith('#/hm/')) { bindHm(route); return; }
   if (route === '#/startdate') return bindStartDate();
   if (route === '#/bgcheck') return bindBgCheck();
@@ -3344,6 +3373,7 @@ document.addEventListener('click', e => {
     if (k === 'scenario') applyScenario(v);
     else if (k === 'notes') { S.notes = (v === 'on'); applyNotes(); save(); }
     else if (k === 'pexUpdate') { S.pexUpdate = (v === 'yes'); save(); }
+    else if (k === 'pexsize') { S.pex.size = +v; save(); }
     else {
       S[k] = v;
       if (k === 'country') syncCountry();
@@ -3354,17 +3384,63 @@ document.addEventListener('click', e => {
     $('#protoDrawer').classList.add('show');
     return;
   }
+  /* ---------- People Experience coordinator ---------- */
+  const nudge = t.closest('[data-pexnudge]');
+  if (nudge) {
+    const [hid, qid] = nudge.dataset.pexnudge.split(':');
+    (S.pex.nudged[hid] = S.pex.nudged[hid] || {})[qid] = true;
+    const h = pexHire(hid), q = PEX_QUEUES.find(x => x.id === qid);
+    save(); rerender();
+    toast(`Reminder sent about ${h.preferred} ${h.last}: ${q.label.toLowerCase()}.`, 'email.svg');
+    return;
+  }
+  const batch = t.closest('[data-pexbatch]');
+  if (batch) {
+    const qid = batch.dataset.pexbatch, q = PEX_QUEUES.find(x => x.id === qid);
+    const hires = pexQueue(q).filter(h => q.waiting(h) !== 'you');
+    hires.forEach(h => { (S.pex.nudged[h.id] = S.pex.nudged[h.id] || {})[qid] = true; });
+    save(); rerender();
+    toast(hires.length
+      ? `${hires.length} reminder${hires.length > 1 ? 's' : ''} sent for ${q.label.toLowerCase()}.`
+      : 'Nothing to send: every item in that queue is yours to work.', 'email.svg');
+    return;
+  }
+  const pview = t.closest('[data-pexview]');
+  if (pview) {
+    const v = PEX_SAVED_VIEWS.find(x => x.id === pview.dataset.pexview);
+    S.pex.filters = Object.assign({}, v.f); S.pex.savedView = v.id;
+    save(); rerender(); return;
+  }
+  if (t.closest('[data-pexsaveview]')) {
+    toast('Saved views can be private or shared with the team. Prototype: not stored.', 'save.svg');
+    return;
+  }
+  if (t.closest('[data-pexclear]')) { S.pex.filters = {}; S.pex.savedView = null; save(); rerender(); return; }
+  const pfil = t.closest('[data-pexfilter]');
+  if (pfil) { S.pex.filters = { queue: pfil.dataset.pexfilter }; S.pex.savedView = null; save(); return; }
+  const wait = t.closest('[data-pexwait]');
+  if (wait) { wait.closest('td').classList.toggle('open'); return; }
+  const bploc = t.closest('[data-pexbploc]');
+  if (bploc) { S.pex.blueprint.loc = bploc.dataset.pexbploc; S.pex.blueprint.dirty = false; save(); rerender(); return; }
+  if (t.closest('[data-pexbppublish]')) {
+    S.pex.blueprint.dirty = false;
+    S.pexUpdate = true;                 // the same flag the prototype control sets (M-32)
+    save(); rerender();
+    toast(`Published to ${S.pex.blueprint.loc}. Managers who already confirmed have had that task reopened.`, 'bullhorn.svg');
+    return;
+  }
+
   const q = t.closest('[data-q]');
   if (q) { chatAsk(q.dataset.q); return; }
 
-  if (t.closest('#brandHome')) { location.hash = S.view === 'hm' ? '#/hm/' : '#/'; return; }
+  if (t.closest('#brandHome')) { location.hash = S.view === 'hm' ? '#/hm/' : S.view === 'pex' ? '#/pex/' : '#/'; return; }
 
   const vs = t.closest('[data-view]');
   if (vs) {
     const want = vs.dataset.view;
-    if ((want === 'hm') !== (S.view === 'hm')) {
+    if (want !== S.view) {
       S.view = want; save();
-      location.hash = want === 'hm' ? '#/hm/' : '#/';
+      location.hash = want === 'hm' ? '#/hm/' : want === 'pex' ? '#/pex/' : '#/';
     }
     return;
   }

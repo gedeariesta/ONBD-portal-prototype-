@@ -1121,9 +1121,55 @@ const LINK_ASSUMPTIONS = [
 HM_ASSUMPTIONS.forEach(a => ASSUMPTIONS.push(a));
 LINK_ASSUMPTIONS.forEach(a => ASSUMPTIONS.push(a));
 
+
+/* ---------- People Experience coordinator (third portal) ----------
+   From PEX_Coordinator_Portal_UI_Spec.xlsx. That workbook is explicit
+   that it is a strawman written before the PEX team were asked what
+   they need, and that roughly two thirds is inference. The provenance
+   is carried here so a reviewer can see which parts are guesses. */
+const PEX_ASSUMPTIONS = [
+  { id:'X-00', side:'pex', group:'blocks', prov:'ASSUMED', screen:'Today, what needs you', route:'#/pex/',
+    assumed:'The coordinator lands on an exception queue, not a list: every hire that is late, blocked, unassigned or escalated, with the reason and a route to act. Twelve working queues, each with its own trigger.',
+    resolve:'The largest single inference in the spec. The persona table says only "PEX dashboard with all new hires, filterable"; exception-first triage is derived from caseload logic, not a stated need. It is built because being told it is wrong is faster than a blank page, and because Janine\u2019s samples back it: the MangoApps hub leads with "Needs Your Attention" above the full list. If the PEX team say a plain list is what they want, this screen collapses into the caseload list. See OI-04.', oi:'OI-04' },
+
+  { id:'X-01', side:'pex', group:'content', prov:'PRD', screen:'Caseload list', route:'#/pex/caseload',
+    assumed:'A filterable list of every hire the coordinator owns, with saved public or private views, and a column naming what each hire is waiting on and who holds it.',
+    resolve:'The one screen in the workbook with an unambiguous source: PRD Section 2 persona table for the list, PRD 3.6 for the eight filters and for multiple public or private views. Column choice is not specified anywhere. The "waiting on" column is the argument worth having, because it turns a status list into a work list; the Freshservice sample implements exactly that, down to per-party reminder state. What is not settled is behaviour at real caseload size. See OI-01.', oi:'' },
+
+  { id:'X-02', side:'pex', group:'content', prov:'UAT', screen:'Individual hire record', route:'#/pex/caseload',
+    assumed:'One record carrying the new hire\u2019s tasks, the manager\u2019s tasks and the other teams\u2019 tasks side by side, plus equipment, activity and the outstanding items.',
+    resolve:'Modelled on the live HR case (HRC0943697), which already carries the new hire, hiring manager, start date and an equipment table with per-item blockers. What it does not carry today, and what this screen adds, is consolidated status across all five owning teams in one place. The proposal is to extend that record rather than invent a new object. See OI-03.', oi:'OI-03' },
+
+  { id:'X-05', side:'pex', group:'content', prov:'PRD', screen:'Orientation blueprints', route:'#/pex/blueprints',
+    assumed:'Per-location orientation content, editable only by People Experience, feeding the new hire\u2019s first-day details and the manager\u2019s Day 1 confirmation.',
+    resolve:'PRD S3-US06 makes blueprints prebuilt per location, editable only by PEX, and the source of the Day 1 agenda, schedule, location and lunch. The capability is sourced; the editing interface is not. Note the dependency this creates: publishing a change reopens the manager\u2019s confirmed task and changes what the new hire is told, which is the M-32 conflict seen from the other end.', oi:'' },
+
+  { id:'OI-01', side:'pex', group:'blocks', prov:'ASSUMED', screen:'Caseload list', route:'#/pex/caseload',
+    assumed:'Twenty-four hires in flight for one coordinator. Switchable from the prototype controls, because the real number changes the design.',
+    resolve:'THE question. The spec says it decides the entire shape: at five hires a filterable list is the home screen and triage is unnecessary; at fifty the list is unusable and triage is the only viable home screen. Nothing in any source gives the number. The closest thing to an answer is the Freshservice sample Janine circulated, which shows 257 open onboarding requests across 300 pages \u2014 many, not five. The onboarding dashboard holds the start-date distribution, which would give volume by period if headcount per coordinator were also known.', oi:'OI-01' },
+
+  { id:'OI-07', side:'pex', group:'blocks', prov:'ASSUMED', screen:'Individual hire record', route:'#/pex/caseload',
+    assumed:'The coordinator sees THAT a sensitive item was provided and when, never its content. Identity documents, emergency contacts, voluntary self-identification, banking and which policies were acknowledged all show as complete without showing what was entered.',
+    resolve:'The middle of three defensible readings. The other two are that the coordinator sees everything the new hire sees, which is what the MangoApps sample implements as "View Portal" and what the brief\u2019s "highest level of admin" implies, or that they see exactly what the manager sees, which is the conservative position the new hire spec already took. The coordinator\u2019s role plausibly justifies more than the manager\u2019s, but plausibly is not an access model. The persona and content visibility matrix is unwritten for every persona, not just this one.', oi:'OI-07' },
+
+  { id:'OI-06', side:'pex', group:'blocks', prov:'PRD', screen:'All coordinator screens', route:'#/pex/',
+    assumed:'Readiness is shown as a plain count of what is done over what is assigned, the same as the manager sees, rather than a score.',
+    resolve:'Readiness appears on every screen in the coordinator spec and is the most-used concept in it. PRD 3.6 requires readiness scoring surfaced per persona; neither it nor Section 2 defines composition, weighting or thresholds. The same gap blocks the manager\u2019s readiness view, so the two are kept consistent rather than inventing a formula on the third portal.', oi:'OI-06' },
+
+  { id:'OI-02', side:'pex', group:'blocks', prov:'PRIOR', screen:'Boundary', route:null, nolink:true,
+    assumed:'This portal answers "what do I do next" \u2014 named individuals, live status, actions taken from the screen. The Tableau PEX Ops view answers "how are we doing" \u2014 trends, SLA attainment, volumes.',
+    resolve:'Two things are called the PEX dashboard. The Onboarding Dashboard planning workbook already defines three Tableau views including PEX Ops, destined for the Workforce Intelligence team; this is an operational portal in ServiceNow. Analysis versus action is the proposed distinction and nobody has ratified it. Readiness scoring, SLA timestamps and the filter set appear in both, which is normal until both try to be the place a coordinator starts their day.', oi:'OI-02' },
+
+  { id:'OI-05', side:'pex', group:'design', prov:'ASSUMED', screen:'Not built', route:null, nolink:true,
+    assumed:'Coordinator task queues grouped by task type rather than by hire \u2014 all pending Right to Work validations together, all background check verifications together \u2014 are deliberately not built.',
+    resolve:'The spec proposes them on the judgement that the same action repeated twenty times is faster than opening twenty records. That is an assumption about how coordinators actually work, and an hour of watching someone work would settle it. Until it is settled, building the screen would be guessing twice. The nudge digest and a dedicated escalations screen are held back for the same reason: the spec argues the second is probably just a saved filter on the existing case list.', oi:'OI-05' },
+];
+PEX_ASSUMPTIONS.forEach(a => ASSUMPTIONS.push(a));
+
 const SIDE_LABELS = {
   nh:   { label:'New hire',   short:'NH' },
   hm:   { label:'Manager',    short:'HM' },
+  pex:  { label:'Coordinator', short:'PEX' },
   link: { label:'Connection', short:'↔'  },
 };
 

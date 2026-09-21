@@ -26,7 +26,7 @@ function hmTasks() {
       done: H.logistics.confirmed && !S.pexUpdate, icon:'calendar.svg', dueOff:-7, sys:'Workplace Services', srcDue:true,
       reopened: H.logistics.confirmed && S.pexUpdate, marker: S.pexUpdate ? 'M-32' : '',
       why: H.logistics.confirmed && S.pexUpdate
-        ? 'People Experience moved the orientation. What you confirmed no longer matches.'
+        ? `People Experience moved orientation to finish at ${S.pex.blueprint.until}. What you confirmed no longer matches.`
         : 'Only you know whether you’ll actually be there, and who covers if you’re not.',
       dispNote:'Kept, but narrowed. The location facts come from the orientation blueprint, not from you.' },
     // The new hire picks their own machine now (A-60), so this is no longer
@@ -176,7 +176,7 @@ function hmBlockers() {
   const out = [];
   const days = daysToStart();
   if (S.hm.logistics.confirmed && S.pexUpdate) {
-    out.push({ sev:'high', text:'People Experience moved the orientation to finish at 13:00. The first-day details you confirmed no longer match, and Jordan is seeing the old version.',
+    out.push({ sev:'high', text:`People Experience moved orientation to finish at ${S.pex.blueprint.until}. The first-day details you confirmed no longer match, and Jordan is seeing the old version.`,
       action:'Re-confirm', route:'#/hm/logistics', marker:'M-32' });
   }
   if (!S.hm.buddy.assigned && days <= 21) {
@@ -601,8 +601,10 @@ function renderHmLogistics() {
   const blueprint = [
     ['Where to go', jp ? 'Otemachi Financial City Grand Cube, reception, 3rd floor' : '1225 17th Street, main reception, ground floor'],
     ['Parking', jp ? 'No on-site parking. Nearest station is Otemachi (C11)' : 'Visitor parking, level B2. Bring the QR code in your Day 1 email.'],
+    // Read straight off the coordinator's blueprint (X-05), so the manager is
+    // confirming against what People Experience actually published.
     ['What to expect', S.pexUpdate
-      ? 'Orientation until 13:00, then straight into your 1:1.'
+      ? `Orientation ${S.pex.blueprint.from} to ${S.pex.blueprint.until}, then straight into your 1:1.`
       : 'Orientation until 12:00, then lunch with the other new starters.'],
     ['Dress code', 'Smart casual.'],
   ];
