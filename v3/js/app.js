@@ -65,7 +65,6 @@ const DEFAULT_STATE = () => ({
     software: { confirmed:false, added:[] },
     // A name is not a commitment. Both roles have to accept (M-27).
     buddy: { assigned:null, notified:false, accepted:false },
-    ambassador: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
     welcome: { sent:false, body:'', personal:'' },
     network: { named:{}, submitted:false },
@@ -193,15 +192,16 @@ function taskList() {
   const jp = S.country === 'JP';
 
   const tasks = [
-    // Triggered at offer acceptance, so these precede equipment (A-49, A-50)
-    { key:'startdate', route:'#/startdate', icon:'calendar.svg',
-      name:'Confirm your start date',
-      why:'Everything else in this list is dated from it',
-      est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
+    // The background check is first: it runs longest and nothing else waits on
+    // it, so every day it sits unstarted is a day added to the end.
     { key:'bgcheck', route:'#/bgcheck', icon:'shield-check.svg',
       name:'Start your background check',
       why:'It runs in the background and takes a while, so the sooner it starts the better',
       est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
+    { key:'startdate', route:'#/startdate', icon:'calendar.svg',
+      name:'Confirm your start date',
+      why:'Everything else in this list is dated from it',
+      est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
     // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your workspace accessories',
@@ -441,9 +441,11 @@ function taskCard(t) {
 }
 
 /* ---------- right rail: four contacts (A-31, A-32) + reference reading ---------- */
-function contactRow(p, extra='') {
+/* `tone` carries the recruiter-to-People-Experience handoff: the concierge is
+   promoted, the recruiter stays reachable but visibly stands down. */
+function contactRow(p, extra='', tone='') {
   return `
-  <div class="contact">
+  <div class="contact ${tone}">
     <div class="avatar ${p.cls}">${p.initials}</div>
     <div>
       <div class="c-name">${p.name}</div>
@@ -469,9 +471,9 @@ function buddyRailBlock() {
       <div>
         <div class="c-name">Your onboarding buddy</div>
         <div class="c-role">Not chosen yet</div>
-        <div class="c-extra">${HIRE.manager} picks someone from your team, a person to ask the things you’d rather
-        not ask your manager, for your first three months and beyond. If she hasn’t by the day before you start, one is
-        assigned automatically. ${am('L-01')}</div>
+        <div class="c-extra">Someone in your team to ask the things you’d rather not ask your manager.
+        <span class="pnote">${HIRE.manager} picks them. If she hasn’t by the day before you start, one is
+        assigned automatically. ${am('L-01')}</span></div>
       </div>
     </div>`;
   }
@@ -502,9 +504,11 @@ function landingRail() {
             ? `${ic('check.svg','sm')} ${esc(S.hm.workPhone)}, confirmed by ${HIRE.manager.split(' ')[0]} ${am('L-03')}`
             : `${am('A-32')}`}</div>`)}
       ${buddyRailBlock()}
-      ${contactRow(PEOPLE.pex)}
-      ${contactRow(PEOPLE.recruiter)}
-      <div class="rail-note">Daniel hands over to Maya a week after your offer was signed. From then on, Maya is your first contact.</div>
+      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'People Experience, your onboarding concierge' }),
+        `<div class="c-extra concierge">${ic('comment-smile.svg','sm')}Your first stop for anything before Day 1</div>`, 'primary')}
+      ${contactRow(PEOPLE.recruiter, `<div class="c-extra">Handed over to ${PEOPLE.pex.name.split(' ')[0]}</div>`, 'handed')}
+      <div class="rail-note">${PEOPLE.recruiter.name.split(' ')[0]} handed you over a week after your offer was signed.
+      From then on ${PEOPLE.pex.name.split(' ')[0]} is your contact, and someone else from People Experience covers when she is away.</div>
     </div>
 
     <div class="rail-card">
@@ -529,16 +533,13 @@ function landingRail() {
         <li><a data-res="expect">${ic('chevron-right.svg','sm')}What to expect before Day 1</a>
           <div class="u-expl" data-resbody="expect">Finish the tasks above, then it goes quiet until 3 days before you start,
           when first-day details arrive. Quiet is normal here. It means nothing is stuck. More to-dos arrive once you’ve started.</div></li>
-        <li><a data-res="who">${ic('chevron-right.svg','sm')}Who to contact for what</a>
-          <div class="u-expl" data-resbody="who">Your offer or your role, ask Daniel. These tasks, your start date and logistics, ask Maya.
-          What the job is actually like day to day, ask Nina, your buddy. Anything technical with this portal, use the assistant at the bottom right.</div></li>
       </ul>
     </div>
   </div>`;
 }
 
 /* Everyone the MANAGER named, with their role (L-06). Keyed by person id
-   now that the buddy, the ambassador and the rest live on one screen.
+   now that the buddy and the rest live on one screen.
    Empty until submitted, which is what the new hire's waiting state shows. */
 function namedNetwork() {
   const H = S.hm, out = [];
@@ -548,9 +549,8 @@ function namedNetwork() {
       why: H.network.named[id] || '' }));
   };
   if (H.buddy.assigned) add(H.buddy.assigned, 'buddy');
-  if (H.ambassador && H.ambassador.assigned) add(H.ambassador.assigned, 'ambassador');
   Object.keys(H.network.named || {}).forEach(id => {
-    if (id !== H.buddy.assigned && !(H.ambassador && id === H.ambassador.assigned)) add(id, 'other');
+    if (id !== H.buddy.assigned) add(id, 'other');
   });
   return out;
 }
@@ -591,7 +591,7 @@ function readinessState() {
     ? { at: 2, note: 'Confirmed by hand, because nothing could be suggested.' }
     : { at: 0, blocked: true, note: 'No persona is mapped for this role, so there is no default stack to confirm.' };
 
-  // Badge and workspace.
+  // Workspace. Badge collection is not a stage: nothing reports it back.
   let ws = 0;
   const photoDone = S.photo.done || S.photo.confirmedExisting;
   if (photoDone) ws = 1;
@@ -607,12 +607,18 @@ function readinessState() {
   if (pp === 3 && H.intro.forwarded) pp = 4;
   out.people = { at: pp, note: H.buddy.assigned ? '' : 'No buddy chosen yet.' };
 
+  // Background check, now its own top-level step. The portal can only see the
+  // launch; everything after it happens in the provider's system, so the later
+  // stages are walked by the simulated clock rather than claimed as known.
+  let bg = 0;
+  if (S.bgcheck.launched) { bg = 1; if (d <= 11) bg = 2; if (d <= 7) bg = 3; if (d <= 4) bg = 4; }
+  out.bgcheck = { at: bg, note: S.bgcheck.launched ? '' : 'Not started. It runs longest, so it costs the most to leave.' };
+
   // Paperwork.
   let pw = 0;
   if (S.startdate.confirmed) pw = 1;
-  if (pw === 1 && S.bgcheck.launched) pw = 2;
-  if (pw === 2 && S.details.submitted) pw = 3;
-  if (pw === 3 && S.policies.submitted) pw = 4;
+  if (pw === 1 && S.details.submitted) pw = 2;
+  if (pw === 2 && S.policies.submitted) pw = 3;
   out.paperwork = { at: pw, note: S.startdate.confirmed ? '' : 'Everything else is dated from the start date.' };
 
   return out;
@@ -1690,11 +1696,6 @@ function renderNetwork() {
               <p>One person on your team, for <b>culture and logistics</b>. The questions you would rather not ask your manager.</p>
             </div>
             <div class="dist-row">
-              <div class="dr-h">${ic('users-friends.svg','sm')} Your ambassador</div>
-              <p>One person <b>outside your function</b>, to help you navigate and make connections.
-              The name of this role is a placeholder. ${am('M-26')}</p>
-            </div>
-            <div class="dist-row">
               <div class="dr-h">${ic('users-three.svg','sm')} Your team</div>
               <p>Your reporting line is on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>.
               <span class="pnote">Deliberately so: rendering it as a hierarchy would mislead.</span></p>
@@ -1704,7 +1705,7 @@ function renderNetwork() {
         <div class="rail-card">
           <h3>What happened behind this</h3>
           <ol class="mech-list">
-            <li>${HIRE.manager} named a <b>buddy</b>, an <b>ambassador</b> and anyone else worth meeting early.</li>
+            <li>${HIRE.manager} named a <b>buddy</b> and anyone else worth meeting early.</li>
             <li>Where she wrote a reason, it is on the card. She knows you can see it.</li>
             <li>Each of them was <b>asked</b>, not told, and had to accept. ${am('M-27')}</li>
             <li>You get the list, the reasons, and times you can book.</li>
@@ -2174,7 +2175,7 @@ function renderFlow() {
     { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, no action from you' },
     { x:48, r:50, cls:'other', lbl:'Computer, your manager', sub:'their task, not yours' },
     { x:70, r:50, cls:'other', lbl:'Banking, Payroll', sub:'their secure form, no date yet' },
-    { x:88, r:50, cls:'other', lbl:'Badge printed', sub:'24h lead after your photo' },
+    { x:88, r:50, cls:'other', lbl:'Badge photo sent on', sub:'printing is not tracked here' },
   ];
   const lane = (title, icon, nodes, cls='', h=120) => `
     <div class="flow-lane">
@@ -2459,7 +2460,6 @@ function applyScenario(name) {
   const hmPartial = () => {
     S.hm.card.needed = true;
     S.hm.buddy = { assigned:'nina', notified:true, accepted:true };
-    S.hm.ambassador = { assigned:'lena', notified:true, accepted:true };
     S.hm.contactConfirmed = true;
     Object.assign(S.hm.logistics, { confirmed:true, whereToBe:'9:00, main reception. Ask for me at the desk', available:true });
   };

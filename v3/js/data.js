@@ -64,13 +64,17 @@ const PEOPLE = {
   ],
 };
 
-/* ---------- Five-phase timeline, named from the live portal (A-44) ---------- */
+/* ---------- Phase timeline, named from the live portal (A-44) ----------
+   The live portal's five phases stop at the first month. The onboarding
+   experience runs to 90 days, so the tracker carries a sixth phase the live
+   build does not have yet. */
 const PHASES = [
   'Get ready for Day 1',
   'Final preparations for Day 1',
   'Your first day at Equinix',
   'Your first week at Equinix',
   'Your first month at Equinix',
+  'Your first 90 days',
 ];
 
 /* ============================================================
@@ -306,8 +310,8 @@ const DECIDE_FIRST = [
   { ids:['M-04'], head:'Whether software provisioning is in phase one at all',
     why:'The persona cannot be resolved, an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine. If phase one carries no software, this screen is premature rather than blocked.',
     when:'Before the manager task list is fixed.' },
-  { ids:['M-26','M-27','M-10'], head:'Two roles, and what makes a name count',
-    why:'A buddy and a second cross-functional role, one of which has no agreed name. Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
+  { ids:['M-27','M-10'], head:'What makes a name count',
+    why:'Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
     when:'Alongside the buddy programme, which is being written now.' },
   { ids:['A-38'], head:'Shipping to an address a new hire chooses',
     why:'A person who has not started yet can redirect a laptop. Whether the answer is a restriction, a verification or an approval, it belongs in the requirements.',
@@ -611,6 +615,16 @@ const TODO_FILTERS = [
    to IT Procurement, the 5 to 7 day lead time and the automatic loaner are
    all stated there. Everything else in the stage lists is proposed. */
 const READINESS = [
+  /* Promoted out of Paperwork to the top level: it is the longest-running
+     thing in pre-boarding and the one people most want a status on. */
+  { id:'bgcheck', label:'Background check', icon:'shield-check.svg', sys:'Background check provider',
+    owners:'The new hire, HR Operations and the check provider',
+    stages:[
+      { label:'Launched',        note:'Started from the portal, then it runs in the provider’s system.' },
+      { label:'Details given',   note:'The new hire completes the provider’s own form, not this one.' },
+      { label:'Checks running',  note:'Lead time varies by country and by what the role requires.' },
+      { label:'Cleared',         note:'The result comes back to HR Operations, not to this portal.' },
+    ] },
   { id:'equipment', label:'Equipment', icon:'laptop.svg', sys:'ServiceNow',
     owners:'The manager, the new hire and End User Technology',
     stages:[
@@ -628,13 +642,15 @@ const READINESS = [
       { label:'Licences requested', note:'Each application raises its own request and carries its own status.' },
       { label:'Active on Day 1',    note:'Access switches on with the start date, not before.' },
     ] },
-  { id:'workspace', label:'Badge and workspace', icon:'id-card.svg', sys:'Workplace Services',
+  /* Badge completion is deliberately not a stage. Security has no integration
+     and no place to confirm a badge was printed or collected, so a status here
+     would be invented. The portal tracks what it can actually see. */
+  { id:'workspace', label:'Workspace', icon:'id-card.svg', sys:'Workplace Services',
     owners:'The new hire, the manager and Workplace Services',
     stages:[
       { label:'Photo submitted',  note:'The new hire uploads it. Badge print needs the lead time.' },
       { label:'Site confirmed',   note:'The manager confirms the location, access level and parking.' },
-      { label:'Badge queued',     note:'Access zones are set from the confirmed site.' },
-      { label:'Ready at reception', note:'Collected on the first morning.' },
+      { label:'Desk and access set', note:'Access zones follow the confirmed site. Badge collection is not tracked here.' },
     ] },
   { id:'people', label:'People', icon:'users-friends.svg', sys:'Onboarding portal',
     owners:'The manager',
@@ -645,11 +661,10 @@ const READINESS = [
       { label:'Introduction out', note:'The manager forwards it. Nothing is posted automatically.' },
     ] },
   { id:'paperwork', label:'Paperwork', icon:'file-alt.svg', sys:'Workday and HR Operations',
-    owners:'The new hire, HR Operations and the background check provider',
+    owners:'The new hire and HR Operations',
     stages:[
       { label:'Start date confirmed', note:'Every other due date is anchored to it.' },
-      { label:'Background check',     note:'Launched from the portal, then it runs elsewhere.' },
-      { label:'Details submitted',    note:'Personal record, emergency contact and preferences.' },
+      { label:'Details submitted',    note:'Personal record, banking, emergency contact and preferences.' },
       { label:'Policies acknowledged', note:'The pack the new hire has to read and sign off.' },
     ] },
 ];
@@ -764,20 +779,17 @@ const BUDDY_LOAD_LIMIT = 3;   // policy P-05 is undefined, so this number is inv
 /* ---------- Who a manager can name (M-07 revised, M-26) ----------
    The direction is a plain list of people in the org, with no suggestion
    logic at all: "anybody can be a buddy" on first rollout, and the certified
-   buddy programme is years out. Two named roles, plus everyone else.
+   buddy programme is years out. One named role, plus everyone else.
 
      Buddy       within the team or function. Culture and logistics, and the
                  questions someone would rather not ask their manager.
-     Ambassador  cross-functional. Helps a new hire navigate, connect and get
-                 things done. May come from an Employee Connection Network.
-                 Expected for executives, optional for everyone else.
 
-   The working name for the second role is a placeholder. "Ambassador"
-   collides with the Employee Connection Networks, and nobody has settled on
-   a better one. */
+   The cross-functional second role ("ambassador") was cut: one function-based
+   buddy, and everyone else is simply someone to meet. The name never settled,
+   it collided with the Employee Connection Networks, and carrying two named
+   roles asked more of a manager than the programme can support on rollout. */
 const PEOPLE_ROLES = {
   buddy:      { label:'Buddy', hint:'On their team or in their function' },
-  ambassador: { label:'Ambassador', hint:'Cross-functional, and a working name only' },
   other:      { label:'Someone to meet', hint:'Anyone else worth an early conversation' },
 };
 
@@ -927,9 +939,9 @@ const HM_ASSUMPTIONS = [
   { id:'M-25', side:'hm', group:'blocks', prov:'PRIOR', screen:'Software stack', route:'#/hm/software',
     assumed:'CONFLICT, unresolved. This prototype draws the application stack blocked, because no persona resolves. The mockup shows eight applications auto-assigned from the job family in Workday, with the manager reviewing rather than building the list.',
     resolve:'The platform owner said no full persona list exists and that the job-family fallback is the approach the requirements analysis rejects as inaccurate. The mockup shows that fallback working. One of the two is out of date. This is the single biggest difference between the two manager screens, and it decides whether this task is a review or a data-entry job.', oi:'OI-04' },
-  { id:'M-26', side:'hm', group:'content', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
+  { id:'M-26', side:'hm', group:'retired', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
     assumed:'Two named roles, not one. A buddy on the team or in the function, and a second cross-functional person who helps the new hire navigate and connect. Expected for executive hires, optional for everyone else, and one screen covers both plus anyone else worth meeting.',
-    resolve:'The buddy programme currently plans for one role and will need to carry two. The second role has no agreed name: “ambassador” is the placeholder here and it collides with the Employee Connection Networks, which are also a sensible place to find one. Somebody has to name it before it reaches a screen a new hire reads.', oi:'' },
+    resolve:'Decided: one function-based buddy, and the cross-functional role is removed. It never got an agreed name, “ambassador” collided with the Employee Connection Networks, and two named roles asked more of a manager than the buddy programme can carry on first rollout. Anyone who would have been an ambassador is now simply someone to meet. The role may return once the programme is written.', oi:'' },
   { id:'M-27', side:'hm', group:'blocks', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
     assumed:'Naming someone is a request, not an assignment. They are asked, they accept, and only then is anything booked. Once accepted, the system reads their calendar and books the first month.',
     resolve:'“Assigned and approved and committed” is the bar, and this prototype only draws the first half. The booking side needs a calendar integration nobody has scoped, and the acceptance step needs a decision on what happens when someone says no three days before a start date.', oi:'' },

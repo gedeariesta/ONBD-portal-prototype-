@@ -34,8 +34,8 @@ function hmTasks() {
       dispNote:'Blocked today. Without a resolved persona the stack renders empty and you fill it by hand.' },
     { id:'buddy', label:'Name who they should meet', disp:'keep', route:'#/hm/buddy',
       done: !!H.buddy.assigned && H.buddy.accepted, icon:'users-friends.svg', marker:'M-07', dueOff:-2, sys:'Onboarding portal', srcDue:true,
-      why:'A buddy on the team, an ambassador outside it, and anyone else worth meeting early.',
-      dispNote:'Two screens merged into one. Your judgement, so it stays, but nothing is suggested for you.' },
+      why:'One buddy in their function, and anyone else worth meeting early.',
+      dispNote:'Two screens merged into one, and the second named role was dropped. Your judgement, so it stays, but nothing is suggested for you.' },
     { id:'calendar', label:'Set up their first day', disp:'automate', route:'#/hm/calendar',
       done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06', dueOff:-5, sys:'Outlook', marker2:'M-23',
       why:'The holds that make Day 1 work.',
@@ -64,8 +64,12 @@ function hmDone() { return hmTasks().filter(t => t.done).length; }
 function thirdPartyTasks() {
   return [
     { label:'Background check', owner:'HR Operations', state: 'running', note:'In progress, no action from anyone' },
-    { label:'Badge printed', owner:'Workplace / CRE', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
-      note: (S.photo.done || S.photo.confirmedExisting) ? 'Photo received, queued for print' : 'Waiting on Jordan’s badge photo' },
+    // Badge print is deliberately absent: security has no integration and no
+    // place to confirm completion, so any status shown here would be invented.
+    { label:'Badge photo received', owner:'Workplace / CRE', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
+      note: (S.photo.done || S.photo.confirmedExisting)
+        ? 'Sent on to Workplace. Printing is not tracked here'
+        : 'Waiting on Jordan’s badge photo' },
     { label:'Orientation blueprint assigned', owner:'People Experience', state:'ready', note:'Denver blueprint assigned' },
   ];
 }
@@ -628,16 +632,15 @@ function renderHmSoftware() {
 /* ============================================================
    H-07: name who they should meet  (M-07 revised, M-26)
 
-   One screen, three roles. No suggested people: the direction is a plain
+   One screen, one named role. No suggested people: the direction is a plain
    list of everyone in the org, because on first rollout anybody can be a
    buddy and the certified programme is years away. A name is not enough
    either. It has to be accepted before it counts.
    ============================================================ */
 function renderHmMeet() {
-  const B = S.hm.buddy, A = S.hm.ambassador, N = S.hm.network;
+  const B = S.hm.buddy, N = S.hm.network;
   const buddy = B.assigned ? orgPerson(B.assigned) : null;
-  const amb = A.assigned ? orgPerson(A.assigned) : null;
-  const others = Object.keys(N.named).filter(id => id !== B.assigned && id !== A.assigned);
+  const others = Object.keys(N.named).filter(id => id !== B.assigned);
   const withWhy = others.filter(id => (N.named[id] || '').trim()).length;
 
   const picker = (role, current) => `
@@ -680,10 +683,9 @@ function renderHmMeet() {
     ${hmCrumbs('Name who they should meet')}
     <div class="task-head">
       <h1>Name who they should meet</h1>
-      <p class="why">Two named roles and anyone else worth an early conversation. A buddy is on their team.
-      An ambassador is somewhere else in the business. Both are your call, and both have to say yes before
-      anything is booked.</p>
-      ${dispBanner('keep', 'Two screens became one. The suggestion logic is gone, because on first rollout anybody can be a buddy and there is nothing to suggest from yet.', 'M-07')}
+      <p class="why">One buddy, in Jordan’s function, and anyone else worth an early conversation.
+      Both are your call, and a buddy has to say yes before anything is booked.</p>
+      ${dispBanner('keep', 'Two screens became one, and the second named role went with them. The suggestion logic is gone too, because on first rollout anybody can be a buddy and there is nothing to suggest from yet.', 'M-07')}
     </div>
 
     <div class="conflict-banner" data-assume="L-01">
@@ -708,14 +710,11 @@ function renderHmMeet() {
         ${slot('buddy', buddy, 'Buddy',
           'Someone on Jordan’s team or in their function, for culture and logistics and the questions they would rather not ask you. Any employee can do it today. There is no certified list to pick from yet.', 'M-07')}
 
-        ${slot('ambassador', amb, 'Ambassador',
-          'Cross-functional. Someone who helps Jordan navigate, connect and get things done outside the reporting line. Expected for executive hires, optional for everyone else. An Employee Connection Network is one place to look. The name of this role is not settled.', 'M-26')}
-
         <div class="form-sec" data-assume="M-10 L-06">
           <h3>Anyone else they should meet ${am('M-10')}</h3>
           <p class="sec-note">Up to fifteen people. Write why each one matters, because Jordan sees the reason you write.</p>
           <div class="meet-others">
-            ${ORG_PEOPLE.filter(p => p.id !== B.assigned && p.id !== A.assigned).map(p => {
+            ${ORG_PEOPLE.filter(p => p.id !== B.assigned).map(p => {
               const on = N.named[p.id] !== undefined;
               return `
               <div class="meet-row ${on ? 'on' : ''}">
@@ -746,7 +745,7 @@ function renderHmMeet() {
         <div class="form-sec">
           <h3>What happens after that</h3>
           <div class="happens">
-            <div class="hp-row ${B.notified || A.notified ? 'done' : ''}">${ic(B.notified || A.notified ? 'check-circle.svg' : 'clock.svg','sm')}
+            <div class="hp-row ${B.notified ? 'done' : ''}">${ic(B.notified ? 'check-circle.svg' : 'clock.svg','sm')}
               <span>Everyone named is asked, not told, and has to accept. ${am('L-09')}</span></div>
             <div class="hp-row ${B.accepted ? 'done' : ''}">${ic(B.accepted ? 'check-circle.svg' : 'clock.svg','sm')}
               <span>Once the buddy accepts, the system reads their calendar and books the first month.
