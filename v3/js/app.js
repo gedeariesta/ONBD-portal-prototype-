@@ -38,6 +38,8 @@ const DEFAULT_STATE = () => ({
   // manager and a real new hire are different people on different screens.
   view: 'nh',                    // nh | hm
   buddyRule: 'assignment',       // assignment | 72h   (L-01, the live conflict)
+  notes: false,                  // design notes: rationale, A-nn markers, dispositions
+
   persona: 'external',           // external | conversion
   country: 'US',                 // US | JP
   horizon: '2wk',                // 2wk | 3mo  (A-45)
@@ -194,7 +196,7 @@ function taskList() {
     // Triggered at offer acceptance, so these precede equipment (A-49, A-50)
     { key:'startdate', route:'#/startdate', icon:'calendar.svg',
       name:'Confirm your start date',
-      why:'Everything else in this list is dated from it, so it comes first',
+      why:'Everything else in this list is dated from it',
       est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
     { key:'bgcheck', route:'#/bgcheck', icon:'shield-check.svg',
       name:'Start your background check',
@@ -203,7 +205,7 @@ function taskList() {
     // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your workspace accessories',
-      why:'First, so it has time to be built, shipped and waiting for you on Day 1',
+      why:'So it’s built, shipped and waiting for you on Day 1',
       est:'4 min', estMark:'A-23', status:equipmentStatus(), marker:'A-33' },
     { key:'details', route:'#/details', icon:'user-circle.svg',
       name:'Your personal and contact details',
@@ -296,7 +298,7 @@ function renderLanding() {
 
     <div class="landing-grid">
       <div>
-        <div class="section-h"><h2>Do these now</h2><span class="hint">Open for action</span></div>
+        <div class="section-h"><h2>Do these now</h2></div>
         <div class="tcards">
           ${tasks.map(taskCard).join('')}
 
@@ -320,7 +322,7 @@ function renderLanding() {
           </div>
         </div>
 
-        <div class="section-h"><h2>Also open now</h2><span class="hint">Yours to do, but they finish somewhere else, so they don’t count towards your progress</span></div>
+        <div class="section-h"><h2>Also open now</h2><span class="hint">Yours, but they finish in another system</span></div>
         <div class="ocards">
           <div class="ocard live">
             <div class="tic">${ic('id-card.svg')}</div>
@@ -368,12 +370,12 @@ function renderLanding() {
                 <span class="u-open">${ic('clock.svg','sm')}${u.opens}</span>
               </div>
               ${u.note ? `<div class="u-note">${u.note}</div>` : ''}
-              <div class="u-expl">${u.expl}${u.name.includes('first day details') && S.hm.logistics.confirmed
+              <div class="u-expl">${u.expl}${u.dnote ? `<div class="pnote mt8">${u.dnote}</div>` : ''}${u.name.includes('first day details') && S.hm.logistics.confirmed
                 ? `<div class="mt8"><b>${HIRE.manager} has already confirmed these:</b> ${esc(S.hm.logistics.whereToBe)}${S.hm.logistics.teamNote ? '. ' + esc(S.hm.logistics.teamNote) : ''}${S.hm.logistics.available ? '' : ` She’s away on your first day; ${esc(S.hm.logistics.proxy)} will meet you instead.`} ${am('L-07')}</div>` : ''}</div>
             </div>`).join('')}
         </div>
 
-        <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Not yours on purpose, listed so you can see nothing has been forgotten</span></div>
+        <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Nothing for you to do</span><span class="hint pnote">Listed on purpose, so a reviewer can see nothing has been forgotten</span></div>
         <div class="ocards">
           <div class="ocard" data-assume="A-10 A-11">
             <div class="tic">${ic('banking.svg')}</div>
@@ -399,13 +401,13 @@ function renderLanding() {
     <div class="live-link" data-goto="#/todos">
       ${ic('list-tasks.svg','lg')}
       <div><b>See the platform's own to-do view</b>
-      <p>The live portal groups these by phase and counts one phase at a time. Worth comparing against the
-      list above before either model is agreed. ${am('A-56')}</p></div>
+      <p>The live portal groups these by phase, and counts one phase at a time.</p>
+      <p class="pnote">Worth comparing against the list above before either model is agreed. ${am('A-56')}</p></div>
       ${ic('chevron-right.svg','lg')}
     </div>
 
     <div class="section-h" style="margin-top:34px;"><h2>Everything else in motion</h2>
-      <span class="hint">Owned by other people, shown so you can see it moving</span></div>
+      <span class="hint">Owned by other teams</span></div>
     ${readinessTracker('nh')}
 
     <div class="section-h" style="margin-top:34px;"><h2>While you wait</h2>
@@ -790,7 +792,7 @@ function renderStartDate() {
       </div>
       <div class="task-shell">
         <div class="wiz-body">
-          <div class="callout">
+          <div class="callout pnote">
             ${ic('exclamation-triangle.svg')}
             <div><b>Nobody has defined what happens next.</b> Who approves a change, how late one can be requested, and what
             happens to work already in flight, such as an equipment order placed, a badge queued for print or calendar holds booked,
@@ -1017,7 +1019,6 @@ function tabDetails(jp) {
     <div class="form-sec">
       <h3>Country of hire</h3>
       <div class="field readonly">
-        <label>Country of hire</label>
         <input type="text" value="${esc(d.country)}" readonly>
         <div class="note">From your offer. It decides what we ask you for. <a data-countryquery="1">This isn’t right</a>
         ${S.details.queryRaised ? `<b style="color:var(--eq-dark-green)"> Thanks. We’re checking this with you, so keep going in the meantime.</b>` : ''}</div>
@@ -1029,7 +1030,7 @@ function tabDetails(jp) {
       <p class="sec-note">Optional here, and a photo from your phone is fine. Sending it now means it’s already with us when the
       right-to-work check runs.</p>
 
-      <div class="callout">
+      <div class="callout pnote">
         ${ic('exclamation-triangle.svg')}
         <div>
           <b>This overlaps another task on purpose, and it isn’t agreed yet.</b>
@@ -1044,7 +1045,8 @@ function tabDetails(jp) {
           <option value="">Choose…</option>
           ${docs.map(o => `<option ${d.idDoc===o.v?'selected':''}>${o.v}</option>`).join('')}
         </select>
-        <div class="note">The list depends on your country of hire. <em>Illustrative. Not checked against ${jp ? 'Japanese' : 'US'} legal requirements.</em></div>
+        <div class="note">The list depends on your country of hire.
+          <span class="pnote">Illustrative. Not checked against ${jp ? 'Japanese' : 'US'} legal requirements.</span></div>
       </div>
 
       ${chosen ? `
@@ -1212,8 +1214,8 @@ function tabPreferences() {
           <h4>Banking and direct deposit ${am('A-10')} ${am('A-11')}</h4>
           <p>Payroll collects bank details separately, in their own secure form, because bank data is handled differently
           from the rest of this profile. Payroll will be in touch. Nothing to prepare.</p>
-          <p class="excl-note">Tax and W-4, swag sizes and dietary requirements are handled elsewhere too. All four are
-          <b>left out on purpose</b>, confirmed. They are not gaps in this form.</p>
+          <p class="excl-note">Tax and W-4, swag sizes and dietary requirements are handled elsewhere too.
+          <span class="pnote">All four are <b>left out on purpose</b>, confirmed. They are not gaps in this form.</span></p>
           <a data-ext="payroll">About Payroll’s process ${ic('external-link.svg','sm')}</a>
         </div>
       </div>
@@ -1292,7 +1294,7 @@ function equipmentTable(forManager) {
       ${caseParties()}
       <div class="eqs-h">
         <span class="eqs-note">${forManager
-          ? `Three items, three different owners. The same table Jordan sees. ${am('M-16')}`
+          ? `Three items, three different owners. ${am('M-16')}`
           : `Three items, three different owners. This table is the answer to “where is my equipment?” ${am('A-41')}`}</span>
       </div>
       <table class="eq-table">
@@ -1694,8 +1696,8 @@ function renderNetwork() {
             </div>
             <div class="dist-row">
               <div class="dr-h">${ic('users-three.svg','sm')} Your team</div>
-              <p>Your reporting line, on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>, on purpose.
-              rendering it as a hierarchy would mislead.</p>
+              <p>Your reporting line is on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>.
+              <span class="pnote">Deliberately so: rendering it as a hierarchy would mislead.</span></p>
             </div>
           </div>
         </div>
@@ -2238,7 +2240,8 @@ function renderShell() {
        <div class="avatar">${HIRE.initials}</div>`;
   $('#hdrSub').textContent = hm ? 'Hiring manager, before Day 1' : 'Your onboarding, before Day 1';
   const live = ASSUMPTIONS.filter(a => a.group !== 'retired').length;
-  $('#rbAssume').textContent = `${live} assumptions marked`;
+  // “marked” promised on-screen chips; those now sit behind the design-notes switch
+  $('#rbAssume').textContent = `${live} assumptions`;
   $$('#viewSwitch .vs').forEach(b => b.classList.toggle('on', (b.dataset.view === 'hm') === hm));
   document.body.classList.toggle('hm-side', hm);
 }
@@ -2388,6 +2391,12 @@ function renderProtoDrawer() {
   $('#protoDrawer').innerHTML = `
     <h3>${ic('exclamation-triangle.svg','sm')}Prototype controls</h3>
     <div class="warn-line">A prototype device. None of this exists in the real product. Clock is fixed at ${fmtDate(simToday())}.</div>
+    <div class="pc-h">Design notes</div>
+    <div class="pc-row">
+      <button class="pc-btn ${S.notes?'':'on'}" data-pc="notes:off">Hidden</button>
+      <button class="pc-btn ${S.notes?'on':''}" data-pc="notes:on">Shown</button>
+    </div>
+    <div class="pc-sub">Rationale, ${ASSUMPTIONS.length} assumption markers and the manager dispositions. Off by default so the portal reads as itself.</div>
     <div class="pc-h">Persona</div>
     <div class="pc-row">
       <button class="pc-btn ${S.persona==='external'?'on':''}" data-pc="persona:external">External new hire</button>
@@ -2426,9 +2435,9 @@ function renderProtoDrawer() {
 }
 
 function applyScenario(name) {
-  const { persona, country, horizon, view, buddyRule } = S;
+  const { persona, country, horizon, view, buddyRule, notes } = S;
   S = seedDetails(DEFAULT_STATE());
-  Object.assign(S, { persona, country, horizon, view, buddyRule, scenario: name });
+  Object.assign(S, { persona, country, horizon, view, buddyRule, notes, scenario: name });
   syncCountry();
 
   const fillDetails = () => {
@@ -2643,9 +2652,14 @@ function render() {
   $('#app').innerHTML = fn();
   renderShell();
   renderProtoDrawer();
+  applyNotes();
   bindScreen(route);
   window.scrollTo(0, 0);
 }
+/* Design notes are a body class, not a re-render: the markup always carries
+   the commentary, CSS decides whether this viewer is reading it. */
+function applyNotes() { document.body.classList.toggle('notes', !!S.notes); }
+
 function rerender() { render(); }
 
 function bindScreen(route) {
@@ -3137,6 +3151,7 @@ document.addEventListener('click', e => {
   if (pcBtn) {
     const [k, v] = pcBtn.dataset.pc.split(':');
     if (k === 'scenario') applyScenario(v);
+    else if (k === 'notes') { S.notes = (v === 'on'); applyNotes(); save(); }
     else {
       S[k] = v;
       if (k === 'country') syncCountry();

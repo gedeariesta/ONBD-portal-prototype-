@@ -206,9 +206,9 @@ function renderHmHome() {
         <div class="other-teams" data-assume="M-02">
           <span class="ot-lbl">Other teams</span>
           ${R.others.map(t => `<span class="ot-pill ${t.state}">${t.label}: ${t.note}</span>`).join('')}
-          <span class="ot-note">Status only. They are not users in this system, so there is nothing to count. ${am('M-02')}</span>
+          <span class="ot-note pnote">Status only. They are not users in this system, so there is nothing to count. ${am('M-02')}</span>
         </div>
-        <div class="score-caveat">${ic('exclamation-triangle.svg','sm')}
+        <div class="score-caveat pnote">${ic('exclamation-triangle.svg','sm')}
           <span>This is a plain count of tasks done over tasks assigned. There is no agreed formula for a readiness
           score, no weighting, and no definition of what “ready” means. ${am('M-02')}</span>
         </div>
@@ -251,13 +251,13 @@ function renderHmHome() {
       <div>
         <div class="section-h">
           <h2>Your tasks</h2>
-          <span class="hint">${hmDone()} of ${tasks.length} done, in the order that keeps Day 1 safe.
-          Each shows whether it should exist at all ${am('M-09')}</span>
+          <span class="hint">${hmDone()} of ${tasks.length} done, in the order that keeps Day 1 safe</span>
+          <span class="hint pnote">Each carries a verdict on whether it should exist at all ${am('M-09')}</span>
         </div>
         <div class="tcards">
           ${tasks.map((t,i) => hmTaskCard(t, i+1)).join('')}
         </div>
-        <div class="subtraction-link" data-goto="#/hm/subtraction">
+        <div class="subtraction-link pnote" data-goto="#/hm/subtraction">
           ${ic('list-tasks.svg','lg')}
           <div>
             <b>The subtraction review</b>
@@ -268,7 +268,7 @@ function renderHmHome() {
         </div>
 
         <div class="section-h" data-assume="M-16 L-04">
-          <h2>Equipment</h2><span class="hint">The same table Jordan sees. One source, both sides ${am('L-04')}</span>
+          <h2>Equipment</h2><span class="hint">The same table Jordan sees</span><span class="hint pnote">One source, both sides ${am('L-04')}</span>
         </div>
         ${equipmentTable(true)}
 
@@ -282,7 +282,7 @@ function renderHmHome() {
               ${r.sensitive ? `<span class="np-lock" title="${r.hidden}">${ic('lock.svg','sm')}Detail hidden</span>` : '<span></span>'}
               ${chip(r.status)}
             </div>`).join('')}
-          <div class="np-note">${ic('info-circle.svg','sm')}
+          <div class="np-note pnote">${ic('info-circle.svg','sm')}
             <span>You can see that Jordan has finished something, not what they put in it. Identity documents,
             emergency contacts, voluntary self-identification and which policies they acknowledged are all withheld.
             Whether that is the right line is an open question. Nobody has written the visibility matrix yet. ${am('L-05')}</span>
@@ -322,7 +322,7 @@ function hmTaskCard(t, seq) {
         ${due ? `<span class="m ${late?'overdue':''}">${ic('calendar.svg','sm')}Due ${dueText(due)}${t.srcDue ? '' : ' '+am('M-23')}</span>` : ''}
         ${t.sys ? `<span class="sys-tag sm">${t.sys}</span>` : ''}
       </div>
-      <div class="disp-line">
+      <div class="disp-line pnote">
         <span class="disp ${d.cls}">${d.label}</span>
         <span class="disp-note">${t.dispNote}</span>
       </div>
@@ -432,7 +432,7 @@ function renderHmLogistics() {
           <div class="bp-card">
             ${blueprint.map(([k,v]) => `<div class="bp-row"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
           </div>
-          <div class="callout">
+          <div class="callout pnote">
             ${ic('exclamation-triangle.svg')}
             <div><b>Can a manager override any of this?</b> The source asks the question and does not answer it.
             Read-only is the safe choice. If overrides are intended, this screen has to show which value wins. ${am('M-05')}</div>
@@ -605,7 +605,7 @@ function renderHmSoftware() {
                 <span>${a}</span>
               </label>`).join('')}
           </div>
-          <div class="callout mt16">
+          <div class="callout pnote mt16">
             ${ic('question-circle.svg')}
             <div><b>Can a manager remove something from a default stack?</b> The requirements cover additions in detail
             and never mention removals. It matters: if the default is authoritative, removal should be blocked; if you
@@ -813,7 +813,7 @@ function renderHmCalendar() {
             </div>`;
           }).join('')}
         </div>
-        <div class="callout mt16">
+        <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
           <div>The three unticked holds are suggestions you have to accept one at a time. If they were created
           automatically like your 1:1, this screen would have nothing on it for you to do, which is the point of the
@@ -908,7 +908,7 @@ function renderHmWelcome() {
           the request arrives in context. Nothing enforces that today, and three welcome messages compete for the same
           week. ${am('L-08')}</span>
         </div>
-        <div class="callout mt16" data-assume="M-21">
+        <div class="callout pnote mt16" data-assume="M-21">
           ${ic('exclamation-triangle.svg')}
           <div><b>This may already exist.</b> The onboarding platform ships a “customise a welcome memo” capability and a
           “from my manager” block on the new hire's dashboard. The part that actually adds something here is the read-only
@@ -970,7 +970,7 @@ function renderHmIntro() {
           <li>Jordan is told it has been shared, and when.</li>
           <li>The team sees it before Jordan arrives, so the first conversation is not an introduction.</li>
         </ol>
-        <div class="callout mt16">
+        <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
           <div><b>No source describes this screen.</b> The new hire side is clear that a manager forwards the
           introduction instead of auto-posting it, but nothing says where it lands on your side, or what you can edit
@@ -1019,7 +1019,7 @@ function renderHmCard() {
             <div><b>Note the timing.</b> Jordan's half is <b>Day 2</b>, after they start rather than before. It has already
             appeared on their portal as something coming up, so they know it is handled. ${am('L-10')}</div>
           </div>
-          <div class="callout">
+          <div class="callout pnote">
             ${ic('question-circle.svg')}
             <div>${CARD_FLOW.note} Two things the requirement leaves open: what the task is finally called in the portal,
             and whether a cost centre and approver are captured alongside your yes. ${am('M-19')}</div>
@@ -1272,7 +1272,7 @@ function hmCrumbs(here) {
 }
 function dispBanner(disp, text, marker) {
   const d = DISPOSITIONS[disp];
-  return `<div class="disp-banner ${d.cls}">
+  return `<div class="disp-banner pnote ${d.cls}">
     <span class="disp ${d.cls}">${d.label}</span>
     <span>${text} ${marker ? am(marker) : am('M-09')}</span>
   </div>`;

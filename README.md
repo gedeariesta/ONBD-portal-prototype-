@@ -84,13 +84,20 @@ laptop-only, A-28). Progress persists in `localStorage`; to start fresh, use
 
 - **Prototype ribbon** (top): persistent honesty marker + links to the
   assumption register and flow overview.
-- **Prototype controls** (bottom left): switch persona (external /
-  contract-to-permanent), country of hire (US / Japan), task-state scenario
-  (first visit, in progress, under review, overdue, all complete), the runway to
-  Day 1 (two weeks / three months, v2+) and the buddy visibility rule (v3).
-  Clearly labelled: none of it is product UI.
+- **Prototype controls** (bottom left): **design notes** (hidden / shown, see
+  below), persona (external / contract-to-permanent), country of hire (US /
+  Japan), task-state scenario (first visit, in progress, under review, overdue,
+  all complete), the runway to Day 1 (two weeks / three months, v2+) and the
+  buddy visibility rule (v3). Clearly labelled: none of it is product UI.
+- **Design notes** (v3, in Prototype controls, **off by default**): one switch
+  over every piece of commentary the prototype makes about itself — the `A-nn` /
+  `M-nn` / `L-nn` markers, the manager-side dispositions and their rationale,
+  and the callouts that argue a design rather than tell the reader something.
+  Off, the portal reads the way the real one would; on, the full review apparatus
+  comes back. The assumption register panel is unaffected and always available.
 - **Assumption markers**: small `A-nn` chips on any element that rests on an
-  assumption rather than a confirmed requirement. Click one to open the
+  assumption rather than a confirmed requirement. Hidden until **design notes**
+  are switched on. Click one to open the
   register entry; click a register entry to jump to (and flash) the element.
   Entries map to the Open Items tab of the spec workbook. In v2 each entry also
   carries where it came from — **UAT** (seen in the live portal), **1:1**
@@ -182,6 +189,46 @@ The panel also records four **source-integrity problems in the workbook itself**
 — a missing manager row in the master inventory, sequence numbers that diverge
 by one from 34 onward, a truncated corporate-card row, and label drift between
 "accessories" and "access".
+
+## The cleanup pass
+
+A design and copy pass over v3 only. No screens, features, routes or register
+entries were added or removed; v1 and v2 are untouched.
+
+**The problem.** The prototype narrated itself inside the product. Design
+rationale sat in the same visual layer as product content: every task card
+carried a why-this-exists sentence, every section heading a defensive subtitle,
+the Coming-up items carried both a note and an `expl` that restated it, 97
+markers were inline, and every manager task carried a disposition badge plus its
+argument. Five gradient and alert blocks competed on the landing page alone.
+
+**What changed.**
+
+- **One switch for all commentary.** Rationale, markers, dispositions and the
+  callouts that argue a design now sit behind **Design notes** in Prototype
+  controls, off by default. It is a body class over markup that always carries
+  the notes, so nothing is deleted and nothing needs re-rendering.
+- **Copy rewritten, not just hidden.** Section subtitles that defended a
+  decision became labels ("Not yours on purpose, listed so you can see nothing
+  has been forgotten" → "Nothing for you to do"). The Coming-up items lost the
+  note/`expl` duplication and gained a separate `dnote` field for the
+  commentary. Duplicated labels went (`Country of hire` as both heading and
+  field label; "The same table Jordan sees" twice on the manager's screen).
+- **One red accent per screen.** The brand rule ran on every `h2` — eight times
+  a page — and had stopped reading as an accent. It now appears once, on the
+  page title. The live-to-do link's red bar became blue, the equipment case
+  header charcoal, the overflow note neutral.
+- **One gradient family.** Both heroes now run the same blue ramp; the
+  reflection prompt dropped from magenta-violet to charcoal. The six Inside
+  Equinix chapter colours stay — that is editorial content, not chrome.
+- **Density and depth.** One soft shadow instead of two stacked, tighter card
+  padding and section rhythm, and the hero art no longer runs under the last two
+  milestone labels.
+
+Result: the landing page drops from 3741px to 3662px and the manager's readiness
+view from 4093px to 3524px, with far more removed from the visual field than
+those numbers suggest — the markers and dispositions were inline rather than
+stacked.
 
 ## What changed in v2
 

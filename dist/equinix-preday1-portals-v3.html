@@ -41,8 +41,8 @@
   --warn:var(--eq-dark-orange); --warn-bg:var(--eq-light-orange);
   --review:var(--eq-dark-violet); --review-bg:var(--eq-light-violet);
   --radius:10px; --radius-lg:14px;
-  --shadow-1:0 1px 2px rgba(47,53,65,.06), 0 1px 6px rgba(47,53,65,.07);
-  --shadow-2:0 6px 24px rgba(47,53,65,.13);
+  --shadow-1:0 1px 2px rgba(47,53,65,.05);
+  --shadow-2:0 4px 16px rgba(47,53,65,.10);
   --maxw:1200px;
 }
 
@@ -129,8 +129,8 @@ small{color:var(--ink-faint);}
   cursor:pointer; font-weight:700; background:none; border:none; font-size:13px;
 }
 .crumbs .back:hover{text-decoration:underline;}
-/* Same red rule as the section headings, so a task page and the landing
-   page are recognisably the same portal. */
+/* The one red rule per screen. Section headings used to carry it too, which
+   spent the accent eight times a page and left it reading as decoration. */
 .crumbs + h1{position:relative; padding-left:15px; font-size:27px;}
 .crumbs + h1::before{
   content:''; position:absolute; left:0; top:.2em; bottom:.16em; width:3px;
@@ -151,27 +151,27 @@ small{color:var(--ink-faint);}
    adjacent hues, the hex field behind it, and one isometric idea. */
 .hero{
   border-radius:var(--radius-lg); overflow:hidden; position:relative;
-  background:linear-gradient(104deg, #00408C 0%, #086AE3 54%, #411980 100%);
-  display:grid; grid-template-columns:minmax(0,1fr) 300px; margin-bottom:26px;
+  background:linear-gradient(104deg, #00305F 0%, #0A4FA8 58%, #086AE3 100%);
+  display:grid; grid-template-columns:minmax(0,1fr) 300px; margin-bottom:22px;
 }
-.hero-copy{padding:32px 36px 30px; position:relative; z-index:2; min-width:0;}
+.hero-copy{padding:28px 34px 26px; position:relative; z-index:2; min-width:0;}
 .eyebrow{
   font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
   color:var(--eq-aqua); margin-bottom:11px;
 }
-.hero h1{font-size:31px; color:var(--white); margin-bottom:8px; letter-spacing:-.018em;}
+.hero h1{font-size:29px; color:var(--white); margin-bottom:7px; letter-spacing:-.018em;}
 .hero .lede{font-size:15px; color:rgba(255,255,255,.9); font-weight:350; max-width:560px;}
 .hero .lede b{color:var(--white); font-weight:700;}
-.hero-art{position:absolute; top:0; right:0; bottom:0; width:340px; z-index:1;}
+.hero-art{position:absolute; top:0; right:0; bottom:0; width:300px; z-index:1; opacity:.9;}
 .hero-art svg{width:100%; height:100%; display:block;}
-.hero .prog-row{display:flex; align-items:flex-end; gap:36px; margin-top:26px; position:relative;}
+.hero .prog-row{display:flex; align-items:flex-end; gap:36px; margin-top:24px; position:relative;}
 .prog-count{min-width:200px;}
 .prog-count .nums{font-size:13px; font-weight:700; color:var(--white); margin-bottom:7px; display:flex; justify-content:space-between; gap:8px;}
 .prog-bar{height:8px; background:rgba(255,255,255,.24); border-radius:99px; overflow:hidden;}
 .prog-bar i{display:block; height:100%; border-radius:99px;
   background:linear-gradient(90deg, var(--eq-aqua), var(--white)); transition:width .45s ease;}
 /* Milestones */
-.miles{display:flex; align-items:flex-start; flex:1; max-width:560px;}
+.miles{display:flex; align-items:flex-start; flex:1; max-width:520px;}
 .mile{flex:1; position:relative; text-align:center;}
 .mile .dot{
   width:22px; height:22px; border-radius:50%; margin:0 auto 7px; position:relative; z-index:2;
@@ -202,24 +202,19 @@ small{color:var(--ink-faint);}
 /* ---------- Layout: task list + rail ---------- */
 .landing-grid{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:28px; align-items:start;}
 
-.section-h{display:flex; align-items:baseline; gap:10px; margin:26px 0 12px;}
+.section-h{display:flex; align-items:baseline; gap:10px; margin:30px 0 11px;}
 .section-h:first-child{margin-top:0;}
-.section-h h2{font-size:18px; position:relative; padding-left:13px;}
-/* Short red rule, the way the brand marks a heading */
-.section-h h2::before{
-  content:''; position:absolute; left:0; top:.24em; bottom:.2em; width:3px;
-  border-radius:2px; background:var(--eq-red);
-}
-.section-h .hint{font-size:13px; color:var(--ink-faint); font-weight:350;}
+.section-h h2{font-size:17px; letter-spacing:-.008em;}
+.section-h .hint{font-size:12.5px; color:var(--ink-faint); font-weight:350;}
 
 /* Task cards */
-.tcards{display:flex; flex-direction:column; gap:12px;}
+.tcards{display:flex; flex-direction:column; gap:10px;}
 .tcard{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-  box-shadow:var(--shadow-1); padding:18px 20px; display:flex; gap:16px; align-items:flex-start;
+  box-shadow:var(--shadow-1); padding:16px 18px; display:flex; gap:15px; align-items:flex-start;
   cursor:pointer; transition:border-color .15s, box-shadow .15s; position:relative;
 }
-.tcard:hover{border-color:var(--eq-light-blue); box-shadow:var(--shadow-2);}
+.tcard:hover{border-color:var(--chrome); box-shadow:var(--shadow-2);}
 .tcard .tic{
   width:40px; height:40px; border-radius:10px; flex:none; display:flex; align-items:center; justify-content:center;
   background:var(--silver); color:var(--eq-dark-blue);
@@ -228,7 +223,7 @@ small{color:var(--ink-faint);}
 .tcard .t-main{flex:1; min-width:0;}
 .tcard .t-name{font-weight:800; font-size:15.5px; color:var(--charcoal); display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
 .tcard .t-why{font-size:13.5px; color:var(--carbon); font-weight:350; margin-top:3px;}
-.tcard .t-meta{display:flex; gap:16px; margin-top:10px; font-size:12.5px; color:var(--carbon); align-items:center; flex-wrap:wrap;}
+.tcard .t-meta{display:flex; gap:14px; margin-top:9px; font-size:12px; color:var(--ink-faint); align-items:center; flex-wrap:wrap;}
 .tcard .t-meta .m{display:inline-flex; align-items:center; gap:6px;}
 .tcard .t-meta .m .ic{color:var(--platinum);}
 .tcard .t-meta .m.overdue{color:var(--warn); font-weight:700;}
@@ -591,6 +586,17 @@ small{color:var(--ink-faint);}
 .read-card .o-note{font-size:12.5px; color:var(--carbon); font-weight:350;}
 .read-cards{display:flex; flex-direction:column; gap:8px;}
 
+/* ---------- Design notes (prototype commentary) ----------
+   Rationale, provenance markers and dispositions are review material, not
+   product UI. They sit behind one switch in Prototype controls, off by
+   default, so the portal reads the way the real one would and a reviewer
+   still gets every note back in a single click. */
+body:not(.notes) .pnote{display:none !important;}
+body:not(.notes) .am{display:none !important;}
+/* Markers inside the register panel are the panel's content, not commentary. */
+body:not(.notes) .panel .am{display:inline-flex !important;}
+.pnote{color:var(--ink-faint);}
+
 /* ---------- Assumption markers ---------- */
 .am{
   display:inline-flex; align-items:center; font-size:10px; font-weight:700; letter-spacing:.04em;
@@ -675,6 +681,8 @@ small{color:var(--ink-faint);}
 .proto-drawer h3{color:var(--white); font-size:13px; letter-spacing:.05em; text-transform:uppercase; display:flex; gap:8px; align-items:center;}
 .proto-drawer .warn-line{font-size:11.5px; color:var(--eq-aqua); font-weight:350; margin:4px 0 14px;}
 .proto-drawer .pc-h{font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--platinum); margin:14px 0 7px;}
+.proto-drawer .pc-h:first-of-type{margin-top:10px;}
+.proto-drawer .pc-sub{font-size:11px; color:var(--platinum); font-weight:350; line-height:1.45; margin-top:7px;}
 .pc-row{display:flex; gap:8px; flex-wrap:wrap;}
 .pc-btn{
   border:1px solid var(--carbon); background:none; color:var(--cloud); border-radius:99px;
@@ -747,8 +755,8 @@ small{color:var(--ink-faint);}
 /* overflow line under Coming up, verbatim from the live portal */
 .overflow-line{
   display:flex; align-items:center; gap:9px; margin:0 0 12px;
-  font-size:13.5px; color:var(--charcoal); font-weight:350;
-  background:var(--eq-light-yellow); border:1px solid #f7e2ad;
+  font-size:13px; color:var(--carbon); font-weight:350;
+  background:var(--surface); border:1px solid var(--line);
   border-radius:8px; padding:9px 14px;
 }
 .overflow-line .ic{color:var(--eq-dark-yellow);}
@@ -999,7 +1007,7 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .hm-hero{
   display:flex; gap:32px; align-items:center; padding:26px 32px; margin-bottom:22px;
   border-radius:var(--radius-lg); position:relative; overflow:hidden;
-  background:linear-gradient(104deg, #411980 0%, #086AE3 62%, #00737A 100%);
+  background:linear-gradient(104deg, #00305F 0%, #0A4FA8 58%, #086AE3 100%);
 }
 .hm-hero > *{position:relative; z-index:2;}
 .ready-ring{position:relative; width:118px; height:118px; flex:none;}
@@ -1334,7 +1342,7 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
    points at the manager or buddy conversation rather than a form. */
 .reflect{
   margin-top:14px; border-radius:var(--radius-lg); padding:22px 26px; position:relative; overflow:hidden;
-  background:linear-gradient(104deg, #200430 0%, #411980 58%, #A20238 100%);
+  background:linear-gradient(104deg, #1C2230 0%, #2F3541 62%, #263048 100%);
 }
 .rf-h{display:flex; align-items:center; gap:11px; margin-bottom:12px;}
 .rf-h h3{color:var(--white); font-size:17px; margin:0;}
@@ -1343,7 +1351,7 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .rf-q li{font-size:14.5px; font-weight:350; line-height:1.6;}
 .rf-q li::marker{color:var(--eq-aqua);}
 .rf-note{
-  font-size:12.5px; font-style:italic; font-weight:350; color:rgba(255,255,255,.72);
+  font-size:12.5px; font-weight:350; color:rgba(255,255,255,.66);
   line-height:1.55; max-width:660px; margin:0;
 }
 .sc-thumbs{display:flex; gap:8px; margin-top:22px;}
@@ -1366,7 +1374,7 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   padding:20px 24px 6px; margin-bottom:22px; box-shadow:var(--shadow-1);
 }
 .rt-head{display:flex; align-items:flex-start; gap:20px; margin-bottom:20px;}
-.rt-title{font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--eq-red); margin-bottom:6px;}
+.rt-title{font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px;}
 .rt-sub{font-size:12.5px; font-weight:350; color:var(--carbon); line-height:1.55; max-width:660px;}
 .rt-count{margin-left:auto; flex:none; font-size:13px; font-weight:800; color:var(--eq-dark-blue); white-space:nowrap;}
 
@@ -1551,11 +1559,11 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 /* ---------- The platform's own to-do timeline, from UAT (A-56) ---------- */
 .live-link{
   display:flex; align-items:center; gap:14px; margin-top:26px; padding:16px 20px;
-  background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--eq-red);
+  background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--action);
   border-radius:var(--radius); cursor:pointer; box-shadow:var(--shadow-1); transition:border-color .15s;
 }
-.live-link:hover{border-color:var(--eq-red);}
-.live-link > .ic{color:var(--eq-dark-red); flex:none;}
+.live-link:hover{border-color:var(--chrome); border-left-color:var(--action);}
+.live-link > .ic{color:var(--action); flex:none;}
 .live-link div{flex:1;}
 .live-link b{font-size:14px; color:var(--charcoal);}
 .live-link p{font-size:12.5px; font-weight:350; color:var(--carbon); margin-top:3px; line-height:1.55;}
@@ -1629,11 +1637,11 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 }
 .case-num{font-size:15px; font-weight:800; color:var(--charcoal);}
 .case-when{font-size:12.5px; color:var(--carbon);}
-.case-hide{margin-left:auto; font-size:12.5px; font-weight:700; color:var(--eq-dark-red);}
+.case-hide{margin-left:auto; font-size:12.5px; font-weight:700; color:var(--action); cursor:pointer;}
 .req{font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--eq-red); margin-left:6px;}
 .eqs-bar{
-  background:var(--eq-red); color:var(--white); font-weight:800; font-size:14px;
-  padding:9px 16px; border-radius:8px 8px 0 0; margin:-1px -1px 0;
+  background:var(--charcoal); color:var(--white); font-weight:700; font-size:13px;
+  letter-spacing:.01em; padding:9px 16px; border-radius:8px 8px 0 0; margin:-1px -1px 0;
 }
 .case-parties{
   display:grid; grid-template-columns:1fr 1fr; gap:26px;
@@ -2475,21 +2483,24 @@ const CARD_FLOW = {
 const COMING_UP = [
   { name:'Benefits enrolment', opens:'30 days before you start',
     note:'Shows what you’ll qualify for and when coverage begins', icon:'shield-check.svg',
-    expl:'Benefits enrolment opens 30 days before your start date. It will show what you qualify for and when coverage begins, so there’s nothing to prepare now.' },
+    expl:'Opens 30 days before your start date. Nothing to prepare between now and then.' },
   { name:'Equipment setup instructions', opens:'3 days before you start', note:'', icon:'portal-window.svg',
-    expl:'Once your equipment ships, setup instructions land here 3 days before you start, so they’re fresh when the box is.' },
+    expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does.' },
   { name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
-    expl:'Where to go, who to ask for, what to bring. It arrives 3 days before your start so the details are final, not provisional.' },
+    expl:'Held until 3 days out so the details are final rather than provisional.' },
   { name:'Collect your Equinix credentials', opens:'1 day before you start',
     note:'', icon:'lock.svg',
-    expl:'A to-do in the live portal, due the day before you start. Nobody has documented what is in it, which is worth pinning down: it sits awkwardly beside the current practice of managers handing over sign-in details.' },
+    expl:'Your sign-in details, ready the day before you start.',
+    dnote:'A to-do in the live portal that nobody has documented the contents of. Worth pinning down: it sits awkwardly beside the current practice of managers handing over sign-in details.' },
   { name:'Order a phone', opens:'Day 1, optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
-    expl:'A mobile phone is ordered on or after Day 1, and only if your role needs one. Keeping it out of pre-boarding is a choice, not an oversight.' },
+    expl:'Ordered on or after Day 1, and only if your role needs one.',
+    dnote:'Keeping it out of pre-boarding is a choice, not an oversight.' },
   { name:'Complete your at-home workspace setup', opens:'No due date, optional', note:'', icon:'desktop.svg',
-    expl:'An optional to-do with no due date, exactly as the live portal ships it. It is here so you can see how optional items behave. Nothing is waiting on you.' },
+    expl:'Optional, with no due date. Nothing is waiting on you.',
+    dnote:'Shipped exactly as the live portal has it, so optional behaviour is visible here.' },
   { name:'Information governance', opens:'Your first week', note:'', icon:'file-alt.svg', marker:'A-21',
-    expl:'This one happens in your first week, once you have your Equinix account. It covers how we handle information while you work here.' },
+    expl:'Runs in your first week, once you have your Equinix account. It covers how we handle information here.' },
 ];
 
 /* ============================================================
@@ -3000,9 +3011,9 @@ function renderHmHome() {
         <div class="other-teams" data-assume="M-02">
           <span class="ot-lbl">Other teams</span>
           ${R.others.map(t => `<span class="ot-pill ${t.state}">${t.label}: ${t.note}</span>`).join('')}
-          <span class="ot-note">Status only. They are not users in this system, so there is nothing to count. ${am('M-02')}</span>
+          <span class="ot-note pnote">Status only. They are not users in this system, so there is nothing to count. ${am('M-02')}</span>
         </div>
-        <div class="score-caveat">${ic('exclamation-triangle.svg','sm')}
+        <div class="score-caveat pnote">${ic('exclamation-triangle.svg','sm')}
           <span>This is a plain count of tasks done over tasks assigned. There is no agreed formula for a readiness
           score, no weighting, and no definition of what “ready” means. ${am('M-02')}</span>
         </div>
@@ -3045,13 +3056,13 @@ function renderHmHome() {
       <div>
         <div class="section-h">
           <h2>Your tasks</h2>
-          <span class="hint">${hmDone()} of ${tasks.length} done, in the order that keeps Day 1 safe.
-          Each shows whether it should exist at all ${am('M-09')}</span>
+          <span class="hint">${hmDone()} of ${tasks.length} done, in the order that keeps Day 1 safe</span>
+          <span class="hint pnote">Each carries a verdict on whether it should exist at all ${am('M-09')}</span>
         </div>
         <div class="tcards">
           ${tasks.map((t,i) => hmTaskCard(t, i+1)).join('')}
         </div>
-        <div class="subtraction-link" data-goto="#/hm/subtraction">
+        <div class="subtraction-link pnote" data-goto="#/hm/subtraction">
           ${ic('list-tasks.svg','lg')}
           <div>
             <b>The subtraction review</b>
@@ -3062,7 +3073,7 @@ function renderHmHome() {
         </div>
 
         <div class="section-h" data-assume="M-16 L-04">
-          <h2>Equipment</h2><span class="hint">The same table Jordan sees. One source, both sides ${am('L-04')}</span>
+          <h2>Equipment</h2><span class="hint">The same table Jordan sees</span><span class="hint pnote">One source, both sides ${am('L-04')}</span>
         </div>
         ${equipmentTable(true)}
 
@@ -3076,7 +3087,7 @@ function renderHmHome() {
               ${r.sensitive ? `<span class="np-lock" title="${r.hidden}">${ic('lock.svg','sm')}Detail hidden</span>` : '<span></span>'}
               ${chip(r.status)}
             </div>`).join('')}
-          <div class="np-note">${ic('info-circle.svg','sm')}
+          <div class="np-note pnote">${ic('info-circle.svg','sm')}
             <span>You can see that Jordan has finished something, not what they put in it. Identity documents,
             emergency contacts, voluntary self-identification and which policies they acknowledged are all withheld.
             Whether that is the right line is an open question. Nobody has written the visibility matrix yet. ${am('L-05')}</span>
@@ -3116,7 +3127,7 @@ function hmTaskCard(t, seq) {
         ${due ? `<span class="m ${late?'overdue':''}">${ic('calendar.svg','sm')}Due ${dueText(due)}${t.srcDue ? '' : ' '+am('M-23')}</span>` : ''}
         ${t.sys ? `<span class="sys-tag sm">${t.sys}</span>` : ''}
       </div>
-      <div class="disp-line">
+      <div class="disp-line pnote">
         <span class="disp ${d.cls}">${d.label}</span>
         <span class="disp-note">${t.dispNote}</span>
       </div>
@@ -3226,7 +3237,7 @@ function renderHmLogistics() {
           <div class="bp-card">
             ${blueprint.map(([k,v]) => `<div class="bp-row"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
           </div>
-          <div class="callout">
+          <div class="callout pnote">
             ${ic('exclamation-triangle.svg')}
             <div><b>Can a manager override any of this?</b> The source asks the question and does not answer it.
             Read-only is the safe choice. If overrides are intended, this screen has to show which value wins. ${am('M-05')}</div>
@@ -3399,7 +3410,7 @@ function renderHmSoftware() {
                 <span>${a}</span>
               </label>`).join('')}
           </div>
-          <div class="callout mt16">
+          <div class="callout pnote mt16">
             ${ic('question-circle.svg')}
             <div><b>Can a manager remove something from a default stack?</b> The requirements cover additions in detail
             and never mention removals. It matters: if the default is authoritative, removal should be blocked; if you
@@ -3607,7 +3618,7 @@ function renderHmCalendar() {
             </div>`;
           }).join('')}
         </div>
-        <div class="callout mt16">
+        <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
           <div>The three unticked holds are suggestions you have to accept one at a time. If they were created
           automatically like your 1:1, this screen would have nothing on it for you to do, which is the point of the
@@ -3702,7 +3713,7 @@ function renderHmWelcome() {
           the request arrives in context. Nothing enforces that today, and three welcome messages compete for the same
           week. ${am('L-08')}</span>
         </div>
-        <div class="callout mt16" data-assume="M-21">
+        <div class="callout pnote mt16" data-assume="M-21">
           ${ic('exclamation-triangle.svg')}
           <div><b>This may already exist.</b> The onboarding platform ships a “customise a welcome memo” capability and a
           “from my manager” block on the new hire's dashboard. The part that actually adds something here is the read-only
@@ -3764,7 +3775,7 @@ function renderHmIntro() {
           <li>Jordan is told it has been shared, and when.</li>
           <li>The team sees it before Jordan arrives, so the first conversation is not an introduction.</li>
         </ol>
-        <div class="callout mt16">
+        <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
           <div><b>No source describes this screen.</b> The new hire side is clear that a manager forwards the
           introduction instead of auto-posting it, but nothing says where it lands on your side, or what you can edit
@@ -3813,7 +3824,7 @@ function renderHmCard() {
             <div><b>Note the timing.</b> Jordan's half is <b>Day 2</b>, after they start rather than before. It has already
             appeared on their portal as something coming up, so they know it is handled. ${am('L-10')}</div>
           </div>
-          <div class="callout">
+          <div class="callout pnote">
             ${ic('question-circle.svg')}
             <div>${CARD_FLOW.note} Two things the requirement leaves open: what the task is finally called in the portal,
             and whether a cost centre and approver are captured alongside your yes. ${am('M-19')}</div>
@@ -4066,7 +4077,7 @@ function hmCrumbs(here) {
 }
 function dispBanner(disp, text, marker) {
   const d = DISPOSITIONS[disp];
-  return `<div class="disp-banner ${d.cls}">
+  return `<div class="disp-banner pnote ${d.cls}">
     <span class="disp ${d.cls}">${d.label}</span>
     <span>${text} ${marker ? am(marker) : am('M-09')}</span>
   </div>`;
@@ -4318,6 +4329,8 @@ const DEFAULT_STATE = () => ({
   // manager and a real new hire are different people on different screens.
   view: 'nh',                    // nh | hm
   buddyRule: 'assignment',       // assignment | 72h   (L-01, the live conflict)
+  notes: false,                  // design notes: rationale, A-nn markers, dispositions
+
   persona: 'external',           // external | conversion
   country: 'US',                 // US | JP
   horizon: '2wk',                // 2wk | 3mo  (A-45)
@@ -4474,7 +4487,7 @@ function taskList() {
     // Triggered at offer acceptance, so these precede equipment (A-49, A-50)
     { key:'startdate', route:'#/startdate', icon:'calendar.svg',
       name:'Confirm your start date',
-      why:'Everything else in this list is dated from it, so it comes first',
+      why:'Everything else in this list is dated from it',
       est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
     { key:'bgcheck', route:'#/bgcheck', icon:'shield-check.svg',
       name:'Start your background check',
@@ -4483,7 +4496,7 @@ function taskList() {
     // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your workspace accessories',
-      why:'First, so it has time to be built, shipped and waiting for you on Day 1',
+      why:'So it’s built, shipped and waiting for you on Day 1',
       est:'4 min', estMark:'A-23', status:equipmentStatus(), marker:'A-33' },
     { key:'details', route:'#/details', icon:'user-circle.svg',
       name:'Your personal and contact details',
@@ -4576,7 +4589,7 @@ function renderLanding() {
 
     <div class="landing-grid">
       <div>
-        <div class="section-h"><h2>Do these now</h2><span class="hint">Open for action</span></div>
+        <div class="section-h"><h2>Do these now</h2></div>
         <div class="tcards">
           ${tasks.map(taskCard).join('')}
 
@@ -4600,7 +4613,7 @@ function renderLanding() {
           </div>
         </div>
 
-        <div class="section-h"><h2>Also open now</h2><span class="hint">Yours to do, but they finish somewhere else, so they don’t count towards your progress</span></div>
+        <div class="section-h"><h2>Also open now</h2><span class="hint">Yours, but they finish in another system</span></div>
         <div class="ocards">
           <div class="ocard live">
             <div class="tic">${ic('id-card.svg')}</div>
@@ -4648,12 +4661,12 @@ function renderLanding() {
                 <span class="u-open">${ic('clock.svg','sm')}${u.opens}</span>
               </div>
               ${u.note ? `<div class="u-note">${u.note}</div>` : ''}
-              <div class="u-expl">${u.expl}${u.name.includes('first day details') && S.hm.logistics.confirmed
+              <div class="u-expl">${u.expl}${u.dnote ? `<div class="pnote mt8">${u.dnote}</div>` : ''}${u.name.includes('first day details') && S.hm.logistics.confirmed
                 ? `<div class="mt8"><b>${HIRE.manager} has already confirmed these:</b> ${esc(S.hm.logistics.whereToBe)}${S.hm.logistics.teamNote ? '. ' + esc(S.hm.logistics.teamNote) : ''}${S.hm.logistics.available ? '' : ` She’s away on your first day; ${esc(S.hm.logistics.proxy)} will meet you instead.`} ${am('L-07')}</div>` : ''}</div>
             </div>`).join('')}
         </div>
 
-        <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Not yours on purpose, listed so you can see nothing has been forgotten</span></div>
+        <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Nothing for you to do</span><span class="hint pnote">Listed on purpose, so a reviewer can see nothing has been forgotten</span></div>
         <div class="ocards">
           <div class="ocard" data-assume="A-10 A-11">
             <div class="tic">${ic('banking.svg')}</div>
@@ -4679,13 +4692,13 @@ function renderLanding() {
     <div class="live-link" data-goto="#/todos">
       ${ic('list-tasks.svg','lg')}
       <div><b>See the platform's own to-do view</b>
-      <p>The live portal groups these by phase and counts one phase at a time. Worth comparing against the
-      list above before either model is agreed. ${am('A-56')}</p></div>
+      <p>The live portal groups these by phase, and counts one phase at a time.</p>
+      <p class="pnote">Worth comparing against the list above before either model is agreed. ${am('A-56')}</p></div>
       ${ic('chevron-right.svg','lg')}
     </div>
 
     <div class="section-h" style="margin-top:34px;"><h2>Everything else in motion</h2>
-      <span class="hint">Owned by other people, shown so you can see it moving</span></div>
+      <span class="hint">Owned by other teams</span></div>
     ${readinessTracker('nh')}
 
     <div class="section-h" style="margin-top:34px;"><h2>While you wait</h2>
@@ -5070,7 +5083,7 @@ function renderStartDate() {
       </div>
       <div class="task-shell">
         <div class="wiz-body">
-          <div class="callout">
+          <div class="callout pnote">
             ${ic('exclamation-triangle.svg')}
             <div><b>Nobody has defined what happens next.</b> Who approves a change, how late one can be requested, and what
             happens to work already in flight, such as an equipment order placed, a badge queued for print or calendar holds booked,
@@ -5297,7 +5310,6 @@ function tabDetails(jp) {
     <div class="form-sec">
       <h3>Country of hire</h3>
       <div class="field readonly">
-        <label>Country of hire</label>
         <input type="text" value="${esc(d.country)}" readonly>
         <div class="note">From your offer. It decides what we ask you for. <a data-countryquery="1">This isn’t right</a>
         ${S.details.queryRaised ? `<b style="color:var(--eq-dark-green)"> Thanks. We’re checking this with you, so keep going in the meantime.</b>` : ''}</div>
@@ -5309,7 +5321,7 @@ function tabDetails(jp) {
       <p class="sec-note">Optional here, and a photo from your phone is fine. Sending it now means it’s already with us when the
       right-to-work check runs.</p>
 
-      <div class="callout">
+      <div class="callout pnote">
         ${ic('exclamation-triangle.svg')}
         <div>
           <b>This overlaps another task on purpose, and it isn’t agreed yet.</b>
@@ -5324,7 +5336,8 @@ function tabDetails(jp) {
           <option value="">Choose…</option>
           ${docs.map(o => `<option ${d.idDoc===o.v?'selected':''}>${o.v}</option>`).join('')}
         </select>
-        <div class="note">The list depends on your country of hire. <em>Illustrative. Not checked against ${jp ? 'Japanese' : 'US'} legal requirements.</em></div>
+        <div class="note">The list depends on your country of hire.
+          <span class="pnote">Illustrative. Not checked against ${jp ? 'Japanese' : 'US'} legal requirements.</span></div>
       </div>
 
       ${chosen ? `
@@ -5492,8 +5505,8 @@ function tabPreferences() {
           <h4>Banking and direct deposit ${am('A-10')} ${am('A-11')}</h4>
           <p>Payroll collects bank details separately, in their own secure form, because bank data is handled differently
           from the rest of this profile. Payroll will be in touch. Nothing to prepare.</p>
-          <p class="excl-note">Tax and W-4, swag sizes and dietary requirements are handled elsewhere too. All four are
-          <b>left out on purpose</b>, confirmed. They are not gaps in this form.</p>
+          <p class="excl-note">Tax and W-4, swag sizes and dietary requirements are handled elsewhere too.
+          <span class="pnote">All four are <b>left out on purpose</b>, confirmed. They are not gaps in this form.</span></p>
           <a data-ext="payroll">About Payroll’s process ${ic('external-link.svg','sm')}</a>
         </div>
       </div>
@@ -5572,7 +5585,7 @@ function equipmentTable(forManager) {
       ${caseParties()}
       <div class="eqs-h">
         <span class="eqs-note">${forManager
-          ? `Three items, three different owners. The same table Jordan sees. ${am('M-16')}`
+          ? `Three items, three different owners. ${am('M-16')}`
           : `Three items, three different owners. This table is the answer to “where is my equipment?” ${am('A-41')}`}</span>
       </div>
       <table class="eq-table">
@@ -5974,8 +5987,8 @@ function renderNetwork() {
             </div>
             <div class="dist-row">
               <div class="dr-h">${ic('users-three.svg','sm')} Your team</div>
-              <p>Your reporting line, on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>, on purpose.
-              rendering it as a hierarchy would mislead.</p>
+              <p>Your reporting line is on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>.
+              <span class="pnote">Deliberately so: rendering it as a hierarchy would mislead.</span></p>
             </div>
           </div>
         </div>
@@ -6518,7 +6531,8 @@ function renderShell() {
        <div class="avatar">${HIRE.initials}</div>`;
   $('#hdrSub').textContent = hm ? 'Hiring manager, before Day 1' : 'Your onboarding, before Day 1';
   const live = ASSUMPTIONS.filter(a => a.group !== 'retired').length;
-  $('#rbAssume').textContent = `${live} assumptions marked`;
+  // “marked” promised on-screen chips; those now sit behind the design-notes switch
+  $('#rbAssume').textContent = `${live} assumptions`;
   $$('#viewSwitch .vs').forEach(b => b.classList.toggle('on', (b.dataset.view === 'hm') === hm));
   document.body.classList.toggle('hm-side', hm);
 }
@@ -6668,6 +6682,12 @@ function renderProtoDrawer() {
   $('#protoDrawer').innerHTML = `
     <h3>${ic('exclamation-triangle.svg','sm')}Prototype controls</h3>
     <div class="warn-line">A prototype device. None of this exists in the real product. Clock is fixed at ${fmtDate(simToday())}.</div>
+    <div class="pc-h">Design notes</div>
+    <div class="pc-row">
+      <button class="pc-btn ${S.notes?'':'on'}" data-pc="notes:off">Hidden</button>
+      <button class="pc-btn ${S.notes?'on':''}" data-pc="notes:on">Shown</button>
+    </div>
+    <div class="pc-sub">Rationale, ${ASSUMPTIONS.length} assumption markers and the manager dispositions. Off by default so the portal reads as itself.</div>
     <div class="pc-h">Persona</div>
     <div class="pc-row">
       <button class="pc-btn ${S.persona==='external'?'on':''}" data-pc="persona:external">External new hire</button>
@@ -6706,9 +6726,9 @@ function renderProtoDrawer() {
 }
 
 function applyScenario(name) {
-  const { persona, country, horizon, view, buddyRule } = S;
+  const { persona, country, horizon, view, buddyRule, notes } = S;
   S = seedDetails(DEFAULT_STATE());
-  Object.assign(S, { persona, country, horizon, view, buddyRule, scenario: name });
+  Object.assign(S, { persona, country, horizon, view, buddyRule, notes, scenario: name });
   syncCountry();
 
   const fillDetails = () => {
@@ -6923,9 +6943,14 @@ function render() {
   $('#app').innerHTML = fn();
   renderShell();
   renderProtoDrawer();
+  applyNotes();
   bindScreen(route);
   window.scrollTo(0, 0);
 }
+/* Design notes are a body class, not a re-render: the markup always carries
+   the commentary, CSS decides whether this viewer is reading it. */
+function applyNotes() { document.body.classList.toggle('notes', !!S.notes); }
+
 function rerender() { render(); }
 
 function bindScreen(route) {
@@ -7417,6 +7442,7 @@ document.addEventListener('click', e => {
   if (pcBtn) {
     const [k, v] = pcBtn.dataset.pc.split(':');
     if (k === 'scenario') applyScenario(v);
+    else if (k === 'notes') { S.notes = (v === 'on'); applyNotes(); save(); }
     else {
       S[k] = v;
       if (k === 'country') syncCountry();
