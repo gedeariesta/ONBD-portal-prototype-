@@ -712,8 +712,10 @@ const COMING_UP = [
   { name:'Benefits enrolment', opens:'30 days before you start',
     note:'Shows what you’ll qualify for and when coverage begins', icon:'shield-check.svg',
     expl:'Opens 30 days before your start date. Nothing to prepare between now and then.' },
-  { name:'Equipment setup instructions', opens:'3 days before you start', note:'', icon:'portal-window.svg',
-    expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does.' },
+  { name:'Equipment setup instructions', opens:'3 days before you start',
+    note:'You set the machine up yourself, and the IT help desk is open all day', icon:'portal-window.svg',
+    expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
+    dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
   { name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
     expl:'Held until 3 days out so the details are final rather than provisional.' },
@@ -891,13 +893,25 @@ const SOFTWARE_CATALOG = [
 
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
-  { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'12:00 to 13:00',
-    auto:true, locked:true, note:'Automatically placed, one hour, immediately after the cohort lunch. You can reschedule it, but not delete it.' },
-  { id:'nho', label:'New Hire Orientation', time:'09:00 to 12:00',
+  { id:'nho', label:'New Hire Orientation', time:'09:00 to 13:00',
     auto:true, blueprint:true, note:'From the orientation blueprint for your location. PEX owns it, so you cannot move it.' },
-  { id:'teamIntro', label:'Team introduction', time:'14:00 to 14:30', auto:false },
-  { id:'buddy', label:'Buddy check-in', time:'15:00 to 15:30', auto:false },
-  { id:'itSetup', label:'IT setup window', time:'15:30 to 16:30', auto:false },
+  { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'13:00 to 14:00',
+    auto:true, locked:true, note:'Automatically placed, one hour, immediately after orientation ends. You can reschedule it, but not delete it.' },
+  { id:'teamIntro', label:'Team introduction', time:'14:30 to 15:00', auto:false },
+];
+
+/* Two holds came off Day 1.
+
+   IT setup: there is no designated setup window, because IT is not
+   committing to one. The new hire sets the machine up themselves and the
+   help desk is available all day, so the pointer belongs in their checklist
+   rather than as an hour in the manager's calendar.
+
+   Buddy check-in: moved to the days after Day 1. Day 1 is already full, and
+   a buddy conversation lands better once there is something to ask about. */
+const AFTER_DAY1_HOLDS = [
+  { id:'buddy', label:'Buddy check-in', when:'Day 2 or 3',
+    note:'Booked once the buddy accepts. Day 1 is full enough, and it works better once they have questions.' },
 ];
 
 /* Teams channels and distribution lists for H-12 */
@@ -907,14 +921,39 @@ const CHANNEL_SUGGESTIONS = [
 ];
 
 /* Welcome email boilerplate for H-10 (M-08) */
-const WELCOME_BOILERPLATE =
-`Hi Jordan,
+/* Three tones for the same note (M-31). The point of pre-filling this is to
+   save the manager writing it; the point of offering tones is that a
+   pre-filled note which does not sound like the sender is worse than none.
+   Same facts in each, different register. */
+const WELCOME_TEMPLATES = [
+  { id:'warm', label:'Warm', hint:'Friendly and personal. Most managers, most hires.',
+    body:`Hi Jordan,
 
-Welcome to Equinix. I'm glad you're joining us.
+Welcome to Equinix. I'm really glad you're joining us, and the team is looking forward to meeting you.
 
-Before your first day you'll get access to an onboarding portal with a short list of things to work through. Nothing there should take long, and it will tell you what's needed and by when.
+Before your first day you'll get access to an onboarding portal with a short list of things to work through. None of it should take long, and it tells you what's needed and by when.
 
-If anything is unclear before you start, reply to this email and I'll pick it up.`;
+If anything is unclear before you start, just reply to this and I'll pick it up.` },
+
+  { id:'brief', label:'Brief', hint:'Short and practical. Says what happens next and stops.',
+    body:`Hi Jordan,
+
+Welcome to Equinix.
+
+You'll get access to an onboarding portal before your first day. It has a short list of things to complete, with due dates.
+
+Reply here if anything is unclear.` },
+
+  { id:'formal', label:'Formal', hint:'More measured. Senior hires, or where it is the house style.',
+    body:`Dear Jordan,
+
+Welcome to Equinix. We are pleased that you have chosen to join us.
+
+Ahead of your start date you will be given access to an onboarding portal containing a short set of tasks to complete. Each one indicates what is required and the date by which it is needed.
+
+Should anything require clarification before you start, please reply to this message and I will address it.` },
+];
+const WELCOME_BOILERPLATE = WELCOME_TEMPLATES[0].body;
 
 /* The read-only block the system inserts, generated from the new hire's own task list (M-08) */
 const WELCOME_SYSTEM_BLOCK_NOTE =
@@ -1014,6 +1053,22 @@ const HM_ASSUMPTIONS = [
   { id:'M-28', side:'hm', group:'design', prov:'1:1', screen:'Readiness view', route:'#/hm/',
     assumed:'Overdue is its own state and it is loud. Anything past its date and still open appears in red above everything else, with a route straight to the task.',
     resolve:'The earlier version of this screen folded overdue items into a general attention list, on the assumption that a manager has enough control to work it out. That is too much credit. Managers are doing their own job alongside this, so a risk to Day 1 has to be unmissable. The open question is the other half of the same balance: how far to go before the screen is telling an experienced manager how to do their job.', oi:'' },
+  { id:'M-30', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
+    assumed:'The manager’s list runs past the start date: Day 1, first week and first month phases, carrying meeting the new hire, agreeing the 30/60/90 plan, an end-of-week check-in and a first-month review.',
+    resolve:'Everything a manager owed was drawn as pre-Day 1, which made the after-start half of the job invisible. These four are proposed, not sourced: no document says a manager owes them, where the 30/60/90 plan lives, or whether this portal owns anything after the start date at all. The first-month review should be designed alongside the day 30 survey, since they ask the same question a week apart.', oi:'' },
+
+  { id:'M-31', side:'hm', group:'content', prov:'1:1', screen:'Send a welcome note', route:'#/hm/welcome',
+    assumed:'Three tones for the same note: warm, brief and formal. Same facts, different register. Switching replaces the draft; the personal line survives.',
+    resolve:'Pre-filling the note is most of the saving, but a pre-filled note that does not sound like the sender is worse than none, which is the argument for tones. Open: whether three is the right number, whether the set should vary by region or seniority, and whether a manager’s choice should be remembered for their next hire.', oi:'' },
+
+  { id:'M-32', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Confirm the first-day details', route:'#/hm/logistics',
+    assumed:'People Experience own the orientation blueprint. When they change it, the manager’s confirmation goes stale, the task reopens and it is raised as a blocker.',
+    resolve:'The two-portal picture has a third party in it. Nothing specifies what happens when People Experience edit a blueprint a manager has already confirmed against: whether the task reopens, whether the manager is told, or what the new hire sees in the gap. This prototype reopens it and says so, which is the strict reading. The softer one, updating silently because the blueprint is authoritative anyway, is arguable and cheaper.', oi:'' },
+
+  { id:'M-33', side:'hm', group:'design', prov:'1:1', screen:'Set up their first day', route:'#/hm/calendar',
+    assumed:'No IT setup window on Day 1. The new hire sets the machine up themselves, the help desk is open all day, and the pointer sits in their checklist rather than the manager’s calendar. The buddy check-in moves to Day 2 or 3.',
+    resolve:'IT would not commit to a designated setup window, so an hour booked against them was a promise nobody had made. The buddy move is a judgement: Day 1 is full, and the conversation lands better once there is something to ask about. Neither is sourced beyond the conversation they came from.', oi:'' },
+
   { id:'M-29', side:'hm', group:'blocks', prov:'1:1', screen:'Not built', route:null, nolink:true,
     assumed:'There is a third portal. People Experience need their own view: every pending start at once, and the ability to open one hire and see roughly what that hire sees.',
     resolve:'Named as the next thing to design. It matters because the problem statement is that nobody has visibility at any point, and this prototype currently answers that for two of the three people who need it. What People Experience actually validate, background check clearance among them, has to be settled before the view can be drawn.', oi:'' },

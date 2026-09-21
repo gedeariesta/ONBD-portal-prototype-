@@ -1203,6 +1203,9 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .tcard.hm .tic{background:var(--eq-light-violet); color:var(--eq-dark-violet);}
 .tcard.hm.done .tic{background:var(--ok-bg); color:var(--ok);}
 .tcard.blocked{border-left:3px solid var(--eq-dark-orange);}
+/* Reopened because People Experience changed the thing it confirmed (M-32) */
+.tcard.reopened{border-left:3px solid var(--review);}
+.chip.reopened{background:var(--review-bg); color:var(--review);}
 .disp-line{display:flex; gap:10px; align-items:baseline; margin-top:9px; flex-wrap:wrap;}
 .disp-note{font-size:12px; color:var(--ink-faint); font-weight:350; flex:1; min-width:200px; line-height:1.5;}
 
@@ -1236,6 +1239,49 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .subtraction-link b{color:var(--white); font-size:14px;}
 .subtraction-link p{color:var(--nickel); font-size:12.5px; font-weight:350; margin-top:2px;}
 .subtraction-link > div{flex:1;}
+
+/* ---------- manager: their own timeline (M-30) ----------
+   Deliberately the same device as the new hire's hero strip, in surface
+   colours rather than on a gradient, so both sides read as one product. */
+.hm-strip{
+  display:flex; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow-1); padding:16px 20px 14px; margin-bottom:18px;
+}
+.hms{flex:1; position:relative; text-align:center; cursor:default;}
+.hms-dot{
+  width:20px; height:20px; border-radius:50%; margin:0 auto 7px; position:relative; z-index:2;
+  border:2px solid var(--titanium); background:var(--surface); color:var(--white);
+  display:flex; align-items:center; justify-content:center;
+}
+.hms-bar{position:absolute; top:9px; left:calc(-50% + 10px); right:calc(50% + 10px); height:2px; background:var(--line-strong); z-index:1;}
+.hms:first-child .hms-bar{display:none;}
+.hms.done .hms-dot{background:var(--st-done); border-color:var(--st-done);}
+.hms.done .hms-bar{background:var(--st-done);}
+.hms.now .hms-dot{border-color:var(--action);}
+.hms.now .hms-dot i{width:8px; height:8px; border-radius:50%; background:var(--action);}
+.hms-l{font-size:12px; font-weight:700; color:var(--ink-faint); line-height:1.3;}
+.hms.now .hms-l, .hms.done .hms-l{color:var(--charcoal);}
+.hms-n{font-size:11px; color:var(--ink-faint); font-weight:350; margin-top:2px; font-variant-numeric:tabular-nums;}
+
+/* Phase groups in the task list */
+.hm-phase{margin-bottom:18px;}
+.hp-h{display:flex; align-items:center; gap:11px; margin-bottom:9px;}
+.hp-name{font-size:11px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); flex:none;}
+.hp-rule{flex:1; height:1px; background:var(--line);}
+.hp-count{font-size:11.5px; color:var(--ink-faint); font-weight:700; flex:none; font-variant-numeric:tabular-nums;}
+
+/* Holds that sit just after Day 1 */
+.after-day1{margin-top:16px; border-top:1px solid var(--line); padding-top:14px;}
+.ad-h{display:flex; align-items:center; gap:7px; margin-bottom:9px;}
+.ad-h b{font-size:12.5px; color:var(--charcoal);}
+.ad-h .ic{color:var(--ink-faint);}
+.ad-row{display:flex; align-items:flex-start; gap:14px; padding:9px 0;}
+.ad-row > div{flex:1;}
+.ad-when{
+  font-size:11.5px; font-weight:700; color:var(--ink-faint); flex:none; width:74px;
+  padding-top:1px;
+}
+.ad-label{font-weight:700; font-size:13.5px; color:var(--charcoal);}
 
 /* ---------- manager: new hire progress ---------- */
 .nh-progress{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow-1); padding:6px 20px 16px;}
@@ -1340,6 +1386,20 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .sys-block ol{padding-left:20px; margin-top:5px; color:var(--carbon); font-weight:350;}
 .sys-block li{padding:2px 0;}
 .sb-note{font-size:11.5px; color:var(--ink-faint); font-weight:350; margin-top:8px; font-style:italic;}
+
+/* ---------- manager: welcome tone templates (M-31) ---------- */
+.tone-pick{margin-bottom:16px;}
+.tone-pick > label{display:block; font-weight:700; font-size:13px; color:var(--charcoal); margin-bottom:6px;}
+.tone-pick .note{font-size:12px; color:var(--ink-faint); font-weight:350; margin-top:7px; line-height:1.45;}
+.tone-row{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px;}
+.tone-btn{
+  text-align:left; background:var(--surface); border:1px solid var(--titanium);
+  border-radius:9px; padding:9px 12px; cursor:pointer; transition:border-color .15s, background .15s;
+}
+.tone-btn:hover{border-color:var(--chrome);}
+.tone-btn.on{border-color:var(--action); background:#F4F9FF; box-shadow:0 0 0 1px var(--action);}
+.tone-btn b{display:block; font-size:13px; color:var(--charcoal);}
+.tone-btn span{display:block; font-size:11px; color:var(--ink-faint); font-weight:350; line-height:1.4; margin-top:2px;}
 
 /* ---------- manager: network picker ---------- */
 .net-card.hm .nc-top{align-items:center;}

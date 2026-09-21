@@ -190,6 +190,56 @@ The panel also records four **source-integrity problems in the workbook itself**
 by one from 34 onward, a truncated corporate-card row, and label drift between
 "accessories" and "access".
 
+## The 1:1 changes
+
+Applied from the meeting notes and handwritten follow-ups. v3 only; v1 and
+v2 stay untouched.
+
+**New hire**
+
+- **Background check first.** It runs longest and nothing waits on it.
+- **The phase strip runs to 90 days.** The live portal's five phases stop at
+  the first month; the experience runs to three.
+- **Equipment is the new hire's to choose**, not the manager's. Two states,
+  both switchable from the prototype controls: one mapped build to confirm,
+  or a real choice with full specifications, device illustrations and lead
+  times. Models and specs are illustrative — the approved catalogue sits with
+  End User Technology and has not been supplied.
+- **Banking and direct deposit are captured in the portal**, editable, on a
+  pay tab inside the details task. Withholding allowances come with them; the
+  tax forms themselves stay with Payroll.
+- **Inside Equinix is a narrow strip** with a disclosure, not a full-width box,
+  and links out to the real thing rather than paraphrasing it.
+- **The recruiter hands over to People Experience** visibly: the concierge is
+  promoted, the recruiter greys out but stays reachable.
+- **Badge completion is gone.** Security has no integration, so the portal was
+  reporting something it could not see. Background check takes its place as a
+  top-level readiness step.
+- **No IT setup window.** Self-setup, with the help desk open all day.
+
+**Hiring manager**
+
+- **Their own phase strip**, the same device as the new hire's, and the task
+  list grouped chronologically: before Day 1, Day 1, first week, first month.
+  Everything used to be drawn as pre-Day 1, which made the after-start half of
+  the job invisible. The four post-start tasks are proposed, not sourced.
+- **Jordan's journey as a donut** over four states, with the share in the
+  middle and every slice direct-labelled. The status colours are validated,
+  not eyeballed: worst adjacent pair 16.7 ΔE under deuteranopia.
+- **Everyone else as a strip**, hover naming the owner. Not a pie: three items
+  are three equal thirds, and that says only "there are three".
+- **Overdue is split.** Blockers carry only what the manager can act on;
+  a separate, quieter block carries what is waiting on the new hire.
+- **Ordering the computer is gone**, and its disposition moves to *remove* —
+  the largest single saving in the subtraction review.
+- **Three tones for the welcome note**, because a pre-filled note that does
+  not sound like the sender is worse than none.
+- **People Experience edits reach the checklist.** Change the orientation
+  blueprint and the manager's confirmation goes stale, the task reopens, and
+  it is raised as a blocker. A third party in a two-portal picture.
+- **Ambassador removed.** One function-based buddy; anyone else is simply
+  someone to meet.
+
 ## The cleanup pass
 
 A design and copy pass over v3 only. No screens, features, routes or register

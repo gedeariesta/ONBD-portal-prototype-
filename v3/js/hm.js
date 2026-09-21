@@ -19,9 +19,15 @@ function hmTasks() {
   const H = S.hm;
   const introReady = S.intro.saved && S.intro.consent && S.intro.text.trim();
   const list = [
+    // People Experience owns the blueprint this task confirms. When they
+    // change it, the manager's confirmation is stale and the task reopens
+    // (M-32). That is the point of one shared state across three parties.
     { id:'logistics', label:'Confirm the first-day details', disp:'keep', route:'#/hm/logistics',
-      done: H.logistics.confirmed, icon:'calendar.svg', dueOff:-7, sys:'Workplace Services', srcDue:true,
-      why:'Only you know whether you’ll actually be there, and who covers if you’re not.',
+      done: H.logistics.confirmed && !S.pexUpdate, icon:'calendar.svg', dueOff:-7, sys:'Workplace Services', srcDue:true,
+      reopened: H.logistics.confirmed && S.pexUpdate, marker: S.pexUpdate ? 'M-32' : '',
+      why: H.logistics.confirmed && S.pexUpdate
+        ? 'People Experience moved the orientation. What you confirmed no longer matches.'
+        : 'Only you know whether you’ll actually be there, and who covers if you’re not.',
       dispNote:'Kept, but narrowed. The location facts come from the orientation blueprint, not from you.' },
     // The new hire picks their own machine now (A-60), so this is no longer
     // an order. What is left is an awareness row, and the case for removing
@@ -58,7 +64,63 @@ function hmTasks() {
       why:'Jordan wrote it and agreed you can share it. It goes nowhere until you send it.',
       dispNote:'Arrived because Jordan completed their side. Nothing is posted automatically.' });
   }
-  return list;
+  // Everything above is pre-Day 1. What a manager owes after the start date
+  // has never been written down as tasks, so these are proposed rather than
+  // sourced, and marked as such on screen (M-30).
+  list.push(
+    { id:'day1meet', label:'Meet Jordan and walk them in', disp:'automate', route:null, phase:1,
+      done:false, icon:'users-friends.svg', marker:'M-30', dueOff:0, sys:'Outlook',
+      why:'Straight after orientation ends. The hold is already in your calendar.',
+      dispNote:'Already placed automatically. It is on this list to be visible, not to be done.' },
+    { id:'plan', label:'Agree their 30, 60 and 90 day plan', disp:'keep', route:null, phase:2,
+      done:false, icon:'list-tasks.svg', marker:'M-30', dueOff:4, sys:'Not decided',
+      why:'What good looks like by each checkpoint, agreed with them rather than sent to them.',
+      dispNote:'Nothing in any source says where this plan lives or whether the portal owns it.' },
+    { id:'week1', label:'End of first week check-in', disp:'keep', route:null, phase:2,
+      done:false, icon:'comment-lines.svg', marker:'M-30', dueOff:5, sys:'Outlook',
+      why:'Half an hour to catch what is not working while it is still cheap to fix.',
+      dispNote:'Proposed. A recurring hold would make this a habit rather than a task.' },
+    { id:'month1', label:'First month review', disp:'keep', route:null, phase:3,
+      done:false, icon:'flag.svg', marker:'M-30', dueOff:30, sys:'Outlook',
+      why:'The first real read on whether the plan you agreed was the right one.',
+      dispNote:'Proposed. Lines up with the day 30 survey, so the two should be designed together.' },
+  );
+  return list.map(t => Object.assign({ phase:0 }, t));
+}
+
+/* The manager's own timeline, mirroring the new hire's phase strip. Their
+   work has always been drawn as one flat pre-Day 1 list, which is why the
+   after-start half of the job was invisible. */
+const HM_PHASES = ['Before Day 1', 'Day 1', 'First week', 'First month'];
+
+/* The same device as the new hire's hero strip, so the two sides read as one
+   product (M-30). */
+function hmPhaseStrip() {
+  const counts = hmPhaseCounts();
+  const d = daysToStart();
+  const current = d > 0 ? 0 : d === 0 ? 1 : 2;
+  return `
+  <div class="hm-strip" data-assume="M-30">
+    ${HM_PHASES.map((p, i) => {
+      const c = counts[i];
+      const st = c.total && c.done === c.total ? 'done' : i === current ? 'now' : '';
+      return `
+      <div class="hms ${st}" data-goto-phase="${i}">
+        <div class="hms-bar"></div>
+        <div class="hms-dot">${st === 'done' ? ic('check.svg','sm') : st === 'now' ? '<i></i>' : ''}</div>
+        <div class="hms-l">${p}</div>
+        <div class="hms-n">${c.done} of ${c.total}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function hmPhaseCounts() {
+  const t = hmTasks();
+  return HM_PHASES.map((_, i) => {
+    const inPhase = t.filter(x => x.phase === i);
+    return { done: inPhase.filter(x => x.done).length, total: inPhase.length };
+  });
 }
 
 function hmDone() { return hmTasks().filter(t => t.done).length; }
@@ -113,6 +175,10 @@ function overdueItems() {
 function hmBlockers() {
   const out = [];
   const days = daysToStart();
+  if (S.hm.logistics.confirmed && S.pexUpdate) {
+    out.push({ sev:'high', text:'People Experience moved the orientation to finish at 13:00. The first-day details you confirmed no longer match, and Jordan is seeing the old version.',
+      action:'Re-confirm', route:'#/hm/logistics', marker:'M-32' });
+  }
   if (!S.hm.buddy.assigned && days <= 21) {
     out.push({ sev:'med', text:'No buddy named yet. If you do not name one, a buddy is auto-assigned the day before Jordan starts.',
       action:'Name someone', route:'#/hm/buddy' });
@@ -365,12 +431,28 @@ function renderHmHome() {
       <div>
         <div class="section-h">
           <h2>Your tasks</h2>
-          <span class="hint">${hmDone()} of ${tasks.length} done, in the order that keeps Day 1 safe</span>
+          <span class="hint">${hmDone()} of ${tasks.length} done, in the order they come up</span>
           <span class="hint pnote">Each carries a verdict on whether it should exist at all ${am('M-09')}</span>
         </div>
-        <div class="tcards">
-          ${tasks.map((t,i) => hmTaskCard(t, i+1)).join('')}
-        </div>
+        ${hmPhaseStrip()}
+        ${/* Grouped by when, not by system. The list used to be flat and
+              entirely pre-Day 1, which made the after-start half invisible. */''}
+        ${HM_PHASES.map((ph, pi) => {
+          const inPhase = tasks.filter(t => t.phase === pi);
+          if (!inPhase.length) return '';
+          const c = hmPhaseCounts()[pi];
+          return `
+          <div class="hm-phase" data-phase="${pi}">
+            <div class="hp-h">
+              <span class="hp-name">${ph}</span>
+              <span class="hp-rule"></span>
+              <span class="hp-count">${c.done} of ${c.total}</span>
+            </div>
+            <div class="tcards">
+              ${inPhase.map((t, i) => hmTaskCard(t, pi === 0 ? i + 1 : null)).join('')}
+            </div>
+          </div>`;
+        }).join('')}
         <div class="subtraction-link pnote" data-goto="#/hm/subtraction">
           ${ic('list-tasks.svg','lg')}
           <div>
@@ -403,17 +485,9 @@ function renderHmHome() {
           </div>
         </div>
 
-        <div class="section-h"><h2>Everyone else</h2><span class="hint">Not yours, but they count toward readiness</span></div>
-        <div class="ocards">
-          ${thirdPartyTasks().map(t => `
-            <div class="ocard">
-              <div class="tic">${ic(t.state==='ready'?'check-circle.svg':'clock.svg')}</div>
-              <div class="o-main">
-                <div class="o-name">${t.label} <span class="chip ${t.state==='ready'?'done':'waiting'}">${t.owner}</span></div>
-                <div class="o-note">${t.note}</div>
-              </div>
-            </div>`).join('')}
-        </div>
+        ${/* The Everyone else strip at the top of this page already
+              carries these three, with their owners on hover. Listing
+              them again here was the same status twice. */''}
       </div>
 
       ${hmRail()}
@@ -426,11 +500,13 @@ function hmTaskCard(t, seq) {
   const due = t.dueOff != null ? addDays(startDate(), t.dueOff) : null;
   const late = due && due < simToday() && !t.done;
   return `
-  <div class="tcard hm ${t.done?'done':''} ${t.blocked?'blocked':''}" data-task="${t.route}" ${t.marker?`data-assume="${t.marker}"`:''}>
+  <div class="tcard hm ${t.done?'done':''} ${t.blocked?'blocked':''} ${t.reopened?'reopened':''}"
+    data-task="${t.route}" ${t.marker?`data-assume="${t.marker}"`:''}>
     <div class="tic">${ic(t.icon,'lg')}</div>
     <div class="t-main">
       ${seq ? `<div class="t-seq">Step ${seq}</div>` : ''}
-      <div class="t-name">${t.label}${t.marker ? ' '+am(t.marker) : ''}</div>
+      <div class="t-name">${t.label}${t.marker ? ' '+am(t.marker) : ''}
+        ${t.reopened ? `<span class="chip reopened">${ic('exclamation-circle.svg','sm')}Reopened by People Experience</span>` : ''}</div>
       <div class="t-why">${t.why}</div>
       <div class="t-meta">
         ${due ? `<span class="m ${late?'overdue':''}">${ic('calendar.svg','sm')}Due ${dueText(due)}${t.srcDue ? '' : ' '+am('M-23')}</span>` : ''}
@@ -525,7 +601,9 @@ function renderHmLogistics() {
   const blueprint = [
     ['Where to go', jp ? 'Otemachi Financial City Grand Cube, reception, 3rd floor' : '1225 17th Street, main reception, ground floor'],
     ['Parking', jp ? 'No on-site parking. Nearest station is Otemachi (C11)' : 'Visitor parking, level B2. Bring the QR code in your Day 1 email.'],
-    ['What to expect', 'Orientation until 12:00, then lunch with the other new starters.'],
+    ['What to expect', S.pexUpdate
+      ? 'Orientation until 13:00, then straight into your 1:1.'
+      : 'Orientation until 12:00, then lunch with the other new starters.'],
     ['Dress code', 'Smart casual.'],
   ];
   return `
@@ -913,16 +991,35 @@ function renderHmCalendar() {
             </div>`;
           }).join('')}
         </div>
+        <div class="after-day1">
+          <div class="ad-h">${ic('arrow-right.svg','sm')}<b>Just after Day 1</b></div>
+          ${AFTER_DAY1_HOLDS.map(h => `
+            <div class="ad-row">
+              <span class="ad-when">${h.when}</span>
+              <div>
+                <div class="ad-label">${h.label}</div>
+                <div class="ch-note">${h.note}</div>
+              </div>
+              <label class="check"><input type="checkbox" data-hold="${h.id}" ${C.holds[h.id]?'checked':''}><span>Add</span></label>
+            </div>`).join('')}
+        </div>
+
+        <div class="callout soft mt16">
+          ${ic('info-circle.svg')}
+          <div><b>No IT setup window.</b> IT is not committing to an hour on Day 1, so Jordan sets the machine up
+          themselves and the help desk is open all day. That pointer sits in Jordan’s checklist, not your calendar. ${am('M-33')}</div>
+        </div>
+
         <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
-          <div>The three unticked holds are suggestions you have to accept one at a time. If they were created
+          <div>The unticked holds are suggestions you have to accept one at a time. If they were created
           automatically like your 1:1, this screen would have nothing on it for you to do, which is the point of the
           disposition above. ${am('M-06')}</div>
         </div>
       </div>
       <div class="wiz-foot">
         <span class="saved-state">${ic('save.svg','sm')}Your 1:1 is already in the calendar</span>
-        <span class="missing">${Object.values(C.holds).filter(Boolean).length} of 3 suggested holds added</span>
+        <span class="missing">${Object.values(C.holds).filter(Boolean).length} of 2 suggested holds added</span>
         <button class="btn primary" id="calConfirm">${C.confirmed?'Update':'Confirm the day'}</button>
       </div>
     </div>
@@ -971,6 +1068,17 @@ function renderHmWelcome() {
           <label>To</label>
           <input type="text" value="${HIRE.email}" readonly>
           <div class="note">Jordan’s personal email. They do not have an Equinix account yet.</div>
+        </div>
+        <div class="tone-pick" data-assume="M-31">
+          <label>Pick a tone ${am('M-31')}</label>
+          <div class="tone-row">
+            ${WELCOME_TEMPLATES.map(t => `
+              <button class="tone-btn ${(W.tone || 'warm') === t.id ? 'on' : ''}" data-tone="${t.id}">
+                <b>${t.label}</b><span>${t.hint}</span>
+              </button>`).join('')}
+          </div>
+          <div class="note">Switching replaces the draft below. Anything you have typed into it is lost,
+          so pick the tone first.</div>
         </div>
         <div class="field" style="max-width:none;">
           <label>Standard welcome <span class="opt">(editable)</span></label>
@@ -1266,6 +1374,14 @@ function handoffRows() {
   return [
     // Direction reversed with A-60: the equipment handoff now runs new hire
     // to manager, where it used to run manager to new hire.
+    // A third party in a two-portal picture: People Experience own the
+    // blueprint the manager confirms, so their edit reopens a closed task.
+    { dir:'hm', from:'People Experience blueprint', to:'Confirm the first-day details', marker:'M-32',
+      done: !S.pexUpdate,
+      state: S.pexUpdate
+        ? 'Blueprint changed. The manager’s confirmation is stale and the task has reopened'
+        : 'Blueprint stable. The manager is confirming current facts',
+      hmRoute:'#/hm/logistics', nhRoute:'#/' },
     { dir:'nh', from:'Choose your equipment', to:'Equipment status table', marker:'L-04',
       done: S.equipment.deviceConfirmed,
       state: S.equipment.deviceConfirmed
@@ -1505,6 +1621,13 @@ function bindHm(route) {
     };
     if (body) body.addEventListener('input', sync);
     if (pers) pers.addEventListener('input', sync);
+    // Switching tone replaces the draft. The personal line is the manager's
+    // own words, so it survives.
+    $$('[data-tone]').forEach(b => b.addEventListener('click', () => {
+      const t = WELCOME_TEMPLATES.find(x => x.id === b.dataset.tone);
+      if (!t) return;
+      H.welcome.tone = t.id; H.welcome.body = t.body; save(); rerender();
+    }));
     const s = $('#wcSend');
     if (s) s.addEventListener('click', () => {
       H.welcome.sent = true; save(); rerender();

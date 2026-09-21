@@ -40,6 +40,13 @@
   --ok:var(--eq-dark-green); --ok-bg:var(--eq-light-green);
   --warn:var(--eq-dark-orange); --warn-bg:var(--eq-light-orange);
   --review:var(--eq-dark-violet); --review-bg:var(--eq-light-violet);
+  /* Task-state palette, used by the manager's progress donut and the status
+     strip. Validated for colour-vision deficiency: worst adjacent pair is
+     16.7 deltaE (deutan), well clear of the 8 threshold, and all four clear
+     3:1 against the surface. "Not started" is deliberately the one grey slot,
+     because it is the absence of a state rather than a state; every segment
+     is direct-labelled so nothing is carried by colour alone. */
+  --st-done:#2A8346; --st-doing:#086AE3; --st-late:#F55200; --st-none:#8B93A3;
   --radius:10px; --radius-lg:14px;
   --shadow-1:0 1px 2px rgba(47,53,65,.05);
   --shadow-2:0 4px 16px rgba(47,53,65,.10);
@@ -299,6 +306,27 @@ small{color:var(--ink-faint);}
 .contact .c-links{display:flex; gap:12px; font-size:12.5px;}
 .contact .c-links a{display:inline-flex; align-items:center; gap:5px; font-weight:700;}
 .rail-note{font-size:12px; color:var(--ink-faint); font-weight:350; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+
+/* The recruiter-to-People-Experience handoff, shown rather than explained.
+   The concierge is raised on a tinted card; the recruiter stands down to a
+   quieter row but stays reachable, because handed over is not gone. */
+.contact.primary{
+  background:var(--eq-light-blue); border-radius:10px; padding:12px 13px; margin:2px 0;
+  border:1px solid #b9d8ff;
+}
+.contact.primary + .contact{border-top:none;}
+.contact.primary .c-name{color:var(--eq-dark-blue);}
+.contact.primary .c-role{color:var(--eq-dark-blue); opacity:.8;}
+.c-extra.concierge{
+  display:inline-flex; align-items:center; gap:6px; margin:4px 0 6px;
+  font-size:11.5px; font-weight:700; color:var(--eq-dark-blue);
+}
+.contact.handed{opacity:.62;}
+.contact.handed .avatar{filter:grayscale(1);}
+.contact.handed .c-extra{
+  font-size:11px; font-weight:700; letter-spacing:.02em; color:var(--ink-faint);
+  text-transform:uppercase; margin:2px 0 5px;
+}
 .res-list{list-style:none;}
 .res-list li{padding:7px 0; border-bottom:1px solid var(--line); font-size:13.5px;}
 .res-list li:last-child{border-bottom:none;}
@@ -329,7 +357,7 @@ small{color:var(--ink-faint);}
 .field label .opt{font-weight:350; color:var(--ink-faint);}
 .field .note{font-size:12px; color:var(--ink-faint); font-weight:350; margin-top:5px; line-height:1.45;}
 .field input[type=text], .field input[type=email], .field input[type=tel],
-.field select, .field textarea{
+.field input[type=password], .field select, .field textarea{
   width:100%; font-family:inherit; font-size:14px; color:var(--charcoal);
   padding:9px 12px; border:1px solid var(--titanium); border-radius:8px; background:var(--white);
   outline:none; transition:border-color .12s, box-shadow .12s;
@@ -817,6 +845,39 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .file-done .fd-who{font-size:11.5px; color:var(--carbon); font-weight:350; margin-top:2px; display:flex; gap:5px; align-items:center;}
 .excl-note{margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-strong); font-size:12.5px !important;}
 
+/* ---------- the machine the new hire picks (A-57) ---------- */
+.dev-grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; margin-top:14px;}
+.dev-card{
+  display:flex; flex-direction:column; background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+  cursor:pointer; transition:border-color .15s, box-shadow .15s;
+}
+.dev-card:not(.fixed):hover{border-color:var(--chrome); box-shadow:var(--shadow-2);}
+.dev-card.on{border-color:var(--action); box-shadow:0 0 0 2px var(--eq-light-blue);}
+.dev-card.fixed{cursor:default; max-width:740px; margin-top:14px; flex-direction:row; align-items:stretch;}
+.dev-card.fixed .dev-art{width:230px; flex:none;}
+.dev-art{background:var(--silver); padding:14px 16px; display:flex; align-items:center; justify-content:center;}
+.dev-svg{width:100%; height:auto; display:block; max-width:210px;}
+.dev-body{padding:15px 17px; flex:1; min-width:0;}
+.dev-h{display:flex; align-items:flex-start; gap:10px;}
+.dev-h > div{flex:1; min-width:0;}
+.dev-name{font-weight:800; font-size:14.5px; color:var(--charcoal);}
+.dev-sub{font-size:12px; color:var(--ink-faint); margin-top:1px;}
+.dev-tick{color:var(--action); flex:none;}
+.dev-fits{font-size:12.5px; font-weight:350; color:var(--carbon); margin-top:7px; line-height:1.5;}
+.dev-specs{margin-top:11px; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:5px 16px;}
+.dev-specs div{display:flex; justify-content:space-between; gap:10px; border-bottom:1px dotted var(--line); padding-bottom:3px;}
+.dev-specs dt{font-size:11.5px; color:var(--ink-faint); font-weight:350;}
+.dev-specs dd{font-size:11.5px; color:var(--charcoal); font-weight:700; text-align:right;}
+.dev-lead{
+  display:inline-flex; align-items:center; gap:6px; margin-top:11px;
+  font-size:12px; font-weight:700; color:var(--ok);
+}
+.dev-lead.late{color:var(--warn);}
+.dev-confirm{display:flex; align-items:center; gap:14px; margin-top:16px; flex-wrap:wrap;}
+.dev-confirm-note{font-size:12.5px; color:var(--carbon); font-weight:350;}
+.dev-confirm-note .help-link{color:var(--action); font-weight:700; cursor:pointer;}
+
 /* ---------- equipment ---------- */
 .eq-status{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:20px 24px; max-width:940px;}
 .eqs-h{display:flex; align-items:baseline; gap:12px; margin-bottom:12px; flex-wrap:wrap;}
@@ -1005,10 +1066,25 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 
 /* ---------- manager: readiness hero ---------- */
 .hm-hero{
-  display:flex; gap:32px; align-items:center; padding:26px 32px; margin-bottom:22px;
+  display:flex; gap:32px; align-items:center; padding:24px 32px; margin-bottom:16px;
   border-radius:var(--radius-lg); position:relative; overflow:hidden;
   background:linear-gradient(104deg, #00305F 0%, #0A4FA8 58%, #086AE3 100%);
 }
+.hm-hero-fig{flex:none; text-align:right; color:var(--white);}
+.hhf-num{font-size:40px; font-weight:800; line-height:1; letter-spacing:-.025em;}
+.hhf-num span{font-size:20px; margin-left:1px;}
+.hhf-cap{font-size:12px; font-weight:350; color:rgba(255,255,255,.8); margin-top:5px;}
+
+/* The two figures side by side, on the surface rather than the gradient */
+.hm-figs{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; margin-bottom:22px; align-items:start;}
+.hm-fig-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-1); padding:15px 18px;
+}
+.hfc-h{margin-bottom:12px;}
+.hfc-h b{font-size:14px; color:var(--charcoal); display:block;}
+.hfc-h span{font-size:11.5px; color:var(--ink-faint); font-weight:350; line-height:1.45; display:block; margin-top:3px;}
+.hm-figs .others-strip{margin-bottom:0;}
 .hm-hero > *{position:relative; z-index:2;}
 .ready-ring{position:relative; width:118px; height:118px; flex:none;}
 .ready-ring svg{width:118px; height:118px; display:block;}
@@ -1034,6 +1110,64 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 }
 .score-caveat .ic{color:var(--eq-yellow); margin-top:1px; flex:none;}
 
+/* ---------- Jordan's journey as one figure (M-02) ---------- */
+.dk-sw{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block;}
+.dk-sw.done{background:var(--st-done);}  .dk-sw.doing{background:var(--st-doing);}
+.dk-sw.late{background:var(--st-late);}  .dk-sw.none{background:var(--st-none);}
+.don-seg.done{stroke:var(--st-done);}    .don-seg.doing{stroke:var(--st-doing);}
+.don-seg.late{stroke:var(--st-late);}    .don-seg.none{stroke:var(--st-none);}
+
+.nh-donut{display:flex; align-items:center; gap:22px;}
+.don-fig{position:relative; width:120px; height:120px; flex:none;}
+.don-fig svg{width:120px; height:120px; display:block;}
+.don-mid{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.don-mid b{font-size:27px; font-weight:800; color:var(--charcoal); line-height:1; letter-spacing:-.02em;}
+.don-mid b span{font-size:14px; margin-left:1px;}
+.don-cap{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:3px;}
+.don-key{list-style:none; display:flex; flex-direction:column; gap:6px; min-width:172px;}
+.don-key li{display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--carbon);}
+.don-key li.zero{opacity:.45;}
+.don-key .dk-l{flex:1;}
+.don-key .dk-n{color:var(--charcoal); font-weight:800; font-variant-numeric:tabular-nums;}
+
+/* ---------- Everyone else, as one strip ---------- */
+.others-strip{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-1); padding:15px 18px; margin-bottom:22px;
+}
+.os-h{display:flex; align-items:baseline; gap:10px; margin-bottom:11px;}
+.os-h b{font-size:14px; color:var(--charcoal);}
+.os-h span{font-size:12px; color:var(--ink-faint); font-weight:350;}
+.os-bar{display:flex; gap:2px; border-radius:7px; overflow:visible;}
+.os-seg{
+  flex:1; height:38px; display:flex; align-items:center; justify-content:center;
+  position:relative; cursor:default; outline:none;
+}
+.os-seg:first-child{border-radius:7px 0 0 7px;} .os-seg:last-child{border-radius:0 7px 7px 0;}
+.os-seg.done{background:var(--st-done);} .os-seg.doing{background:var(--st-doing);} .os-seg.none{background:var(--st-none);}
+.os-seg-l{
+  font-size:11.5px; font-weight:700; color:var(--white); padding:0 10px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.os-tip{
+  position:absolute; bottom:calc(100% + 9px); left:50%; transform:translateX(-50%) translateY(4px);
+  background:var(--charcoal); color:var(--cloud); border-radius:8px; padding:10px 13px;
+  width:230px; display:flex; flex-direction:column; gap:3px; z-index:20;
+  opacity:0; pointer-events:none; transition:opacity .13s, transform .13s; box-shadow:var(--shadow-2);
+}
+.os-seg:hover .os-tip, .os-seg:focus .os-tip{opacity:1; transform:translateX(-50%) translateY(0);}
+.os-tip::after{
+  content:''; position:absolute; top:100%; left:50%; margin-left:-6px;
+  border:6px solid transparent; border-top-color:var(--charcoal);
+}
+.os-tip b{color:var(--white); font-size:13px;}
+.os-tip-owner{font-size:11.5px; color:var(--nickel);}
+.os-tip-state{font-size:10.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; margin-top:2px;}
+.os-tip-state.done{color:#7FE0A0;} .os-tip-state.doing{color:var(--eq-aqua);} .os-tip-state.none{color:var(--nickel);}
+.os-tip-note{font-size:11.5px; color:var(--cloud); font-weight:350; line-height:1.45; margin-top:2px;}
+.os-key{list-style:none; display:flex; gap:16px; margin-top:10px;}
+.os-key li{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-faint);}
+
 /* ---------- manager: blockers ---------- */
 .blockers{
   background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--eq-dark-orange);
@@ -1052,11 +1186,33 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .bl-row.med .bl-dot{background:var(--eq-dark-yellow);}
 .bl-text{flex:1; color:var(--carbon); font-weight:350; line-height:1.5;}
 
+/* Waiting on the new hire. Deliberately quieter than the blocker list: these
+   are somebody else's tasks, and a manager reading them cannot act. */
+.waiting-on{
+  background:var(--silver); border:1px solid var(--line); border-radius:var(--radius);
+  padding:13px 18px; margin:-12px 0 22px;
+}
+.wo-h{display:flex; align-items:baseline; gap:9px; margin-bottom:6px;}
+.wo-h .ic{color:var(--ink-faint); align-self:center;}
+.wo-h b{font-size:13px; color:var(--charcoal);}
+.wo-h span{font-size:12px; color:var(--ink-faint); font-weight:350;}
+.wo-row{
+  font-size:12.5px; color:var(--carbon); font-weight:350; line-height:1.5;
+  padding:5px 0 5px 22px; border-top:1px solid var(--line); position:relative;
+}
+.wo-row::before{
+  content:''; position:absolute; left:8px; top:12px; width:5px; height:5px;
+  border-radius:50%; background:var(--chrome);
+}
+
 /* ---------- manager: layout + task cards ---------- */
 .hm-grid{display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:28px; align-items:start;}
 .tcard.hm .tic{background:var(--eq-light-violet); color:var(--eq-dark-violet);}
 .tcard.hm.done .tic{background:var(--ok-bg); color:var(--ok);}
 .tcard.blocked{border-left:3px solid var(--eq-dark-orange);}
+/* Reopened because People Experience changed the thing it confirmed (M-32) */
+.tcard.reopened{border-left:3px solid var(--review);}
+.chip.reopened{background:var(--review-bg); color:var(--review);}
 .disp-line{display:flex; gap:10px; align-items:baseline; margin-top:9px; flex-wrap:wrap;}
 .disp-note{font-size:12px; color:var(--ink-faint); font-weight:350; flex:1; min-width:200px; line-height:1.5;}
 
@@ -1090,6 +1246,49 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .subtraction-link b{color:var(--white); font-size:14px;}
 .subtraction-link p{color:var(--nickel); font-size:12.5px; font-weight:350; margin-top:2px;}
 .subtraction-link > div{flex:1;}
+
+/* ---------- manager: their own timeline (M-30) ----------
+   Deliberately the same device as the new hire's hero strip, in surface
+   colours rather than on a gradient, so both sides read as one product. */
+.hm-strip{
+  display:flex; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow-1); padding:16px 20px 14px; margin-bottom:18px;
+}
+.hms{flex:1; position:relative; text-align:center; cursor:default;}
+.hms-dot{
+  width:20px; height:20px; border-radius:50%; margin:0 auto 7px; position:relative; z-index:2;
+  border:2px solid var(--titanium); background:var(--surface); color:var(--white);
+  display:flex; align-items:center; justify-content:center;
+}
+.hms-bar{position:absolute; top:9px; left:calc(-50% + 10px); right:calc(50% + 10px); height:2px; background:var(--line-strong); z-index:1;}
+.hms:first-child .hms-bar{display:none;}
+.hms.done .hms-dot{background:var(--st-done); border-color:var(--st-done);}
+.hms.done .hms-bar{background:var(--st-done);}
+.hms.now .hms-dot{border-color:var(--action);}
+.hms.now .hms-dot i{width:8px; height:8px; border-radius:50%; background:var(--action);}
+.hms-l{font-size:12px; font-weight:700; color:var(--ink-faint); line-height:1.3;}
+.hms.now .hms-l, .hms.done .hms-l{color:var(--charcoal);}
+.hms-n{font-size:11px; color:var(--ink-faint); font-weight:350; margin-top:2px; font-variant-numeric:tabular-nums;}
+
+/* Phase groups in the task list */
+.hm-phase{margin-bottom:18px;}
+.hp-h{display:flex; align-items:center; gap:11px; margin-bottom:9px;}
+.hp-name{font-size:11px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); flex:none;}
+.hp-rule{flex:1; height:1px; background:var(--line);}
+.hp-count{font-size:11.5px; color:var(--ink-faint); font-weight:700; flex:none; font-variant-numeric:tabular-nums;}
+
+/* Holds that sit just after Day 1 */
+.after-day1{margin-top:16px; border-top:1px solid var(--line); padding-top:14px;}
+.ad-h{display:flex; align-items:center; gap:7px; margin-bottom:9px;}
+.ad-h b{font-size:12.5px; color:var(--charcoal);}
+.ad-h .ic{color:var(--ink-faint);}
+.ad-row{display:flex; align-items:flex-start; gap:14px; padding:9px 0;}
+.ad-row > div{flex:1;}
+.ad-when{
+  font-size:11.5px; font-weight:700; color:var(--ink-faint); flex:none; width:74px;
+  padding-top:1px;
+}
+.ad-label{font-weight:700; font-size:13.5px; color:var(--charcoal);}
 
 /* ---------- manager: new hire progress ---------- */
 .nh-progress{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow-1); padding:6px 20px 16px;}
@@ -1195,6 +1394,20 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .sys-block li{padding:2px 0;}
 .sb-note{font-size:11.5px; color:var(--ink-faint); font-weight:350; margin-top:8px; font-style:italic;}
 
+/* ---------- manager: welcome tone templates (M-31) ---------- */
+.tone-pick{margin-bottom:16px;}
+.tone-pick > label{display:block; font-weight:700; font-size:13px; color:var(--charcoal); margin-bottom:6px;}
+.tone-pick .note{font-size:12px; color:var(--ink-faint); font-weight:350; margin-top:7px; line-height:1.45;}
+.tone-row{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px;}
+.tone-btn{
+  text-align:left; background:var(--surface); border:1px solid var(--titanium);
+  border-radius:9px; padding:9px 12px; cursor:pointer; transition:border-color .15s, background .15s;
+}
+.tone-btn:hover{border-color:var(--chrome);}
+.tone-btn.on{border-color:var(--action); background:#F4F9FF; box-shadow:0 0 0 1px var(--action);}
+.tone-btn b{display:block; font-size:13px; color:var(--charcoal);}
+.tone-btn span{display:block; font-size:11px; color:var(--ink-faint); font-weight:350; line-height:1.4; margin-top:2px;}
+
 /* ---------- manager: network picker ---------- */
 .net-card.hm .nc-top{align-items:center;}
 .net-card.hm.on{border-color:var(--eq-dark-violet); box-shadow:0 0 0 2px var(--eq-light-violet);}
@@ -1298,29 +1511,66 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
    the real document pack
    ============================================================ */
 
-/* Inside Equinix showcase (A-35)
-   Built to the brand illustration system: an image box carrying a gradient
-   and one isometric idea, with the copy beside it. */
-.showcase{
-  display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
-  gap:0; margin-bottom:22px; border-radius:var(--radius-lg); overflow:hidden;
-  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow-1);
+/* Inside Equinix, the narrow strip (A-35)
+   One bar the width of the page: chapter headline, dots, and a disclosure.
+   The full chapter, with its illustration, opens underneath. */
+.inside-strip{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-1); margin-bottom:18px; overflow:hidden;
 }
-.sc-stage{position:relative; min-height:260px;}
-.sc-stage svg{position:absolute; inset:0; width:100%; height:100%; display:block;}
-.sc-stage.hexfield::before{z-index:3; opacity:.1;}
-.sc-num{
-  position:absolute; left:26px; top:20px; font-size:52px; font-weight:800; z-index:4;
-  color:rgba(255,255,255,.34); line-height:1; letter-spacing:-.02em;
+.is-bar{
+  display:flex; align-items:center; gap:16px; padding:13px 18px; cursor:pointer;
+  transition:background .15s;
 }
-.sc-copy{padding:28px 32px; display:flex; flex-direction:column; justify-content:center;}
-.sc-eyebrow{
-  font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--eq-red); margin-bottom:11px;
+.is-bar:hover{background:var(--silver);}
+.is-num{
+  font-size:20px; font-weight:800; color:var(--nickel); line-height:1;
+  letter-spacing:-.02em; flex:none; width:28px;
 }
-.sc-ch{color:var(--charcoal); margin-left:6px; padding-left:9px; border-left:1px solid var(--titanium);}
-.sc-title{font-size:23px; line-height:1.18; color:var(--charcoal); margin-bottom:9px;}
-.sc-line{font-size:14px; font-weight:350; color:var(--carbon); line-height:1.55;}
+.is-copy{flex:1; min-width:0;}
+.is-eyebrow{
+  font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--eq-red); display:flex; align-items:center; gap:8px;
+}
+.is-ch{color:var(--ink-faint); padding-left:8px; border-left:1px solid var(--titanium);}
+.is-head{
+  font-size:14.5px; font-weight:700; color:var(--charcoal); margin-top:3px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.is-dots{display:flex; gap:6px; flex:none;}
+.is-dot{
+  width:7px; height:7px; border-radius:50%; border:none; padding:0; cursor:pointer;
+  background:var(--titanium); transition:background .15s, transform .15s;
+}
+.is-dot:hover{background:var(--chrome); transform:scale(1.25);}
+.is-dot.on{background:var(--action);}
+.is-more{
+  display:inline-flex; align-items:center; gap:6px; flex:none;
+  font-size:12.5px; font-weight:700; color:var(--action);
+}
+.is-more .ic{transition:transform .2s;}
+.inside-strip.open .is-more .ic{transform:rotate(180deg);}
+
+/* The chapter itself, closed by default */
+.is-body{display:none; border-top:1px solid var(--line);}
+.inside-strip.open .is-body{display:block;}
+.is-inner{display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr); gap:0;}
+.is-stage{position:relative; min-height:250px;}
+.is-stage svg{position:absolute; inset:0; width:100%; height:100%; display:block;}
+.is-stage.hexfield::before{z-index:3; opacity:.1;}
+.is-text{padding:22px 26px;}
+.is-line{font-size:14px; font-weight:350; color:var(--carbon); line-height:1.55;}
+.is-reflect{
+  margin-top:16px; padding:13px 16px; border-radius:8px;
+  background:var(--silver); border:1px solid var(--line);
+}
+.is-reflect > b{display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--charcoal);}
+.is-reflect ul{margin:7px 0 0; padding-left:19px;}
+.is-reflect li{font-size:13px; font-weight:350; color:var(--carbon); line-height:1.6;}
+.is-reflect li::marker{color:var(--action);}
+.is-reflect .pnote{font-size:11.5px; line-height:1.5; margin-top:8px;}
+.is-out{display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:13px; margin-top:16px;}
+.is-foot{font-size:12px; color:var(--ink-faint); font-weight:350; line-height:1.5; margin-top:12px;}
 
 /* Equinix at a glance, and the chapter lists. Real content from the site. */
 .sc-facts{display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:16px;}
@@ -1336,38 +1586,6 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   font-size:12.5px; font-weight:350; color:var(--carbon);
 }
 .sc-watch .ic{color:var(--eq-red); flex:none;}
-.sc-foot{font-size:12.5px; font-weight:350; color:var(--ink-faint); line-height:1.55; margin-top:12px;}
-
-/* Reflection prompt. On the real site every chapter ends with one, and it
-   points at the manager or buddy conversation rather than a form. */
-.reflect{
-  margin-top:14px; border-radius:var(--radius-lg); padding:22px 26px; position:relative; overflow:hidden;
-  background:linear-gradient(104deg, #1C2230 0%, #2F3541 62%, #263048 100%);
-}
-.rf-h{display:flex; align-items:center; gap:11px; margin-bottom:12px;}
-.rf-h h3{color:var(--white); font-size:17px; margin:0;}
-.rf-h .ic{color:var(--eq-aqua);}
-.rf-q{margin:0 0 14px; padding-left:20px; color:rgba(255,255,255,.94);}
-.rf-q li{font-size:14.5px; font-weight:350; line-height:1.6;}
-.rf-q li::marker{color:var(--eq-aqua);}
-.rf-note{
-  font-size:12.5px; font-weight:350; color:rgba(255,255,255,.66);
-  line-height:1.55; max-width:660px; margin:0;
-}
-.sc-thumbs{display:flex; gap:8px; margin-top:22px;}
-.sc-thumb{
-  position:relative; width:52px; height:36px; border-radius:7px; overflow:hidden;
-  border:2px solid transparent; background:none; padding:0; cursor:pointer;
-  transition:border-color .15s, transform .15s;
-}
-.sc-thumb:hover{transform:translateY(-2px);}
-.sc-thumb.on{border-color:var(--charcoal);}
-.sct-swatch{position:absolute; inset:0; display:block;}
-.sct-n{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  font-size:12px; font-weight:800; color:rgba(255,255,255,.9);
-}
-
 /* ---------- Readiness tracker, two levels (A-52 / M-22) ---------- */
 .rtrack{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
@@ -1860,13 +2078,17 @@ const PEOPLE = {
   ],
 };
 
-/* ---------- Five-phase timeline, named from the live portal (A-44) ---------- */
+/* ---------- Phase timeline, named from the live portal (A-44) ----------
+   The live portal's five phases stop at the first month. The onboarding
+   experience runs to 90 days, so the tracker carries a sixth phase the live
+   build does not have yet. */
 const PHASES = [
   'Get ready for Day 1',
   'Final preparations for Day 1',
   'Your first day at Equinix',
   'Your first week at Equinix',
   'Your first month at Equinix',
+  'Your first 90 days',
 ];
 
 /* ============================================================
@@ -1884,9 +2106,9 @@ const ASSUMPTIONS = [
   { id:'A-02', group:'blocks', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'Tab 3 holds preferred language, contact preferences, workplace adjustments and voluntary self-identification.',
     resolve:'The PRD names only two of the three tabs. Tab 3 contents need a decision from the onboarding PM with HR Ops.', oi:'OI-02' },
-  { id:'A-10', group:'blocks', prov:'ASSUMED', screen:'Personal details', route:'#/details',
-    assumed:'The portal renders the full personal-details form, with banking as a locked boundary card.',
-    resolve:'Confirm whether this form belongs to this workstream or the payroll team. If ownership lands elsewhere, this becomes an interface spec.', oi:'OI-01' },
+  { id:'A-10', group:'retired', prov:'ASSUMED', screen:'Personal details', route:'#/details',
+    assumed:'The portal renders the full personal-details form, with banking as a locked boundary card. Bank data is handled differently from the rest of the profile, so it never passes through this portal.',
+    resolve:'Reversed. Banking and direct deposit are captured in the portal now, on their own tab inside the mandatory personal-information task, because payroll cannot pay without them and a second form is a second place to abandon (A-61). The privacy handling the card described survives as a property of the fields rather than a reason to exclude them: encrypted, withheld from the manager, and outside what they can see of progress.', oi:'OI-01' },
   { id:'A-12', group:'blocks', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'No compensation figures are shown anywhere in the portal.',
     resolve:'Confirm the manager-visibility ruling on sensitive data. Omitting salary is the safe default. The figure is already in the signed offer.', oi:'OI-10' },
@@ -1963,9 +2185,17 @@ const ASSUMPTIONS = [
   { id:'A-08', group:'design', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'One emergency contact is required; a second is optional.',
     resolve:'No source specifies how many. One required is the common minimum.', oi:'OI-19' },
-  { id:'A-11', group:'design', prov:'ASSUMED', screen:'Task list', route:'#/',
-    assumed:'The banking card carries no date. It says only “Payroll will be in touch.”',
-    resolve:'Three sources place direct deposit at three different times, and legal review is outstanding in two countries. Showing no date is more honest than picking one. The exclusion is confirmed as intended.', oi:'OI-03' },
+  { id:'A-11', group:'blocks', prov:'ASSUMED', screen:'Task list', route:'#/',
+    assumed:'Banking used to sit under "handled by other teams" with no date, saying only "Payroll will be in touch". It is now a tab inside the details task and inherits that task’s due date.',
+    resolve:'The three sources that placed direct deposit at three different times still disagree, and legal review is outstanding in two countries. Inheriting the details due date picks one of those times by accident, which is the thing A-11 originally avoided. Somebody has to say when banking is actually due, because it now carries a date whether or not anyone chose it.', oi:'OI-03' },
+
+  { id:'A-61', group:'blocks', prov:'1:1', screen:'Personal details, pay and banking', route:'#/details',
+    assumed:'Banking and direct deposit are captured in the portal, editable, on a pay and banking tab inside the mandatory personal-information task. Bank name, name on the account, routing number, account number and account type, all required.',
+    resolve:'Reverses A-10 and A-11, which had these collected by Payroll in their own secure form and never passing through this portal. Three things are open: whether this form is owned by this workstream or by Payroll, and if Payroll, this becomes an interface spec rather than a screen; whether splitting pay across several accounts has to be supported, which the live Payroll form allows and this screen does not; and what the encryption, retention and access requirements actually are, since they were the original argument for keeping the data out.', oi:'OI-01' },
+
+  { id:'A-62', group:'blocks', prov:'1:1', screen:'Personal details, pay and banking', route:'#/details',
+    assumed:'Tax withholding is partially in scope: the number of allowances and an exempt flag, not the tax forms themselves, which stay with Payroll on their own timetable.',
+    resolve:'Linda Sommer has not confirmed whether these two fields belong in the mandatory set or stay with Payroll. They are drawn so the question can be answered against something. If they stay, the country-conditional variants need specifying, because allowances are a US construct and this form is shown in every country.', oi:'' },
   { id:'A-15', group:'design', prov:'ASSUMED', screen:'Introduction', route:'#/intro',
     assumed:'A 500-character limit and three optional prompt chips.',
     resolve:'No limit is specified anywhere; one is needed because the text becomes a team post. The prompts address blank-page hesitation.', oi:'OI-12' },
@@ -2049,6 +2279,10 @@ const ASSUMPTIONS = [
     assumed:'The platform already ships a to-do view: a phase rail, one phase open at a time, a count for that phase only, and filters for Assigned to, Type and Sort by. The prototype now carries both that view and its own task list, so the two can be compared.',
     resolve:'The counting model is the decision. The platform counts within a phase, so a new hire in Get Ready for Day 1 sees a small number and no sense of what is still coming. This prototype counts the whole pre-Day 1 list instead. Which is less alarming has never been tested, and the answer changes the home screen. Also worth noting: the filters exist and cost nothing, so any argument for a simpler list has to say why they are being given up. Two Day 1 to-dos were on screen that no source of ours names, Welcome to MyHR and Complete your enterprise training, and two more in that phase were below the fold.', oi:'' },
 
+  { id:'A-60', group:'blocks', prov:'1:1', screen:'Choose your equipment', route:'#/equipment',
+    assumed:'The new hire picks the computer, not the hiring manager. Most roles resolve from role and location to a single build, which the new hire confirms rather than chooses; some roles carry a genuine choice and get the catalogue with specifications. Both states are drawn, switchable from the prototype controls.',
+    resolve:'This reverses the earlier model, where the manager placed the order and nothing moved until they did. Three things are still open. The approved device catalogue sits with End User Technology and has not been supplied, so the models and specifications on screen are illustrative stand-ins. Nobody has defined which roles resolve to one build and which carry a choice, or who maintains that mapping. And monitor and accessory entitlements per role are undefined, so the accessories form below still offers the same two options to everyone.', oi:'' },
+
   { id:'A-57', group:'design', prov:'1:1', screen:'All screens', route:'#/',
     assumed:'Match the live feature set, not the mechanism behind it. Where this prototype mirrors today’s wording or flow, that is a starting point to argue from, not a decision to inherit.',
     resolve:'Stated directly: the trap in this kind of project is “but we do it this way”, and the answer is to open up what is possible rather than design inside the existing box. So the working rule is to list what the live portal does, make sure nothing is quietly dropped, and then decide the how separately. Where this prototype does follow today’s mechanism, such as the accessories incident and its comment thread, that is recorded as observed behaviour with a documented reason, not as a preference.', oi:'' },
@@ -2102,8 +2336,8 @@ const DECIDE_FIRST = [
   { ids:['M-04'], head:'Whether software provisioning is in phase one at all',
     why:'The persona cannot be resolved, an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine. If phase one carries no software, this screen is premature rather than blocked.',
     when:'Before the manager task list is fixed.' },
-  { ids:['M-26','M-27','M-10'], head:'Two roles, and what makes a name count',
-    why:'A buddy and a second cross-functional role, one of which has no agreed name. Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
+  { ids:['M-27','M-10'], head:'What makes a name count',
+    why:'Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
     when:'Alongside the buddy programme, which is being written now.' },
   { ids:['A-38'], head:'Shipping to an address a new hire chooses',
     why:'A person who has not started yet can redirect a laptop. Whether the answer is a restriction, a verification or an approval, it belongs in the requirements.',
@@ -2229,9 +2463,6 @@ const NETWORK_POOL = [
    PRD v1.4 asks for a carousel at the top of the portal rotating chapters
    01-06, plus a link in the right-hand rail. No tasks, nothing tracked.
    Chapter titles are real; the one-line summaries are placeholder. */
-/* The rail link lists the same six chapters as the showcase, so there is one
-   source for the titles. */
-function insideModules() { return INSIDE_CHAPTERS.map(c => `${c.n} ${c.title}`); }
 /* ---------- Inside Equinix showcase art (A-35) ----------
    Built to the brand illustration system: isometric and flat shapes,
    linear gradients only, adjacent hues, thin light wireframes, and
@@ -2407,10 +2638,20 @@ const TODO_FILTERS = [
    to IT Procurement, the 5 to 7 day lead time and the automatic loaner are
    all stated there. Everything else in the stage lists is proposed. */
 const READINESS = [
+  /* Promoted out of Paperwork to the top level: it is the longest-running
+     thing in pre-boarding and the one people most want a status on. */
+  { id:'bgcheck', label:'Background check', icon:'shield-check.svg', sys:'Background check provider',
+    owners:'The new hire, HR Operations and the check provider',
+    stages:[
+      { label:'Launched',        note:'Started from the portal, then it runs in the provider’s system.' },
+      { label:'Details given',   note:'The new hire completes the provider’s own form, not this one.' },
+      { label:'Checks running',  note:'Lead time varies by country and by what the role requires.' },
+      { label:'Cleared',         note:'The result comes back to HR Operations, not to this portal.' },
+    ] },
   { id:'equipment', label:'Equipment', icon:'laptop.svg', sys:'ServiceNow',
     owners:'The manager, the new hire and End User Technology',
     stages:[
-      { label:'Order placed',        note:'The computer is the manager’s order. Accessories are the new hire’s.' },
+      { label:'Order placed',        note:'The new hire picks the computer and the accessories, and one task orders both.' },
       { label:'With IT Procurement', note:'A request is raised and routed. Lead time runs 5 to 7 business days.' },
       { label:'Built and imaged',    note:'Standard build for the role, then the image is applied.' },
       { label:'Shipped',             note:'To the office address, unless the new hire asked for it at home.' },
@@ -2424,13 +2665,15 @@ const READINESS = [
       { label:'Licences requested', note:'Each application raises its own request and carries its own status.' },
       { label:'Active on Day 1',    note:'Access switches on with the start date, not before.' },
     ] },
-  { id:'workspace', label:'Badge and workspace', icon:'id-card.svg', sys:'Workplace Services',
+  /* Badge completion is deliberately not a stage. Security has no integration
+     and no place to confirm a badge was printed or collected, so a status here
+     would be invented. The portal tracks what it can actually see. */
+  { id:'workspace', label:'Workspace', icon:'id-card.svg', sys:'Workplace Services',
     owners:'The new hire, the manager and Workplace Services',
     stages:[
       { label:'Photo submitted',  note:'The new hire uploads it. Badge print needs the lead time.' },
       { label:'Site confirmed',   note:'The manager confirms the location, access level and parking.' },
-      { label:'Badge queued',     note:'Access zones are set from the confirmed site.' },
-      { label:'Ready at reception', note:'Collected on the first morning.' },
+      { label:'Desk and access set', note:'Access zones follow the confirmed site. Badge collection is not tracked here.' },
     ] },
   { id:'people', label:'People', icon:'users-friends.svg', sys:'Onboarding portal',
     owners:'The manager',
@@ -2441,11 +2684,10 @@ const READINESS = [
       { label:'Introduction out', note:'The manager forwards it. Nothing is posted automatically.' },
     ] },
   { id:'paperwork', label:'Paperwork', icon:'file-alt.svg', sys:'Workday and HR Operations',
-    owners:'The new hire, HR Operations and the background check provider',
+    owners:'The new hire and HR Operations',
     stages:[
       { label:'Start date confirmed', note:'Every other due date is anchored to it.' },
-      { label:'Background check',     note:'Launched from the portal, then it runs elsewhere.' },
-      { label:'Details submitted',    note:'Personal record, emergency contact and preferences.' },
+      { label:'Details submitted',    note:'Personal record, banking, emergency contact and preferences.' },
       { label:'Policies acknowledged', note:'The pack the new hire has to read and sign off.' },
     ] },
 ];
@@ -2484,8 +2726,10 @@ const COMING_UP = [
   { name:'Benefits enrolment', opens:'30 days before you start',
     note:'Shows what you’ll qualify for and when coverage begins', icon:'shield-check.svg',
     expl:'Opens 30 days before your start date. Nothing to prepare between now and then.' },
-  { name:'Equipment setup instructions', opens:'3 days before you start', note:'', icon:'portal-window.svg',
-    expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does.' },
+  { name:'Equipment setup instructions', opens:'3 days before you start',
+    note:'You set the machine up yourself, and the IT help desk is open all day', icon:'portal-window.svg',
+    expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
+    dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
   { name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
     expl:'Held until 3 days out so the details are final rather than provisional.' },
@@ -2560,20 +2804,17 @@ const BUDDY_LOAD_LIMIT = 3;   // policy P-05 is undefined, so this number is inv
 /* ---------- Who a manager can name (M-07 revised, M-26) ----------
    The direction is a plain list of people in the org, with no suggestion
    logic at all: "anybody can be a buddy" on first rollout, and the certified
-   buddy programme is years out. Two named roles, plus everyone else.
+   buddy programme is years out. One named role, plus everyone else.
 
      Buddy       within the team or function. Culture and logistics, and the
                  questions someone would rather not ask their manager.
-     Ambassador  cross-functional. Helps a new hire navigate, connect and get
-                 things done. May come from an Employee Connection Network.
-                 Expected for executives, optional for everyone else.
 
-   The working name for the second role is a placeholder. "Ambassador"
-   collides with the Employee Connection Networks, and nobody has settled on
-   a better one. */
+   The cross-functional second role ("ambassador") was cut: one function-based
+   buddy, and everyone else is simply someone to meet. The name never settled,
+   it collided with the Employee Connection Networks, and carrying two named
+   roles asked more of a manager than the programme can support on rollout. */
 const PEOPLE_ROLES = {
   buddy:      { label:'Buddy', hint:'On their team or in their function' },
-  ambassador: { label:'Ambassador', hint:'Cross-functional, and a working name only' },
   other:      { label:'Someone to meet', hint:'Anyone else worth an early conversation' },
 };
 
@@ -2601,6 +2842,63 @@ const COMPUTER_OPTIONS = [
   { id:'win-hp', label:'High-performance Windows laptop', lead:'In stock, 5 days', ok:true },
 ];
 
+/* ---------- The machines a new hire can be issued (A-60) ----------
+   The new hire picks, not the manager. Most roles map to exactly one build
+   from role and location, and that new hire confirms rather than chooses;
+   some roles, engineering and design among them, carry a real choice.
+
+   Model names and specifications here are ILLUSTRATIVE. The approved
+   catalogue lives with End User Technology and has not been supplied, so
+   these are plausible stand-ins that let the screen be reviewed, not a
+   statement of what Equinix issues. */
+const DEVICE_CATALOG = [
+  { id:'win-std', name:'Standard Windows laptop', sub:'14-inch business ultrabook', family:'win',
+    lead:'In stock, ships in 3 days', leadOk:true,
+    fits:'The default build. Email, the finance stack, browser work and calls.',
+    specs:[['Processor','Intel Core Ultra 5'],['Memory','16 GB'],['Storage','512 GB SSD'],
+           ['Display','14-inch, 1920 × 1200'],['Weight','1.4 kg'],['Ports','2 × Thunderbolt 4, HDMI, USB-A']] },
+  { id:'win-hp', name:'High-performance Windows laptop', sub:'15-inch mobile workstation', family:'win',
+    lead:'In stock, ships in 5 days', leadOk:true,
+    fits:'Large models, heavy data work, anything that has to run locally.',
+    specs:[['Processor','Intel Core i7'],['Memory','32 GB'],['Storage','1 TB SSD'],
+           ['Graphics','Discrete workstation GPU'],['Display','15.6-inch, 1920 × 1200'],['Weight','1.8 kg']] },
+  { id:'mac', name:'MacBook Pro 14', sub:'Apple silicon, mid tier', family:'mac',
+    lead:'Backordered, 18 days', leadOk:false,
+    fits:'Design, and engineering teams building for Apple platforms.',
+    specs:[['Chip','Apple silicon, 12-core'],['Memory','24 GB unified'],['Storage','512 GB SSD'],
+           ['Display','14-inch Liquid Retina XDR'],['Weight','1.6 kg'],['Ports','3 × Thunderbolt, HDMI, SDXC']] },
+  { id:'mac-hp', name:'MacBook Pro 16', sub:'Apple silicon, top tier', family:'mac',
+    lead:'Built to order, 12 days', leadOk:true,
+    fits:'Sustained heavy workloads. Carries a justification on the order.',
+    specs:[['Chip','Apple silicon, 16-core'],['Memory','48 GB unified'],['Storage','1 TB SSD'],
+           ['Display','16-inch Liquid Retina XDR'],['Weight','2.1 kg'],['Ports','3 × Thunderbolt, HDMI, SDXC']] },
+];
+const deviceById = id => DEVICE_CATALOG.find(d => d.id === id) || null;
+
+/* One drawing, tinted per family. Brand illustration system: flat shapes,
+   a single linear gradient, thin light wireframes, nothing decorative. */
+function deviceArt(family) {
+  const g = family === 'mac' ? ['#00408C','#00737A'] : ['#00305F','#086AE3'];
+  const uid = 'dev' + family;
+  return `
+  <svg viewBox="0 0 200 128" aria-hidden="true" class="dev-svg">
+    <defs>
+      <linearGradient id="${uid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[1]}"/>
+      </linearGradient>
+    </defs>
+    <rect x="40" y="10" width="120" height="82" rx="6" fill="url(#${uid})"/>
+    <rect x="46" y="16" width="108" height="70" rx="3" fill="rgba(255,255,255,.10)"/>
+    <g stroke="rgba(255,255,255,.5)" stroke-width="1.2" fill="none" stroke-linecap="round">
+      <path d="M56 34 H116 M56 46 H134 M56 58 H100 M56 70 H124"/>
+    </g>
+    <circle cx="140" cy="27" r="4.5" fill="#85F0F8" opacity=".9"/>
+    <path d="M34 92 H166 L180 108 H20 Z" fill="var(--nickel)"/>
+    <path d="M34 92 H166 L168 95 H32 Z" fill="var(--chrome)"/>
+    <rect x="88" y="99" width="24" height="3" rx="1.5" fill="rgba(0,0,0,.20)"/>
+  </svg>`;
+}
+
 /* Default software stack for H-05. Cannot resolve without a persona (M-04 / OI-04) */
 const SOFTWARE_CATALOG = [
   'Anaplan', 'Tableau', 'Power BI', 'Alteryx', 'Workday Adaptive Planning',
@@ -2609,13 +2907,25 @@ const SOFTWARE_CATALOG = [
 
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
-  { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'12:00 to 13:00',
-    auto:true, locked:true, note:'Automatically placed, one hour, immediately after the cohort lunch. You can reschedule it, but not delete it.' },
-  { id:'nho', label:'New Hire Orientation', time:'09:00 to 12:00',
+  { id:'nho', label:'New Hire Orientation', time:'09:00 to 13:00',
     auto:true, blueprint:true, note:'From the orientation blueprint for your location. PEX owns it, so you cannot move it.' },
-  { id:'teamIntro', label:'Team introduction', time:'14:00 to 14:30', auto:false },
-  { id:'buddy', label:'Buddy check-in', time:'15:00 to 15:30', auto:false },
-  { id:'itSetup', label:'IT setup window', time:'15:30 to 16:30', auto:false },
+  { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'13:00 to 14:00',
+    auto:true, locked:true, note:'Automatically placed, one hour, immediately after orientation ends. You can reschedule it, but not delete it.' },
+  { id:'teamIntro', label:'Team introduction', time:'14:30 to 15:00', auto:false },
+];
+
+/* Two holds came off Day 1.
+
+   IT setup: there is no designated setup window, because IT is not
+   committing to one. The new hire sets the machine up themselves and the
+   help desk is available all day, so the pointer belongs in their checklist
+   rather than as an hour in the manager's calendar.
+
+   Buddy check-in: moved to the days after Day 1. Day 1 is already full, and
+   a buddy conversation lands better once there is something to ask about. */
+const AFTER_DAY1_HOLDS = [
+  { id:'buddy', label:'Buddy check-in', when:'Day 2 or 3',
+    note:'Booked once the buddy accepts. Day 1 is full enough, and it works better once they have questions.' },
 ];
 
 /* Teams channels and distribution lists for H-12 */
@@ -2625,14 +2935,39 @@ const CHANNEL_SUGGESTIONS = [
 ];
 
 /* Welcome email boilerplate for H-10 (M-08) */
-const WELCOME_BOILERPLATE =
-`Hi Jordan,
+/* Three tones for the same note (M-31). The point of pre-filling this is to
+   save the manager writing it; the point of offering tones is that a
+   pre-filled note which does not sound like the sender is worse than none.
+   Same facts in each, different register. */
+const WELCOME_TEMPLATES = [
+  { id:'warm', label:'Warm', hint:'Friendly and personal. Most managers, most hires.',
+    body:`Hi Jordan,
 
-Welcome to Equinix. I'm glad you're joining us.
+Welcome to Equinix. I'm really glad you're joining us, and the team is looking forward to meeting you.
 
-Before your first day you'll get access to an onboarding portal with a short list of things to work through. Nothing there should take long, and it will tell you what's needed and by when.
+Before your first day you'll get access to an onboarding portal with a short list of things to work through. None of it should take long, and it tells you what's needed and by when.
 
-If anything is unclear before you start, reply to this email and I'll pick it up.`;
+If anything is unclear before you start, just reply to this and I'll pick it up.` },
+
+  { id:'brief', label:'Brief', hint:'Short and practical. Says what happens next and stops.',
+    body:`Hi Jordan,
+
+Welcome to Equinix.
+
+You'll get access to an onboarding portal before your first day. It has a short list of things to complete, with due dates.
+
+Reply here if anything is unclear.` },
+
+  { id:'formal', label:'Formal', hint:'More measured. Senior hires, or where it is the house style.',
+    body:`Dear Jordan,
+
+Welcome to Equinix. We are pleased that you have chosen to join us.
+
+Ahead of your start date you will be given access to an onboarding portal containing a short set of tasks to complete. Each one indicates what is required and the date by which it is needed.
+
+Should anything require clarification before you start, please reply to this message and I will address it.` },
+];
+const WELCOME_BOILERPLATE = WELCOME_TEMPLATES[0].body;
 
 /* The read-only block the system inserts, generated from the new hire's own task list (M-08) */
 const WELCOME_SYSTEM_BLOCK_NOTE =
@@ -2647,9 +2982,9 @@ ASSUMPTIONS.forEach(a => { a.side = 'nh'; });
 
 const HM_ASSUMPTIONS = [
   /* ---------- Blocks build ---------- */
-  { id:'M-01', side:'hm', group:'blocks', prov:'UAT', screen:'Order the computer', route:'#/hm/computer',
+  { id:'M-01', side:'hm', group:'retired', prov:'UAT', screen:'Equipment for your new hire', route:'#/hm/computer',
     assumed:'The manager ORDERS the computer today. This is not a confirmation step, and nothing moves until they do it.',
-    resolve:'Corrects the workbook’s own baseline, which described confirm-only per PRD S2-US14 AC2. That is the target state, not today’s. Confirm whether this task is already being redesigned inside the laptop-and-accessory MVP. If it is, this screen should follow that work.', oi:'OI-24' },
+    resolve:'Decided: equipment selection moved to the new hire (A-60), so the manager no longer orders anything. This was the heaviest row on the manager’s list and its removal is the single largest saving in the subtraction review. What replaces it is an awareness screen recommended for deletion, because the readiness view already carries the status. Still to write: the exception path, for a role needing a machine outside its mapped build, an order landing after the start date, or a cost needing approval.', oi:'OI-24' },
   { id:'M-02', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'REVISED. Two numbers, not one: your tasks and their tasks, each as its own ring. Other teams report status only, with no progress bar.',
     resolve:'One combined percentage could not answer the first question a manager asks, which is whether the number is about them or about the new hire. Other teams came out of the count because they will not be users in this system, so there is nothing to count and the manager does not need their progress task by task. Still undefined: weighting, and what a good score even is.', oi:'OI-02' },
@@ -2717,21 +3052,37 @@ const HM_ASSUMPTIONS = [
   { id:'M-23', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
     assumed:'Manager tasks carry due dates and a recommended order. Four are taken from the mockup, at Day −7 for equipment and location, Day −4 for the application stack and Day −2 for the welcome note and the buddy. The rest are proposed.',
     resolve:'The mockup dates only five tasks. The corporate card, the Day 1 calendar, the team network and forwarding the introduction have no date in any source, so those four are marked. Someone has to set them, because a task with no date is a task with no nudge.', oi:'' },
-  { id:'M-24', side:'hm', group:'blocks', prov:'PRIOR', screen:'Order the computer', route:'#/hm/computer',
+  { id:'M-24', side:'hm', group:'blocks', prov:'PRIOR', screen:'Equipment', route:'#/equipment',
     assumed:'CONFLICT, unresolved. The mockup dates the equipment order at Day −7 and states a lead time of 5 to 7 business days.',
-    resolve:'Seven business days from Day −7 lands after the start date. Either the due date is wrong, the lead time is wrong, or the automatic loaner is not an edge case but the normal outcome. The prototype raises it as a blocker on the manager’s home screen so the collision is visible rather than discovered on somebody’s first morning.', oi:'' },
+    resolve:'Seven business days from Day −7 lands after the start date. Either the due date is wrong, the lead time is wrong, or the automatic loaner is not an edge case but the normal outcome. Moving the order to the new hire (A-60) does not fix this, it moves it: the same collision now sits on a task owned by someone with no way to escalate it. It appears on the manager’s "waiting on Jordan" list rather than their blockers, because they cannot act on it either.', oi:'' },
   { id:'M-25', side:'hm', group:'blocks', prov:'PRIOR', screen:'Software stack', route:'#/hm/software',
     assumed:'CONFLICT, unresolved. This prototype draws the application stack blocked, because no persona resolves. The mockup shows eight applications auto-assigned from the job family in Workday, with the manager reviewing rather than building the list.',
     resolve:'The platform owner said no full persona list exists and that the job-family fallback is the approach the requirements analysis rejects as inaccurate. The mockup shows that fallback working. One of the two is out of date. This is the single biggest difference between the two manager screens, and it decides whether this task is a review or a data-entry job.', oi:'OI-04' },
-  { id:'M-26', side:'hm', group:'content', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
+  { id:'M-26', side:'hm', group:'retired', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
     assumed:'Two named roles, not one. A buddy on the team or in the function, and a second cross-functional person who helps the new hire navigate and connect. Expected for executive hires, optional for everyone else, and one screen covers both plus anyone else worth meeting.',
-    resolve:'The buddy programme currently plans for one role and will need to carry two. The second role has no agreed name: “ambassador” is the placeholder here and it collides with the Employee Connection Networks, which are also a sensible place to find one. Somebody has to name it before it reaches a screen a new hire reads.', oi:'' },
+    resolve:'Decided: one function-based buddy, and the cross-functional role is removed. It never got an agreed name, “ambassador” collided with the Employee Connection Networks, and two named roles asked more of a manager than the buddy programme can carry on first rollout. Anyone who would have been an ambassador is now simply someone to meet. The role may return once the programme is written.', oi:'' },
   { id:'M-27', side:'hm', group:'blocks', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
     assumed:'Naming someone is a request, not an assignment. They are asked, they accept, and only then is anything booked. Once accepted, the system reads their calendar and books the first month.',
     resolve:'“Assigned and approved and committed” is the bar, and this prototype only draws the first half. The booking side needs a calendar integration nobody has scoped, and the acceptance step needs a decision on what happens when someone says no three days before a start date.', oi:'' },
   { id:'M-28', side:'hm', group:'design', prov:'1:1', screen:'Readiness view', route:'#/hm/',
     assumed:'Overdue is its own state and it is loud. Anything past its date and still open appears in red above everything else, with a route straight to the task.',
     resolve:'The earlier version of this screen folded overdue items into a general attention list, on the assumption that a manager has enough control to work it out. That is too much credit. Managers are doing their own job alongside this, so a risk to Day 1 has to be unmissable. The open question is the other half of the same balance: how far to go before the screen is telling an experienced manager how to do their job.', oi:'' },
+  { id:'M-30', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
+    assumed:'The manager’s list runs past the start date: Day 1, first week and first month phases, carrying meeting the new hire, agreeing the 30/60/90 plan, an end-of-week check-in and a first-month review.',
+    resolve:'Everything a manager owed was drawn as pre-Day 1, which made the after-start half of the job invisible. These four are proposed, not sourced: no document says a manager owes them, where the 30/60/90 plan lives, or whether this portal owns anything after the start date at all. The first-month review should be designed alongside the day 30 survey, since they ask the same question a week apart.', oi:'' },
+
+  { id:'M-31', side:'hm', group:'content', prov:'1:1', screen:'Send a welcome note', route:'#/hm/welcome',
+    assumed:'Three tones for the same note: warm, brief and formal. Same facts, different register. Switching replaces the draft; the personal line survives.',
+    resolve:'Pre-filling the note is most of the saving, but a pre-filled note that does not sound like the sender is worse than none, which is the argument for tones. Open: whether three is the right number, whether the set should vary by region or seniority, and whether a manager’s choice should be remembered for their next hire.', oi:'' },
+
+  { id:'M-32', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Confirm the first-day details', route:'#/hm/logistics',
+    assumed:'People Experience own the orientation blueprint. When they change it, the manager’s confirmation goes stale, the task reopens and it is raised as a blocker.',
+    resolve:'The two-portal picture has a third party in it. Nothing specifies what happens when People Experience edit a blueprint a manager has already confirmed against: whether the task reopens, whether the manager is told, or what the new hire sees in the gap. This prototype reopens it and says so, which is the strict reading. The softer one, updating silently because the blueprint is authoritative anyway, is arguable and cheaper.', oi:'' },
+
+  { id:'M-33', side:'hm', group:'design', prov:'1:1', screen:'Set up their first day', route:'#/hm/calendar',
+    assumed:'No IT setup window on Day 1. The new hire sets the machine up themselves, the help desk is open all day, and the pointer sits in their checklist rather than the manager’s calendar. The buddy check-in moves to Day 2 or 3.',
+    resolve:'IT would not commit to a designated setup window, so an hour booked against them was a promise nobody had made. The buddy move is a judgement: Day 1 is full, and the conversation lands better once there is something to ask about. Neither is sourced beyond the conversation they came from.', oi:'' },
+
   { id:'M-29', side:'hm', group:'blocks', prov:'1:1', screen:'Not built', route:null, nolink:true,
     assumed:'There is a third portal. People Experience need their own view: every pending start at once, and the ability to open one hire and see roughly what that hire sees.',
     resolve:'Named as the next thing to design. It matters because the problem statement is that nobody has visibility at any point, and this prototype currently answers that for two of the three people who need it. What People Experience actually validate, background check clearance among them, has to be settled before the view can be drawn.', oi:'' },
@@ -2824,14 +3175,23 @@ function hmTasks() {
   const H = S.hm;
   const introReady = S.intro.saved && S.intro.consent && S.intro.text.trim();
   const list = [
+    // People Experience owns the blueprint this task confirms. When they
+    // change it, the manager's confirmation is stale and the task reopens
+    // (M-32). That is the point of one shared state across three parties.
     { id:'logistics', label:'Confirm the first-day details', disp:'keep', route:'#/hm/logistics',
-      done: H.logistics.confirmed, icon:'calendar.svg', dueOff:-7, sys:'Workplace Services', srcDue:true,
-      why:'Only you know whether you’ll actually be there, and who covers if you’re not.',
+      done: H.logistics.confirmed && !S.pexUpdate, icon:'calendar.svg', dueOff:-7, sys:'Workplace Services', srcDue:true,
+      reopened: H.logistics.confirmed && S.pexUpdate, marker: S.pexUpdate ? 'M-32' : '',
+      why: H.logistics.confirmed && S.pexUpdate
+        ? 'People Experience moved the orientation. What you confirmed no longer matches.'
+        : 'Only you know whether you’ll actually be there, and who covers if you’re not.',
       dispNote:'Kept, but narrowed. The location facts come from the orientation blueprint, not from you.' },
-    { id:'computer', label:'Order equipment for your new hire', disp:'reduce', route:'#/hm/computer',
-      done: H.computer.ordered, icon:'laptop.svg', marker:'M-01', dueOff:-7, sys:'ServiceNow', srcDue:true,
-      why:'Nothing ships until you place this order. Jordan can see it’s waiting on you.',
-      dispNote:'Should become an exception-only override once persona catalogues and central budget land.' },
+    // The new hire picks their own machine now (A-60), so this is no longer
+    // an order. What is left is an awareness row, and the case for removing
+    // it outright is the strongest on the list.
+    { id:'computer', label:'Equipment for your new hire', disp:'remove', route:'#/hm/computer',
+      done: S.equipment.submitted, icon:'laptop.svg', marker:'M-01', dueOff:-7, sys:'ServiceNow', srcDue:true,
+      why:'Jordan chooses and orders this themselves. Nothing here waits on you.',
+      dispNote:'Recommended for deletion. The order moved to the new hire, so all this does is tell you it happened, which the readiness view already does.' },
     { id:'software', label:'Confirm the application stack', disp:'reduce', route:'#/hm/software',
       done: H.software.confirmed, icon:'portal-window.svg', marker:'M-04', blocked:true,
       dueOff:-4, sys:'ServiceNow', srcDue:true,
@@ -2839,8 +3199,8 @@ function hmTasks() {
       dispNote:'Blocked today. Without a resolved persona the stack renders empty and you fill it by hand.' },
     { id:'buddy', label:'Name who they should meet', disp:'keep', route:'#/hm/buddy',
       done: !!H.buddy.assigned && H.buddy.accepted, icon:'users-friends.svg', marker:'M-07', dueOff:-2, sys:'Onboarding portal', srcDue:true,
-      why:'A buddy on the team, an ambassador outside it, and anyone else worth meeting early.',
-      dispNote:'Two screens merged into one. Your judgement, so it stays, but nothing is suggested for you.' },
+      why:'One buddy in their function, and anyone else worth meeting early.',
+      dispNote:'Two screens merged into one, and the second named role was dropped. Your judgement, so it stays, but nothing is suggested for you.' },
     { id:'calendar', label:'Set up their first day', disp:'automate', route:'#/hm/calendar',
       done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06', dueOff:-5, sys:'Outlook', marker2:'M-23',
       why:'The holds that make Day 1 work.',
@@ -2860,7 +3220,63 @@ function hmTasks() {
       why:'Jordan wrote it and agreed you can share it. It goes nowhere until you send it.',
       dispNote:'Arrived because Jordan completed their side. Nothing is posted automatically.' });
   }
-  return list;
+  // Everything above is pre-Day 1. What a manager owes after the start date
+  // has never been written down as tasks, so these are proposed rather than
+  // sourced, and marked as such on screen (M-30).
+  list.push(
+    { id:'day1meet', label:'Meet Jordan and walk them in', disp:'automate', route:null, phase:1,
+      done:false, icon:'users-friends.svg', marker:'M-30', dueOff:0, sys:'Outlook',
+      why:'Straight after orientation ends. The hold is already in your calendar.',
+      dispNote:'Already placed automatically. It is on this list to be visible, not to be done.' },
+    { id:'plan', label:'Agree their 30, 60 and 90 day plan', disp:'keep', route:null, phase:2,
+      done:false, icon:'list-tasks.svg', marker:'M-30', dueOff:4, sys:'Not decided',
+      why:'What good looks like by each checkpoint, agreed with them rather than sent to them.',
+      dispNote:'Nothing in any source says where this plan lives or whether the portal owns it.' },
+    { id:'week1', label:'End of first week check-in', disp:'keep', route:null, phase:2,
+      done:false, icon:'comment-lines.svg', marker:'M-30', dueOff:5, sys:'Outlook',
+      why:'Half an hour to catch what is not working while it is still cheap to fix.',
+      dispNote:'Proposed. A recurring hold would make this a habit rather than a task.' },
+    { id:'month1', label:'First month review', disp:'keep', route:null, phase:3,
+      done:false, icon:'flag.svg', marker:'M-30', dueOff:30, sys:'Outlook',
+      why:'The first real read on whether the plan you agreed was the right one.',
+      dispNote:'Proposed. Lines up with the day 30 survey, so the two should be designed together.' },
+  );
+  return list.map(t => Object.assign({ phase:0 }, t));
+}
+
+/* The manager's own timeline, mirroring the new hire's phase strip. Their
+   work has always been drawn as one flat pre-Day 1 list, which is why the
+   after-start half of the job was invisible. */
+const HM_PHASES = ['Before Day 1', 'Day 1', 'First week', 'First month'];
+
+/* The same device as the new hire's hero strip, so the two sides read as one
+   product (M-30). */
+function hmPhaseStrip() {
+  const counts = hmPhaseCounts();
+  const d = daysToStart();
+  const current = d > 0 ? 0 : d === 0 ? 1 : 2;
+  return `
+  <div class="hm-strip" data-assume="M-30">
+    ${HM_PHASES.map((p, i) => {
+      const c = counts[i];
+      const st = c.total && c.done === c.total ? 'done' : i === current ? 'now' : '';
+      return `
+      <div class="hms ${st}" data-goto-phase="${i}">
+        <div class="hms-bar"></div>
+        <div class="hms-dot">${st === 'done' ? ic('check.svg','sm') : st === 'now' ? '<i></i>' : ''}</div>
+        <div class="hms-l">${p}</div>
+        <div class="hms-n">${c.done} of ${c.total}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function hmPhaseCounts() {
+  const t = hmTasks();
+  return HM_PHASES.map((_, i) => {
+    const inPhase = t.filter(x => x.phase === i);
+    return { done: inPhase.filter(x => x.done).length, total: inPhase.length };
+  });
 }
 
 function hmDone() { return hmTasks().filter(t => t.done).length; }
@@ -2869,8 +3285,12 @@ function hmDone() { return hmTasks().filter(t => t.done).length; }
 function thirdPartyTasks() {
   return [
     { label:'Background check', owner:'HR Operations', state: 'running', note:'In progress, no action from anyone' },
-    { label:'Badge printed', owner:'Workplace / CRE', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
-      note: (S.photo.done || S.photo.confirmedExisting) ? 'Photo received, queued for print' : 'Waiting on Jordan’s badge photo' },
+    // Badge print is deliberately absent: security has no integration and no
+    // place to confirm completion, so any status shown here would be invented.
+    { label:'Badge photo received', owner:'Workplace / CRE', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
+      note: (S.photo.done || S.photo.confirmedExisting)
+        ? 'Sent on to Workplace. Printing is not tracked here'
+        : 'Waiting on Jordan’s badge photo' },
     { label:'Orientation blueprint assigned', owner:'People Experience', state:'ready', note:'Denver blueprint assigned' },
   ];
 }
@@ -2905,12 +3325,15 @@ function overdueItems() {
 }
 
 /* ---------- blockers ---------- */
+/* Only what the manager can actually act on. Equipment used to head this
+   list; it is Jordan's own task now (A-60), so it moved to the waiting list
+   below rather than sitting here looking like manager work. */
 function hmBlockers() {
   const out = [];
   const days = daysToStart();
-  if (!S.hm.computer.ordered) {
-    out.push({ sev:'high', text:'The computer has not been ordered. Nothing ships until you place the order, and Jordan can see it is waiting on you.',
-      action:'Order it', route:'#/hm/computer' });
+  if (S.hm.logistics.confirmed && S.pexUpdate) {
+    out.push({ sev:'high', text:'People Experience moved the orientation to finish at 13:00. The first-day details you confirmed no longer match, and Jordan is seeing the old version.',
+      action:'Re-confirm', route:'#/hm/logistics', marker:'M-32' });
   }
   if (!S.hm.buddy.assigned && days <= 21) {
     out.push({ sev:'med', text:'No buddy named yet. If you do not name one, a buddy is auto-assigned the day before Jordan starts.',
@@ -2927,13 +3350,23 @@ function hmBlockers() {
     out.push({ sev:'low', text:'The application stack cannot be resolved, because Jordan’s persona is not mapped. That is a platform gap, not something you can fix here.',
       action:'See why', route:'#/hm/software' });
   }
-  // The manager mockup dates the computer order at Day −7 and states a 5 to 7
-  // business day lead time. Seven business days from Day −7 lands after the
-  // start date, so the due date and the lead time disagree (M-24).
-  if (!S.hm.computer.ordered) {
-    out.push({ sev:'high', text:'The equipment due date and the equipment lead time disagree. Ordering at Day −7 with a 5 to 7 business day lead can land after Jordan starts.',
-      action:'See the tracker', route:null, marker:'M-24' });
+  return out;
+}
+
+/* Waiting on the new hire. Shown separately and worded as information, not
+   as a list of things the manager has failed to do: these are Jordan's
+   tasks, and the manager's only move is to ask. */
+function hmWaitingOnNewHire() {
+  const out = [];
+  const days = daysToStart();
+  if (!S.equipment.submitted) {
+    out.push({ text: S.equipment.deviceConfirmed
+      ? 'Equipment is chosen but the order has not been submitted yet.'
+      : 'Equipment has not been chosen yet. The lead time runs 5 to 7 business days.',
+      marker:'M-24' });
   }
+  if (!S.bgcheck.launched) out.push({ text:'The background check has not been started. It runs the longest of anything here.' });
+  if (!S.details.submitted && days <= 21) out.push({ text:'Personal and contact details are not submitted, so payroll cannot be set up.' });
   return out;
 }
 
@@ -2961,6 +3394,107 @@ function nhProgressRows() {
   ];
 }
 
+/* ---------- Jordan's journey, as one figure (M-02) ----------
+   Four mutually exclusive states over the new hire's task list. A donut
+   rather than a stacked bar because the manager's question is "how far
+   through are they", which is a single share, and the centre can carry it.
+   Every slice is direct-labelled in the legend with its count, so identity
+   never rests on colour. */
+function nhStateCounts() {
+  const rows = nhProgressRows();
+  const out = { done:0, doing:0, late:0, none:0 };
+  const keyFor = { startdate:'startdate', bgcheck:'bgcheck', equipment:'equipment',
+    details:'details', jd:'jd', intro:'intro', policies:'policies' };
+  const keys = Object.keys(keyFor);
+  rows.forEach((r, i) => {
+    if (r.status === 'done') return out.done++;
+    if (isOverdue(keys[i])) return out.late++;
+    if (r.status === 'inprogress' || r.status === 'review') return out.doing++;
+    out.none++;
+  });
+  return out;
+}
+
+function nhProgressDonut() {
+  const c = nhStateCounts();
+  const total = c.done + c.doing + c.late + c.none;
+  const pct = total ? Math.round((c.done / total) * 100) : 0;
+  const segs = [
+    { k:'done',  label:'Complete',    n:c.done,  cls:'done' },
+    { k:'doing', label:'In progress', n:c.doing, cls:'doing' },
+    { k:'late',  label:'Overdue',     n:c.late,  cls:'late' },
+    { k:'none',  label:'Not started', n:c.none,  cls:'none' },
+  ];
+  const R = 52, C = 2 * Math.PI * R;
+  let off = 0;
+  const arcs = segs.filter(s => s.n > 0).map(s => {
+    const len = (s.n / total) * C;
+    // 2px surface gap between fills, per the mark spec
+    const a = `<circle class="don-seg ${s.cls}" cx="60" cy="60" r="${R}" fill="none" stroke-width="15"
+      stroke-dasharray="${Math.max(len - 2, 0.5)} ${C - Math.max(len - 2, 0.5)}"
+      stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"
+      data-seg="${s.k}"><title>${s.label}: ${s.n} of ${total}</title></circle>`;
+    off += len;
+    return a;
+  }).join('');
+
+  return `
+  <div class="nh-donut" data-assume="M-02">
+    <div class="don-fig">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Jordan's tasks: ${segs.map(s => `${s.n} ${s.label.toLowerCase()}`).join(', ')}">
+        <circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--cloud)" stroke-width="15"/>
+        ${arcs}
+      </svg>
+      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">complete</span></div>
+    </div>
+    <ul class="don-key">
+      ${segs.map(s => `
+        <li class="${s.n ? '' : 'zero'}">
+          <span class="dk-sw ${s.cls}"></span>
+          <span class="dk-l">${s.label}</span>
+          <b class="dk-n">${s.n}</b>
+        </li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+/* ---------- Everyone else, as one strip (M-02) ----------
+   Not a pie: three third-party items are three equal thirds, and a pie of
+   equal thirds says nothing except "there are three". Equal segments
+   coloured by state, hover naming the owner, carries what was actually
+   wanted: see at a glance whether anything outside the two portals is
+   stuck, and who owns it. */
+function othersStrip() {
+  const rows = thirdPartyTasks();
+  const cls = st => st === 'ready' ? 'done' : st === 'running' ? 'doing' : 'none';
+  const word = st => st === 'ready' ? 'Done' : st === 'running' ? 'Running' : 'Waiting';
+  return `
+  <div class="others-strip" data-assume="M-02">
+    <div class="os-h">
+      <b>Everyone else</b>
+      <span>Three teams, none of them users of this portal. ${am('M-02')}</span>
+    </div>
+    <div class="os-bar">
+      ${rows.map(r => `
+        <div class="os-seg ${cls(r.state)}" tabindex="0"
+          aria-label="${r.label}, ${r.owner}, ${word(r.state)}">
+          <span class="os-seg-l">${r.label}</span>
+          <div class="os-tip">
+            <b>${r.label}</b>
+            <span class="os-tip-owner">${r.owner}</span>
+            <span class="os-tip-state ${cls(r.state)}">${word(r.state)}</span>
+            <span class="os-tip-note">${r.note}</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <ul class="os-key">
+      <li><span class="dk-sw done"></span>Done</li>
+      <li><span class="dk-sw doing"></span>Running</li>
+      <li><span class="dk-sw none"></span>Waiting on someone</li>
+    </ul>
+  </div>`;
+}
+
 /* ============================================================
    H-00: readiness view (the manager's home)
    ============================================================ */
@@ -2986,38 +3520,29 @@ function renderHmHome() {
       <span class="hires-mark">${am('M-13')}</span>
     </div>
 
+    ${/* The hero states the fact; the figures sit below it on the surface
+          where they can carry labels and hover. Two white-on-gradient rings
+          could not be labelled without fighting the background. */''}
     <div class="hm-hero hexfield" data-assume="M-02">
-      <div class="ready-rings">
-        ${[R.mine, R.theirs].map((r, i) => `
-          <div class="ready-ring">
-            <svg viewBox="0 0 120 120" aria-hidden="true">
-              <defs>
-                <linearGradient id="ringGrad${i}" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="${i ? '#CCE3FF' : '#85F0F8'}"/>
-                  <stop offset="100%" stop-color="#FFFFFF"/>
-                </linearGradient>
-              </defs>
-              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="11"/>
-              <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad${i})" stroke-width="11"
-                stroke-linecap="round" stroke-dasharray="${(r.pct/100)*326.7} 326.7" transform="rotate(-90 60 60)"/>
-            </svg>
-            <div class="rr-num">${r.pct}<span>%</span></div>
-            <div class="rr-cap">${r.label}<br><b>${r.done} of ${r.total}</b></div>
-          </div>`).join('')}
-      </div>
       <div class="hm-hero-body">
         <h1>${hire.name} starts in ${daysToStart()} days</h1>
         <p class="lede">${startDateText()}. ${hire.role}, ${hire.loc}, ${hire.arrangement}</p>
-        <div class="other-teams" data-assume="M-02">
-          <span class="ot-lbl">Other teams</span>
-          ${R.others.map(t => `<span class="ot-pill ${t.state}">${t.label}: ${t.note}</span>`).join('')}
-          <span class="ot-note pnote">Status only. They are not users in this system, so there is nothing to count. ${am('M-02')}</span>
-        </div>
-        <div class="score-caveat pnote">${ic('exclamation-triangle.svg','sm')}
-          <span>This is a plain count of tasks done over tasks assigned. There is no agreed formula for a readiness
-          score, no weighting, and no definition of what “ready” means. ${am('M-02')}</span>
-        </div>
       </div>
+      <div class="hm-hero-fig">
+        <div class="hhf-num">${R.mine.pct}<span>%</span></div>
+        <div class="hhf-cap">of your ${R.mine.total} tasks done</div>
+      </div>
+    </div>
+
+    <div class="hm-figs">
+      <div class="hm-fig-card">
+        <div class="hfc-h"><b>Jordan\u2019s journey</b>
+          <span class="pnote">A plain count of tasks done over tasks assigned. No agreed formula,
+          no weighting, and no definition of what \u201cready\u201d means. ${am('M-02')}</span>
+        </div>
+        ${nhProgressDonut()}
+      </div>
+      ${othersStrip()}
     </div>
 
     ${(() => { const od = overdueItems(); return od.length ? `
@@ -3045,7 +3570,13 @@ function renderHmHome() {
           <span class="bl-text">${b.text}${b.marker ? ' '+am(b.marker) : ''}</span>
           ${b.route ? `<button class="btn quiet sm" data-goto="${b.route}">${b.action} →</button>` : ''}
         </div>`).join('')}
-    </div>` : `
+    </div>
+    ${(() => { const w = hmWaitingOnNewHire(); return w.length ? `
+    <div class="waiting-on" data-assume="M-03">
+      <div class="wo-h">${ic('hourglass.svg','sm')}<b>Waiting on Jordan</b>
+        <span>Their tasks, not yours. Listed so nothing is invisible.</span></div>
+      ${w.map(x => `<div class="wo-row">${x.text}${x.marker ? ' '+am(x.marker) : ''}</div>`).join('')}
+    </div>` : ''; })()}` : `
     <div class="blockers clear">
       ${ic('check-circle.svg','lg')}<span>Nothing is blocked. Jordan is on track for ${startDateText()}.</span>
     </div>`}
@@ -3056,12 +3587,28 @@ function renderHmHome() {
       <div>
         <div class="section-h">
           <h2>Your tasks</h2>
-          <span class="hint">${hmDone()} of ${tasks.length} done, in the order that keeps Day 1 safe</span>
+          <span class="hint">${hmDone()} of ${tasks.length} done, in the order they come up</span>
           <span class="hint pnote">Each carries a verdict on whether it should exist at all ${am('M-09')}</span>
         </div>
-        <div class="tcards">
-          ${tasks.map((t,i) => hmTaskCard(t, i+1)).join('')}
-        </div>
+        ${hmPhaseStrip()}
+        ${/* Grouped by when, not by system. The list used to be flat and
+              entirely pre-Day 1, which made the after-start half invisible. */''}
+        ${HM_PHASES.map((ph, pi) => {
+          const inPhase = tasks.filter(t => t.phase === pi);
+          if (!inPhase.length) return '';
+          const c = hmPhaseCounts()[pi];
+          return `
+          <div class="hm-phase" data-phase="${pi}">
+            <div class="hp-h">
+              <span class="hp-name">${ph}</span>
+              <span class="hp-rule"></span>
+              <span class="hp-count">${c.done} of ${c.total}</span>
+            </div>
+            <div class="tcards">
+              ${inPhase.map((t, i) => hmTaskCard(t, pi === 0 ? i + 1 : null)).join('')}
+            </div>
+          </div>`;
+        }).join('')}
         <div class="subtraction-link pnote" data-goto="#/hm/subtraction">
           ${ic('list-tasks.svg','lg')}
           <div>
@@ -3094,17 +3641,9 @@ function renderHmHome() {
           </div>
         </div>
 
-        <div class="section-h"><h2>Everyone else</h2><span class="hint">Not yours, but they count toward readiness</span></div>
-        <div class="ocards">
-          ${thirdPartyTasks().map(t => `
-            <div class="ocard">
-              <div class="tic">${ic(t.state==='ready'?'check-circle.svg':'clock.svg')}</div>
-              <div class="o-main">
-                <div class="o-name">${t.label} <span class="chip ${t.state==='ready'?'done':'waiting'}">${t.owner}</span></div>
-                <div class="o-note">${t.note}</div>
-              </div>
-            </div>`).join('')}
-        </div>
+        ${/* The Everyone else strip at the top of this page already
+              carries these three, with their owners on hover. Listing
+              them again here was the same status twice. */''}
       </div>
 
       ${hmRail()}
@@ -3117,11 +3656,13 @@ function hmTaskCard(t, seq) {
   const due = t.dueOff != null ? addDays(startDate(), t.dueOff) : null;
   const late = due && due < simToday() && !t.done;
   return `
-  <div class="tcard hm ${t.done?'done':''} ${t.blocked?'blocked':''}" data-task="${t.route}" ${t.marker?`data-assume="${t.marker}"`:''}>
+  <div class="tcard hm ${t.done?'done':''} ${t.blocked?'blocked':''} ${t.reopened?'reopened':''}"
+    data-task="${t.route}" ${t.marker?`data-assume="${t.marker}"`:''}>
     <div class="tic">${ic(t.icon,'lg')}</div>
     <div class="t-main">
       ${seq ? `<div class="t-seq">Step ${seq}</div>` : ''}
-      <div class="t-name">${t.label}${t.marker ? ' '+am(t.marker) : ''}</div>
+      <div class="t-name">${t.label}${t.marker ? ' '+am(t.marker) : ''}
+        ${t.reopened ? `<span class="chip reopened">${ic('exclamation-circle.svg','sm')}Reopened by People Experience</span>` : ''}</div>
       <div class="t-why">${t.why}</div>
       <div class="t-meta">
         ${due ? `<span class="m ${late?'overdue':''}">${ic('calendar.svg','sm')}Due ${dueText(due)}${t.srcDue ? '' : ' '+am('M-23')}</span>` : ''}
@@ -3216,7 +3757,9 @@ function renderHmLogistics() {
   const blueprint = [
     ['Where to go', jp ? 'Otemachi Financial City Grand Cube, reception, 3rd floor' : '1225 17th Street, main reception, ground floor'],
     ['Parking', jp ? 'No on-site parking. Nearest station is Otemachi (C11)' : 'Visitor parking, level B2. Bring the QR code in your Day 1 email.'],
-    ['What to expect', 'Orientation until 12:00, then lunch with the other new starters.'],
+    ['What to expect', S.pexUpdate
+      ? 'Orientation until 13:00, then straight into your 1:1.'
+      : 'Orientation until 12:00, then lunch with the other new starters.'],
     ['Dress code', 'Smart casual.'],
   ];
   return `
@@ -3293,74 +3836,65 @@ function renderHmLogistics() {
    H-04: order the computer  (M-01: an order, not a confirmation)
    ============================================================ */
 function renderHmComputer() {
-  const C = S.hm.computer;
-  const picked = COMPUTER_OPTIONS.find(o => o.id === C.model);
-  const late = picked && !picked.ok;
-
-  if (C.ordered) {
-    return `
-    <div class="page">
-      ${hmCrumbs('Order equipment for your new hire')}
-      <div class="task-head"><h1>Computer ordered</h1></div>
-      <div class="task-shell">
-        <div class="confirm-panel">
-          <div class="big-check">${ic('check.svg','xl')}</div>
-          <h2>${esc(picked ? picked.label : 'Computer')} ordered for Jordan.</h2>
-          <p>The equipment table now shows this as ordered on both your view and Jordan’s. They could see it was
-          waiting on you, and now they can see it is not.</p>
-          <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
-          <button class="btn quiet" id="cpUndo">Undo this order</button>
-        </div>
-      </div>
-      ${equipmentTable(true)}
-    </div>`;
-  }
+  const E = S.equipment;
+  const dev = deviceById(E.device) || DEVICE_CATALOG[0];
+  const ordered = E.submitted;
 
   return `
   <div class="page">
-    ${hmCrumbs('Order equipment for your new hire')}
+    ${hmCrumbs('Equipment for your new hire')}
     <div class="task-head" data-assume="M-01">
-      <h1>Order equipment for your new hire ${am('M-01')}</h1>
-      <p class="why">Jordan cannot do this, and nothing ships until you do. Their portal shows this order sitting against your name.</p>
-      ${dispBanner('reduce', 'This is where the biggest saving is. Today you place an order; the target is that Jordan chooses and you only step in for exceptions. That change has not happened yet, and it may already be in design elsewhere.', 'M-01')}
+      <h1>Equipment for your new hire ${am('M-01')}</h1>
+      <p class="why">Jordan picks their own machine and places the order. There is nothing here for you to do.</p>
+      ${dispBanner('remove', 'This screen is the argument for deleting the task. The order moved to the new hire, so what is left tells you something happened that the readiness view already shows. Keeping it means a manager opens a task to read a status.', 'M-01')}
     </div>
 
     ${equipmentTable(true)}
 
     <div class="task-shell mt24">
       <div class="wiz-body">
-        <div class="form-sec" data-assume="M-17">
-          <h3>Choose a computer ${am('M-17')}</h3>
-          <p class="sec-note">Accessories are Jordan’s to choose and a phone is a Day 1 option for them. Neither is yours.
-          Options and lead times here are illustrative; the real catalogue belongs to the equipment team.</p>
-          <div class="opt-list">
-            ${COMPUTER_OPTIONS.map(o => `
-              <label class="opt-row ${C.model===o.id?'on':''}">
-                <input type="radio" name="cpModel" data-cpmodel="${o.id}" ${C.model===o.id?'checked':''}>
-                <span class="opt-main">
-                  <span class="opt-label">${o.label}</span>
-                  <span class="opt-lead ${o.ok?'':'late'}">${ic(o.ok?'check-circle.svg':'exclamation-triangle.svg','sm')}${o.lead}</span>
-                </span>
-              </label>`).join('')}
-          </div>
+        <div class="form-sec">
+          <h3>What Jordan chose</h3>
+          ${E.deviceConfirmed ? `
+            <div class="dev-card fixed">
+              <div class="dev-art ${dev.family}">${deviceArt(dev.family)}</div>
+              <div class="dev-body">
+                <div class="dev-h"><div>
+                  <div class="dev-name">${dev.name}</div>
+                  <div class="dev-sub">${dev.sub}</div>
+                </div></div>
+                <dl class="dev-specs">
+                  ${dev.specs.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
+                </dl>
+                <div class="dev-lead ${dev.leadOk ? '' : 'late'}">
+                  ${ic(dev.leadOk ? 'check-circle.svg' : 'exclamation-triangle.svg','sm')}${dev.lead}
+                </div>
+              </div>
+            </div>
+            <p class="sec-note mt12">${ordered
+              ? 'Ordered. It ships to the office address on their record.'
+              : 'Chosen, not yet ordered. The order goes in when Jordan submits the task.'}</p>
+          ` : `
+            <div class="blocked-state">
+              ${ic('hourglass.svg','xl')}
+              <div>
+                <b>Jordan has not chosen yet.</b>
+                <p>Their equipment task is open and nothing is waiting on you. If it is still open close to
+                the start date, the readiness view will raise it.</p>
+              </div>
+            </div>`}
+        </div>
 
-          ${late ? `
-          <div class="callout">
-            ${ic('exclamation-triangle.svg')}
-            <div><b>This would arrive after Jordan starts.</b> An 18-day lead against ${daysToStart()} days to go means
-            they would begin without a machine. Ordering anyway routes them to a loaner and notifies the equipment team.</div>
-          </div>
-          <div class="field mt16" style="max-width:560px;">
-            <label>Why this model?</label>
-            <textarea rows="2" id="cpReason" placeholder="Recorded with the order, and shown to Jordan.">${esc(C.reason)}</textarea>
-            <div class="note">Jordan is told when a manager overrides the standard option, and sees this reason.</div>
-          </div>` : ''}
+        <div class="form-sec pnote" data-assume="M-17">
+          <h3>When a manager would step in ${am('M-17')}</h3>
+          <p class="sec-note">Three cases were raised and none is specified: a role that needs a machine outside
+          its mapped build, an order that would land after the start date, and a cost that needs approving.
+          Until those are written, an exception path cannot be drawn, so this screen shows none.</p>
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic('save.svg','sm')}Nothing sent until you order</span>
-        <span class="missing">${C.model ? (late && !C.reason.trim() ? 'Add a reason for the late-arriving option.' : 'Ready to order.') : 'Choose a computer.'}</span>
-        <button class="btn primary" id="cpOrder" ${C.model && (!late || C.reason.trim()) ? '' : 'disabled'}>Place the order</button>
+        <span class="saved-state">${ic('info-circle.svg','sm')}Nothing on this screen is yours to action</span>
+        <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
       </div>
     </div>
   </div>`;
@@ -3433,16 +3967,15 @@ function renderHmSoftware() {
 /* ============================================================
    H-07: name who they should meet  (M-07 revised, M-26)
 
-   One screen, three roles. No suggested people: the direction is a plain
+   One screen, one named role. No suggested people: the direction is a plain
    list of everyone in the org, because on first rollout anybody can be a
    buddy and the certified programme is years away. A name is not enough
    either. It has to be accepted before it counts.
    ============================================================ */
 function renderHmMeet() {
-  const B = S.hm.buddy, A = S.hm.ambassador, N = S.hm.network;
+  const B = S.hm.buddy, N = S.hm.network;
   const buddy = B.assigned ? orgPerson(B.assigned) : null;
-  const amb = A.assigned ? orgPerson(A.assigned) : null;
-  const others = Object.keys(N.named).filter(id => id !== B.assigned && id !== A.assigned);
+  const others = Object.keys(N.named).filter(id => id !== B.assigned);
   const withWhy = others.filter(id => (N.named[id] || '').trim()).length;
 
   const picker = (role, current) => `
@@ -3485,10 +4018,9 @@ function renderHmMeet() {
     ${hmCrumbs('Name who they should meet')}
     <div class="task-head">
       <h1>Name who they should meet</h1>
-      <p class="why">Two named roles and anyone else worth an early conversation. A buddy is on their team.
-      An ambassador is somewhere else in the business. Both are your call, and both have to say yes before
-      anything is booked.</p>
-      ${dispBanner('keep', 'Two screens became one. The suggestion logic is gone, because on first rollout anybody can be a buddy and there is nothing to suggest from yet.', 'M-07')}
+      <p class="why">One buddy, in Jordan’s function, and anyone else worth an early conversation.
+      Both are your call, and a buddy has to say yes before anything is booked.</p>
+      ${dispBanner('keep', 'Two screens became one, and the second named role went with them. The suggestion logic is gone too, because on first rollout anybody can be a buddy and there is nothing to suggest from yet.', 'M-07')}
     </div>
 
     <div class="conflict-banner" data-assume="L-01">
@@ -3513,14 +4045,11 @@ function renderHmMeet() {
         ${slot('buddy', buddy, 'Buddy',
           'Someone on Jordan’s team or in their function, for culture and logistics and the questions they would rather not ask you. Any employee can do it today. There is no certified list to pick from yet.', 'M-07')}
 
-        ${slot('ambassador', amb, 'Ambassador',
-          'Cross-functional. Someone who helps Jordan navigate, connect and get things done outside the reporting line. Expected for executive hires, optional for everyone else. An Employee Connection Network is one place to look. The name of this role is not settled.', 'M-26')}
-
         <div class="form-sec" data-assume="M-10 L-06">
           <h3>Anyone else they should meet ${am('M-10')}</h3>
           <p class="sec-note">Up to fifteen people. Write why each one matters, because Jordan sees the reason you write.</p>
           <div class="meet-others">
-            ${ORG_PEOPLE.filter(p => p.id !== B.assigned && p.id !== A.assigned).map(p => {
+            ${ORG_PEOPLE.filter(p => p.id !== B.assigned).map(p => {
               const on = N.named[p.id] !== undefined;
               return `
               <div class="meet-row ${on ? 'on' : ''}">
@@ -3551,7 +4080,7 @@ function renderHmMeet() {
         <div class="form-sec">
           <h3>What happens after that</h3>
           <div class="happens">
-            <div class="hp-row ${B.notified || A.notified ? 'done' : ''}">${ic(B.notified || A.notified ? 'check-circle.svg' : 'clock.svg','sm')}
+            <div class="hp-row ${B.notified ? 'done' : ''}">${ic(B.notified ? 'check-circle.svg' : 'clock.svg','sm')}
               <span>Everyone named is asked, not told, and has to accept. ${am('L-09')}</span></div>
             <div class="hp-row ${B.accepted ? 'done' : ''}">${ic(B.accepted ? 'check-circle.svg' : 'clock.svg','sm')}
               <span>Once the buddy accepts, the system reads their calendar and books the first month.
@@ -3618,16 +4147,35 @@ function renderHmCalendar() {
             </div>`;
           }).join('')}
         </div>
+        <div class="after-day1">
+          <div class="ad-h">${ic('arrow-right.svg','sm')}<b>Just after Day 1</b></div>
+          ${AFTER_DAY1_HOLDS.map(h => `
+            <div class="ad-row">
+              <span class="ad-when">${h.when}</span>
+              <div>
+                <div class="ad-label">${h.label}</div>
+                <div class="ch-note">${h.note}</div>
+              </div>
+              <label class="check"><input type="checkbox" data-hold="${h.id}" ${C.holds[h.id]?'checked':''}><span>Add</span></label>
+            </div>`).join('')}
+        </div>
+
+        <div class="callout soft mt16">
+          ${ic('info-circle.svg')}
+          <div><b>No IT setup window.</b> IT is not committing to an hour on Day 1, so Jordan sets the machine up
+          themselves and the help desk is open all day. That pointer sits in Jordan’s checklist, not your calendar. ${am('M-33')}</div>
+        </div>
+
         <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
-          <div>The three unticked holds are suggestions you have to accept one at a time. If they were created
+          <div>The unticked holds are suggestions you have to accept one at a time. If they were created
           automatically like your 1:1, this screen would have nothing on it for you to do, which is the point of the
           disposition above. ${am('M-06')}</div>
         </div>
       </div>
       <div class="wiz-foot">
         <span class="saved-state">${ic('save.svg','sm')}Your 1:1 is already in the calendar</span>
-        <span class="missing">${Object.values(C.holds).filter(Boolean).length} of 3 suggested holds added</span>
+        <span class="missing">${Object.values(C.holds).filter(Boolean).length} of 2 suggested holds added</span>
         <button class="btn primary" id="calConfirm">${C.confirmed?'Update':'Confirm the day'}</button>
       </div>
     </div>
@@ -3676,6 +4224,17 @@ function renderHmWelcome() {
           <label>To</label>
           <input type="text" value="${HIRE.email}" readonly>
           <div class="note">Jordan’s personal email. They do not have an Equinix account yet.</div>
+        </div>
+        <div class="tone-pick" data-assume="M-31">
+          <label>Pick a tone ${am('M-31')}</label>
+          <div class="tone-row">
+            ${WELCOME_TEMPLATES.map(t => `
+              <button class="tone-btn ${(W.tone || 'warm') === t.id ? 'on' : ''}" data-tone="${t.id}">
+                <b>${t.label}</b><span>${t.hint}</span>
+              </button>`).join('')}
+          </div>
+          <div class="note">Switching replaces the draft below. Anything you have typed into it is lost,
+          so pick the tone first.</div>
         </div>
         <div class="field" style="max-width:none;">
           <label>Standard welcome <span class="opt">(editable)</span></label>
@@ -3855,6 +4414,9 @@ const SUBTRACTION = [
     { task:'Receive portal login credentials', today:'None. This is not in the current manager checklist',
       why:'A manager is an existing employee who already signs in to Equinix systems. The row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire logic applied to the wrong persona.',
       cond:'Confirm no platform role or licence provisioning is hiding behind the row.', marker:'M-11' },
+    { task:'Order the computer', today:'Gone. The new hire chooses and orders their own machine',
+      why:'This was the heaviest row on the list and the largest single saving: the manager used to place the order, and nothing moved until they did. Equipment selection is now a new hire task, so the manager step has no work left in it.',
+      cond:'An exception path still has to be written: a role needing a machine outside its mapped build, an order landing after the start date, or a cost that needs approving. None of the three is specified.', marker:'M-01' },
     { task:'Provide the new hire’s username', today:'Manager obtains and passes on credentials, two checklist items',
       why:'Already superseded: the candidate receives their credential email directly and creates their own password.',
       cond:'Nothing further. But verify what the new hire’s own “Collect your Equinix credentials” task actually contains before this claim is used externally.' },
@@ -3874,9 +4436,6 @@ const SUBTRACTION = [
       cond:'Pre-fill from the worker record.', marker:'M-18' },
   ]},
   { group:'reduce', title:'Reduce to exception-only: visible, but most managers should never touch it', rows:[
-    { task:'Order the computer', today:'HEAVIER than the workbook recorded. The manager places the order, and nothing moves until they do',
-      why:'The target is that the new hire chooses and the manager only overrides. The saving is larger than previously stated, because the starting point is an order rather than a confirmation.',
-      cond:'Persona-based catalogues and centralised budget. Then this step can be removed entirely.', marker:'M-01' },
     { task:'Confirm software and application stack', today:'Heavy. The manager requests access and software by hand',
       why:'Should be a persona default the manager glances at.',
       cond:'The persona blocker resolved. Today there is no full persona list, and the proposed job-family fallback is the approach the analysis rejects.', marker:'M-04' },
@@ -3969,13 +4528,25 @@ function handoffRows() {
   const buddy = H.buddy.assigned ? orgPerson(H.buddy.assigned) : null;
   const namedCount = Object.keys(H.network.named || {}).filter(k => (H.network.named[k]||'').trim()).length;
   return [
-    { dir:'hm', from:'Order equipment', to:'Equipment status table', marker:'L-04',
-      done: H.computer.ordered,
-      state: H.computer.ordered ? 'Computer ordered, and Jordan’s table shows it moving' : 'NOT ORDERED YET, and Jordan sees it waiting on Priya',
+    // Direction reversed with A-60: the equipment handoff now runs new hire
+    // to manager, where it used to run manager to new hire.
+    // A third party in a two-portal picture: People Experience own the
+    // blueprint the manager confirms, so their edit reopens a closed task.
+    { dir:'hm', from:'People Experience blueprint', to:'Confirm the first-day details', marker:'M-32',
+      done: !S.pexUpdate,
+      state: S.pexUpdate
+        ? 'Blueprint changed. The manager’s confirmation is stale and the task has reopened'
+        : 'Blueprint stable. The manager is confirming current facts',
+      hmRoute:'#/hm/logistics', nhRoute:'#/' },
+    { dir:'nh', from:'Choose your equipment', to:'Equipment status table', marker:'L-04',
+      done: S.equipment.deviceConfirmed,
+      state: S.equipment.deviceConfirmed
+        ? `Computer chosen by Jordan, and Priya’s table names it`
+        : 'NOT CHOSEN YET, and Priya sees it sitting with Jordan',
       hmRoute:'#/hm/computer', nhRoute:'#/equipment' },
-    { dir:'nh', from:'Accessories order', to:'Readiness view + equipment table', marker:'L-04',
+    { dir:'nh', from:'Equipment order submitted', to:'Readiness view + equipment table', marker:'L-04',
       done: S.equipment.submitted,
-      state: S.equipment.submitted ? 'Accessories ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
+      state: S.equipment.submitted ? 'Ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
       hmRoute:'#/hm/', nhRoute:'#/equipment' },
     { dir:'hm', from:'Assign a buddy', to:'Jordan’s people rail', marker:'L-01', conflict:true,
       done: !!buddy,
@@ -4121,24 +4692,8 @@ function bindHm(route) {
     });
   }
 
-  if (route === '#/hm/computer') {
-    $$('[data-cpmodel]').forEach(r => r.addEventListener('change', () => {
-      H.computer.model = r.dataset.cpmodel; save(); rerender();
-    }));
-    const rs = $('#cpReason');
-    if (rs) rs.addEventListener('input', () => {
-      H.computer.reason = rs.value; save();
-      const opt = COMPUTER_OPTIONS.find(o => o.id === H.computer.model);
-      const b = $('#cpOrder'); if (b) b.disabled = !(H.computer.model && (opt.ok || rs.value.trim()));
-    });
-    const o = $('#cpOrder');
-    if (o) o.addEventListener('click', () => {
-      H.computer.ordered = true; save(); rerender();
-      toast('Order placed. Jordan’s equipment table updates immediately.', 'check-circle.svg');
-    });
-    const u = $('#cpUndo');
-    if (u) u.addEventListener('click', () => { H.computer.ordered = false; save(); rerender(); });
-  }
+  // #/hm/computer has no bindings any more: the order moved to the new hire
+  // (A-60), so the manager's screen is read-only.
 
   if (route === '#/hm/software') {
     $$('[data-sw]').forEach(cb => cb.addEventListener('change', () => {
@@ -4222,6 +4777,13 @@ function bindHm(route) {
     };
     if (body) body.addEventListener('input', sync);
     if (pers) pers.addEventListener('input', sync);
+    // Switching tone replaces the draft. The personal line is the manager's
+    // own words, so it survives.
+    $$('[data-tone]').forEach(b => b.addEventListener('click', () => {
+      const t = WELCOME_TEMPLATES.find(x => x.id === b.dataset.tone);
+      if (!t) return;
+      H.welcome.tone = t.id; H.welcome.body = t.body; save(); rerender();
+    }));
     const s = $('#wcSend');
     if (s) s.addEventListener('click', () => {
       H.welcome.sent = true; save(); rerender();
@@ -4330,6 +4892,7 @@ const DEFAULT_STATE = () => ({
   view: 'nh',                    // nh | hm
   buddyRule: 'assignment',       // assignment | 72h   (L-01, the live conflict)
   notes: false,                  // design notes: rationale, A-nn markers, dispositions
+  insideOpen: false,             // Inside Equinix strip expanded (A-35)
 
   persona: 'external',           // external | conversion
   country: 'US',                 // US | JP
@@ -4341,7 +4904,14 @@ const DEFAULT_STATE = () => ({
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
   details: { tab:0, submitted:false, queryRaised:false, data:{} },
-  equipment: { choice:'', items:{}, shipOffice:'', shipPhone:'', submitted:false, comment:'', comments:[] },
+  equipment: { choice:'', items:{}, shipOffice:'', shipPhone:'', submitted:false, comment:'', comments:[],
+    device:'', deviceConfirmed:false },
+  // Whether this role maps to one build or offers a choice (A-60). A prototype
+  // control, because both states are real and both need reviewing.
+  deviceMode: 'single',          // single | choice
+  // People Experience owns the orientation blueprint. When they change it,
+  // the manager's confirmation goes stale and has to be re-taken (M-32).
+  pexUpdate: false,
   jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
   intro: { text:'', consent:false, useBadge:false, saved:false, dismissed:[], done:false },
   photo: { uploaded:false, dataUrl:null, consent:false, done:false, confirmedExisting:false, replacing:false },
@@ -4356,9 +4926,8 @@ const DEFAULT_STATE = () => ({
     software: { confirmed:false, added:[] },
     // A name is not a commitment. Both roles have to accept (M-27).
     buddy: { assigned:null, notified:false, accepted:false },
-    ambassador: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
-    welcome: { sent:false, body:'', personal:'' },
+    welcome: { sent:false, body:'', personal:'', tone:'warm' },
     network: { named:{}, submitted:false },
     intro: { forwarded:false },
     card: { needed:null },            // null = unanswered, true/false = decided (L-10)
@@ -4484,20 +5053,21 @@ function taskList() {
   const jp = S.country === 'JP';
 
   const tasks = [
-    // Triggered at offer acceptance, so these precede equipment (A-49, A-50)
-    { key:'startdate', route:'#/startdate', icon:'calendar.svg',
-      name:'Confirm your start date',
-      why:'Everything else in this list is dated from it',
-      est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
+    // The background check is first: it runs longest and nothing else waits on
+    // it, so every day it sits unstarted is a day added to the end.
     { key:'bgcheck', route:'#/bgcheck', icon:'shield-check.svg',
       name:'Start your background check',
       why:'It runs in the background and takes a while, so the sooner it starts the better',
       est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
+    { key:'startdate', route:'#/startdate', icon:'calendar.svg',
+      name:'Confirm your start date',
+      why:'Everything else in this list is dated from it',
+      est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
     // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
-      name:'Choose your workspace accessories',
-      why:'So it’s built, shipped and waiting for you on Day 1',
-      est:'4 min', estMark:'A-23', status:equipmentStatus(), marker:'A-33' },
+      name:'Choose your equipment',
+      why:'Your computer and accessories, built and shipped in time for Day 1',
+      est:'4 min', estMark:'A-23', status:equipmentStatus(), marker:'A-60' },
     { key:'details', route:'#/details', icon:'user-circle.svg',
       name:'Your personal and contact details',
       why:'So we can set up your record, reach you, and know who to call in an emergency',
@@ -4587,6 +5157,12 @@ function renderLanding() {
     <div class="panel-note" style="max-width:820px;">${ic('info-circle.svg')} Because you’re converting from a contract role,
       some tasks are shorter. We already hold your details from your time here, so mostly you’ll be checking what we have.</div>` : ''}
 
+    ${/* Reading first, then the high-level view, then the task list itself:
+          broad to specific, so the page narrows as you go down it. */''}
+    ${insideStrip()}
+
+    ${readinessTracker('nh')}
+
     <div class="landing-grid">
       <div>
         <div class="section-h"><h2>Do these now</h2></div>
@@ -4668,19 +5244,14 @@ function renderLanding() {
 
         <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Nothing for you to do</span><span class="hint pnote">Listed on purpose, so a reviewer can see nothing has been forgotten</span></div>
         <div class="ocards">
-          <div class="ocard" data-assume="A-10 A-11">
-            <div class="tic">${ic('banking.svg')}</div>
-            <div class="o-main">
-              <div class="o-name">Banking and direct deposit ${am('A-11')}</div>
-              <div class="o-note">Payroll will be in touch about this separately. Bank details are collected by Payroll in their own
-              secure form. Bank data is handled differently from the rest of your profile, so it never passes through this portal. ${am('A-10')}</div>
-            </div>
-          </div>
+          ${/* Banking moved into the details task (A-61), so it is no longer
+               listed here as somebody else's job. */''}
           <div class="ocard">
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
-              <div class="o-name">Tax forms and withholding <span class="chip info">Payroll</span></div>
-              <div class="o-note">Country-specific, and Payroll runs it on their own timetable. Nothing passes through this portal.</div>
+              <div class="o-name">Tax forms <span class="chip info">Payroll</span></div>
+              <div class="o-note">Country-specific, and Payroll runs it on their own timetable.
+              Your withholding figure is on the pay tab of your details; the forms themselves are not here. ${am('A-62')}</div>
             </div>
           </div>
         </div>
@@ -4697,13 +5268,6 @@ function renderLanding() {
       ${ic('chevron-right.svg','lg')}
     </div>
 
-    <div class="section-h" style="margin-top:34px;"><h2>Everything else in motion</h2>
-      <span class="hint">Owned by other teams</span></div>
-    ${readinessTracker('nh')}
-
-    <div class="section-h" style="margin-top:34px;"><h2>While you wait</h2>
-      <span class="hint">Reading, not a task</span></div>
-    ${insideCarousel()}
   </div>`;
 }
 
@@ -4732,9 +5296,11 @@ function taskCard(t) {
 }
 
 /* ---------- right rail: four contacts (A-31, A-32) + reference reading ---------- */
-function contactRow(p, extra='') {
+/* `tone` carries the recruiter-to-People-Experience handoff: the concierge is
+   promoted, the recruiter stays reachable but visibly stands down. */
+function contactRow(p, extra='', tone='') {
   return `
-  <div class="contact">
+  <div class="contact ${tone}">
     <div class="avatar ${p.cls}">${p.initials}</div>
     <div>
       <div class="c-name">${p.name}</div>
@@ -4760,9 +5326,9 @@ function buddyRailBlock() {
       <div>
         <div class="c-name">Your onboarding buddy</div>
         <div class="c-role">Not chosen yet</div>
-        <div class="c-extra">${HIRE.manager} picks someone from your team, a person to ask the things you’d rather
-        not ask your manager, for your first three months and beyond. If she hasn’t by the day before you start, one is
-        assigned automatically. ${am('L-01')}</div>
+        <div class="c-extra">Someone in your team to ask the things you’d rather not ask your manager.
+        <span class="pnote">${HIRE.manager} picks them. If she hasn’t by the day before you start, one is
+        assigned automatically. ${am('L-01')}</span></div>
       </div>
     </div>`;
   }
@@ -4793,23 +5359,18 @@ function landingRail() {
             ? `${ic('check.svg','sm')} ${esc(S.hm.workPhone)}, confirmed by ${HIRE.manager.split(' ')[0]} ${am('L-03')}`
             : `${am('A-32')}`}</div>`)}
       ${buddyRailBlock()}
-      ${contactRow(PEOPLE.pex)}
-      ${contactRow(PEOPLE.recruiter)}
-      <div class="rail-note">Daniel hands over to Maya a week after your offer was signed. From then on, Maya is your first contact.</div>
+      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'People Experience, your onboarding concierge' }),
+        `<div class="c-extra concierge">${ic('comment-smile.svg','sm')}Your first stop for anything before Day 1</div>`, 'primary')}
+      ${contactRow(PEOPLE.recruiter, `<div class="c-extra">Handed over to ${PEOPLE.pex.name.split(' ')[0]}</div>`, 'handed')}
+      <div class="rail-note">${PEOPLE.recruiter.name.split(' ')[0]} handed you over a week after your offer was signed.
+      From then on ${PEOPLE.pex.name.split(' ')[0]} is your contact, and someone else from People Experience covers when she is away.</div>
     </div>
 
     <div class="rail-card">
       <h3>Good to know</h3>
       <ul class="res-list">
-        <li><a data-res="inside">${ic('chevron-right.svg','sm')}Inside Equinix ${am('A-35')}</a>
-          <div class="u-expl" data-resbody="inside">
-            Six short modules, here whenever you want them:
-            <ul class="mod-list">${insideModules().map(m => `<li>${m}</li>`).join('')}</ul>
-            <b>Nothing here is required, and nothing is tracked.</b>
-            <div class="intent-note">${ic('bullhorn.svg','sm')}<span><b>Where this is headed:</b> a carousel above your progress tracker, releasing
-            modules as your start date gets closer. It currently lives as a <b>Day 1</b> to-do in the live portal, and moving it
-            here is a move, not a re-skin.</span></div>
-          </div></li>
+        ${/* Inside Equinix used to be listed here too. It has the strip at the
+             top of the page now, so the rail entry was the same thing twice. */''}
         <li><a data-res="ninety">${ic('chevron-right.svg','sm')}Your first 90 days ${am('A-36')}</a>
           <div class="u-expl" data-resbody="ninety">
             The new hire checklist and the matching manager checklist, so you can both see what the other is meant to be doing.
@@ -4820,16 +5381,13 @@ function landingRail() {
         <li><a data-res="expect">${ic('chevron-right.svg','sm')}What to expect before Day 1</a>
           <div class="u-expl" data-resbody="expect">Finish the tasks above, then it goes quiet until 3 days before you start,
           when first-day details arrive. Quiet is normal here. It means nothing is stuck. More to-dos arrive once you’ve started.</div></li>
-        <li><a data-res="who">${ic('chevron-right.svg','sm')}Who to contact for what</a>
-          <div class="u-expl" data-resbody="who">Your offer or your role, ask Daniel. These tasks, your start date and logistics, ask Maya.
-          What the job is actually like day to day, ask Nina, your buddy. Anything technical with this portal, use the assistant at the bottom right.</div></li>
       </ul>
     </div>
   </div>`;
 }
 
 /* Everyone the MANAGER named, with their role (L-06). Keyed by person id
-   now that the buddy, the ambassador and the rest live on one screen.
+   now that the buddy and the rest live on one screen.
    Empty until submitted, which is what the new hire's waiting state shows. */
 function namedNetwork() {
   const H = S.hm, out = [];
@@ -4839,9 +5397,8 @@ function namedNetwork() {
       why: H.network.named[id] || '' }));
   };
   if (H.buddy.assigned) add(H.buddy.assigned, 'buddy');
-  if (H.ambassador && H.ambassador.assigned) add(H.ambassador.assigned, 'ambassador');
   Object.keys(H.network.named || {}).forEach(id => {
-    if (id !== H.buddy.assigned && !(H.ambassador && id === H.ambassador.assigned)) add(id, 'other');
+    if (id !== H.buddy.assigned) add(id, 'other');
   });
   return out;
 }
@@ -4867,14 +5424,13 @@ function readinessState() {
 
   // Equipment. Both orders have to exist before anything moves, then the
   // simulated clock walks it forward so the prototype controls can show it.
-  const bothOrdered = H.computer.ordered && E.submitted;
+  // Both the computer and the accessories are the new hire's now (A-60), so
+  // one submitted task starts the whole order rather than two people's.
   let eq = 0;
-  if (H.computer.ordered || E.submitted) eq = 0;
-  if (bothOrdered) { eq = 1; if (d <= 9) eq = 2; if (d <= 6) eq = 3; if (d <= 3) eq = 4; }
-  out.equipment = { at: eq, note: bothOrdered ? '' :
-    (H.computer.ordered ? 'Waiting on the accessories order.'
-      : E.submitted ? 'Waiting on the manager to order the computer.'
-      : 'Neither order has been placed.') };
+  if (E.submitted) { eq = 1; if (d <= 9) eq = 2; if (d <= 6) eq = 3; if (d <= 3) eq = 4; }
+  out.equipment = { at: eq, note: E.submitted ? '' :
+    (E.deviceConfirmed ? 'Computer chosen. The order goes in when the task is submitted.'
+      : 'No order placed. The computer has not been chosen yet.') };
 
   // Applications. The persona cannot be resolved, so this one is stuck at
   // its first stage on purpose. That is the honest state today (M-04).
@@ -4882,7 +5438,7 @@ function readinessState() {
     ? { at: 2, note: 'Confirmed by hand, because nothing could be suggested.' }
     : { at: 0, blocked: true, note: 'No persona is mapped for this role, so there is no default stack to confirm.' };
 
-  // Badge and workspace.
+  // Workspace. Badge collection is not a stage: nothing reports it back.
   let ws = 0;
   const photoDone = S.photo.done || S.photo.confirmedExisting;
   if (photoDone) ws = 1;
@@ -4898,12 +5454,18 @@ function readinessState() {
   if (pp === 3 && H.intro.forwarded) pp = 4;
   out.people = { at: pp, note: H.buddy.assigned ? '' : 'No buddy chosen yet.' };
 
+  // Background check, now its own top-level step. The portal can only see the
+  // launch; everything after it happens in the provider's system, so the later
+  // stages are walked by the simulated clock rather than claimed as known.
+  let bg = 0;
+  if (S.bgcheck.launched) { bg = 1; if (d <= 11) bg = 2; if (d <= 7) bg = 3; if (d <= 4) bg = 4; }
+  out.bgcheck = { at: bg, note: S.bgcheck.launched ? '' : 'Not started. It runs longest, so it costs the most to leave.' };
+
   // Paperwork.
   let pw = 0;
   if (S.startdate.confirmed) pw = 1;
-  if (pw === 1 && S.bgcheck.launched) pw = 2;
-  if (pw === 2 && S.details.submitted) pw = 3;
-  if (pw === 3 && S.policies.submitted) pw = 4;
+  if (pw === 1 && S.details.submitted) pw = 2;
+  if (pw === 2 && S.policies.submitted) pw = 3;
   out.paperwork = { at: pw, note: S.startdate.confirmed ? '' : 'Everything else is dated from the start date.' };
 
   return out;
@@ -5008,16 +5570,47 @@ function heroArt() {
   </div>`;
 }
 
-function insideCarousel() {
+/* ---------- Inside Equinix, the narrow strip (A-35) ----------
+   Was a full-width showcase that took the height of a screen and competed
+   with the task list. Now one bar: the chapter headline, dots to move
+   between chapters, and See more to open the full chapter underneath.
+   Opening it links out to Inside Equinix itself rather than paraphrasing it.
+   Siting it as a right-rail widget instead is still an open option (A-35). */
+function insideStrip() {
   const i = S.carousel || 0;
+  const c = INSIDE_CHAPTERS[i];
+  return `
+  <section class="inside-strip ${S.insideOpen ? 'open' : ''}" id="insideStrip" data-assume="A-35">
+    <div class="is-bar" data-insidemore="1">
+      <span class="is-num">${c.n}</span>
+      <div class="is-copy">
+        <div class="is-eyebrow">Inside Equinix <span class="is-ch">${c.title}</span></div>
+        <div class="is-head">${c.head}</div>
+      </div>
+      <div class="is-dots">
+        ${INSIDE_CHAPTERS.map((ch,k) => `
+          <button class="is-dot ${k===i?'on':''}" data-cardot="${k}"
+            title="${ch.n} ${ch.title}" aria-label="Chapter ${ch.n}, ${ch.title}"></button>`).join('')}
+      </div>
+      <span class="is-more">
+        <span class="is-more-t">${S.insideOpen ? 'Close' : 'See more'}</span>${ic('chevron-down.svg','sm')}
+      </span>
+    </div>
+    <div class="is-body" id="insideBody">${insideChapterBody(i)}</div>
+  </section>`;
+}
+
+/* The full chapter, revealed under the bar. Repainted in place when the
+   chapter changes, so moving between chapters never moves the page. */
+function insideChapterBody(i) {
   const c = INSIDE_CHAPTERS[i];
   const a = CHAPTER_ART[i];
   return `
-  <section class="showcase" data-assume="A-35">
-    <div class="sc-stage hexfield">
+  <div class="is-inner">
+    <div class="is-stage hexfield">
       <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <defs>
-          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id="bg${i}" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="${a.g[0]}"/>
             <stop offset="55%" stop-color="${a.g[1]}"/>
             <stop offset="100%" stop-color="${a.g[0]}"/>
@@ -5027,42 +5620,40 @@ function insideCarousel() {
             <stop offset="100%" stop-color="#85F0F8" stop-opacity=".72"/>
           </linearGradient>
         </defs>
-        <rect width="400" height="260" fill="url(#bg)"/>
+        <rect width="400" height="260" fill="url(#bg${i})"/>
         ${a.art}
       </svg>
-      <span class="sc-num">${c.n}</span>
     </div>
-
-    <div class="sc-copy">
-      <div class="sc-eyebrow">Inside Equinix <span class="sc-ch">${c.n} ${c.title}</span></div>
-      <h2 class="sc-title">${c.head}</h2>
-      <p class="sc-line">${c.line}</p>
-
+    <div class="is-text">
+      <p class="is-line">${c.line}</p>
       ${c.facts ? `<div class="sc-facts">${c.facts.map(f => `
         <div class="sc-fact"><b>${f[0]}</b><span>${f[1]}</span></div>`).join('')}</div>` : ''}
-
       ${c.list ? `<ul class="sc-list">${c.list.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
-
       ${c.watch ? `<div class="sc-watch">${ic('image.svg','sm')}<span>${c.watch}</span></div>` : ''}
-
-      <div class="sc-thumbs">
-        ${INSIDE_CHAPTERS.map((ch,k) => `
-          <button class="sc-thumb ${k===i?'on':''}" data-cardot="${k}" title="${ch.n} ${ch.title}">
-            <span class="sct-swatch" style="background:linear-gradient(135deg, ${CHAPTER_ART[k].g[0]}, ${CHAPTER_ART[k].g[1]})"></span>
-            <span class="sct-n">${ch.n}</span>
-          </button>`).join('')}
+      <div class="is-reflect">
+        <b>${ic('comment-smile.svg','sm')} Worth thinking about</b>
+        <ul>${c.reflect.map(q => `<li>${q}</li>`).join('')}</ul>
+        <p class="pnote">${REFLECT_NOTE} ${am('L-12')}</p>
       </div>
+      <a class="is-out" data-ext="inside">Read this chapter on Inside Equinix ${ic('external-link.svg','sm')}</a>
+      <p class="is-foot">Six short chapters about the company you are joining. Nothing here is a
+      task and nothing is tracked. ${am('A-35')}</p>
     </div>
-  </section>
+  </div>`;
+}
 
-  <div class="reflect" data-assume="A-35 L-12">
-    <div class="rf-h">${ic('comment-smile.svg','lg')}<h3>Reflection prompt</h3></div>
-    <ul class="rf-q">${c.reflect.map(q => `<li>${q}</li>`).join('')}</ul>
-    <p class="rf-note">${REFLECT_NOTE} ${am('L-12')}</p>
-  </div>
-
-  <p class="sc-foot">Six short chapters about the company you are joining. Read them whenever you like.
-  Nothing here is a task and nothing is tracked. ${am('A-35')}</p>`;
+/* Chapter changes repaint the strip rather than re-rendering the route,
+   which is what used to throw the reader back to the top of the page. */
+function paintInside() {
+  const strip = $('#insideStrip');
+  if (!strip) return;
+  const i = S.carousel || 0, c = INSIDE_CHAPTERS[i];
+  $('.is-num', strip).textContent = c.n;
+  $('.is-ch', strip).textContent = c.title;
+  $('.is-head', strip).textContent = c.head;
+  $$('.is-dot', strip).forEach((d,k) => d.classList.toggle('on', k === i));
+  const body = $('#insideBody', strip);
+  if (body) body.innerHTML = insideChapterBody(i);
 }
 
 /* ============================================================
@@ -5194,8 +5785,12 @@ const REL_OPTIONS = ['Spouse or partner','Parent','Sibling','Child','Friend','Ot
 
 function requiredFields() {
   const d = S.details.data;
+  // Banking is required here now (A-61): payroll cannot pay without it, so it
+  // belongs inside the mandatory personal-information task rather than in a
+  // separate Payroll form the portal only points at.
   let req = ['legalFirst','legalLast','addr1','city','state','zip','email','ccode','mobile',
-             'ec1name','ec1rel','ec1phone','language','channel'];
+             'ec1name','ec1rel','ec1phone','language','channel',
+             'bankName','bankAccName','bankRouting','bankAccount','bankType'];
   if (d.ec1rel === 'Other') req.push('ec1relOther');
   if (d.ec2on) {
     req = req.concat(['ec2name','ec2rel','ec2phone']);
@@ -5208,14 +5803,18 @@ const FIELD_LABELS = {
   state: () => S.country==='JP' ? 'Prefecture' : 'State', zip: () => S.country==='JP' ? 'Postal code' : 'ZIP code',
   email:'Personal email', ccode:'Country code', mobile:'Mobile number',
   ec1name:'Emergency contact name', ec1rel:'Relationship', ec1relOther:'Relationship (other)',
+  bankName:'Bank name', bankAccName:'Name on the account', bankRouting:'Routing number',
+  bankAccount:'Account number', bankType:'Account type', taxWithholdings:'Withholding allowances',
   ec1phone:'Emergency contact phone', ec2name:'Second contact name', ec2rel:'Second contact relationship',
   ec2relOther:'Second contact relationship (other)', ec2phone:'Second contact phone',
   language:'Preferred language', channel:'Preferred contact channel',
 };
 const fieldLabel = f => typeof FIELD_LABELS[f]==='function' ? FIELD_LABELS[f]() : (FIELD_LABELS[f]||f);
+const BANK_FIELDS = ['bankName','bankAccName','bankRouting','bankAccount','bankType','taxWithholdings'];
 const FIELD_TAB = f => {
   if (f.startsWith('ec')) return 1;
-  if (['language','channel'].includes(f)) return 2;
+  if (BANK_FIELDS.includes(f)) return 2;
+  if (['language','channel'].includes(f)) return 3;
   return 0;
 };
 
@@ -5228,7 +5827,7 @@ function validField(f) {
 }
 function tabCounts() {
   const req = requiredFields();
-  return [0,1,2].map(t => {
+  return [0,1,2,3].map(t => {
     const fs = req.filter(f => FIELD_TAB(f) === t);
     return { done: fs.filter(validField).length, total: fs.length };
   });
@@ -5254,7 +5853,7 @@ function renderDetails() {
   const counts = tabCounts();
   const tab = S.details.tab;
   const jp = S.country === 'JP';
-  const tabs = ['Details','Emergency contact','Preferences'];
+  const tabs = ['Details','Emergency contact','Pay and banking','Preferences'];
   const missing = requiredFields().filter(f => !validField(f));
 
   return `
@@ -5274,7 +5873,7 @@ function renderDetails() {
           </button>`).join('')}
       </div>
       <div class="wiz-body">
-        ${tab===0 ? tabDetails(jp) : tab===1 ? tabEmergency() : tabPreferences()}
+        ${tab===0 ? tabDetails(jp) : tab===1 ? tabEmergency() : tab===2 ? tabBanking() : tabPreferences()}
       </div>
       <div class="wiz-foot">
         ${ro
@@ -5428,6 +6027,62 @@ function tabEmergency() {
     </div>`;
 }
 
+/* ---------- Pay and banking (A-61) ----------
+   Reverses A-10 and A-11, which had bank details collected by Payroll in
+   their own form and never passing through this portal. They are captured
+   here now, inside the mandatory personal-information task, because payroll
+   cannot pay without them and a second form is a second place to abandon. */
+function tabBanking() {
+  const d = S.details.data;
+  return `
+    <div class="form-sec" data-assume="A-61">
+      <h3>Where your pay goes ${am('A-61')}</h3>
+      <p class="sec-note">This is what payroll needs to pay you. You can change it later from the portal,
+      and a change takes effect from the next pay run.</p>
+
+      <div class="callout soft">
+        ${ic('lock.svg')}
+        <div><b>Handled differently from the rest of this form.</b> These fields are encrypted, are not shown
+        to your manager, and are not part of what they can see of your progress. ${am('A-10')}</div>
+      </div>
+
+      <div class="mt16">
+        ${inp('bankName','Bank name')}
+        ${inp('bankAccName','Name on the account', { note:'Must match your legal name as entered on the Details tab.' })}
+      </div>
+      <div class="field-row">
+        ${inp('bankRouting','Routing number', { err:'A routing number is 9 digits.' })}
+        ${inp('bankAccount','Account number', { type:'password', note:'Hidden as you type.' })}
+      </div>
+
+      <div class="field" style="max-width:320px;">
+        <label>Account type</label>
+        <select data-input="bankType">
+          <option value="" ${!d.bankType?'selected':''}>Choose…</option>
+          <option ${d.bankType==='Checking'?'selected':''}>Checking</option>
+          <option ${d.bankType==='Savings'?'selected':''}>Savings</option>
+        </select>
+        <div class="err">Please choose an account type.</div>
+      </div>
+
+      <div class="excl-note">Splitting pay across more than one account is not supported here.
+      <span class="pnote">The live Payroll form allows it. Whether this screen has to match is unresolved. ${am('A-61')}</span></div>
+    </div>
+
+    <div class="form-sec" data-assume="A-62">
+      <h3>Tax withholding ${am('A-62')}</h3>
+      <p class="sec-note">Not your tax forms. Those stay with Payroll on their own timetable. This is the
+      one figure your first pay run needs.</p>
+      ${inp('taxWithholdings','Withholding allowances', { note:'Leave blank if you are not sure. Payroll will confirm it with you.' })}
+      <label class="check">
+        <input type="checkbox" data-input="taxExempt" data-kind="check" ${d.taxExempt?'checked':''}>
+        <span>I expect to be exempt from withholding this year.</span>
+      </label>
+      <p class="pnote">Scope unconfirmed. Linda Sommer has not said whether these two fields belong in the
+      mandatory set or stay with Payroll. Drawn here so the question is answerable. ${am('A-62')}</p>
+    </div>`;
+}
+
 function tabPreferences() {
   const d = S.details.data;
   return `
@@ -5499,14 +6154,15 @@ function tabPreferences() {
         </div>` : `<p class="sec-note" style="margin:6px 0 0;">Collapsed. Expand it if you’d like to share. Entirely voluntary.</p>`}
       </div>
 
-      <div class="boundary" data-assume="A-10 A-11">
+      <div class="boundary" data-assume="A-10 A-11 A-61">
         ${ic('lock.svg','lg')}
         <div>
-          <h4>Banking and direct deposit ${am('A-10')} ${am('A-11')}</h4>
-          <p>Payroll collects bank details separately, in their own secure form, because bank data is handled differently
-          from the rest of this profile. Payroll will be in touch. Nothing to prepare.</p>
-          <p class="excl-note">Tax and W-4, swag sizes and dietary requirements are handled elsewhere too.
-          <span class="pnote">All four are <b>left out on purpose</b>, confirmed. They are not gaps in this form.</span></p>
+          <h4>What is still handled elsewhere ${am('A-11')}</h4>
+          <p>Your tax forms, swag sizes and dietary requirements are collected outside this portal, on their
+          own timetables. Banking is no longer one of them: it is on the <b>pay and banking</b> tab above. ${am('A-61')}</p>
+          <p class="excl-note">Swag and dietary requirements are left out on purpose.
+          <span class="pnote">Confirmed exclusions, not gaps in this form. Banking was one of them until it
+          moved, so the exclusion list is worth re-checking rather than inherited. ${am('A-10')}</span></p>
           <a data-ext="payroll">About Payroll’s process ${ic('external-link.svg','sm')}</a>
         </div>
       </div>
@@ -5613,13 +6269,16 @@ function equipmentRows(forManager) {
   const hire = `<b>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</b>`;
   const mgr = `<b>${MANAGER.name} (${MANAGER.username})</b>`;
   return [
+    // The computer is the new hire's own pick now (A-60), so this row reports
+    // their choice rather than waiting on the manager to place an order.
     { item:'Computer', icon:'laptop.svg',
-      status: S.hm.computer.ordered ? 'ORDERED' : 'NOT ORDERED YET', ok: S.hm.computer.ordered,
-      unblock: S.hm.computer.ordered
-        ? `Ordered by ${mgr}${S.hm.computer.model ? ', ' + (COMPUTER_OPTIONS.find(o => o.id === S.hm.computer.model) || {}).label : ''}.`
-        : `To place an order for a computer the hiring manager, ${mgr}, must first complete the
-           <b>“Order equipment for new hire ${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})”</b> task.`,
-      marker:'A-41' },
+      status: E.deviceConfirmed ? 'CONFIRMED' : 'NOT CHOSEN YET', ok: E.deviceConfirmed,
+      unblock: E.deviceConfirmed
+        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, chosen by ${hire}. Ordered on submission of the
+           <b>“Choose your equipment”</b> task.`
+        : `To place an order for a computer the new hire, ${hire}, must first complete the
+           <b>“Choose your equipment”</b> task.`,
+      marker:'A-60' },
     { item:'Computer accessories', icon:'desktop.svg',
       status: E.submitted ? 'INC6369627' : 'NOT ORDERED YET', ok:E.submitted,
       unblock: E.submitted
@@ -5633,6 +6292,72 @@ function equipmentRows(forManager) {
   ];
 }
 
+/* ---------- The computer, now the new hire's to pick (A-60) ----------
+   Two states, both real. Most roles resolve from role and location to a
+   single build: the new hire sees what they are getting and confirms it,
+   with no edit, because there is nothing to decide. Some roles carry a
+   genuine choice and get the full catalogue with specifications. */
+function devicePicker() {
+  const E = S.equipment;
+  const single = S.deviceMode === 'single';
+  const chosen = single ? DEVICE_CATALOG[0] : deviceById(E.device);
+
+  const card = (d, picked, readonly) => `
+    <div class="dev-card ${picked ? 'on' : ''} ${readonly ? 'fixed' : ''}"
+      ${readonly ? '' : `data-device="${d.id}"`}>
+      <div class="dev-art ${d.family}">${deviceArt(d.family)}</div>
+      <div class="dev-body">
+        <div class="dev-h">
+          <div>
+            <div class="dev-name">${d.name}</div>
+            <div class="dev-sub">${d.sub}</div>
+          </div>
+          ${readonly ? '' : `<span class="dev-tick">${picked ? ic('check-circle.svg','lg') : ''}</span>`}
+        </div>
+        <p class="dev-fits">${d.fits}</p>
+        <dl class="dev-specs">
+          ${d.specs.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
+        </dl>
+        <div class="dev-lead ${d.leadOk ? '' : 'late'}">
+          ${ic(d.leadOk ? 'check-circle.svg' : 'exclamation-triangle.svg','sm')}${d.lead}
+        </div>
+      </div>
+    </div>`;
+
+  return `
+  <div class="task-shell" data-assume="A-60">
+    <div class="wiz-body">
+      <div class="form-sec">
+        <h3>Your computer ${am('A-60')}</h3>
+        ${single ? `
+          <p class="sec-note">Your role and location decide this one, so there is nothing to choose.
+          Check it over and confirm.</p>
+          ${card(chosen, true, true)}
+          <div class="dev-confirm">
+            ${E.deviceConfirmed
+              ? `<span class="chip done">${ic('check.svg','sm')}Confirmed</span>
+                 <span class="dev-confirm-note">Ordered when you submit this task.</span>`
+              : `<button class="btn primary" id="devConfirm">This is right, confirm it</button>
+                 <span class="dev-confirm-note">Not what your role needs?
+                 <span class="help-link" data-openchat="1">Ask ${PEOPLE.pex.name.split(' ')[0]}</span>.</span>`}
+          </div>
+        ` : `
+          <p class="sec-note">Your role carries a choice. Pick the one that fits how you work.
+          You can change it until the order is placed.</p>
+          <div class="dev-grid">${DEVICE_CATALOG.map(d => card(d, E.device === d.id, false)).join('')}</div>
+          ${E.device && !deviceById(E.device).leadOk ? `
+            <div class="callout mt16">${ic('exclamation-triangle.svg')}
+              <div><b>This one would arrive after you start.</b> ${deviceById(E.device).lead}, against
+              ${daysToStart()} days until your first day. You would be issued a loaner until it lands.</div>
+            </div>` : ''}
+        `}
+        <p class="pnote mt12">Models and specifications here are illustrative. The approved catalogue
+        sits with End User Technology and has not been supplied. ${am('A-60')}</p>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderEquipment() {
   const E = S.equipment;
   if (E.submitted) return equipmentSubmitted();
@@ -5643,12 +6368,14 @@ function renderEquipment() {
 
   return `
   <div class="page">
-    ${crumbs('Choose your workspace accessories')}
-    <div class="task-head" data-assume="A-33 A-34">
-      <h1>Choose your workspace accessories ${am('A-34')}</h1>
-      <p class="why">First on your list, so there’s time to build it, ship it and have it waiting for you. ${am('A-33')}
-      This orders <b>accessories only</b>. Your manager orders your computer, and a phone is a Day 1 choice if your role needs one.</p>
+    ${crumbs('Choose your equipment')}
+    <div class="task-head" data-assume="A-33 A-34 A-60">
+      <h1>Choose your equipment ${am('A-60')}</h1>
+      <p class="why">Early on your list, so there’s time to build it, ship it and have it waiting for you. ${am('A-33')}
+      Your computer and your accessories are both yours to pick. A phone is a Day 1 choice if your role needs one.</p>
     </div>
+
+    ${devicePicker()}
 
     ${equipmentTable(false)}
 
@@ -5981,11 +6708,6 @@ function renderNetwork() {
               <p>One person on your team, for <b>culture and logistics</b>. The questions you would rather not ask your manager.</p>
             </div>
             <div class="dist-row">
-              <div class="dr-h">${ic('users-friends.svg','sm')} Your ambassador</div>
-              <p>One person <b>outside your function</b>, to help you navigate and make connections.
-              The name of this role is a placeholder. ${am('M-26')}</p>
-            </div>
-            <div class="dist-row">
               <div class="dr-h">${ic('users-three.svg','sm')} Your team</div>
               <p>Your reporting line is on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>.
               <span class="pnote">Deliberately so: rendering it as a hierarchy would mislead.</span></p>
@@ -5995,7 +6717,7 @@ function renderNetwork() {
         <div class="rail-card">
           <h3>What happened behind this</h3>
           <ol class="mech-list">
-            <li>${HIRE.manager} named a <b>buddy</b>, an <b>ambassador</b> and anyone else worth meeting early.</li>
+            <li>${HIRE.manager} named a <b>buddy</b> and anyone else worth meeting early.</li>
             <li>Where she wrote a reason, it is on the card. She knows you can see it.</li>
             <li>Each of them was <b>asked</b>, not told, and had to accept. ${am('M-27')}</li>
             <li>You get the list, the reasons, and times you can book.</li>
@@ -6464,8 +7186,8 @@ function renderFlow() {
   const other = [
     { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, no action from you' },
     { x:48, r:50, cls:'other', lbl:'Computer, your manager', sub:'their task, not yours' },
-    { x:70, r:50, cls:'other', lbl:'Banking, Payroll', sub:'their secure form, no date yet' },
-    { x:88, r:50, cls:'other', lbl:'Badge printed', sub:'24h lead after your photo' },
+    { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their timetable, no date yet' },
+    { x:88, r:50, cls:'other', lbl:'Badge photo sent on', sub:'printing is not tracked here' },
   ];
   const lane = (title, icon, nodes, cls='', h=120) => `
     <div class="flow-lane">
@@ -6698,6 +7420,16 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.country==='US'?'on':''}" data-pc="country:US">United States</button>
       <button class="pc-btn ${S.country==='JP'?'on':''}" data-pc="country:JP">Japan</button>
     </div>
+    <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
+    <div class="pc-row">
+      <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Blueprint unchanged</button>
+      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">They changed it</button>
+    </div>
+    <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
+    <div class="pc-row">
+      <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">One build, confirm it</button>
+      <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">A real choice</button>
+    </div>
     <div class="pc-h">Runway to Day 1 <span class="pc-mark">A-45</span></div>
     <div class="pc-row">
       <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">2 weeks out</button>
@@ -6750,7 +7482,6 @@ function applyScenario(name) {
   const hmPartial = () => {
     S.hm.card.needed = true;
     S.hm.buddy = { assigned:'nina', notified:true, accepted:true };
-    S.hm.ambassador = { assigned:'lena', notified:true, accepted:true };
     S.hm.contactConfirmed = true;
     Object.assign(S.hm.logistics, { confirmed:true, whereToBe:'9:00, main reception. Ask for me at the desk', available:true });
   };
@@ -6965,18 +7696,17 @@ function bindScreen(route) {
   if (route === '#/policies') bindPolicies();
 }
 
-/* ---------- carousel ---------- */
+/* ---------- carousel ----------
+   Rotates only while the strip is closed: once someone has opened a chapter
+   to read it, moving it under them would be hostile. */
 function startCarousel(on) {
   clearInterval(carouselTimer); carouselTimer = null;
   if (!on) return;
   carouselTimer = setInterval(() => {
-    if (!$('.carousel')) { clearInterval(carouselTimer); return; }
+    if (!$('#insideStrip')) { clearInterval(carouselTimer); carouselTimer = null; return; }
+    if (S.insideOpen) return;
     S.carousel = ((S.carousel || 0) + 1) % INSIDE_CHAPTERS.length;
-    const c = INSIDE_CHAPTERS[S.carousel];
-    $('.car-num').textContent = c.n;
-    $('.car-title').textContent = c.title;
-    $('.car-line').textContent = c.line;
-    $$('.car-dot').forEach((d,k) => d.classList.toggle('on', k === S.carousel));
+    paintInside();
   }, 6000);
 }
 
@@ -7098,6 +7828,18 @@ function updateWizardChrome() {
 
 /* ---------- equipment bindings ---------- */
 function bindEquipment() {
+  const dc = $('#devConfirm');
+  if (dc) dc.addEventListener('click', () => {
+    S.equipment.deviceConfirmed = true;
+    S.equipment.device = DEVICE_CATALOG[0].id;
+    save(); rerender();
+    toast('Computer confirmed. It is ordered when you submit this task.', 'check-circle.svg');
+  });
+  $$('[data-device]').forEach(el => el.addEventListener('click', () => {
+    S.equipment.device = el.dataset.device;
+    S.equipment.deviceConfirmed = true;
+    save(); rerender();
+  }));
   const sel = $('#eqChoice');
   if (sel) sel.addEventListener('change', () => {
     S.equipment.choice = sel.value;
@@ -7371,7 +8113,18 @@ document.addEventListener('click', e => {
     save(); rerender(); return;
   }
   const dot = t.closest('[data-cardot]');
-  if (dot) { S.carousel = +dot.dataset.cardot; save(); rerender(); return; }
+  if (dot) { S.carousel = +dot.dataset.cardot; save(); paintInside(); return; }
+
+  const insideMore = t.closest('[data-insidemore]');
+  if (insideMore) {
+    S.insideOpen = !S.insideOpen; save();
+    const strip = $('#insideStrip');
+    if (strip) {
+      strip.classList.toggle('open', S.insideOpen);
+      $('.is-more-t', strip).textContent = S.insideOpen ? 'Close' : 'See more';
+    }
+    return;
+  }
 
   const uc = t.closest('[data-ucard]');
   if (uc) { uc.classList.toggle('open'); return; }
@@ -7443,6 +8196,7 @@ document.addEventListener('click', e => {
     const [k, v] = pcBtn.dataset.pc.split(':');
     if (k === 'scenario') applyScenario(v);
     else if (k === 'notes') { S.notes = (v === 'on'); applyNotes(); save(); }
+    else if (k === 'pexUpdate') { S.pexUpdate = (v === 'yes'); save(); }
     else {
       S[k] = v;
       if (k === 'country') syncCountry();

@@ -56,6 +56,9 @@ const DEFAULT_STATE = () => ({
   // Whether this role maps to one build or offers a choice (A-60). A prototype
   // control, because both states are real and both need reviewing.
   deviceMode: 'single',          // single | choice
+  // People Experience owns the orientation blueprint. When they change it,
+  // the manager's confirmation goes stale and has to be re-taken (M-32).
+  pexUpdate: false,
   jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
   intro: { text:'', consent:false, useBadge:false, saved:false, dismissed:[], done:false },
   photo: { uploaded:false, dataUrl:null, consent:false, done:false, confirmedExisting:false, replacing:false },
@@ -71,7 +74,7 @@ const DEFAULT_STATE = () => ({
     // A name is not a commitment. Both roles have to accept (M-27).
     buddy: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
-    welcome: { sent:false, body:'', personal:'' },
+    welcome: { sent:false, body:'', personal:'', tone:'warm' },
     network: { named:{}, submitted:false },
     intro: { forwarded:false },
     card: { needed:null },            // null = unanswered, true/false = decided (L-10)
@@ -2564,6 +2567,11 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.country==='US'?'on':''}" data-pc="country:US">United States</button>
       <button class="pc-btn ${S.country==='JP'?'on':''}" data-pc="country:JP">Japan</button>
     </div>
+    <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
+    <div class="pc-row">
+      <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Blueprint unchanged</button>
+      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">They changed it</button>
+    </div>
     <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
     <div class="pc-row">
       <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">One build, confirm it</button>
@@ -3335,6 +3343,7 @@ document.addEventListener('click', e => {
     const [k, v] = pcBtn.dataset.pc.split(':');
     if (k === 'scenario') applyScenario(v);
     else if (k === 'notes') { S.notes = (v === 'on'); applyNotes(); save(); }
+    else if (k === 'pexUpdate') { S.pexUpdate = (v === 'yes'); save(); }
     else {
       S[k] = v;
       if (k === 'country') syncCountry();
