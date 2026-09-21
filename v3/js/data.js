@@ -257,6 +257,10 @@ const ASSUMPTIONS = [
     assumed:'The platform already ships a to-do view: a phase rail, one phase open at a time, a count for that phase only, and filters for Assigned to, Type and Sort by. The prototype now carries both that view and its own task list, so the two can be compared.',
     resolve:'The counting model is the decision. The platform counts within a phase, so a new hire in Get Ready for Day 1 sees a small number and no sense of what is still coming. This prototype counts the whole pre-Day 1 list instead. Which is less alarming has never been tested, and the answer changes the home screen. Also worth noting: the filters exist and cost nothing, so any argument for a simpler list has to say why they are being given up. Two Day 1 to-dos were on screen that no source of ours names, Welcome to MyHR and Complete your enterprise training, and two more in that phase were below the fold.', oi:'' },
 
+  { id:'A-60', group:'blocks', prov:'1:1', screen:'Choose your equipment', route:'#/equipment',
+    assumed:'The new hire picks the computer, not the hiring manager. Most roles resolve from role and location to a single build, which the new hire confirms rather than chooses; some roles carry a genuine choice and get the catalogue with specifications. Both states are drawn, switchable from the prototype controls.',
+    resolve:'This reverses the earlier model, where the manager placed the order and nothing moved until they did. Three things are still open. The approved device catalogue sits with End User Technology and has not been supplied, so the models and specifications on screen are illustrative stand-ins. Nobody has defined which roles resolve to one build and which carry a choice, or who maintains that mapping. And monitor and accessory entitlements per role are undefined, so the accessories form below still offers the same two options to everyone.', oi:'' },
+
   { id:'A-57', group:'design', prov:'1:1', screen:'All screens', route:'#/',
     assumed:'Match the live feature set, not the mechanism behind it. Where this prototype mirrors today’s wording or flow, that is a starting point to argue from, not a decision to inherit.',
     resolve:'Stated directly: the trap in this kind of project is “but we do it this way”, and the answer is to open up what is possible rather than design inside the existing box. So the working rule is to list what the live portal does, make sure nothing is quietly dropped, and then decide the how separately. Where this prototype does follow today’s mechanism, such as the accessories incident and its comment thread, that is recorded as observed behaviour with a documented reason, not as a preference.', oi:'' },
@@ -625,7 +629,7 @@ const READINESS = [
   { id:'equipment', label:'Equipment', icon:'laptop.svg', sys:'ServiceNow',
     owners:'The manager, the new hire and End User Technology',
     stages:[
-      { label:'Order placed',        note:'The computer is the manager’s order. Accessories are the new hire’s.' },
+      { label:'Order placed',        note:'The new hire picks the computer and the accessories, and one task orders both.' },
       { label:'With IT Procurement', note:'A request is raised and routed. Lead time runs 5 to 7 business days.' },
       { label:'Built and imaged',    note:'Standard build for the role, then the image is applied.' },
       { label:'Shipped',             note:'To the office address, unless the new hire asked for it at home.' },
@@ -814,6 +818,63 @@ const COMPUTER_OPTIONS = [
   { id:'win-hp', label:'High-performance Windows laptop', lead:'In stock, 5 days', ok:true },
 ];
 
+/* ---------- The machines a new hire can be issued (A-60) ----------
+   The new hire picks, not the manager. Most roles map to exactly one build
+   from role and location, and that new hire confirms rather than chooses;
+   some roles, engineering and design among them, carry a real choice.
+
+   Model names and specifications here are ILLUSTRATIVE. The approved
+   catalogue lives with End User Technology and has not been supplied, so
+   these are plausible stand-ins that let the screen be reviewed, not a
+   statement of what Equinix issues. */
+const DEVICE_CATALOG = [
+  { id:'win-std', name:'Standard Windows laptop', sub:'14-inch business ultrabook', family:'win',
+    lead:'In stock, ships in 3 days', leadOk:true,
+    fits:'The default build. Email, the finance stack, browser work and calls.',
+    specs:[['Processor','Intel Core Ultra 5'],['Memory','16 GB'],['Storage','512 GB SSD'],
+           ['Display','14-inch, 1920 × 1200'],['Weight','1.4 kg'],['Ports','2 × Thunderbolt 4, HDMI, USB-A']] },
+  { id:'win-hp', name:'High-performance Windows laptop', sub:'15-inch mobile workstation', family:'win',
+    lead:'In stock, ships in 5 days', leadOk:true,
+    fits:'Large models, heavy data work, anything that has to run locally.',
+    specs:[['Processor','Intel Core i7'],['Memory','32 GB'],['Storage','1 TB SSD'],
+           ['Graphics','Discrete workstation GPU'],['Display','15.6-inch, 1920 × 1200'],['Weight','1.8 kg']] },
+  { id:'mac', name:'MacBook Pro 14', sub:'Apple silicon, mid tier', family:'mac',
+    lead:'Backordered, 18 days', leadOk:false,
+    fits:'Design, and engineering teams building for Apple platforms.',
+    specs:[['Chip','Apple silicon, 12-core'],['Memory','24 GB unified'],['Storage','512 GB SSD'],
+           ['Display','14-inch Liquid Retina XDR'],['Weight','1.6 kg'],['Ports','3 × Thunderbolt, HDMI, SDXC']] },
+  { id:'mac-hp', name:'MacBook Pro 16', sub:'Apple silicon, top tier', family:'mac',
+    lead:'Built to order, 12 days', leadOk:true,
+    fits:'Sustained heavy workloads. Carries a justification on the order.',
+    specs:[['Chip','Apple silicon, 16-core'],['Memory','48 GB unified'],['Storage','1 TB SSD'],
+           ['Display','16-inch Liquid Retina XDR'],['Weight','2.1 kg'],['Ports','3 × Thunderbolt, HDMI, SDXC']] },
+];
+const deviceById = id => DEVICE_CATALOG.find(d => d.id === id) || null;
+
+/* One drawing, tinted per family. Brand illustration system: flat shapes,
+   a single linear gradient, thin light wireframes, nothing decorative. */
+function deviceArt(family) {
+  const g = family === 'mac' ? ['#00408C','#00737A'] : ['#00305F','#086AE3'];
+  const uid = 'dev' + family;
+  return `
+  <svg viewBox="0 0 200 128" aria-hidden="true" class="dev-svg">
+    <defs>
+      <linearGradient id="${uid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${g[0]}"/><stop offset="100%" stop-color="${g[1]}"/>
+      </linearGradient>
+    </defs>
+    <rect x="40" y="10" width="120" height="82" rx="6" fill="url(#${uid})"/>
+    <rect x="46" y="16" width="108" height="70" rx="3" fill="rgba(255,255,255,.10)"/>
+    <g stroke="rgba(255,255,255,.5)" stroke-width="1.2" fill="none" stroke-linecap="round">
+      <path d="M56 34 H116 M56 46 H134 M56 58 H100 M56 70 H124"/>
+    </g>
+    <circle cx="140" cy="27" r="4.5" fill="#85F0F8" opacity=".9"/>
+    <path d="M34 92 H166 L180 108 H20 Z" fill="var(--nickel)"/>
+    <path d="M34 92 H166 L168 95 H32 Z" fill="var(--chrome)"/>
+    <rect x="88" y="99" width="24" height="3" rx="1.5" fill="rgba(0,0,0,.20)"/>
+  </svg>`;
+}
+
 /* Default software stack for H-05. Cannot resolve without a persona (M-04 / OI-04) */
 const SOFTWARE_CATALOG = [
   'Anaplan', 'Tableau', 'Power BI', 'Alteryx', 'Workday Adaptive Planning',
@@ -860,9 +921,9 @@ ASSUMPTIONS.forEach(a => { a.side = 'nh'; });
 
 const HM_ASSUMPTIONS = [
   /* ---------- Blocks build ---------- */
-  { id:'M-01', side:'hm', group:'blocks', prov:'UAT', screen:'Order the computer', route:'#/hm/computer',
+  { id:'M-01', side:'hm', group:'retired', prov:'UAT', screen:'Equipment for your new hire', route:'#/hm/computer',
     assumed:'The manager ORDERS the computer today. This is not a confirmation step, and nothing moves until they do it.',
-    resolve:'Corrects the workbook’s own baseline, which described confirm-only per PRD S2-US14 AC2. That is the target state, not today’s. Confirm whether this task is already being redesigned inside the laptop-and-accessory MVP. If it is, this screen should follow that work.', oi:'OI-24' },
+    resolve:'Decided: equipment selection moved to the new hire (A-60), so the manager no longer orders anything. This was the heaviest row on the manager’s list and its removal is the single largest saving in the subtraction review. What replaces it is an awareness screen recommended for deletion, because the readiness view already carries the status. Still to write: the exception path, for a role needing a machine outside its mapped build, an order landing after the start date, or a cost needing approval.', oi:'OI-24' },
   { id:'M-02', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'REVISED. Two numbers, not one: your tasks and their tasks, each as its own ring. Other teams report status only, with no progress bar.',
     resolve:'One combined percentage could not answer the first question a manager asks, which is whether the number is about them or about the new hire. Other teams came out of the count because they will not be users in this system, so there is nothing to count and the manager does not need their progress task by task. Still undefined: weighting, and what a good score even is.', oi:'OI-02' },
@@ -930,9 +991,9 @@ const HM_ASSUMPTIONS = [
   { id:'M-23', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
     assumed:'Manager tasks carry due dates and a recommended order. Four are taken from the mockup, at Day −7 for equipment and location, Day −4 for the application stack and Day −2 for the welcome note and the buddy. The rest are proposed.',
     resolve:'The mockup dates only five tasks. The corporate card, the Day 1 calendar, the team network and forwarding the introduction have no date in any source, so those four are marked. Someone has to set them, because a task with no date is a task with no nudge.', oi:'' },
-  { id:'M-24', side:'hm', group:'blocks', prov:'PRIOR', screen:'Order the computer', route:'#/hm/computer',
+  { id:'M-24', side:'hm', group:'blocks', prov:'PRIOR', screen:'Equipment', route:'#/equipment',
     assumed:'CONFLICT, unresolved. The mockup dates the equipment order at Day −7 and states a lead time of 5 to 7 business days.',
-    resolve:'Seven business days from Day −7 lands after the start date. Either the due date is wrong, the lead time is wrong, or the automatic loaner is not an edge case but the normal outcome. The prototype raises it as a blocker on the manager’s home screen so the collision is visible rather than discovered on somebody’s first morning.', oi:'' },
+    resolve:'Seven business days from Day −7 lands after the start date. Either the due date is wrong, the lead time is wrong, or the automatic loaner is not an edge case but the normal outcome. Moving the order to the new hire (A-60) does not fix this, it moves it: the same collision now sits on a task owned by someone with no way to escalate it. It appears on the manager’s "waiting on Jordan" list rather than their blockers, because they cannot act on it either.', oi:'' },
   { id:'M-25', side:'hm', group:'blocks', prov:'PRIOR', screen:'Software stack', route:'#/hm/software',
     assumed:'CONFLICT, unresolved. This prototype draws the application stack blocked, because no persona resolves. The mockup shows eight applications auto-assigned from the job family in Workday, with the manager reviewing rather than building the list.',
     resolve:'The platform owner said no full persona list exists and that the job-family fallback is the approach the requirements analysis rejects as inaccurate. The mockup shows that fallback working. One of the two is out of date. This is the single biggest difference between the two manager screens, and it decides whether this task is a review or a data-entry job.', oi:'OI-04' },

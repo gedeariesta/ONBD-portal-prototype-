@@ -51,7 +51,11 @@ const DEFAULT_STATE = () => ({
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
   details: { tab:0, submitted:false, queryRaised:false, data:{} },
-  equipment: { choice:'', items:{}, shipOffice:'', shipPhone:'', submitted:false, comment:'', comments:[] },
+  equipment: { choice:'', items:{}, shipOffice:'', shipPhone:'', submitted:false, comment:'', comments:[],
+    device:'', deviceConfirmed:false },
+  // Whether this role maps to one build or offers a choice (A-60). A prototype
+  // control, because both states are real and both need reviewing.
+  deviceMode: 'single',          // single | choice
   jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
   intro: { text:'', consent:false, useBadge:false, saved:false, dismissed:[], done:false },
   photo: { uploaded:false, dataUrl:null, consent:false, done:false, confirmedExisting:false, replacing:false },
@@ -205,9 +209,9 @@ function taskList() {
       est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
     // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
-      name:'Choose your workspace accessories',
-      why:'So it’s built, shipped and waiting for you on Day 1',
-      est:'4 min', estMark:'A-23', status:equipmentStatus(), marker:'A-33' },
+      name:'Choose your equipment',
+      why:'Your computer and accessories, built and shipped in time for Day 1',
+      est:'4 min', estMark:'A-23', status:equipmentStatus(), marker:'A-60' },
     { key:'details', route:'#/details', icon:'user-circle.svg',
       name:'Your personal and contact details',
       why:'So we can set up your record, reach you, and know who to call in an emergency',
@@ -569,14 +573,13 @@ function readinessState() {
 
   // Equipment. Both orders have to exist before anything moves, then the
   // simulated clock walks it forward so the prototype controls can show it.
-  const bothOrdered = H.computer.ordered && E.submitted;
+  // Both the computer and the accessories are the new hire's now (A-60), so
+  // one submitted task starts the whole order rather than two people's.
   let eq = 0;
-  if (H.computer.ordered || E.submitted) eq = 0;
-  if (bothOrdered) { eq = 1; if (d <= 9) eq = 2; if (d <= 6) eq = 3; if (d <= 3) eq = 4; }
-  out.equipment = { at: eq, note: bothOrdered ? '' :
-    (H.computer.ordered ? 'Waiting on the accessories order.'
-      : E.submitted ? 'Waiting on the manager to order the computer.'
-      : 'Neither order has been placed.') };
+  if (E.submitted) { eq = 1; if (d <= 9) eq = 2; if (d <= 6) eq = 3; if (d <= 3) eq = 4; }
+  out.equipment = { at: eq, note: E.submitted ? '' :
+    (E.deviceConfirmed ? 'Computer chosen. The order goes in when the task is submitted.'
+      : 'No order placed. The computer has not been chosen yet.') };
 
   // Applications. The persona cannot be resolved, so this one is stuck at
   // its first stage on purpose. That is the honest state today (M-04).
@@ -1350,13 +1353,16 @@ function equipmentRows(forManager) {
   const hire = `<b>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</b>`;
   const mgr = `<b>${MANAGER.name} (${MANAGER.username})</b>`;
   return [
+    // The computer is the new hire's own pick now (A-60), so this row reports
+    // their choice rather than waiting on the manager to place an order.
     { item:'Computer', icon:'laptop.svg',
-      status: S.hm.computer.ordered ? 'ORDERED' : 'NOT ORDERED YET', ok: S.hm.computer.ordered,
-      unblock: S.hm.computer.ordered
-        ? `Ordered by ${mgr}${S.hm.computer.model ? ', ' + (COMPUTER_OPTIONS.find(o => o.id === S.hm.computer.model) || {}).label : ''}.`
-        : `To place an order for a computer the hiring manager, ${mgr}, must first complete the
-           <b>“Order equipment for new hire ${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})”</b> task.`,
-      marker:'A-41' },
+      status: E.deviceConfirmed ? 'CONFIRMED' : 'NOT CHOSEN YET', ok: E.deviceConfirmed,
+      unblock: E.deviceConfirmed
+        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, chosen by ${hire}. Ordered on submission of the
+           <b>“Choose your equipment”</b> task.`
+        : `To place an order for a computer the new hire, ${hire}, must first complete the
+           <b>“Choose your equipment”</b> task.`,
+      marker:'A-60' },
     { item:'Computer accessories', icon:'desktop.svg',
       status: E.submitted ? 'INC6369627' : 'NOT ORDERED YET', ok:E.submitted,
       unblock: E.submitted
@@ -1370,6 +1376,72 @@ function equipmentRows(forManager) {
   ];
 }
 
+/* ---------- The computer, now the new hire's to pick (A-60) ----------
+   Two states, both real. Most roles resolve from role and location to a
+   single build: the new hire sees what they are getting and confirms it,
+   with no edit, because there is nothing to decide. Some roles carry a
+   genuine choice and get the full catalogue with specifications. */
+function devicePicker() {
+  const E = S.equipment;
+  const single = S.deviceMode === 'single';
+  const chosen = single ? DEVICE_CATALOG[0] : deviceById(E.device);
+
+  const card = (d, picked, readonly) => `
+    <div class="dev-card ${picked ? 'on' : ''} ${readonly ? 'fixed' : ''}"
+      ${readonly ? '' : `data-device="${d.id}"`}>
+      <div class="dev-art ${d.family}">${deviceArt(d.family)}</div>
+      <div class="dev-body">
+        <div class="dev-h">
+          <div>
+            <div class="dev-name">${d.name}</div>
+            <div class="dev-sub">${d.sub}</div>
+          </div>
+          ${readonly ? '' : `<span class="dev-tick">${picked ? ic('check-circle.svg','lg') : ''}</span>`}
+        </div>
+        <p class="dev-fits">${d.fits}</p>
+        <dl class="dev-specs">
+          ${d.specs.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
+        </dl>
+        <div class="dev-lead ${d.leadOk ? '' : 'late'}">
+          ${ic(d.leadOk ? 'check-circle.svg' : 'exclamation-triangle.svg','sm')}${d.lead}
+        </div>
+      </div>
+    </div>`;
+
+  return `
+  <div class="task-shell" data-assume="A-60">
+    <div class="wiz-body">
+      <div class="form-sec">
+        <h3>Your computer ${am('A-60')}</h3>
+        ${single ? `
+          <p class="sec-note">Your role and location decide this one, so there is nothing to choose.
+          Check it over and confirm.</p>
+          ${card(chosen, true, true)}
+          <div class="dev-confirm">
+            ${E.deviceConfirmed
+              ? `<span class="chip done">${ic('check.svg','sm')}Confirmed</span>
+                 <span class="dev-confirm-note">Ordered when you submit this task.</span>`
+              : `<button class="btn primary" id="devConfirm">This is right, confirm it</button>
+                 <span class="dev-confirm-note">Not what your role needs?
+                 <span class="help-link" data-openchat="1">Ask ${PEOPLE.pex.name.split(' ')[0]}</span>.</span>`}
+          </div>
+        ` : `
+          <p class="sec-note">Your role carries a choice. Pick the one that fits how you work.
+          You can change it until the order is placed.</p>
+          <div class="dev-grid">${DEVICE_CATALOG.map(d => card(d, E.device === d.id, false)).join('')}</div>
+          ${E.device && !deviceById(E.device).leadOk ? `
+            <div class="callout mt16">${ic('exclamation-triangle.svg')}
+              <div><b>This one would arrive after you start.</b> ${deviceById(E.device).lead}, against
+              ${daysToStart()} days until your first day. You would be issued a loaner until it lands.</div>
+            </div>` : ''}
+        `}
+        <p class="pnote mt12">Models and specifications here are illustrative. The approved catalogue
+        sits with End User Technology and has not been supplied. ${am('A-60')}</p>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderEquipment() {
   const E = S.equipment;
   if (E.submitted) return equipmentSubmitted();
@@ -1380,12 +1452,14 @@ function renderEquipment() {
 
   return `
   <div class="page">
-    ${crumbs('Choose your workspace accessories')}
-    <div class="task-head" data-assume="A-33 A-34">
-      <h1>Choose your workspace accessories ${am('A-34')}</h1>
-      <p class="why">First on your list, so there’s time to build it, ship it and have it waiting for you. ${am('A-33')}
-      This orders <b>accessories only</b>. Your manager orders your computer, and a phone is a Day 1 choice if your role needs one.</p>
+    ${crumbs('Choose your equipment')}
+    <div class="task-head" data-assume="A-33 A-34 A-60">
+      <h1>Choose your equipment ${am('A-60')}</h1>
+      <p class="why">Early on your list, so there’s time to build it, ship it and have it waiting for you. ${am('A-33')}
+      Your computer and your accessories are both yours to pick. A phone is a Day 1 choice if your role needs one.</p>
     </div>
+
+    ${devicePicker()}
 
     ${equipmentTable(false)}
 
@@ -2430,6 +2504,11 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.country==='US'?'on':''}" data-pc="country:US">United States</button>
       <button class="pc-btn ${S.country==='JP'?'on':''}" data-pc="country:JP">Japan</button>
     </div>
+    <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
+    <div class="pc-row">
+      <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">One build, confirm it</button>
+      <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">A real choice</button>
+    </div>
     <div class="pc-h">Runway to Day 1 <span class="pc-mark">A-45</span></div>
     <div class="pc-row">
       <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">2 weeks out</button>
@@ -2828,6 +2907,18 @@ function updateWizardChrome() {
 
 /* ---------- equipment bindings ---------- */
 function bindEquipment() {
+  const dc = $('#devConfirm');
+  if (dc) dc.addEventListener('click', () => {
+    S.equipment.deviceConfirmed = true;
+    S.equipment.device = DEVICE_CATALOG[0].id;
+    save(); rerender();
+    toast('Computer confirmed. It is ordered when you submit this task.', 'check-circle.svg');
+  });
+  $$('[data-device]').forEach(el => el.addEventListener('click', () => {
+    S.equipment.device = el.dataset.device;
+    S.equipment.deviceConfirmed = true;
+    save(); rerender();
+  }));
   const sel = $('#eqChoice');
   if (sel) sel.addEventListener('change', () => {
     S.equipment.choice = sel.value;

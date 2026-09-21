@@ -23,10 +23,13 @@ function hmTasks() {
       done: H.logistics.confirmed, icon:'calendar.svg', dueOff:-7, sys:'Workplace Services', srcDue:true,
       why:'Only you know whether you’ll actually be there, and who covers if you’re not.',
       dispNote:'Kept, but narrowed. The location facts come from the orientation blueprint, not from you.' },
-    { id:'computer', label:'Order equipment for your new hire', disp:'reduce', route:'#/hm/computer',
-      done: H.computer.ordered, icon:'laptop.svg', marker:'M-01', dueOff:-7, sys:'ServiceNow', srcDue:true,
-      why:'Nothing ships until you place this order. Jordan can see it’s waiting on you.',
-      dispNote:'Should become an exception-only override once persona catalogues and central budget land.' },
+    // The new hire picks their own machine now (A-60), so this is no longer
+    // an order. What is left is an awareness row, and the case for removing
+    // it outright is the strongest on the list.
+    { id:'computer', label:'Equipment for your new hire', disp:'remove', route:'#/hm/computer',
+      done: S.equipment.submitted, icon:'laptop.svg', marker:'M-01', dueOff:-7, sys:'ServiceNow', srcDue:true,
+      why:'Jordan chooses and orders this themselves. Nothing here waits on you.',
+      dispNote:'Recommended for deletion. The order moved to the new hire, so all this does is tell you it happened, which the readiness view already does.' },
     { id:'software', label:'Confirm the application stack', disp:'reduce', route:'#/hm/software',
       done: H.software.confirmed, icon:'portal-window.svg', marker:'M-04', blocked:true,
       dueOff:-4, sys:'ServiceNow', srcDue:true,
@@ -104,13 +107,12 @@ function overdueItems() {
 }
 
 /* ---------- blockers ---------- */
+/* Only what the manager can actually act on. Equipment used to head this
+   list; it is Jordan's own task now (A-60), so it moved to the waiting list
+   below rather than sitting here looking like manager work. */
 function hmBlockers() {
   const out = [];
   const days = daysToStart();
-  if (!S.hm.computer.ordered) {
-    out.push({ sev:'high', text:'The computer has not been ordered. Nothing ships until you place the order, and Jordan can see it is waiting on you.',
-      action:'Order it', route:'#/hm/computer' });
-  }
   if (!S.hm.buddy.assigned && days <= 21) {
     out.push({ sev:'med', text:'No buddy named yet. If you do not name one, a buddy is auto-assigned the day before Jordan starts.',
       action:'Name someone', route:'#/hm/buddy' });
@@ -126,13 +128,23 @@ function hmBlockers() {
     out.push({ sev:'low', text:'The application stack cannot be resolved, because Jordan’s persona is not mapped. That is a platform gap, not something you can fix here.',
       action:'See why', route:'#/hm/software' });
   }
-  // The manager mockup dates the computer order at Day −7 and states a 5 to 7
-  // business day lead time. Seven business days from Day −7 lands after the
-  // start date, so the due date and the lead time disagree (M-24).
-  if (!S.hm.computer.ordered) {
-    out.push({ sev:'high', text:'The equipment due date and the equipment lead time disagree. Ordering at Day −7 with a 5 to 7 business day lead can land after Jordan starts.',
-      action:'See the tracker', route:null, marker:'M-24' });
+  return out;
+}
+
+/* Waiting on the new hire. Shown separately and worded as information, not
+   as a list of things the manager has failed to do: these are Jordan's
+   tasks, and the manager's only move is to ask. */
+function hmWaitingOnNewHire() {
+  const out = [];
+  const days = daysToStart();
+  if (!S.equipment.submitted) {
+    out.push({ text: S.equipment.deviceConfirmed
+      ? 'Equipment is chosen but the order has not been submitted yet.'
+      : 'Equipment has not been chosen yet. The lead time runs 5 to 7 business days.',
+      marker:'M-24' });
   }
+  if (!S.bgcheck.launched) out.push({ text:'The background check has not been started. It runs the longest of anything here.' });
+  if (!S.details.submitted && days <= 21) out.push({ text:'Personal and contact details are not submitted, so payroll cannot be set up.' });
   return out;
 }
 
@@ -244,7 +256,13 @@ function renderHmHome() {
           <span class="bl-text">${b.text}${b.marker ? ' '+am(b.marker) : ''}</span>
           ${b.route ? `<button class="btn quiet sm" data-goto="${b.route}">${b.action} →</button>` : ''}
         </div>`).join('')}
-    </div>` : `
+    </div>
+    ${(() => { const w = hmWaitingOnNewHire(); return w.length ? `
+    <div class="waiting-on" data-assume="M-03">
+      <div class="wo-h">${ic('hourglass.svg','sm')}<b>Waiting on Jordan</b>
+        <span>Their tasks, not yours. Listed so nothing is invisible.</span></div>
+      ${w.map(x => `<div class="wo-row">${x.text}${x.marker ? ' '+am(x.marker) : ''}</div>`).join('')}
+    </div>` : ''; })()}` : `
     <div class="blockers clear">
       ${ic('check-circle.svg','lg')}<span>Nothing is blocked. Jordan is on track for ${startDateText()}.</span>
     </div>`}
@@ -492,74 +510,65 @@ function renderHmLogistics() {
    H-04: order the computer  (M-01: an order, not a confirmation)
    ============================================================ */
 function renderHmComputer() {
-  const C = S.hm.computer;
-  const picked = COMPUTER_OPTIONS.find(o => o.id === C.model);
-  const late = picked && !picked.ok;
-
-  if (C.ordered) {
-    return `
-    <div class="page">
-      ${hmCrumbs('Order equipment for your new hire')}
-      <div class="task-head"><h1>Computer ordered</h1></div>
-      <div class="task-shell">
-        <div class="confirm-panel">
-          <div class="big-check">${ic('check.svg','xl')}</div>
-          <h2>${esc(picked ? picked.label : 'Computer')} ordered for Jordan.</h2>
-          <p>The equipment table now shows this as ordered on both your view and Jordan’s. They could see it was
-          waiting on you, and now they can see it is not.</p>
-          <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
-          <button class="btn quiet" id="cpUndo">Undo this order</button>
-        </div>
-      </div>
-      ${equipmentTable(true)}
-    </div>`;
-  }
+  const E = S.equipment;
+  const dev = deviceById(E.device) || DEVICE_CATALOG[0];
+  const ordered = E.submitted;
 
   return `
   <div class="page">
-    ${hmCrumbs('Order equipment for your new hire')}
+    ${hmCrumbs('Equipment for your new hire')}
     <div class="task-head" data-assume="M-01">
-      <h1>Order equipment for your new hire ${am('M-01')}</h1>
-      <p class="why">Jordan cannot do this, and nothing ships until you do. Their portal shows this order sitting against your name.</p>
-      ${dispBanner('reduce', 'This is where the biggest saving is. Today you place an order; the target is that Jordan chooses and you only step in for exceptions. That change has not happened yet, and it may already be in design elsewhere.', 'M-01')}
+      <h1>Equipment for your new hire ${am('M-01')}</h1>
+      <p class="why">Jordan picks their own machine and places the order. There is nothing here for you to do.</p>
+      ${dispBanner('remove', 'This screen is the argument for deleting the task. The order moved to the new hire, so what is left tells you something happened that the readiness view already shows. Keeping it means a manager opens a task to read a status.', 'M-01')}
     </div>
 
     ${equipmentTable(true)}
 
     <div class="task-shell mt24">
       <div class="wiz-body">
-        <div class="form-sec" data-assume="M-17">
-          <h3>Choose a computer ${am('M-17')}</h3>
-          <p class="sec-note">Accessories are Jordan’s to choose and a phone is a Day 1 option for them. Neither is yours.
-          Options and lead times here are illustrative; the real catalogue belongs to the equipment team.</p>
-          <div class="opt-list">
-            ${COMPUTER_OPTIONS.map(o => `
-              <label class="opt-row ${C.model===o.id?'on':''}">
-                <input type="radio" name="cpModel" data-cpmodel="${o.id}" ${C.model===o.id?'checked':''}>
-                <span class="opt-main">
-                  <span class="opt-label">${o.label}</span>
-                  <span class="opt-lead ${o.ok?'':'late'}">${ic(o.ok?'check-circle.svg':'exclamation-triangle.svg','sm')}${o.lead}</span>
-                </span>
-              </label>`).join('')}
-          </div>
+        <div class="form-sec">
+          <h3>What Jordan chose</h3>
+          ${E.deviceConfirmed ? `
+            <div class="dev-card fixed">
+              <div class="dev-art ${dev.family}">${deviceArt(dev.family)}</div>
+              <div class="dev-body">
+                <div class="dev-h"><div>
+                  <div class="dev-name">${dev.name}</div>
+                  <div class="dev-sub">${dev.sub}</div>
+                </div></div>
+                <dl class="dev-specs">
+                  ${dev.specs.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
+                </dl>
+                <div class="dev-lead ${dev.leadOk ? '' : 'late'}">
+                  ${ic(dev.leadOk ? 'check-circle.svg' : 'exclamation-triangle.svg','sm')}${dev.lead}
+                </div>
+              </div>
+            </div>
+            <p class="sec-note mt12">${ordered
+              ? 'Ordered. It ships to the office address on their record.'
+              : 'Chosen, not yet ordered. The order goes in when Jordan submits the task.'}</p>
+          ` : `
+            <div class="blocked-state">
+              ${ic('hourglass.svg','xl')}
+              <div>
+                <b>Jordan has not chosen yet.</b>
+                <p>Their equipment task is open and nothing is waiting on you. If it is still open close to
+                the start date, the readiness view will raise it.</p>
+              </div>
+            </div>`}
+        </div>
 
-          ${late ? `
-          <div class="callout">
-            ${ic('exclamation-triangle.svg')}
-            <div><b>This would arrive after Jordan starts.</b> An 18-day lead against ${daysToStart()} days to go means
-            they would begin without a machine. Ordering anyway routes them to a loaner and notifies the equipment team.</div>
-          </div>
-          <div class="field mt16" style="max-width:560px;">
-            <label>Why this model?</label>
-            <textarea rows="2" id="cpReason" placeholder="Recorded with the order, and shown to Jordan.">${esc(C.reason)}</textarea>
-            <div class="note">Jordan is told when a manager overrides the standard option, and sees this reason.</div>
-          </div>` : ''}
+        <div class="form-sec pnote" data-assume="M-17">
+          <h3>When a manager would step in ${am('M-17')}</h3>
+          <p class="sec-note">Three cases were raised and none is specified: a role that needs a machine outside
+          its mapped build, an order that would land after the start date, and a cost that needs approving.
+          Until those are written, an exception path cannot be drawn, so this screen shows none.</p>
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic('save.svg','sm')}Nothing sent until you order</span>
-        <span class="missing">${C.model ? (late && !C.reason.trim() ? 'Add a reason for the late-arriving option.' : 'Ready to order.') : 'Choose a computer.'}</span>
-        <button class="btn primary" id="cpOrder" ${C.model && (!late || C.reason.trim()) ? '' : 'disabled'}>Place the order</button>
+        <span class="saved-state">${ic('info-circle.svg','sm')}Nothing on this screen is yours to action</span>
+        <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
       </div>
     </div>
   </div>`;
@@ -1049,6 +1058,9 @@ const SUBTRACTION = [
     { task:'Receive portal login credentials', today:'None. This is not in the current manager checklist',
       why:'A manager is an existing employee who already signs in to Equinix systems. The row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire logic applied to the wrong persona.',
       cond:'Confirm no platform role or licence provisioning is hiding behind the row.', marker:'M-11' },
+    { task:'Order the computer', today:'Gone. The new hire chooses and orders their own machine',
+      why:'This was the heaviest row on the list and the largest single saving: the manager used to place the order, and nothing moved until they did. Equipment selection is now a new hire task, so the manager step has no work left in it.',
+      cond:'An exception path still has to be written: a role needing a machine outside its mapped build, an order landing after the start date, or a cost that needs approving. None of the three is specified.', marker:'M-01' },
     { task:'Provide the new hire’s username', today:'Manager obtains and passes on credentials, two checklist items',
       why:'Already superseded: the candidate receives their credential email directly and creates their own password.',
       cond:'Nothing further. But verify what the new hire’s own “Collect your Equinix credentials” task actually contains before this claim is used externally.' },
@@ -1068,9 +1080,6 @@ const SUBTRACTION = [
       cond:'Pre-fill from the worker record.', marker:'M-18' },
   ]},
   { group:'reduce', title:'Reduce to exception-only: visible, but most managers should never touch it', rows:[
-    { task:'Order the computer', today:'HEAVIER than the workbook recorded. The manager places the order, and nothing moves until they do',
-      why:'The target is that the new hire chooses and the manager only overrides. The saving is larger than previously stated, because the starting point is an order rather than a confirmation.',
-      cond:'Persona-based catalogues and centralised budget. Then this step can be removed entirely.', marker:'M-01' },
     { task:'Confirm software and application stack', today:'Heavy. The manager requests access and software by hand',
       why:'Should be a persona default the manager glances at.',
       cond:'The persona blocker resolved. Today there is no full persona list, and the proposed job-family fallback is the approach the analysis rejects.', marker:'M-04' },
@@ -1163,13 +1172,17 @@ function handoffRows() {
   const buddy = H.buddy.assigned ? orgPerson(H.buddy.assigned) : null;
   const namedCount = Object.keys(H.network.named || {}).filter(k => (H.network.named[k]||'').trim()).length;
   return [
-    { dir:'hm', from:'Order equipment', to:'Equipment status table', marker:'L-04',
-      done: H.computer.ordered,
-      state: H.computer.ordered ? 'Computer ordered, and Jordan’s table shows it moving' : 'NOT ORDERED YET, and Jordan sees it waiting on Priya',
+    // Direction reversed with A-60: the equipment handoff now runs new hire
+    // to manager, where it used to run manager to new hire.
+    { dir:'nh', from:'Choose your equipment', to:'Equipment status table', marker:'L-04',
+      done: S.equipment.deviceConfirmed,
+      state: S.equipment.deviceConfirmed
+        ? `Computer chosen by Jordan, and Priya’s table names it`
+        : 'NOT CHOSEN YET, and Priya sees it sitting with Jordan',
       hmRoute:'#/hm/computer', nhRoute:'#/equipment' },
-    { dir:'nh', from:'Accessories order', to:'Readiness view + equipment table', marker:'L-04',
+    { dir:'nh', from:'Equipment order submitted', to:'Readiness view + equipment table', marker:'L-04',
       done: S.equipment.submitted,
-      state: S.equipment.submitted ? 'Accessories ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
+      state: S.equipment.submitted ? 'Ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
       hmRoute:'#/hm/', nhRoute:'#/equipment' },
     { dir:'hm', from:'Assign a buddy', to:'Jordan’s people rail', marker:'L-01', conflict:true,
       done: !!buddy,
@@ -1315,24 +1328,8 @@ function bindHm(route) {
     });
   }
 
-  if (route === '#/hm/computer') {
-    $$('[data-cpmodel]').forEach(r => r.addEventListener('change', () => {
-      H.computer.model = r.dataset.cpmodel; save(); rerender();
-    }));
-    const rs = $('#cpReason');
-    if (rs) rs.addEventListener('input', () => {
-      H.computer.reason = rs.value; save();
-      const opt = COMPUTER_OPTIONS.find(o => o.id === H.computer.model);
-      const b = $('#cpOrder'); if (b) b.disabled = !(H.computer.model && (opt.ok || rs.value.trim()));
-    });
-    const o = $('#cpOrder');
-    if (o) o.addEventListener('click', () => {
-      H.computer.ordered = true; save(); rerender();
-      toast('Order placed. Jordan’s equipment table updates immediately.', 'check-circle.svg');
-    });
-    const u = $('#cpUndo');
-    if (u) u.addEventListener('click', () => { H.computer.ordered = false; save(); rerender(); });
-  }
+  // #/hm/computer has no bindings any more: the order moved to the new hire
+  // (A-60), so the manager's screen is read-only.
 
   if (route === '#/hm/software') {
     $$('[data-sw]').forEach(cb => cb.addEventListener('change', () => {
