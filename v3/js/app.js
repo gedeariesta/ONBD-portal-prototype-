@@ -39,6 +39,7 @@ const DEFAULT_STATE = () => ({
   view: 'nh',                    // nh | hm
   buddyRule: 'assignment',       // assignment | 72h   (L-01, the live conflict)
   notes: false,                  // design notes: rationale, A-nn markers, dispositions
+  insideOpen: false,             // Inside Equinix strip expanded (A-35)
 
   persona: 'external',           // external | conversion
   country: 'US',                 // US | JP
@@ -296,6 +297,12 @@ function renderLanding() {
     <div class="panel-note" style="max-width:820px;">${ic('info-circle.svg')} Because you’re converting from a contract role,
       some tasks are shorter. We already hold your details from your time here, so mostly you’ll be checking what we have.</div>` : ''}
 
+    ${/* Reading first, then the high-level view, then the task list itself:
+          broad to specific, so the page narrows as you go down it. */''}
+    ${insideStrip()}
+
+    ${readinessTracker('nh')}
+
     <div class="landing-grid">
       <div>
         <div class="section-h"><h2>Do these now</h2></div>
@@ -406,13 +413,6 @@ function renderLanding() {
       ${ic('chevron-right.svg','lg')}
     </div>
 
-    <div class="section-h" style="margin-top:34px;"><h2>Everything else in motion</h2>
-      <span class="hint">Owned by other teams</span></div>
-    ${readinessTracker('nh')}
-
-    <div class="section-h" style="margin-top:34px;"><h2>While you wait</h2>
-      <span class="hint">Reading, not a task</span></div>
-    ${insideCarousel()}
   </div>`;
 }
 
@@ -514,15 +514,8 @@ function landingRail() {
     <div class="rail-card">
       <h3>Good to know</h3>
       <ul class="res-list">
-        <li><a data-res="inside">${ic('chevron-right.svg','sm')}Inside Equinix ${am('A-35')}</a>
-          <div class="u-expl" data-resbody="inside">
-            Six short modules, here whenever you want them:
-            <ul class="mod-list">${insideModules().map(m => `<li>${m}</li>`).join('')}</ul>
-            <b>Nothing here is required, and nothing is tracked.</b>
-            <div class="intent-note">${ic('bullhorn.svg','sm')}<span><b>Where this is headed:</b> a carousel above your progress tracker, releasing
-            modules as your start date gets closer. It currently lives as a <b>Day 1</b> to-do in the live portal, and moving it
-            here is a move, not a re-skin.</span></div>
-          </div></li>
+        ${/* Inside Equinix used to be listed here too. It has the strip at the
+             top of the page now, so the rail entry was the same thing twice. */''}
         <li><a data-res="ninety">${ic('chevron-right.svg','sm')}Your first 90 days ${am('A-36')}</a>
           <div class="u-expl" data-resbody="ninety">
             The new hire checklist and the matching manager checklist, so you can both see what the other is meant to be doing.
@@ -723,16 +716,47 @@ function heroArt() {
   </div>`;
 }
 
-function insideCarousel() {
+/* ---------- Inside Equinix, the narrow strip (A-35) ----------
+   Was a full-width showcase that took the height of a screen and competed
+   with the task list. Now one bar: the chapter headline, dots to move
+   between chapters, and See more to open the full chapter underneath.
+   Opening it links out to Inside Equinix itself rather than paraphrasing it.
+   Siting it as a right-rail widget instead is still an open option (A-35). */
+function insideStrip() {
   const i = S.carousel || 0;
+  const c = INSIDE_CHAPTERS[i];
+  return `
+  <section class="inside-strip ${S.insideOpen ? 'open' : ''}" id="insideStrip" data-assume="A-35">
+    <div class="is-bar" data-insidemore="1">
+      <span class="is-num">${c.n}</span>
+      <div class="is-copy">
+        <div class="is-eyebrow">Inside Equinix <span class="is-ch">${c.title}</span></div>
+        <div class="is-head">${c.head}</div>
+      </div>
+      <div class="is-dots">
+        ${INSIDE_CHAPTERS.map((ch,k) => `
+          <button class="is-dot ${k===i?'on':''}" data-cardot="${k}"
+            title="${ch.n} ${ch.title}" aria-label="Chapter ${ch.n}, ${ch.title}"></button>`).join('')}
+      </div>
+      <span class="is-more">
+        <span class="is-more-t">${S.insideOpen ? 'Close' : 'See more'}</span>${ic('chevron-down.svg','sm')}
+      </span>
+    </div>
+    <div class="is-body" id="insideBody">${insideChapterBody(i)}</div>
+  </section>`;
+}
+
+/* The full chapter, revealed under the bar. Repainted in place when the
+   chapter changes, so moving between chapters never moves the page. */
+function insideChapterBody(i) {
   const c = INSIDE_CHAPTERS[i];
   const a = CHAPTER_ART[i];
   return `
-  <section class="showcase" data-assume="A-35">
-    <div class="sc-stage hexfield">
+  <div class="is-inner">
+    <div class="is-stage hexfield">
       <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <defs>
-          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id="bg${i}" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="${a.g[0]}"/>
             <stop offset="55%" stop-color="${a.g[1]}"/>
             <stop offset="100%" stop-color="${a.g[0]}"/>
@@ -742,42 +766,40 @@ function insideCarousel() {
             <stop offset="100%" stop-color="#85F0F8" stop-opacity=".72"/>
           </linearGradient>
         </defs>
-        <rect width="400" height="260" fill="url(#bg)"/>
+        <rect width="400" height="260" fill="url(#bg${i})"/>
         ${a.art}
       </svg>
-      <span class="sc-num">${c.n}</span>
     </div>
-
-    <div class="sc-copy">
-      <div class="sc-eyebrow">Inside Equinix <span class="sc-ch">${c.n} ${c.title}</span></div>
-      <h2 class="sc-title">${c.head}</h2>
-      <p class="sc-line">${c.line}</p>
-
+    <div class="is-text">
+      <p class="is-line">${c.line}</p>
       ${c.facts ? `<div class="sc-facts">${c.facts.map(f => `
         <div class="sc-fact"><b>${f[0]}</b><span>${f[1]}</span></div>`).join('')}</div>` : ''}
-
       ${c.list ? `<ul class="sc-list">${c.list.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
-
       ${c.watch ? `<div class="sc-watch">${ic('image.svg','sm')}<span>${c.watch}</span></div>` : ''}
-
-      <div class="sc-thumbs">
-        ${INSIDE_CHAPTERS.map((ch,k) => `
-          <button class="sc-thumb ${k===i?'on':''}" data-cardot="${k}" title="${ch.n} ${ch.title}">
-            <span class="sct-swatch" style="background:linear-gradient(135deg, ${CHAPTER_ART[k].g[0]}, ${CHAPTER_ART[k].g[1]})"></span>
-            <span class="sct-n">${ch.n}</span>
-          </button>`).join('')}
+      <div class="is-reflect">
+        <b>${ic('comment-smile.svg','sm')} Worth thinking about</b>
+        <ul>${c.reflect.map(q => `<li>${q}</li>`).join('')}</ul>
+        <p class="pnote">${REFLECT_NOTE} ${am('L-12')}</p>
       </div>
+      <a class="is-out" data-ext="inside">Read this chapter on Inside Equinix ${ic('external-link.svg','sm')}</a>
+      <p class="is-foot">Six short chapters about the company you are joining. Nothing here is a
+      task and nothing is tracked. ${am('A-35')}</p>
     </div>
-  </section>
+  </div>`;
+}
 
-  <div class="reflect" data-assume="A-35 L-12">
-    <div class="rf-h">${ic('comment-smile.svg','lg')}<h3>Reflection prompt</h3></div>
-    <ul class="rf-q">${c.reflect.map(q => `<li>${q}</li>`).join('')}</ul>
-    <p class="rf-note">${REFLECT_NOTE} ${am('L-12')}</p>
-  </div>
-
-  <p class="sc-foot">Six short chapters about the company you are joining. Read them whenever you like.
-  Nothing here is a task and nothing is tracked. ${am('A-35')}</p>`;
+/* Chapter changes repaint the strip rather than re-rendering the route,
+   which is what used to throw the reader back to the top of the page. */
+function paintInside() {
+  const strip = $('#insideStrip');
+  if (!strip) return;
+  const i = S.carousel || 0, c = INSIDE_CHAPTERS[i];
+  $('.is-num', strip).textContent = c.n;
+  $('.is-ch', strip).textContent = c.title;
+  $('.is-head', strip).textContent = c.head;
+  $$('.is-dot', strip).forEach((d,k) => d.classList.toggle('on', k === i));
+  const body = $('#insideBody', strip);
+  if (body) body.innerHTML = insideChapterBody(i);
 }
 
 /* ============================================================
@@ -2674,18 +2696,17 @@ function bindScreen(route) {
   if (route === '#/policies') bindPolicies();
 }
 
-/* ---------- carousel ---------- */
+/* ---------- carousel ----------
+   Rotates only while the strip is closed: once someone has opened a chapter
+   to read it, moving it under them would be hostile. */
 function startCarousel(on) {
   clearInterval(carouselTimer); carouselTimer = null;
   if (!on) return;
   carouselTimer = setInterval(() => {
-    if (!$('.carousel')) { clearInterval(carouselTimer); return; }
+    if (!$('#insideStrip')) { clearInterval(carouselTimer); carouselTimer = null; return; }
+    if (S.insideOpen) return;
     S.carousel = ((S.carousel || 0) + 1) % INSIDE_CHAPTERS.length;
-    const c = INSIDE_CHAPTERS[S.carousel];
-    $('.car-num').textContent = c.n;
-    $('.car-title').textContent = c.title;
-    $('.car-line').textContent = c.line;
-    $$('.car-dot').forEach((d,k) => d.classList.toggle('on', k === S.carousel));
+    paintInside();
   }, 6000);
 }
 
@@ -3080,7 +3101,18 @@ document.addEventListener('click', e => {
     save(); rerender(); return;
   }
   const dot = t.closest('[data-cardot]');
-  if (dot) { S.carousel = +dot.dataset.cardot; save(); rerender(); return; }
+  if (dot) { S.carousel = +dot.dataset.cardot; save(); paintInside(); return; }
+
+  const insideMore = t.closest('[data-insidemore]');
+  if (insideMore) {
+    S.insideOpen = !S.insideOpen; save();
+    const strip = $('#insideStrip');
+    if (strip) {
+      strip.classList.toggle('open', S.insideOpen);
+      $('.is-more-t', strip).textContent = S.insideOpen ? 'Close' : 'See more';
+    }
+    return;
+  }
 
   const uc = t.closest('[data-ucard]');
   if (uc) { uc.classList.toggle('open'); return; }

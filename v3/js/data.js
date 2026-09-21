@@ -437,9 +437,6 @@ const NETWORK_POOL = [
    PRD v1.4 asks for a carousel at the top of the portal rotating chapters
    01-06, plus a link in the right-hand rail. No tasks, nothing tracked.
    Chapter titles are real; the one-line summaries are placeholder. */
-/* The rail link lists the same six chapters as the showcase, so there is one
-   source for the titles. */
-function insideModules() { return INSIDE_CHAPTERS.map(c => `${c.n} ${c.title}`); }
 /* ---------- Inside Equinix showcase art (A-35) ----------
    Built to the brand illustration system: isometric and flat shapes,
    linear gradients only, adjacent hues, thin light wireframes, and
