@@ -388,19 +388,14 @@ function renderLanding() {
 
         <div class="section-h"><h2>Handled by other teams</h2><span class="hint">Nothing for you to do</span><span class="hint pnote">Listed on purpose, so a reviewer can see nothing has been forgotten</span></div>
         <div class="ocards">
-          <div class="ocard" data-assume="A-10 A-11">
-            <div class="tic">${ic('banking.svg')}</div>
-            <div class="o-main">
-              <div class="o-name">Banking and direct deposit ${am('A-11')}</div>
-              <div class="o-note">Payroll will be in touch about this separately. Bank details are collected by Payroll in their own
-              secure form. Bank data is handled differently from the rest of your profile, so it never passes through this portal. ${am('A-10')}</div>
-            </div>
-          </div>
+          ${/* Banking moved into the details task (A-61), so it is no longer
+               listed here as somebody else's job. */''}
           <div class="ocard">
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
-              <div class="o-name">Tax forms and withholding <span class="chip info">Payroll</span></div>
-              <div class="o-note">Country-specific, and Payroll runs it on their own timetable. Nothing passes through this portal.</div>
+              <div class="o-name">Tax forms <span class="chip info">Payroll</span></div>
+              <div class="o-note">Country-specific, and Payroll runs it on their own timetable.
+              Your withholding figure is on the pay tab of your details; the forms themselves are not here. ${am('A-62')}</div>
             </div>
           </div>
         </div>
@@ -934,8 +929,12 @@ const REL_OPTIONS = ['Spouse or partner','Parent','Sibling','Child','Friend','Ot
 
 function requiredFields() {
   const d = S.details.data;
+  // Banking is required here now (A-61): payroll cannot pay without it, so it
+  // belongs inside the mandatory personal-information task rather than in a
+  // separate Payroll form the portal only points at.
   let req = ['legalFirst','legalLast','addr1','city','state','zip','email','ccode','mobile',
-             'ec1name','ec1rel','ec1phone','language','channel'];
+             'ec1name','ec1rel','ec1phone','language','channel',
+             'bankName','bankAccName','bankRouting','bankAccount','bankType'];
   if (d.ec1rel === 'Other') req.push('ec1relOther');
   if (d.ec2on) {
     req = req.concat(['ec2name','ec2rel','ec2phone']);
@@ -948,14 +947,18 @@ const FIELD_LABELS = {
   state: () => S.country==='JP' ? 'Prefecture' : 'State', zip: () => S.country==='JP' ? 'Postal code' : 'ZIP code',
   email:'Personal email', ccode:'Country code', mobile:'Mobile number',
   ec1name:'Emergency contact name', ec1rel:'Relationship', ec1relOther:'Relationship (other)',
+  bankName:'Bank name', bankAccName:'Name on the account', bankRouting:'Routing number',
+  bankAccount:'Account number', bankType:'Account type', taxWithholdings:'Withholding allowances',
   ec1phone:'Emergency contact phone', ec2name:'Second contact name', ec2rel:'Second contact relationship',
   ec2relOther:'Second contact relationship (other)', ec2phone:'Second contact phone',
   language:'Preferred language', channel:'Preferred contact channel',
 };
 const fieldLabel = f => typeof FIELD_LABELS[f]==='function' ? FIELD_LABELS[f]() : (FIELD_LABELS[f]||f);
+const BANK_FIELDS = ['bankName','bankAccName','bankRouting','bankAccount','bankType','taxWithholdings'];
 const FIELD_TAB = f => {
   if (f.startsWith('ec')) return 1;
-  if (['language','channel'].includes(f)) return 2;
+  if (BANK_FIELDS.includes(f)) return 2;
+  if (['language','channel'].includes(f)) return 3;
   return 0;
 };
 
@@ -968,7 +971,7 @@ function validField(f) {
 }
 function tabCounts() {
   const req = requiredFields();
-  return [0,1,2].map(t => {
+  return [0,1,2,3].map(t => {
     const fs = req.filter(f => FIELD_TAB(f) === t);
     return { done: fs.filter(validField).length, total: fs.length };
   });
@@ -994,7 +997,7 @@ function renderDetails() {
   const counts = tabCounts();
   const tab = S.details.tab;
   const jp = S.country === 'JP';
-  const tabs = ['Details','Emergency contact','Preferences'];
+  const tabs = ['Details','Emergency contact','Pay and banking','Preferences'];
   const missing = requiredFields().filter(f => !validField(f));
 
   return `
@@ -1014,7 +1017,7 @@ function renderDetails() {
           </button>`).join('')}
       </div>
       <div class="wiz-body">
-        ${tab===0 ? tabDetails(jp) : tab===1 ? tabEmergency() : tabPreferences()}
+        ${tab===0 ? tabDetails(jp) : tab===1 ? tabEmergency() : tab===2 ? tabBanking() : tabPreferences()}
       </div>
       <div class="wiz-foot">
         ${ro
@@ -1168,6 +1171,62 @@ function tabEmergency() {
     </div>`;
 }
 
+/* ---------- Pay and banking (A-61) ----------
+   Reverses A-10 and A-11, which had bank details collected by Payroll in
+   their own form and never passing through this portal. They are captured
+   here now, inside the mandatory personal-information task, because payroll
+   cannot pay without them and a second form is a second place to abandon. */
+function tabBanking() {
+  const d = S.details.data;
+  return `
+    <div class="form-sec" data-assume="A-61">
+      <h3>Where your pay goes ${am('A-61')}</h3>
+      <p class="sec-note">This is what payroll needs to pay you. You can change it later from the portal,
+      and a change takes effect from the next pay run.</p>
+
+      <div class="callout soft">
+        ${ic('lock.svg')}
+        <div><b>Handled differently from the rest of this form.</b> These fields are encrypted, are not shown
+        to your manager, and are not part of what they can see of your progress. ${am('A-10')}</div>
+      </div>
+
+      <div class="mt16">
+        ${inp('bankName','Bank name')}
+        ${inp('bankAccName','Name on the account', { note:'Must match your legal name as entered on the Details tab.' })}
+      </div>
+      <div class="field-row">
+        ${inp('bankRouting','Routing number', { err:'A routing number is 9 digits.' })}
+        ${inp('bankAccount','Account number', { type:'password', note:'Hidden as you type.' })}
+      </div>
+
+      <div class="field" style="max-width:320px;">
+        <label>Account type</label>
+        <select data-input="bankType">
+          <option value="" ${!d.bankType?'selected':''}>Choose…</option>
+          <option ${d.bankType==='Checking'?'selected':''}>Checking</option>
+          <option ${d.bankType==='Savings'?'selected':''}>Savings</option>
+        </select>
+        <div class="err">Please choose an account type.</div>
+      </div>
+
+      <div class="excl-note">Splitting pay across more than one account is not supported here.
+      <span class="pnote">The live Payroll form allows it. Whether this screen has to match is unresolved. ${am('A-61')}</span></div>
+    </div>
+
+    <div class="form-sec" data-assume="A-62">
+      <h3>Tax withholding ${am('A-62')}</h3>
+      <p class="sec-note">Not your tax forms. Those stay with Payroll on their own timetable. This is the
+      one figure your first pay run needs.</p>
+      ${inp('taxWithholdings','Withholding allowances', { note:'Leave blank if you are not sure. Payroll will confirm it with you.' })}
+      <label class="check">
+        <input type="checkbox" data-input="taxExempt" data-kind="check" ${d.taxExempt?'checked':''}>
+        <span>I expect to be exempt from withholding this year.</span>
+      </label>
+      <p class="pnote">Scope unconfirmed. Linda Sommer has not said whether these two fields belong in the
+      mandatory set or stay with Payroll. Drawn here so the question is answerable. ${am('A-62')}</p>
+    </div>`;
+}
+
 function tabPreferences() {
   const d = S.details.data;
   return `
@@ -1239,14 +1298,15 @@ function tabPreferences() {
         </div>` : `<p class="sec-note" style="margin:6px 0 0;">Collapsed. Expand it if you’d like to share. Entirely voluntary.</p>`}
       </div>
 
-      <div class="boundary" data-assume="A-10 A-11">
+      <div class="boundary" data-assume="A-10 A-11 A-61">
         ${ic('lock.svg','lg')}
         <div>
-          <h4>Banking and direct deposit ${am('A-10')} ${am('A-11')}</h4>
-          <p>Payroll collects bank details separately, in their own secure form, because bank data is handled differently
-          from the rest of this profile. Payroll will be in touch. Nothing to prepare.</p>
-          <p class="excl-note">Tax and W-4, swag sizes and dietary requirements are handled elsewhere too.
-          <span class="pnote">All four are <b>left out on purpose</b>, confirmed. They are not gaps in this form.</span></p>
+          <h4>What is still handled elsewhere ${am('A-11')}</h4>
+          <p>Your tax forms, swag sizes and dietary requirements are collected outside this portal, on their
+          own timetables. Banking is no longer one of them: it is on the <b>pay and banking</b> tab above. ${am('A-61')}</p>
+          <p class="excl-note">Swag and dietary requirements are left out on purpose.
+          <span class="pnote">Confirmed exclusions, not gaps in this form. Banking was one of them until it
+          moved, so the exclusion list is worth re-checking rather than inherited. ${am('A-10')}</span></p>
           <a data-ext="payroll">About Payroll’s process ${ic('external-link.svg','sm')}</a>
         </div>
       </div>
@@ -2270,7 +2330,7 @@ function renderFlow() {
   const other = [
     { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, no action from you' },
     { x:48, r:50, cls:'other', lbl:'Computer, your manager', sub:'their task, not yours' },
-    { x:70, r:50, cls:'other', lbl:'Banking, Payroll', sub:'their secure form, no date yet' },
+    { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their timetable, no date yet' },
     { x:88, r:50, cls:'other', lbl:'Badge photo sent on', sub:'printing is not tracked here' },
   ];
   const lane = (title, icon, nodes, cls='', h=120) => `
