@@ -202,13 +202,18 @@ const PEX_QUEUES = [
     reason: h => `Waiting on ${h.blockedBy}`,
     waiting: h => h.blockedBy, action:'Chase' },
 
-  { id:'buddy', label:'No buddy named', icon:'users-friends.svg', sev:'med',
-    blurb:'Any hire at Day −3 without a buddy',
-    why:'The system auto-assigns from a pool at Day −1, so this queue is the window in which a considered choice is still possible.',
-    src:'PRD S2-US18 AC3. Manager may change up to Day −3; auto-assign from pool at Day −1.',
+  /* Reframed: auto-assignment was cut. The PRD's SLA assigned a buddy from a
+     pool at Day −1 if the manager had not, which made this queue a window in
+     which a considered choice was still possible. With no safety net, nothing
+     catches it at all — an unworked row here means a new hire starts without
+     a buddy. The queue got more important, not less. */
+  { id:'buddy', label:'No buddy named', icon:'users-friends.svg', sev:'high',
+    blurb:'Any hire inside three weeks without a buddy',
+    why:'Nothing assigns one automatically. If the manager does not name somebody, the new hire starts without a buddy and this queue is the only thing that catches it.',
+    src:'PRD S2-US18 AC3 gave the manager until Day −3 to change. The pool auto-assignment in that SLA has been cut, so the fallback it described no longer exists.',
     batch:'Yes.',
     test: h => !h.buddy && h.startOff <= 21,
-    reason: h => h.startOff <= 3 ? 'Auto-assign fires at Day −1' : 'Manager has not named one',
+    reason: h => h.startOff <= 3 ? 'Days out, and nothing will assign one' : 'Manager has not named one',
     waiting: () => 'hiring manager', action:'Nudge' },
 
   { id:'proxy', label:'No Day 1 host', icon:'user-circle.svg', sev:'high',
@@ -326,7 +331,7 @@ function renderPexToday() {
   <div class="page pex">
     ${pexHeader('today')}
 
-    <div class="px-summary" data-assume="X-00">
+    <div class="px-summary hexfield" data-assume="X-00">
       <div class="px-sum-main">
         <h1>${needing} of your ${all.length} hires need you today</h1>
         <p class="lede">${thisWeek} start within a week. The next is ${esc(next.preferred)} ${esc(next.last)},
@@ -747,7 +752,7 @@ function pexOwnerRows(who, h) {
     { label:'First-day details confirmed', state: st(h.mgrColo || h.proxy), owner:h.mgr,
       note: h.mgrColo ? 'Manager is on site' : h.proxy ? 'Proxy named' : 'No host for Day 1' },
     { label:'Buddy named', state: st(h.buddy), owner:h.mgr,
-      note: h.buddy ? 'Accepted' : `Auto-assign at Day −1` },
+      note: h.buddy ? 'Accepted' : 'Nothing assigns one automatically' },
     { label:'Application stack', state: h.persona ? 'done' : 'open', owner:h.mgr,
       note: h.persona ? 'Confirmed' : 'Blocked, persona not mapped' },
     { label:'Welcome note', state: st(h.startOff < 40), owner:h.mgr },

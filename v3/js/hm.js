@@ -180,8 +180,8 @@ function hmBlockers() {
       action:'Re-confirm', route:'#/hm/logistics', marker:'M-32' });
   }
   if (!S.hm.buddy.assigned && days <= 21) {
-    out.push({ sev:'med', text:'No buddy named yet. If you do not name one, a buddy is auto-assigned the day before Jordan starts.',
-      action:'Name someone', route:'#/hm/buddy' });
+    out.push({ sev:'high', text:'No buddy named yet. Nothing assigns one for you, so if you do not name somebody Jordan starts without a buddy.',
+      action:'Name someone', route:'#/hm/buddy', marker:'M-07' });
   } else if (S.hm.buddy.assigned && !S.hm.buddy.accepted) {
     out.push({ sev:'med', text:'The buddy has been asked but has not accepted. Nothing can go in their calendar until they do.',
       action:'See status', route:'#/hm/buddy', marker:'M-27' });
@@ -289,7 +289,11 @@ function nhProgressDonut() {
         <circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--cloud)" stroke-width="15"/>
         ${arcs}
       </svg>
-      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">complete</span></div>
+      ${''/* The caption names whose tasks these are. The hero sits 100px above
+             this and also reads a large percentage, but that one counts the
+             manager's own list. Two unlabelled zeros next to each other is a
+             reading problem, not a data problem. */}
+      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">${HIRE.preferred}’s ${total} tasks</span></div>
     </div>
     <ul class="don-key">
       ${segs.map(s => `
@@ -936,7 +940,7 @@ function renderHmMeet() {
                 ? 'Jordan can see the buddy contact card now.'
                 : 'Jordan sees the contact card 72 hours before starting.'} ${am('L-01')}</span></div>
             <div class="hp-row">${ic('info-circle.svg','sm')}<span>You can change any of this until 3 days before Jordan starts.
-              If you name nobody, a buddy is auto-assigned the day before.</span></div>
+              Nobody is assigned automatically, so if you name nobody Jordan starts without a buddy. ${am('M-07')}</span></div>
           </div>
         </div>
 
@@ -1098,7 +1102,7 @@ function renderHmWelcome() {
         </div>
         <div class="mt16" style="display:flex; gap:12px; align-items:center;">
           <button class="btn primary" id="wcSend">Send now</button>
-          <span style="font-size:12.5px; color:var(--carbon);">Goes to Jordan’s personal email and their portal.</span>
+          <span style="font-size:var(--t-meta); color:var(--carbon);">Goes to Jordan’s personal email and their portal.</span>
         </div>
       </div>
 
@@ -1298,7 +1302,7 @@ const SUBTRACTION = [
       cond:'Buddy policy defined: criteria, load limits, decline process, plus a privacy position on the performance signal.', marker:'M-07' },
     { task:'Delegation and proxy', today:'Informal. Cover is arranged by asking someone',
       why:'The requirement gives both managers and People Experience a standing proxy who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
-      cond:'A permission model. What a proxy can see and do is undefined.', marker:'M-20' },
+      cond:'A permission model. Nobody has said what a proxy is allowed to see or do.', marker:'M-20' },
     { task:'Confirm new hire start logistics', today:'Partially manual. Determine office seating if applicable',
       why:'Narrowed to what only the manager knows: their own availability, cover if they are away, and team-specific instruction.',
       cond:'Blueprint precedence settled, so the manager confirms location facts rather than entering them.', marker:'M-05' },
@@ -1508,6 +1512,9 @@ const HM_ROUTES = {
   '#/hm/buddy': renderHmMeet,
   '#/hm/calendar': renderHmCalendar,
   '#/hm/welcome': renderHmWelcome,
+  // Not a mistake: naming a buddy and naming a suggested network were two
+  // screens and are now one (M-07). The old route is kept as an alias so
+  // links written against it still land somewhere sensible.
   '#/hm/network': renderHmMeet,
   '#/hm/intro': renderHmIntro,
   '#/hm/card': renderHmCard,

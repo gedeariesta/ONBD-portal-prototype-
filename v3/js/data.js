@@ -400,8 +400,8 @@ const DOCS = [
 ];
 
 const JP_ADDENDUM_TEXT = `
-  <p style="font-size:12.5px; font-weight:350; margin-bottom:6px;">Additional provisions on copyright, workplace monitoring and personal devices apply in Japan. They sit here inside the global policy instead of arriving as a separate document, so you acknowledge once and cover both.</p>
-  <p style="font-size:12px; color:var(--carbon); font-weight:350;"><em>Illustrative content. The real addendum is pending legal review.</em></p>
+  <p style="font-size:var(--t-meta); font-weight:var(--fw-book); margin-bottom:6px;">Additional provisions on copyright, workplace monitoring and personal devices apply in Japan. They sit here inside the global policy instead of arriving as a separate document, so you acknowledge once and cover both.</p>
+  <p style="font-size:var(--t-meta); color:var(--carbon); font-weight:var(--fw-book);"><em>Illustrative content. The real addendum is pending legal review.</em></p>
 `;
 
 /* ---------- Identity / right-to-work documents (A-29, A-30) ---------- */
@@ -774,19 +774,6 @@ const DISPOSITIONS = {
   add:       { label:'Adds work',       cls:'add',       hint:'The only proposal that increases manager load' },
 };
 
-/* Buddy pool for H-07. Load counts make the capacity warning demonstrable (M-07). */
-const BUDDY_POOL = [
-  { id:'nina', name:'Nina Kowalski', initials:'NK', role:'Senior Financial Analyst',
-    tz:'Chicago (CT)', load:1, suggested:true },
-  { id:'marcus', name:'Marcus Webb', initials:'MW', role:'Senior Financial Analyst',
-    tz:'Denver (MT)', load:3, suggested:false },
-  { id:'dana', name:'Dana Kim', initials:'DK', role:'Financial Analyst II',
-    tz:'Denver (MT)', load:0, suggested:false },
-  { id:'tomas', name:'Tomás Rivera', initials:'TR', role:'Senior Financial Analyst',
-    tz:'Denver (MT)', load:2, suggested:false },
-];
-const BUDDY_LOAD_LIMIT = 3;   // policy P-05 is undefined, so this number is invented (M-07)
-
 /* ---------- Who a manager can name (M-07 revised, M-26) ----------
    The direction is a plain list of people in the org, with no suggestion
    logic at all: "anybody can be a buddy" on first rollout, and the certified
@@ -822,13 +809,6 @@ const ORG_PEOPLE = [
   { id:'sam',    name:'Samuel Adeyemi', initials:'SA', role:'Lead Engineer, Platform',    dept:'Digital Services',   ecn:true, tz:'London (GMT), seven hours ahead of you' },
 ];
 const orgPerson = id => ORG_PEOPLE.find(p => p.id === id);
-
-/* Computer options for H-04. Catalogue is owned elsewhere (M-01 / OI-24). */
-const COMPUTER_OPTIONS = [
-  { id:'win-std', label:'Standard Windows laptop', lead:'In stock, 3 days', ok:true },
-  { id:'mac', label:'MacBook Pro', lead:'Backordered, 18 days', ok:false },
-  { id:'win-hp', label:'High-performance Windows laptop', lead:'In stock, 5 days', ok:true },
-];
 
 /* ---------- The machines a new hire can be issued (A-60) ----------
    The new hire picks, not the manager. Most roles map to exactly one build
@@ -974,7 +954,7 @@ const HM_ASSUMPTIONS = [
     assumed:'The manager ORDERS the computer today. This is not a confirmation step, and nothing moves until they do it.',
     resolve:'Decided: equipment selection moved to the new hire (A-60), so the manager no longer orders anything. This was the heaviest row on the manager’s list and its removal is the single largest saving in the subtraction review. What replaces it is an awareness screen recommended for deletion, because the readiness view already carries the status. Still to write: the exception path, for a role needing a machine outside its mapped build, an order landing after the start date, or a cost needing approval.', oi:'OI-24' },
   { id:'M-02', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
-    assumed:'REVISED. Two numbers, not one: your tasks and their tasks, each as its own ring. Other teams report status only, with no progress bar.',
+    assumed:'REVISED. Two numbers, not one: your tasks as a figure in the hero, their tasks as a segmented ring below it, each captioned with whose work it counts. Other teams report status only, with no progress bar.',
     resolve:'One combined percentage could not answer the first question a manager asks, which is whether the number is about them or about the new hire. Other teams came out of the count because they will not be users in this system, so there is nothing to count and the manager does not need their progress task by task. Still undefined: weighting, and what a good score even is.', oi:'OI-02' },
   { id:'M-03', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager sees the new hire’s task names and status, but never task content. Sensitive tasks report status only.',

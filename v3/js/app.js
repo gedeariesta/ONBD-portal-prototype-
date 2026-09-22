@@ -483,8 +483,8 @@ function buddyRailBlock() {
         <div class="c-name">Your onboarding buddy</div>
         <div class="c-role">Not chosen yet</div>
         <div class="c-extra">Someone in your team to ask the things you’d rather not ask your manager.
-        <span class="pnote">${HIRE.manager} picks them. If she hasn’t by the day before you start, one is
-        assigned automatically. ${am('L-01')}</span></div>
+        <span class="pnote">${HIRE.manager} picks them. Nobody is assigned automatically, so this stays empty
+        until she does. ${am('L-01')}</span></div>
       </div>
     </div>`;
   }
@@ -919,7 +919,7 @@ function renderBgCheck() {
             and does not yet show that variation. ${am('A-50')}</div></div>
           <button class="btn quiet mt16" id="bgUndo">Undo (prototype)</button>
         ` : `
-          <p style="font-size:14px; font-weight:350; max-width:640px; margin-bottom:16px;">
+          <p style="font-size:var(--t-ui); font-weight:var(--fw-book); max-width:640px; margin-bottom:16px;">
             The check itself happens with our screening provider, not here. This hands you over to them with your details
             already filled in, and brings the status back to this page.</p>
           <div class="callout">
@@ -1178,7 +1178,7 @@ function tabEmergency() {
       <p class="sec-note">Only used in an emergency, and never shared with your team. One contact is required. Add a second if you’d like a backup.</p>
       ${contactBlock('ec1','Contact 1', false)}
       ${d.ec2on
-        ? contactBlock('ec2','Contact 2 <span class="opt" style="font-weight:350">(optional)</span>', true)
+        ? contactBlock('ec2','Contact 2 <span class="opt" style="font-weight:var(--fw-book)">(optional)</span>', true)
         : `<button class="btn secondary sm" data-addec2="1">${ic('plus.svg','sm')} Add another contact</button>`}
     </div>`;
 }
@@ -1931,7 +1931,7 @@ function renderJD() {
 
         <div class="rail-card" style="margin-bottom:18px;" data-assume="A-13 A-24">
           <h3 style="display:flex; align-items:center; gap:10px;">The job description ${am('A-13')}</h3>
-          <p style="font-size:12.5px; margin:4px 0 12px;">Placeholder content, marked as such. The real text comes from the official record.</p>
+          <p style="font-size:var(--t-meta); margin:4px 0 12px;">Placeholder content, marked as such. The real text comes from the official record.</p>
           <div class="jd-doc" id="jdDoc">${JD_TEXT}</div>
           <div class="scroll-hint ${jd.scrolled?'ok':''}" id="scrollHint">
             ${jd.scrolled ? ic('check.svg','sm')+'Read to the end, so you can confirm below.' : ic('chevron-down.svg','sm')+'Scroll to the end to unlock the confirmation. '+am('A-24')}
@@ -2018,7 +2018,7 @@ function renderIntro() {
           ${introDone ? chip('done') : (S.intro.text ? chip('inprogress') : chip('notstarted'))}
         </div>
         <div class="due-line">${ic('calendar.svg','sm')}Due <b>${dueText(dueFor('intro'))}</b> ${am('A-22')}</div>
-        <p style="font-size:13.5px; font-weight:350; margin-bottom:12px;">${HIRE.manager} will share this with the team before you start,
+        <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:12px;">${HIRE.manager} will share this with the team before you start,
         so nobody has to write a “please welcome…” post from scratch and you get to describe yourself in your own words.</p>
 
         <div class="field" style="max-width:none;">
@@ -2063,7 +2063,7 @@ function renderIntro() {
 
         <div class="mt16" style="display:flex; gap:12px; align-items:center;">
           <button class="btn primary" id="saveIntro" ${S.intro.text.trim()?'':'disabled'}>${introDone?'Update introduction':'Save introduction'}</button>
-          ${S.intro.saved && !S.intro.consent ? `<span style="font-size:12.5px; color:var(--carbon);">Saved. It won’t be shared until you tick the consent box.</span>` : ''}
+          ${S.intro.saved && !S.intro.consent ? `<span style="font-size:var(--t-meta); color:var(--carbon);">Saved. It won’t be shared until you tick the consent box.</span>` : ''}
         </div>
       </div>
 
@@ -2073,7 +2073,7 @@ function renderIntro() {
           ${photoDone ? chip('done') : (S.photo.uploaded ? chip('inprogress') : chip('notstarted'))}
         </div>
         <div class="due-line">${ic('calendar.svg','sm')}Due <b>${dueText(dueFor('photo'))}</b>, earlier than your introduction because your badge needs print time before Day 1</div>
-        <p style="font-size:13.5px; font-weight:350; margin-bottom:14px;">Send it now and your badge is printed and waiting for you on Day 1.</p>
+        <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:14px;">Send it now and your badge is printed and waiting for you on Day 1.</p>
 
         ${conv && !S.photo.replacing ? convPhotoBlock() : uploadBlock()}
 
@@ -2106,7 +2106,7 @@ function uploadBlock() {
         <div class="crop-guide"></div><div class="crop-ring"></div>
       </div>
       <div>
-        <p style="font-size:13px; font-weight:350; margin-bottom:4px;">The circle shows the badge crop, so your face should fill it.</p>
+        <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:4px;">The circle shows the badge crop, so your face should fill it.</p>
         ${S.photo.done ? `<span class="verified">${ic('check.svg','sm')}Submitted. Your badge will be ready on Day 1</span>` : ''}
         <div class="mt8"><button class="btn secondary sm" id="rechoose">Choose a different photo</button></div>
       </div>
@@ -2129,7 +2129,7 @@ function convPhotoBlock() {
           : `<div class="onfile-sil">${ic('user.svg','xl')}</div>`}
       </div>
       <div>
-        <p style="font-size:13.5px; font-weight:350; margin-bottom:6px;"><b>We already have this photo from your time here.</b><br>
+        <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:6px;"><b>We already have this photo from your time here.</b><br>
         If it still looks like you, you’re done in one click.</p>
         ${S.photo.confirmedExisting
           ? `<span class="verified">${ic('check.svg','sm')}Confirmed. Same photo, same badge</span>`
@@ -2204,7 +2204,7 @@ function renderPolicies() {
           <div><b>Task closed</b><p>Everything is acknowledged and recorded. The documents stay readable here.</p></div></div>`
       : `<div class="mt24" style="display:flex; align-items:center; gap:16px;">
           <button class="btn primary" id="submitPolicies" ${acked===total?'':'disabled'}>Submit all acknowledgements</button>
-          <span style="font-size:12.5px; color:var(--carbon);">${acked===total ? 'Everything is acknowledged. One click finishes the task.' : `${total-acked} still to acknowledge before you can submit.`}</span>
+          <span style="font-size:var(--t-meta); color:var(--carbon);">${acked===total ? 'Everything is acknowledged. One click finishes the task.' : `${total-acked} still to acknowledge before you can submit.`}</span>
         </div>`}
   </div>`;
 }
@@ -2420,6 +2420,11 @@ function renderShell() {
   $('#rbAssume').textContent = `${live} assumptions`;
   $$('#viewSwitch .vs').forEach(b => b.classList.toggle('on', b.dataset.view === S.view));
   document.body.classList.toggle('hm-side', hm);
+  // The assistant is for people going through onboarding. The coordinator is
+  // the person it escalates TO, so offering her "Questions? Ask here" inverts
+  // the relationship. It also sat on top of the caseload's action column,
+  // which is right-aligned, so it covered the button on the bottom row.
+  document.body.classList.toggle('no-chat', pex);
 }
 
 /* ---------- assumptions panel ---------- */
