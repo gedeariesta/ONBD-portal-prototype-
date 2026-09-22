@@ -178,6 +178,9 @@
   --tint-border-orange:#F7C9A3;  --tint-border-blue:#B9D8FF;
   --tint-border-violet:#D9C2F5;  --tint-border-red:#F6C2C8;
   --tint-border-aqua:#9FE8EE;
+  --ink-on-blue:#48566E;   /* 5.65:1 on blue-light.  Carbon, the normal muted
+                              ink, is 4.47:1 there: it fails AA by 0.03, which
+                              is precisely why these are computed. */
   --ink-on-green:#1F6B38;  /* 5.92:1 on green-light,  6.52:1 on white */
   --ink-on-warn:#7A3A10;   /* 7.06:1 on orange-light, 7.67:1 on yellow-light */
   --ink-on-red:#7A1119;    /* 9.56:1 on red-light,   10.93:1 on white */
@@ -473,8 +476,12 @@ small{color:var(--text-tertiary);}
 .rail{display:flex; flex-direction:column; gap:16px; position:sticky; top:118px;}
 .rail-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow-1); padding:18px;}
 .rail-card h3{font-size:var(--t-ui); margin-bottom:12px;}
-.contact{display:flex; gap:12px; align-items:flex-start; padding:10px 0;}
-.contact + .contact{border-top:1px solid var(--line);}
+/* One row skeleton for everybody in "Your people". The card had four
+   different treatments in four rows: a plain row, a dimmed pending row, a
+   tinted card, and a greyed row with a shouty uppercase label. Emphasis is
+   now carried by exactly one thing per row, and the spacing is the same for
+   all of them. */
+.contact{display:flex; gap:12px; align-items:flex-start; padding:11px 0;}
 .contact .c-name{font-weight:700; font-size:var(--t-ui); color:var(--charcoal);}
 .contact .c-role{font-size:var(--t-meta); color:var(--ink-faint); margin-bottom:6px;}
 .contact .c-links{display:flex; gap:12px; font-size:var(--t-meta);}
@@ -482,29 +489,38 @@ small{color:var(--text-tertiary);}
 .rail-note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
 /* A row that already draws a bottom rule is the divider; the note adding
    its own on top of it read as one thick 2px line. */
-.quick-row + .rail-note, .contact + .rail-note{border-top:none; margin-top:0;}
+/* The quick-confirmations rows already draw their own bottom rule, so the
+   note adding one read as a 2px line. The people rows have no rules at
+   all now, so there the note keeps its own: it is the one place in the
+   card where a line earns its keep, separating the footnote from the list. */
+.quick-row + .rail-note{border-top:none; margin-top:0;}
 
 /* The recruiter-to-People-Experience handoff, shown rather than explained.
-   The concierge is raised on a tinted card; the recruiter stands down to a
-   quieter row but stays reachable, because handed over is not gone. */
+
+   ONE signal each. The concierge is raised by the tint alone, so her name,
+   role and links are set exactly like everyone else's: tinting the surface
+   AND recolouring three kinds of text was the same message said four times.
+   The recruiter stands down by his greyed avatar and his own line saying so,
+   nothing more. He used to be dimmed to 62% as well, which also dimmed his
+   Teams and Email links and made two working controls look disabled, while
+   the label beside them shouted in uppercase. Stood down and shouting at the
+   same time is not a state anything can read. */
 .contact.primary{
-  background:var(--eq-light-blue); border-radius:10px; padding:12px 13px; margin:2px 0;
+  background:var(--eq-light-blue); border-radius:10px;
+  padding:12px 13px; margin:3px 0;
   border:1px solid var(--tint-border-blue);
 }
-.contact.primary + .contact{border-top:none;}
-.contact.primary .c-name{color:var(--eq-dark-blue);}
-.contact.primary .c-role{color:var(--eq-dark-blue); opacity:.8;}
-.contact.primary .c-links a{color:var(--eqx-blue-dark);}
-.c-extra.concierge{
-  display:inline-flex; align-items:center; gap:6px; margin:4px 0 6px;
-  font-size:var(--t-micro); font-weight:700; color:var(--eq-dark-blue);
-}
-.contact.handed{opacity:.62;}
+/* Her name keeps the same weight and colour as everyone else's, because the
+   tint already says she is the one to go to. These two rules are not styling
+   on top of that: they are the tint system doing its job. Changing the
+   background changes what clears WCAG AA on it, and both defaults fail here.
+   Muted text is Carbon, 4.47:1 on this tint, short by 0.03. Links are the
+   --text-link blue, 3.83:1 on it, which is the more interesting miss: the
+   table above cleared BLUE-DARK on blue-light at 7.58:1, but the link token
+   is plain blue, and it does not survive its own tint. */
+.contact.primary .c-role, .contact.primary .c-extra{color:var(--ink-on-blue);}
+.contact.primary .c-links a{color:var(--eq-dark-blue);}
 .contact.handed .avatar{filter:grayscale(1);}
-.contact.handed .c-extra{
-  font-size:var(--t-micro); font-weight:700; letter-spacing:.02em; color:var(--ink-faint);
-  text-transform:uppercase; margin:2px 0 5px;
-}
 .res-list{list-style:none;}
 .res-list li{padding:7px 0; border-bottom:1px solid var(--line); font-size:var(--t-sm);}
 .res-list li:last-child{border-bottom:none;}
@@ -1516,7 +1532,8 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .quick-row > div{flex:1; min-width:0;}
 .q-label{font-weight:700; font-size:var(--t-sm); color:var(--charcoal);}
 .q-val{font-size:var(--t-micro); color:var(--ink-faint); margin-top:1px;}
-.contact.pending{opacity:.85;}
+/* The empty slot is said by the dashed avatar and by "Not chosen yet".
+   Dimming the whole row on top of that was a third way of saying it. */
 .contact.pending .avatar{background:var(--silver); color:var(--platinum); border:1px dashed var(--nickel);}
 
 /* ---------- manager: blueprint / logistics ---------- */

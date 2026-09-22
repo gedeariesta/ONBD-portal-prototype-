@@ -515,8 +515,12 @@ function landingRail() {
             ? `${ic('check.svg','sm')} ${esc(S.hm.workPhone)}, confirmed by ${HIRE.manager.split(' ')[0]} ${am('L-03')}`
             : `${am('A-32')}`}</div>`)}
       ${buddyRailBlock()}
-      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'People Experience, your onboarding concierge' }),
-        `<div class="c-extra concierge">${ic('comment-smile.svg','sm')}Your first stop for anything before Day 1</div>`, 'primary')}
+      ${''/* Relationship first, like the manager's row above, and short enough
+             to sit on one line: every other role in this card is one line and
+             hers ran to two. Her team is named by the green People Experience
+             avatar and again in the note at the foot of the card. */}
+      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'Your onboarding concierge' }),
+        `<div class="c-extra">Your first stop before Day 1</div>`, 'primary')}
       ${contactRow(PEOPLE.recruiter, `<div class="c-extra">Handed over to ${PEOPLE.pex.name.split(' ')[0]}</div>`, 'handed')}
       <div class="rail-note">${PEOPLE.recruiter.name.split(' ')[0]} handed you over a week after your offer was signed.
       From then on ${PEOPLE.pex.name.split(' ')[0]} is your contact, and someone else from People Experience covers when she is away.</div>
