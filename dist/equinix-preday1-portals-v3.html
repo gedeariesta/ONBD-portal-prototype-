@@ -487,6 +487,9 @@ small{color:var(--text-tertiary);}
 .contact .c-links{display:flex; gap:12px; font-size:var(--t-meta);}
 .contact .c-links a{display:inline-flex; align-items:center; gap:5px; font-weight:700;}
 .rail-note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+/* A row that already draws a bottom rule is the divider; the note adding
+   its own on top of it read as one thick 2px line. */
+.quick-row + .rail-note, .contact + .rail-note{border-top:none; margin-top:0;}
 
 /* The recruiter-to-People-Experience handoff, shown rather than explained.
    The concierge is raised on a tinted card; the recruiter stands down to a
@@ -929,7 +932,13 @@ body.no-chat .chat-fab{display:none;}
   position:fixed; left:26px; bottom:78px; z-index:85; width:330px;
   background:var(--charcoal); color:var(--cloud); border-radius:14px; box-shadow:var(--shadow-2);
   padding:18px 20px; display:none;
+  /* Anchored to the bottom, this grew upward off the top of the screen and
+     the first control group could not be reached at all. */
+  max-height:calc(100vh - 96px); overflow-y:auto; overscroll-behavior:contain;
 }
+.proto-drawer::-webkit-scrollbar{width:9px;}
+.proto-drawer::-webkit-scrollbar-thumb{background:var(--carbon); border-radius:99px;}
+.proto-drawer::-webkit-scrollbar-track{background:transparent;}
 .proto-drawer.show{display:block;}
 .proto-drawer h3{color:var(--white); font-size:var(--t-sm); letter-spacing:.05em; text-transform:uppercase; display:flex; gap:8px; align-items:center;}
 .proto-drawer .warn-line{font-size:var(--t-micro); color:var(--eq-aqua); font-weight:400; margin:4px 0 14px;}
@@ -950,7 +959,10 @@ body.no-chat .chat-fab{display:none;}
 .flow-page h1{margin-bottom:4px;}
 .flow-sub{color:var(--carbon); font-weight:400; margin-bottom:26px; max-width:760px;}
 .flow-wrap{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:30px 34px; overflow-x:auto;}
-.flow-axis{position:relative; height:54px; margin-bottom:8px; min-width:1060px;}
+/* Tall enough for the whole label block: dot (20+13+6) plus two 11px
+   lines is ~68px, and at 54px the sub-labels spilled onto the first
+   lane heading below. */
+.flow-axis{position:relative; height:70px; margin-bottom:8px; min-width:1060px;}
 .flow-axis .axis-line{position:absolute; left:0; right:0; top:26px; height:3px; border-radius:2px;
   background:linear-gradient(90deg, var(--eq-light-blue), var(--eq-blue) 60%, var(--eq-dark-aqua));}
 .axis-pt{position:absolute; top:0; transform:translateX(-50%); text-align:center; width:92px;}
@@ -1103,6 +1115,7 @@ body.no-chat .chat-fab{display:none;}
 
 /* ---------- equipment ---------- */
 .eq-status{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:20px 24px; max-width:940px;}
+.task-shell + .eq-status{margin-top:18px;}
 .eqs-h{display:flex; align-items:baseline; gap:12px; margin-bottom:12px; flex-wrap:wrap;}
 .eqs-h h3{font-size:var(--t-base);}
 .eqs-note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400;}
@@ -1289,13 +1302,22 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .hhf-cap{font-size:var(--t-meta); font-weight:400; color:rgba(255,255,255,.8); margin-top:5px;}
 
 /* The two figures side by side, on the surface rather than the gradient */
-.hm-figs{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; margin-bottom:22px; align-items:start;}
+.hm-figs{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; margin-bottom:22px; align-items:stretch;}
+/* Both cards fill the row height, and their content spreads to the edges
+   rather than stacking at the top and leaving one card ragged. */
+.hm-figs > *{display:flex; flex-direction:column; justify-content:space-between;}
+.hm-figs .nh-donut{flex:1; align-items:center;}
+.hm-figs .os-bar{flex:1; min-height:42px; max-height:64px;}
+.hm-figs .os-seg{height:auto;}
 .hm-fig-card{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
   box-shadow:var(--shadow-1); padding:15px 18px;
 }
 .hfc-h{margin-bottom:12px;}
 .hfc-h b{font-size:var(--t-ui); color:var(--charcoal); display:block;}
+/* Whose work the ring counts, said in the heading where there is room,
+   rather than crammed into the middle of a 120px donut. */
+.hfc-h b i{font-style:normal; font-weight:var(--fw-book); font-size:var(--t-meta); color:var(--ink-faint); margin-left:7px;}
 .hfc-h span{font-size:var(--t-micro); color:var(--ink-faint); font-weight:400; line-height:1.45; display:block; margin-top:3px;}
 .hm-figs .others-strip{margin-bottom:0;}
 .hm-hero > *{position:relative; z-index:2;}.hm-hero-body{flex:1; min-width:0;}
@@ -2347,7 +2369,7 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .pxc-h span{font-size:var(--t-micro); color:var(--text-secondary); font-weight:var(--fw-bold); font-variant-numeric:tabular-nums;}
 .pxc-row{display:flex; gap:10px; align-items:flex-start; padding:10px 16px;
   border-top:var(--border-hairline) solid var(--border-subtle);}
-.pxc-row:first-of-type{border-top:none;}
+.pxc-h + .pxc-row{border-top:none;}
 .pxc-dot{
   width:16px; height:16px; border-radius:50%; flex:none; margin-top:1px;
   display:flex; align-items:center; justify-content:center;
@@ -2574,7 +2596,8 @@ const PHASES = [
 ];
 
 /* ============================================================
-   Assumption register. 99 entries across both portals.
+   Assumption register, across all three views. The count is derived at
+   render time, so no number is written down here to go stale.
    A-01…A-28 carried from v1 unchanged in numbering.
    A-29…A-46 and A-48 are new in v2 (A-47 left unused on purpose,
    reserved for the IBX badge question if it needs its own entry).
@@ -3955,11 +3978,13 @@ function nhProgressDonut() {
         <circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--cloud)" stroke-width="15"/>
         ${arcs}
       </svg>
-      ${''/* The caption names whose tasks these are. The hero sits 100px above
-             this and also reads a large percentage, but that one counts the
-             manager's own list. Two unlabelled zeros next to each other is a
-             reading problem, not a data problem. */}
-      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">${HIRE.preferred}’s ${total} tasks</span></div>
+      ${''/* The centre stays short. Naming whose tasks these are belongs in
+             the card heading, where there is room for it: the hero sits just
+             above this and also reads a large percentage, but that one counts
+             the manager's own list, and two unlabelled percentages next to
+             each other is a reading problem. A 90px hole is not the place to
+             solve it. */}
+      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">done</span></div>
     </div>
     <ul class="don-key">
       ${segs.map(s => `
@@ -3976,7 +4001,7 @@ function nhProgressDonut() {
    Not a pie: three third-party items are three equal thirds, and a pie of
    equal thirds says nothing except "there are three". Equal segments
    coloured by state, hover naming the owner, carries what was actually
-   wanted: see at a glance whether anything outside the two portals is
+   wanted: see at a glance whether anything outside these portals is
    stuck, and who owns it. */
 function othersStrip() {
   const rows = thirdPartyTasks();
@@ -4050,7 +4075,7 @@ function renderHmHome() {
 
     <div class="hm-figs">
       <div class="hm-fig-card">
-        <div class="hfc-h"><b>Jordan\u2019s journey</b>
+        <div class="hfc-h"><b>${HIRE.preferred}\u2019s journey <i>their ${nhProgressRows().length} tasks, not yours</i></b>
           <span class="pnote">A plain count of tasks done over tasks assigned. No agreed formula,
           no weighting, and no definition of what \u201cready\u201d means. ${am('M-02')}</span>
         </div>
@@ -4255,7 +4280,7 @@ function hmRail() {
       </div>
       <ul class="res-list mt8">
         <li><a data-ext="guide">${ic('file-alt.svg','sm')}Manager Onboarding Guide ${am('M-15')}</a></li>
-        <li><a data-goto="#/handoffs">${ic('users-connected.svg','sm')}How the two portals connect</a></li>
+        <li><a data-goto="#/handoffs">${ic('users-connected.svg','sm')}How the portals connect</a></li>
       </ul>
       ${buddy ? `<div class="rail-note">Buddy assigned: <b>${buddy.name}</b>${S.hm.buddy.notified ? ', notified' : ''}.</div>` : ''}
     </div>
@@ -5037,7 +5062,7 @@ function renderHmSubtraction() {
 }
 
 /* ============================================================
-   Handoffs: the wiring between the two portals
+   Handoffs: the wiring between the three portals
    ============================================================ */
 function handoffRows() {
   const H = S.hm;
@@ -5046,8 +5071,8 @@ function handoffRows() {
   return [
     // Direction reversed with A-60: the equipment handoff now runs new hire
     // to manager, where it used to run manager to new hire.
-    // A third party in a two-portal picture: People Experience own the
-    // blueprint the manager confirms, so their edit reopens a closed task.
+    // People Experience own the blueprint the manager confirms, so their
+    // edit reopens a task the manager had already closed.
     { dir:'hm', from:'People Experience blueprint', to:'Confirm the first-day details', marker:'M-32',
       done: !S.pexUpdate,
       state: S.pexUpdate
@@ -5118,11 +5143,11 @@ function renderHandoffs() {
   return `
   <div class="page flow-page">
     <div class="crumbs"><button class="back" data-goto="${S.view==='hm'?'#/hm/':'#/'}">${ic('chevron-left.svg','sm')}Back</button>
-      <span>/</span><span>How the two portals connect</span></div>
-    <h1>Where the two sides meet</h1>
-    <p class="flow-sub">Eleven handoffs between the hiring manager’s portal and the new hire’s. Both sides read and write
-    the same underlying facts in this prototype, so what you change on one shows up on the other. Use the switch at the
-    top to check. <b>${wired} of ${rows.length} are currently live.</b> Every one of them rests on an assumption; the
+      <span>/</span><span>How the portals connect</span></div>
+    <h1>Where the three portals meet</h1>
+    <p class="flow-sub">${rows.length} handoffs between the new hire, the hiring manager and People Experience. All three read
+    and write the same underlying facts in this prototype, so what you change in one view shows up in the others. Use the
+    switch at the top to check. <b>${wired} of ${rows.length} are currently live.</b> Every one of them rests on an assumption; the
     marker on each row opens it.</p>
 
     <div class="ho-table">
@@ -8652,11 +8677,16 @@ function renderFlow() {
     { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their timetable, no date yet' },
     { x:88, r:50, cls:'other', lbl:'Badge photo sent on', sub:'printing is not tracked here' },
   ];
+  // x is the date position and r the row. Both are intent, not final geometry:
+  // a node is as wide as its label, so layoutFlowLanes() below corrects the
+  // two things percentages alone cannot know about. Before it existed,
+  // "Accessories order" sat underneath "Badge photo" and "Phone, info
+  // governance" hung off the right edge of its track.
   const lane = (title, icon, nodes, cls='', h=120) => `
     <div class="flow-lane">
       <div class="lane-h">${ic(icon,'sm')}${title}</div>
       <div class="lane-track ${cls}" style="height:${h}px;">
-        ${nodes.map(n => `<div class="fnode ${n.cls}" style="left:${n.x}%; top:${n.r}%;">${n.lbl}<small>${n.sub}</small></div>`).join('')}
+        ${nodes.map(n => `<div class="fnode ${n.cls}" data-x="${n.x}" data-r="${n.r}" style="left:${n.x}%; top:${n.r}%;">${n.lbl}<small>${n.sub}</small></div>`).join('')}
       </div>
     </div>`;
 
@@ -8675,7 +8705,7 @@ function renderFlow() {
     <div class="flow-wrap">
       <div class="flow-axis">
         <div class="axis-line"></div>
-        ${axis.map(a => `<div class="axis-pt ${a.major?'major':''}" style="left:${a.x}%"><div class="apt-dot"></div>
+        ${axis.map(a => `<div class="axis-pt ${a.major?'major':''}" data-x="${a.x}" style="left:${a.x}%"><div class="apt-dot"></div>
           <div class="apt-lbl">${a.lbl}</div><div class="apt-sub">${a.sub}</div></div>`).join('')}
       </div>
       ${lane(`What ${HIRE.preferred} does in this portal, under “Do these now”`, 'user-circle.svg', you, '', 130)}
@@ -8750,7 +8780,7 @@ function renderAssumptions(highlightId) {
   $('#assumeBody').innerHTML = `
     <div class="panel-note">Where this prototype rests on an assumption instead of a confirmed requirement, the element
     carries a marker like ${am('A-04')}. <b>${live} are marked on screen</b>, out of ${all.length} in the register,
-    across both portals. Every entry says where it came from.</div>
+    across all three views. Every entry says where it came from.</div>
 
     <div class="decide">
       <div class="dc-h">${ic('list-tasks.svg','lg')}
@@ -8907,34 +8937,34 @@ function renderProtoDrawer() {
     <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
     <div class="pc-row">
       <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Blueprint unchanged</button>
-      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">They changed it</button>
+      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">Blueprint revised</button>
     </div>
     <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">One build, confirm it</button>
-      <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">A real choice</button>
+      <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">Single build</button>
+      <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">Choice of builds</button>
     </div>
     <div class="pc-h">Runway to Day 1 <span class="pc-mark">A-45</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">2 weeks out</button>
-      <button class="pc-btn ${S.horizon==='3mo'?'on':''}" data-pc="horizon:3mo">3 months out</button>
+      <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">Two weeks out</button>
+      <button class="pc-btn ${S.horizon==='3mo'?'on':''}" data-pc="horizon:3mo">Three months out</button>
     </div>
-    <div class="pc-h">Task-state scenario</div>
+    <div class="pc-h">Task state</div>
     <div class="pc-row">
-      <button class="pc-btn ${S.scenario==='default'?'on':''}" data-pc="scenario:default">First visit</button>
+      <button class="pc-btn ${S.scenario==='default'?'on':''}" data-pc="scenario:default">Not started</button>
       <button class="pc-btn ${S.scenario==='inprogress'?'on':''}" data-pc="scenario:inprogress">In progress</button>
       <button class="pc-btn ${S.scenario==='review'?'on':''}" data-pc="scenario:review">Under review</button>
       <button class="pc-btn ${S.scenario==='overdue'?'on':''}" data-pc="scenario:overdue">Overdue</button>
-      <button class="pc-btn ${S.scenario==='complete'?'on':''}" data-pc="scenario:complete">All complete</button>
+      <button class="pc-btn ${S.scenario==='complete'?'on':''}" data-pc="scenario:complete">Complete</button>
     </div>
     <div class="pc-h">Buddy visibility <span class="pc-mark">L-01</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${S.buddyRule==='assignment'?'on':''}" data-pc="buddyRule:assignment">From assignment</button>
-      <button class="pc-btn ${S.buddyRule==='72h'?'on':''}" data-pc="buddyRule:72h">72h before start</button>
+      <button class="pc-btn ${S.buddyRule==='assignment'?'on':''}" data-pc="buddyRule:assignment">On assignment</button>
+      <button class="pc-btn ${S.buddyRule==='72h'?'on':''}" data-pc="buddyRule:72h">72 hours before start</button>
     </div>
     <div class="pc-h">Review screens</div>
     <div class="pc-links">
-      <a data-goto="#/handoffs">${ic('users-connected.svg','sm')} How the two portals connect, 9 handoffs</a>
+      <a data-goto="#/handoffs">${ic('users-connected.svg','sm')} How the portals connect, ${handoffRows().length} handoffs</a>
       <a data-goto="#/hm/subtraction">${ic('list-tasks.svg','sm')} The subtraction review, manager side</a>
       <a data-goto="#/flow">${ic('rocket.svg','sm')} Flow overview, the new hire journey</a>
       <a data-openassume="1">${ic('question-circle.svg','sm')} Assumptions &amp; gaps, ${ASSUMPTIONS.length} entries</a>
@@ -9148,6 +9178,13 @@ const ROUTES = {
 Object.assign(ROUTES, HM_ROUTES);    // hiring manager screens (js/hm.js)
 Object.assign(ROUTES, PEX_ROUTES);  // coordinator screens (js/pex.js)
 
+/* The route this screen was last drawn for. render() is both "navigate" and
+   "redraw after a state change", and those want opposite scroll behaviour:
+   arriving at a screen should start at the top, ticking a checkbox should
+   leave you looking at the checkbox. Scrolling to top on every redraw is
+   what made buttons feel like they teleported you. */
+let lastRoute = null;
+
 function render() {
   const route = location.hash || '#/';
   // The route decides the lens, so a deep link lands on the right side.
@@ -9163,7 +9200,7 @@ function render() {
   renderProtoDrawer();
   applyNotes();
   bindScreen(route);
-  window.scrollTo(0, 0);
+  if (route !== lastRoute) { window.scrollTo(0, 0); lastRoute = route; }
 }
 /* Design notes are a body class, not a re-render: the markup always carries
    the commentary, CSS decides whether this viewer is reading it. */
@@ -9171,8 +9208,101 @@ function applyNotes() { document.body.classList.toggle('notes', !!S.notes); }
 
 function rerender() { render(); }
 
+/* Keep every flow label inside its container and off its neighbours.
+
+   Labels are placed by date as a percentage, but each is as wide as its own
+   text, so two close dates collide and anything near either end hangs
+   outside. Percentages cannot express "and do not overlap", so this measures
+   what actually rendered and corrects it.
+
+   Before it existed: "Accessories order" sat underneath "Badge photo",
+   "Phone, info governance" hung off the right edge of its track, and on the
+   axis "Offer accepted" ran into "Identity verified".
+
+   The axis matters more than the lanes, because a dot there marks a real
+   date. So the dot is pinned to the true position and only its label block
+   is moved, which is why the label carries a compensating transform. */
+function packRow(items, W, pad, gap) {
+  items.sort((a, b) => a.want - b.want);
+  items.forEach(it => { it.c = Math.min(Math.max(it.want, it.half + pad), W - it.half - pad); });
+  // Forwards: never begin before the previous one ends.
+  for (let i = 1; i < items.length; i++) {
+    const prev = items[i - 1], cur = items[i];
+    const min = prev.c + prev.half + gap + cur.half;
+    if (cur.c < min) cur.c = min;
+  }
+  // Backwards: that can push the tail past the right edge, so walk it back.
+  for (let i = items.length - 1; i >= 0; i--) {
+    const cur = items[i];
+    const limit = i === items.length - 1
+      ? W - cur.half - pad
+      : items[i + 1].c - items[i + 1].half - gap - cur.half;
+    if (cur.c > limit) cur.c = limit;
+  }
+  // If the row genuinely does not fit, keep it inside on the left and let it
+  // read as tight rather than silently clipping the first label.
+  if (items.length) items[0].c = Math.max(items[0].c, items[0].half + pad);
+  return items;
+}
+
+function layoutFlowLanes() {
+  const place = (el, c, W) => { el.style.left = ((c / W) * 100).toFixed(3) + '%'; };
+
+  $$('.flow-axis').forEach(axis => {
+    const W = axis.clientWidth;
+    if (!W) return;
+    const items = $$('.axis-pt', axis).map(n => ({
+      n, half: n.offsetWidth / 2, want: (parseFloat(n.dataset.x) / 100) * W,
+    }));
+    packRow(items, W, 0, 6).forEach(it => {
+      place(it.n, it.c, W);
+      // Pin the dot to the real date after the label block was nudged.
+      const dot = $('.apt-dot', it.n);
+      if (dot) dot.style.transform = `translateX(${(it.want - it.c).toFixed(1)}px)`;
+    });
+  });
+
+  const VGAP = 18, VPAD = 10;
+  $$('.lane-track').forEach(track => {
+    const W = track.clientWidth;
+    if (!W) return;
+    const rows = new Map();
+    $$('.fnode', track).forEach(n => {
+      const key = parseFloat(n.dataset.r ?? n.style.top);
+      if (!rows.has(key)) rows.set(key, []);
+      rows.get(key).push({ n, half: n.offsetWidth / 2, want: (parseFloat(n.dataset.x) / 100) * W });
+    });
+    rows.forEach(items => packRow(items, W, 8, 10).forEach(it => place(it.n, it.c, W)));
+
+    /* Rows are authored as percentages of a hand-picked lane height, so two
+       of them can end up a few pixels apart and read as one box split in
+       half rather than two cards. "Right to work" and "Medical check" sat
+       7px from each other. The lane height is treated as a MINIMUM: if the
+       rows do not fit with a real gap between them, the lane grows and the
+       rows are distributed evenly. Nothing here has to be re-tuned when a
+       label changes. */
+    const keys = [...rows.keys()].sort((a, b) => a - b);
+    if (keys.length < 2) return;
+    const hs = keys.map(k => Math.max(...rows.get(k).map(it => it.n.offsetHeight)));
+    const need = hs.reduce((a, b) => a + b, 0) + VGAP * (keys.length - 1) + VPAD * 2;
+    const H = Math.max(track.clientHeight, need);
+    if (H > track.clientHeight) track.style.height = H + 'px';
+    const slack = (H - VPAD * 2 - hs.reduce((a, b) => a + b, 0)) / (keys.length - 1);
+    let y = VPAD;
+    keys.forEach((k, i) => {
+      const centre = y + hs[i] / 2;
+      rows.get(k).forEach(it => { it.n.style.top = ((centre / H) * 100).toFixed(3) + '%'; });
+      y += hs[i] + slack;
+    });
+  });
+}
+
 function bindScreen(route) {
   startCarousel(route === '#/');
+  if (route === '#/flow') {
+    layoutFlowLanes();
+    requestAnimationFrame(layoutFlowLanes);   // after fonts settle
+  }
   if (route.startsWith('#/pex/')) { bindPex(); return; }
   if (route.startsWith('#/hm/')) { bindHm(route); return; }
   if (route === '#/startdate') return bindStartDate();
@@ -9773,6 +9903,11 @@ function sendChat() {
 }
 
 window.addEventListener('hashchange', render);
+// The flow lanes are packed against a measured track width, so a resize has
+// to re-pack them. Cheap, and only does work when that screen is open.
+window.addEventListener('resize', () => {
+  if ((location.hash || '#/') === '#/flow') layoutFlowLanes();
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePanels(); $('#protoDrawer').classList.remove('show'); } });
 
 document.addEventListener('DOMContentLoaded', () => {

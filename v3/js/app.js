@@ -2345,11 +2345,16 @@ function renderFlow() {
     { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their timetable, no date yet' },
     { x:88, r:50, cls:'other', lbl:'Badge photo sent on', sub:'printing is not tracked here' },
   ];
+  // x is the date position and r the row. Both are intent, not final geometry:
+  // a node is as wide as its label, so layoutFlowLanes() below corrects the
+  // two things percentages alone cannot know about. Before it existed,
+  // "Accessories order" sat underneath "Badge photo" and "Phone, info
+  // governance" hung off the right edge of its track.
   const lane = (title, icon, nodes, cls='', h=120) => `
     <div class="flow-lane">
       <div class="lane-h">${ic(icon,'sm')}${title}</div>
       <div class="lane-track ${cls}" style="height:${h}px;">
-        ${nodes.map(n => `<div class="fnode ${n.cls}" style="left:${n.x}%; top:${n.r}%;">${n.lbl}<small>${n.sub}</small></div>`).join('')}
+        ${nodes.map(n => `<div class="fnode ${n.cls}" data-x="${n.x}" data-r="${n.r}" style="left:${n.x}%; top:${n.r}%;">${n.lbl}<small>${n.sub}</small></div>`).join('')}
       </div>
     </div>`;
 
@@ -2368,7 +2373,7 @@ function renderFlow() {
     <div class="flow-wrap">
       <div class="flow-axis">
         <div class="axis-line"></div>
-        ${axis.map(a => `<div class="axis-pt ${a.major?'major':''}" style="left:${a.x}%"><div class="apt-dot"></div>
+        ${axis.map(a => `<div class="axis-pt ${a.major?'major':''}" data-x="${a.x}" style="left:${a.x}%"><div class="apt-dot"></div>
           <div class="apt-lbl">${a.lbl}</div><div class="apt-sub">${a.sub}</div></div>`).join('')}
       </div>
       ${lane(`What ${HIRE.preferred} does in this portal, under “Do these now”`, 'user-circle.svg', you, '', 130)}
@@ -2443,7 +2448,7 @@ function renderAssumptions(highlightId) {
   $('#assumeBody').innerHTML = `
     <div class="panel-note">Where this prototype rests on an assumption instead of a confirmed requirement, the element
     carries a marker like ${am('A-04')}. <b>${live} are marked on screen</b>, out of ${all.length} in the register,
-    across both portals. Every entry says where it came from.</div>
+    across all three views. Every entry says where it came from.</div>
 
     <div class="decide">
       <div class="dc-h">${ic('list-tasks.svg','lg')}
@@ -2600,34 +2605,34 @@ function renderProtoDrawer() {
     <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
     <div class="pc-row">
       <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Blueprint unchanged</button>
-      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">They changed it</button>
+      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">Blueprint revised</button>
     </div>
     <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">One build, confirm it</button>
-      <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">A real choice</button>
+      <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">Single build</button>
+      <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">Choice of builds</button>
     </div>
     <div class="pc-h">Runway to Day 1 <span class="pc-mark">A-45</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">2 weeks out</button>
-      <button class="pc-btn ${S.horizon==='3mo'?'on':''}" data-pc="horizon:3mo">3 months out</button>
+      <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">Two weeks out</button>
+      <button class="pc-btn ${S.horizon==='3mo'?'on':''}" data-pc="horizon:3mo">Three months out</button>
     </div>
-    <div class="pc-h">Task-state scenario</div>
+    <div class="pc-h">Task state</div>
     <div class="pc-row">
-      <button class="pc-btn ${S.scenario==='default'?'on':''}" data-pc="scenario:default">First visit</button>
+      <button class="pc-btn ${S.scenario==='default'?'on':''}" data-pc="scenario:default">Not started</button>
       <button class="pc-btn ${S.scenario==='inprogress'?'on':''}" data-pc="scenario:inprogress">In progress</button>
       <button class="pc-btn ${S.scenario==='review'?'on':''}" data-pc="scenario:review">Under review</button>
       <button class="pc-btn ${S.scenario==='overdue'?'on':''}" data-pc="scenario:overdue">Overdue</button>
-      <button class="pc-btn ${S.scenario==='complete'?'on':''}" data-pc="scenario:complete">All complete</button>
+      <button class="pc-btn ${S.scenario==='complete'?'on':''}" data-pc="scenario:complete">Complete</button>
     </div>
     <div class="pc-h">Buddy visibility <span class="pc-mark">L-01</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${S.buddyRule==='assignment'?'on':''}" data-pc="buddyRule:assignment">From assignment</button>
-      <button class="pc-btn ${S.buddyRule==='72h'?'on':''}" data-pc="buddyRule:72h">72h before start</button>
+      <button class="pc-btn ${S.buddyRule==='assignment'?'on':''}" data-pc="buddyRule:assignment">On assignment</button>
+      <button class="pc-btn ${S.buddyRule==='72h'?'on':''}" data-pc="buddyRule:72h">72 hours before start</button>
     </div>
     <div class="pc-h">Review screens</div>
     <div class="pc-links">
-      <a data-goto="#/handoffs">${ic('users-connected.svg','sm')} How the two portals connect, 9 handoffs</a>
+      <a data-goto="#/handoffs">${ic('users-connected.svg','sm')} How the portals connect, ${handoffRows().length} handoffs</a>
       <a data-goto="#/hm/subtraction">${ic('list-tasks.svg','sm')} The subtraction review, manager side</a>
       <a data-goto="#/flow">${ic('rocket.svg','sm')} Flow overview, the new hire journey</a>
       <a data-openassume="1">${ic('question-circle.svg','sm')} Assumptions &amp; gaps, ${ASSUMPTIONS.length} entries</a>
@@ -2841,6 +2846,13 @@ const ROUTES = {
 Object.assign(ROUTES, HM_ROUTES);    // hiring manager screens (js/hm.js)
 Object.assign(ROUTES, PEX_ROUTES);  // coordinator screens (js/pex.js)
 
+/* The route this screen was last drawn for. render() is both "navigate" and
+   "redraw after a state change", and those want opposite scroll behaviour:
+   arriving at a screen should start at the top, ticking a checkbox should
+   leave you looking at the checkbox. Scrolling to top on every redraw is
+   what made buttons feel like they teleported you. */
+let lastRoute = null;
+
 function render() {
   const route = location.hash || '#/';
   // The route decides the lens, so a deep link lands on the right side.
@@ -2856,7 +2868,7 @@ function render() {
   renderProtoDrawer();
   applyNotes();
   bindScreen(route);
-  window.scrollTo(0, 0);
+  if (route !== lastRoute) { window.scrollTo(0, 0); lastRoute = route; }
 }
 /* Design notes are a body class, not a re-render: the markup always carries
    the commentary, CSS decides whether this viewer is reading it. */
@@ -2864,8 +2876,101 @@ function applyNotes() { document.body.classList.toggle('notes', !!S.notes); }
 
 function rerender() { render(); }
 
+/* Keep every flow label inside its container and off its neighbours.
+
+   Labels are placed by date as a percentage, but each is as wide as its own
+   text, so two close dates collide and anything near either end hangs
+   outside. Percentages cannot express "and do not overlap", so this measures
+   what actually rendered and corrects it.
+
+   Before it existed: "Accessories order" sat underneath "Badge photo",
+   "Phone, info governance" hung off the right edge of its track, and on the
+   axis "Offer accepted" ran into "Identity verified".
+
+   The axis matters more than the lanes, because a dot there marks a real
+   date. So the dot is pinned to the true position and only its label block
+   is moved, which is why the label carries a compensating transform. */
+function packRow(items, W, pad, gap) {
+  items.sort((a, b) => a.want - b.want);
+  items.forEach(it => { it.c = Math.min(Math.max(it.want, it.half + pad), W - it.half - pad); });
+  // Forwards: never begin before the previous one ends.
+  for (let i = 1; i < items.length; i++) {
+    const prev = items[i - 1], cur = items[i];
+    const min = prev.c + prev.half + gap + cur.half;
+    if (cur.c < min) cur.c = min;
+  }
+  // Backwards: that can push the tail past the right edge, so walk it back.
+  for (let i = items.length - 1; i >= 0; i--) {
+    const cur = items[i];
+    const limit = i === items.length - 1
+      ? W - cur.half - pad
+      : items[i + 1].c - items[i + 1].half - gap - cur.half;
+    if (cur.c > limit) cur.c = limit;
+  }
+  // If the row genuinely does not fit, keep it inside on the left and let it
+  // read as tight rather than silently clipping the first label.
+  if (items.length) items[0].c = Math.max(items[0].c, items[0].half + pad);
+  return items;
+}
+
+function layoutFlowLanes() {
+  const place = (el, c, W) => { el.style.left = ((c / W) * 100).toFixed(3) + '%'; };
+
+  $$('.flow-axis').forEach(axis => {
+    const W = axis.clientWidth;
+    if (!W) return;
+    const items = $$('.axis-pt', axis).map(n => ({
+      n, half: n.offsetWidth / 2, want: (parseFloat(n.dataset.x) / 100) * W,
+    }));
+    packRow(items, W, 0, 6).forEach(it => {
+      place(it.n, it.c, W);
+      // Pin the dot to the real date after the label block was nudged.
+      const dot = $('.apt-dot', it.n);
+      if (dot) dot.style.transform = `translateX(${(it.want - it.c).toFixed(1)}px)`;
+    });
+  });
+
+  const VGAP = 18, VPAD = 10;
+  $$('.lane-track').forEach(track => {
+    const W = track.clientWidth;
+    if (!W) return;
+    const rows = new Map();
+    $$('.fnode', track).forEach(n => {
+      const key = parseFloat(n.dataset.r ?? n.style.top);
+      if (!rows.has(key)) rows.set(key, []);
+      rows.get(key).push({ n, half: n.offsetWidth / 2, want: (parseFloat(n.dataset.x) / 100) * W });
+    });
+    rows.forEach(items => packRow(items, W, 8, 10).forEach(it => place(it.n, it.c, W)));
+
+    /* Rows are authored as percentages of a hand-picked lane height, so two
+       of them can end up a few pixels apart and read as one box split in
+       half rather than two cards. "Right to work" and "Medical check" sat
+       7px from each other. The lane height is treated as a MINIMUM: if the
+       rows do not fit with a real gap between them, the lane grows and the
+       rows are distributed evenly. Nothing here has to be re-tuned when a
+       label changes. */
+    const keys = [...rows.keys()].sort((a, b) => a - b);
+    if (keys.length < 2) return;
+    const hs = keys.map(k => Math.max(...rows.get(k).map(it => it.n.offsetHeight)));
+    const need = hs.reduce((a, b) => a + b, 0) + VGAP * (keys.length - 1) + VPAD * 2;
+    const H = Math.max(track.clientHeight, need);
+    if (H > track.clientHeight) track.style.height = H + 'px';
+    const slack = (H - VPAD * 2 - hs.reduce((a, b) => a + b, 0)) / (keys.length - 1);
+    let y = VPAD;
+    keys.forEach((k, i) => {
+      const centre = y + hs[i] / 2;
+      rows.get(k).forEach(it => { it.n.style.top = ((centre / H) * 100).toFixed(3) + '%'; });
+      y += hs[i] + slack;
+    });
+  });
+}
+
 function bindScreen(route) {
   startCarousel(route === '#/');
+  if (route === '#/flow') {
+    layoutFlowLanes();
+    requestAnimationFrame(layoutFlowLanes);   // after fonts settle
+  }
   if (route.startsWith('#/pex/')) { bindPex(); return; }
   if (route.startsWith('#/hm/')) { bindHm(route); return; }
   if (route === '#/startdate') return bindStartDate();
@@ -3466,6 +3571,11 @@ function sendChat() {
 }
 
 window.addEventListener('hashchange', render);
+// The flow lanes are packed against a measured track width, so a resize has
+// to re-pack them. Cheap, and only does work when that screen is open.
+window.addEventListener('resize', () => {
+  if ((location.hash || '#/') === '#/flow') layoutFlowLanes();
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePanels(); $('#protoDrawer').classList.remove('show'); } });
 
 document.addEventListener('DOMContentLoaded', () => {

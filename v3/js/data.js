@@ -78,7 +78,8 @@ const PHASES = [
 ];
 
 /* ============================================================
-   Assumption register. 99 entries across both portals.
+   Assumption register, across all three views. The count is derived at
+   render time, so no number is written down here to go stale.
    A-01…A-28 carried from v1 unchanged in numbering.
    A-29…A-46 and A-48 are new in v2 (A-47 left unused on purpose,
    reserved for the IBX badge question if it needs its own entry).

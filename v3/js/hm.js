@@ -289,11 +289,13 @@ function nhProgressDonut() {
         <circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--cloud)" stroke-width="15"/>
         ${arcs}
       </svg>
-      ${''/* The caption names whose tasks these are. The hero sits 100px above
-             this and also reads a large percentage, but that one counts the
-             manager's own list. Two unlabelled zeros next to each other is a
-             reading problem, not a data problem. */}
-      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">${HIRE.preferred}’s ${total} tasks</span></div>
+      ${''/* The centre stays short. Naming whose tasks these are belongs in
+             the card heading, where there is room for it: the hero sits just
+             above this and also reads a large percentage, but that one counts
+             the manager's own list, and two unlabelled percentages next to
+             each other is a reading problem. A 90px hole is not the place to
+             solve it. */}
+      <div class="don-mid"><b>${pct}<span>%</span></b><span class="don-cap">done</span></div>
     </div>
     <ul class="don-key">
       ${segs.map(s => `
@@ -310,7 +312,7 @@ function nhProgressDonut() {
    Not a pie: three third-party items are three equal thirds, and a pie of
    equal thirds says nothing except "there are three". Equal segments
    coloured by state, hover naming the owner, carries what was actually
-   wanted: see at a glance whether anything outside the two portals is
+   wanted: see at a glance whether anything outside these portals is
    stuck, and who owns it. */
 function othersStrip() {
   const rows = thirdPartyTasks();
@@ -384,7 +386,7 @@ function renderHmHome() {
 
     <div class="hm-figs">
       <div class="hm-fig-card">
-        <div class="hfc-h"><b>Jordan\u2019s journey</b>
+        <div class="hfc-h"><b>${HIRE.preferred}\u2019s journey <i>their ${nhProgressRows().length} tasks, not yours</i></b>
           <span class="pnote">A plain count of tasks done over tasks assigned. No agreed formula,
           no weighting, and no definition of what \u201cready\u201d means. ${am('M-02')}</span>
         </div>
@@ -589,7 +591,7 @@ function hmRail() {
       </div>
       <ul class="res-list mt8">
         <li><a data-ext="guide">${ic('file-alt.svg','sm')}Manager Onboarding Guide ${am('M-15')}</a></li>
-        <li><a data-goto="#/handoffs">${ic('users-connected.svg','sm')}How the two portals connect</a></li>
+        <li><a data-goto="#/handoffs">${ic('users-connected.svg','sm')}How the portals connect</a></li>
       </ul>
       ${buddy ? `<div class="rail-note">Buddy assigned: <b>${buddy.name}</b>${S.hm.buddy.notified ? ', notified' : ''}.</div>` : ''}
     </div>
@@ -1371,7 +1373,7 @@ function renderHmSubtraction() {
 }
 
 /* ============================================================
-   Handoffs: the wiring between the two portals
+   Handoffs: the wiring between the three portals
    ============================================================ */
 function handoffRows() {
   const H = S.hm;
@@ -1380,8 +1382,8 @@ function handoffRows() {
   return [
     // Direction reversed with A-60: the equipment handoff now runs new hire
     // to manager, where it used to run manager to new hire.
-    // A third party in a two-portal picture: People Experience own the
-    // blueprint the manager confirms, so their edit reopens a closed task.
+    // People Experience own the blueprint the manager confirms, so their
+    // edit reopens a task the manager had already closed.
     { dir:'hm', from:'People Experience blueprint', to:'Confirm the first-day details', marker:'M-32',
       done: !S.pexUpdate,
       state: S.pexUpdate
@@ -1452,11 +1454,11 @@ function renderHandoffs() {
   return `
   <div class="page flow-page">
     <div class="crumbs"><button class="back" data-goto="${S.view==='hm'?'#/hm/':'#/'}">${ic('chevron-left.svg','sm')}Back</button>
-      <span>/</span><span>How the two portals connect</span></div>
-    <h1>Where the two sides meet</h1>
-    <p class="flow-sub">Eleven handoffs between the hiring manager’s portal and the new hire’s. Both sides read and write
-    the same underlying facts in this prototype, so what you change on one shows up on the other. Use the switch at the
-    top to check. <b>${wired} of ${rows.length} are currently live.</b> Every one of them rests on an assumption; the
+      <span>/</span><span>How the portals connect</span></div>
+    <h1>Where the three portals meet</h1>
+    <p class="flow-sub">${rows.length} handoffs between the new hire, the hiring manager and People Experience. All three read
+    and write the same underlying facts in this prototype, so what you change in one view shows up in the others. Use the
+    switch at the top to check. <b>${wired} of ${rows.length} are currently live.</b> Every one of them rests on an assumption; the
     marker on each row opens it.</p>
 
     <div class="ho-table">
