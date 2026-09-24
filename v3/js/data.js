@@ -255,9 +255,12 @@ const ASSUMPTIONS = [
     assumed:'CONFLICT, unresolved. This prototype has the new hire choosing accessories before Day 1. The manager mockup has peripherals and accessories ordered by the new hire on Day 1, through IT self-service.',
     resolve:'Both cannot be right, and the difference is a fortnight of shipping time. Pre-Day 1 means the desk is complete on the first morning. Day 1 self-service means it is not. Decide which, because the accessories task is the earliest thing on the new hire’s list today.', oi:'' },
 
-  { id:'A-54', group:'design', prov:'UAT', screen:'Equipment', route:'#/equipment',
+  { id:'A-54', group:'retired', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The equipment screens follow the live HR case: both people named as “Name (username)” with the employment start date and the manager’s email above the table, status written as a full sentence quoting the task that unblocks it, and the incident shown with its Activity, Attachments and Summary tabs.',
-    resolve:'Taken from the UAT screens rather than invented, so the future state does not quietly drop wording people already recognise. Two things to settle: the live status line for the phone reads “To place an order for a mobile phone new hire, Alp Basol (abasol), must complete” and is missing an article, and the case shows a photo for the manager but initials for the new hire. Both are small, and both are easier to fix before the push to production than after.', oi:'' },
+    resolve:'Taken from the UAT screens rather than invented, so the future state does not quietly drop wording people already recognise. Two things to settle: the live status line for the phone reads “To place an order for a mobile phone new hire, Alp Basol (abasol), must complete” and is missing an article, and the case shows a photo for the manager but initials for the new hire. Both are small, and both are easier to fix before the push to production than after. Retired in the plain-English pass: the layout of the case stays, the wording does not (A-63).', oi:'' },
+  { id:'A-63', group:'design', prov:'ASSUMED', screen:'Equipment', route:'#/equipment',
+    assumed:'The equipment table keeps the live case’s shape (case number, both people, one row per item) but its status lines are written in plain English and addressed to whoever is reading: “Choose your computer above to order it” for the new hire, “Jordan hasn’t chosen yet” for the manager. The case state reads Open rather than the live Ready, and the start date is written out rather than as 2026-08-18.',
+    resolve:'Reverses A-54, which copied the live strings word for word so that nothing people already recognise was dropped. Read by the new hire, those strings describe them in the third person (“the new hire, Jordan Reyes (jreyes), must first complete…”) and a case marked Ready with nothing ordered reads as a contradiction. The cost is that the prototype no longer matches the ServiceNow build line for line, so if the live wording cannot change, this is a request to the ServiceNow team rather than a design that can ship as drawn.', oi:'' },
   { id:'A-55', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The accessories order is raised as an incident at Urgency 3 - Low, and its Summary tab shows the stored record rather than a written summary: checkbox values render as true and false, the HR task SysID is on display, and the accessories choice is stored as the sentence “Headset and other accessories”.',
     resolve:'Two separate problems. Urgency: nothing ships until this incident is worked, and the desk is incomplete on Day 1 if it is not, so Low is the wrong default for an order with a hard date behind it. Confirm whether urgency is derived from the start date at all. Summary: it is readable by someone who knows the form and confusing to a new hire checking their own order, which is exactly who has the tab open. Neither needs a redesign, both need a decision before this reaches production.', oi:'' },
@@ -685,7 +688,7 @@ const READINESS = [
    reference material that arrives alongside it today. */
 const CURRENT_PACK = {
   US: { handbook:'US Employee Handbook (November 2024)',
-        addenda:25, addendaNote:'state handbook addenda. Every US hire receives all of them, whichever state they work in',
+        addenda:25, addendaNote:'state supplements. Every US hire gets all of them, whichever state they work in',
         extras:['2026 Equinix U.S. Benefits Booklet','GovDocs'],
         total:28 },
   JP: { handbook:'就業規則, Japanese employment regulations (April 2025)',
@@ -714,14 +717,14 @@ const COMING_UP = [
     note:'Shows what you’ll qualify for and when coverage begins', icon:'shield-check.svg',
     expl:'Opens 30 days before your start date. Nothing to prepare between now and then.' },
   { name:'Equipment setup instructions', opens:'3 days before you start',
-    note:'You set the machine up yourself, and the IT help desk is open all day', icon:'portal-window.svg',
+    note:'You set up your own laptop, and the IT help desk is open all day', icon:'portal-window.svg',
     expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
     dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
   { name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
-    expl:'Held until 3 days out so the details are final rather than provisional.' },
-  { name:'Collect your Equinix credentials', opens:'1 day before you start',
-    note:'', icon:'lock.svg',
+    expl:'Held back until 3 days before you start, so what you see is final.' },
+  { name:'Get your Equinix sign-in details', opens:'1 day before you start',
+    note:'Your username and how to set your password', icon:'lock.svg',
     expl:'Your sign-in details, ready the day before you start.',
     dnote:'A to-do in the live portal that nobody has documented the contents of. Worth pinning down: it sits awkwardly beside the current practice of managers handing over sign-in details.' },
   { name:'Order a phone', opens:'Day 1, optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
@@ -730,7 +733,7 @@ const COMING_UP = [
   { name:'Complete your at-home workspace setup', opens:'No due date, optional', note:'', icon:'desktop.svg',
     expl:'Optional, with no due date. Nothing is waiting on you.',
     dnote:'Shipped exactly as the live portal has it, so optional behaviour is visible here.' },
-  { name:'Information governance', opens:'Your first week', note:'', icon:'file-alt.svg', marker:'A-21',
+  { name:'Information governance', opens:'Your first week', note:'Short training on how Equinix handles information', icon:'file-alt.svg', marker:'A-21',
     expl:'Runs in your first week, once you have your Equinix account. It covers how we handle information here.' },
 ];
 
@@ -770,8 +773,8 @@ const DISPOSITIONS = {
   keep:      { label:'Keep',            cls:'keep',      hint:'Genuinely requires manager judgement' },
   reduce:    { label:'Exception-only',  cls:'reduce',    hint:'Visible, but most managers should never touch it' },
   automate:  { label:'Automate away',   cls:'automate',  hint:'The outcome is still needed, the manager action is not' },
-  remove:    { label:'Remove',          cls:'remove',    hint:'This task should not exist in the future state' },
-  undecided: { label:'Undecided',       cls:'undecided', hint:'Cannot be dispositioned yet' },
+  remove:    { label:'Remove',          cls:'remove',    hint:'This task should go' },
+  undecided: { label:'Undecided',       cls:'undecided', hint:'Not enough is known to decide' },
   add:       { label:'Adds work',       cls:'add',       hint:'The only proposal that increases manager load' },
 };
 
@@ -877,7 +880,7 @@ const SOFTWARE_CATALOG = [
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
   { id:'nho', label:'New Hire Orientation', time:'09:00 to 13:00',
-    auto:true, blueprint:true, note:'From the orientation blueprint for your location. PEX owns it, so you cannot move it.' },
+    auto:true, blueprint:true, note:'Set by People Experience for your office, so you can’t move it.' },
   { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'13:00 to 14:00',
     auto:true, locked:true, note:'Automatically placed, one hour, immediately after orientation ends. You can reschedule it, but not delete it.' },
   { id:'teamIntro', label:'Team introduction', time:'14:30 to 15:00', auto:false },

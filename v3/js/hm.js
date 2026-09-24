@@ -36,7 +36,7 @@ function hmTasks() {
       done: S.equipment.submitted, icon:'laptop.svg', marker:'M-01', dueOff:-7, sys:'ServiceNow', srcDue:true,
       why:'Jordan chooses and orders this themselves. Nothing here waits on you.',
       dispNote:'Recommended for deletion. The order moved to the new hire, so all this does is tell you it happened, which the readiness view already does.' },
-    { id:'software', label:'Confirm the application stack', disp:'reduce', route:'#/hm/software',
+    { id:'software', label:'Choose Jordan’s apps', disp:'reduce', route:'#/hm/software',
       done: H.software.confirmed, icon:'portal-window.svg', marker:'M-04', blocked:true,
       dueOff:-4, sys:'ServiceNow', srcDue:true,
       why:'Which applications Jordan gets on day one.',
@@ -47,7 +47,7 @@ function hmTasks() {
       dispNote:'Two screens merged into one, and the second named role was dropped. Your judgement, so it stays, but nothing is suggested for you.' },
     { id:'calendar', label:'Set up their first day', disp:'automate', route:'#/hm/calendar',
       done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06', dueOff:-5, sys:'Outlook', marker2:'M-23',
-      why:'The holds that make Day 1 work.',
+      why:'The calendar invites that make Day 1 work.',
       dispNote:'Your 1:1 is already placed automatically. The rest should be too, and then this becomes a glance rather than a task.' },
     { id:'welcome', label:'Send a welcome note', disp:'reduce', route:'#/hm/welcome',
       done: H.welcome.sent, icon:'email.svg', marker:'M-08', dueOff:-2, sys:'Email', srcDue:true,
@@ -70,7 +70,7 @@ function hmTasks() {
   list.push(
     { id:'day1meet', label:'Meet Jordan and walk them in', disp:'automate', route:null, phase:1,
       done:false, icon:'users-friends.svg', marker:'M-30', dueOff:0, sys:'Outlook',
-      why:'Straight after orientation ends. The hold is already in your calendar.',
+      why:'Straight after orientation ends. It’s already in your calendar.',
       dispNote:'Already placed automatically. It is on this list to be visible, not to be done.' },
     { id:'plan', label:'Agree their 30, 60 and 90 day plan', disp:'keep', route:null, phase:2,
       done:false, icon:'list-tasks.svg', marker:'M-30', dueOff:4, sys:'Not decided',
@@ -128,14 +128,14 @@ function hmDone() { return hmTasks().filter(t => t.done).length; }
 /* Third-party tasks: PEX, EUT, CRE. Fixed states, not interactive. */
 function thirdPartyTasks() {
   return [
-    { label:'Background check', owner:'HR Operations', state: 'running', note:'In progress, no action from anyone' },
+    { label:'Background check', owner:'HR Operations', state: 'running', note:'Running. Nobody needs to do anything' },
     // Badge print is deliberately absent: security has no integration and no
     // place to confirm completion, so any status shown here would be invented.
-    { label:'Badge photo received', owner:'Workplace / CRE', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
+    { label:'Badge photo received', owner:'Workplace & Real Estate', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
       note: (S.photo.done || S.photo.confirmedExisting)
         ? 'Sent on to Workplace. Printing is not tracked here'
         : 'Waiting on Jordan’s badge photo' },
-    { label:'Orientation blueprint assigned', owner:'People Experience', state:'ready', note:'Denver blueprint assigned' },
+    { label:'Day 1 location details', owner:'People Experience', state:'ready', note:'Denver details set' },
   ];
 }
 
@@ -191,7 +191,7 @@ function hmBlockers() {
       action:'Answer it', route:'#/hm/card' });
   }
   if (!S.hm.software.confirmed) {
-    out.push({ sev:'low', text:'The application stack cannot be resolved, because Jordan’s persona is not mapped. That is a platform gap, not something you can fix here.',
+    out.push({ sev:'low', text:'We can’t suggest Jordan’s apps, because their role isn’t linked to a standard app list yet. That’s a gap in the system, not something you can fix here.',
       action:'See why', route:'#/hm/software' });
   }
   return out;
@@ -206,7 +206,7 @@ function hmWaitingOnNewHire() {
   if (!S.equipment.submitted) {
     out.push({ text: S.equipment.deviceConfirmed
       ? 'Equipment is chosen but the order has not been submitted yet.'
-      : 'Equipment has not been chosen yet. The lead time runs 5 to 7 business days.',
+      : 'Equipment has not been chosen yet. Delivery takes 5 to 7 working days.',
       marker:'M-24' });
   }
   if (!S.bgcheck.launched) out.push({ text:'The background check has not been started. It runs the longest of anything here.' });
@@ -321,8 +321,8 @@ function othersStrip() {
   return `
   <div class="others-strip" data-assume="M-02">
     <div class="os-h">
-      <b>Everyone else</b>
-      <span>Three teams, none of them users of this portal. ${am('M-02')}</span>
+      <b>Other teams</b>
+      <span>Three teams working on Jordan’s start outside this portal. ${am('M-02')}</span>
     </div>
     <div class="os-bar">
       ${rows.map(r => `
@@ -386,7 +386,7 @@ function renderHmHome() {
 
     <div class="hm-figs">
       <div class="hm-fig-card">
-        <div class="hfc-h"><b>${HIRE.preferred}\u2019s journey <i>their ${nhProgressRows().length} tasks, not yours</i></b>
+        <div class="hfc-h"><b>${HIRE.preferred}\u2019s tasks <i>their ${nhProgressRows().length}, not yours</i></b>
           <span class="pnote">A plain count of tasks done over tasks assigned. No agreed formula,
           no weighting, and no definition of what \u201cready\u201d means. ${am('M-02')}</span>
         </div>
@@ -424,7 +424,7 @@ function renderHmHome() {
     ${(() => { const w = hmWaitingOnNewHire(); return w.length ? `
     <div class="waiting-on" data-assume="M-03">
       <div class="wo-h">${ic('hourglass.svg','sm')}<b>Waiting on Jordan</b>
-        <span>Their tasks, not yours. Listed so nothing is invisible.</span></div>
+        <span>Their tasks, not yours. Listed so you can see what’s still open.</span></div>
       ${w.map(x => `<div class="wo-row">${x.text}${x.marker ? ' '+am(x.marker) : ''}</div>`).join('')}
     </div>` : ''; })()}` : `
     <div class="blockers clear">
@@ -549,7 +549,7 @@ function hmRail() {
       </div>
       <div class="rail-note warn-note">${ic('info-circle.svg','sm')}
         <span><b>Jordan already has your details.</b> Your name, Teams handle and email are on their portal from today,
-        and they can contact you before Day 1. Nothing sets an expectation about how fast you reply. ${am('L-03')}</span>
+        and they can contact you before Day 1. Nobody has said how quickly you should reply. ${am('L-03')}</span>
       </div>
     </div>
 
@@ -573,7 +573,7 @@ function hmRail() {
           ? `<span class="chip done">${ic('check.svg','sm')}Queued</span>`
           : `<button class="btn secondary sm" data-quickconfirm="channels">Add all</button>`}
       </div>
-      <div class="rail-note">Both of these were separate tasks. They are one tap here because neither needs your judgement.</div>
+      <div class="rail-note">One tap each. Neither needs a decision from you.</div>
     </div>
 
     <div class="rail-card">
@@ -626,9 +626,9 @@ function renderHmLogistics() {
     <div class="task-shell">
       <div class="wiz-body">
         <div class="form-sec" data-assume="M-05">
-          <h3>From the orientation blueprint ${am('M-05')}</h3>
-          <p class="sec-note">Maintained by People Experience for this location, and read-only here. If something is wrong,
-          it should be fixed in the blueprint so every new starter in Denver gets the corrected version.</p>
+          <h3>Set by People Experience for this office ${am('M-05')}</h3>
+          <p class="sec-note">You can’t change these here. If something’s wrong, tell Maya, so it gets fixed for every
+          new starter in Denver, not only Jordan.</p>
           <div class="bp-card">
             ${blueprint.map(([k,v]) => `<div class="bp-row"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
           </div>
@@ -653,7 +653,7 @@ function renderHmLogistics() {
               <label><input type="radio" name="avail" data-avail="yes" ${L.available?'checked':''}>Yes, I’ll be there</label>
               <label><input type="radio" name="avail" data-avail="no" ${!L.available?'checked':''}>No, someone else will cover</label>
             </div>
-            <div class="note">Meeting your new hire on Day 1 is tracked as a programme measure, so this answer matters beyond this screen.</div>
+            <div class="note">Equinix tracks whether managers meet their new hire on Day 1, so this answer is counted.</div>
           </div>
 
           ${!L.available ? `
@@ -732,7 +732,7 @@ function renderHmComputer() {
               <div>
                 <b>Jordan has not chosen yet.</b>
                 <p>Their equipment task is open and nothing is waiting on you. If it is still open close to
-                the start date, the readiness view will raise it.</p>
+                the start date, it will be flagged on your home screen.</p>
               </div>
             </div>`}
         </div>
@@ -745,7 +745,7 @@ function renderHmComputer() {
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic('info-circle.svg','sm')}Nothing on this screen is yours to action</span>
+        <span class="saved-state">${ic('info-circle.svg','sm')}Nothing on this screen is yours to do</span>
         <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
       </div>
     </div>
@@ -759,9 +759,9 @@ function renderHmSoftware() {
   const S5 = S.hm.software;
   return `
   <div class="page">
-    ${hmCrumbs('Confirm the application stack')}
+    ${hmCrumbs('Choose Jordan’s apps')}
     <div class="task-head" data-assume="M-04">
-      <h1>Confirm the application stack ${am('M-04')}</h1>
+      <h1>Choose Jordan’s apps ${am('M-04')}</h1>
       <p class="why">Which applications Jordan has on their first day.</p>
       ${dispBanner('reduce', 'Meant to be exception-only: a persona-based default stack you glance at and confirm. It cannot work that way today.', 'M-04')}
     </div>
@@ -769,26 +769,26 @@ function renderHmSoftware() {
     <div class="blocked-panel" data-assume="M-04">
       ${ic('exclamation-triangle.svg','xl')}
       <div>
-        <h2>There is no default stack to show you</h2>
-        <p>This screen is supposed to open with the applications Jordan’s role normally gets, so you can confirm them in
-        one action. That needs a persona, and no full persona list exists in the platform yet. The fallback under
-        discussion is deriving persona from job family, which is the approach the requirements analysis rejected as
-        inaccurate for most roles.</p>
-        <p><b>So here is what the task actually looks like today:</b> an empty list you fill in by hand, the opposite
-        of what it is meant to be. Drawn honestly, not aspirationally. ${am('M-04')}</p>
+        <h2>There’s no standard app list to show you</h2>
+        <p>This screen should open with the apps people in Jordan’s role usually get, so you can confirm them in one
+        go. It can’t yet: roles aren’t linked to app lists in the system. Until they are, you pick the apps by hand
+        below. ${am('M-04')}</p>
+        <p class="pnote">The fallback under discussion is working out the role from job family, which the
+        requirements analysis rejected as inaccurate for most roles. So this screen is drawn as the task really is
+        today, an empty list filled by hand, rather than as it is meant to be.</p>
       </div>
     </div>
 
     <div class="task-shell mt24">
       <div class="wiz-body">
         <div class="form-sec">
-          <h3>Default stack for Jordan’s persona</h3>
-          <div class="empty-stack">${ic('times.svg','lg')}<span>Empty, persona not mapped</span></div>
+          <h3>Standard apps for Jordan’s role</h3>
+          <div class="empty-stack">${ic('times.svg','lg')}<span>None yet. The role isn’t linked to a list</span></div>
         </div>
         <div class="form-sec">
-          <h3>Add applications by hand</h3>
-          <p class="sec-note">Catalogue items only. Each one raises its own request and inherits that item’s existing
-          approval flow and lead time.</p>
+          <h3>Add apps by hand</h3>
+          <p class="sec-note">Only apps from the IT catalogue. Each one becomes its own request, with that app’s usual
+          approval and wait time.</p>
           <div class="acc-grid">
             ${SOFTWARE_CATALOG.map(a => `
               <label class="check acc">
@@ -806,8 +806,8 @@ function renderHmSoftware() {
       </div>
       <div class="wiz-foot">
         <span class="saved-state">${ic('save.svg','sm')}${S5.added.length} selected</span>
-        <span class="missing">Every application here was chosen by hand because the platform could not suggest any.</span>
-        <button class="btn primary" id="swConfirm" ${S5.added.length?'':'disabled'}>${S5.confirmed?'Update':'Confirm the stack'}</button>
+        <span class="missing">You pick each app by hand, because the system can’t suggest any yet.</span>
+        <button class="btn primary" id="swConfirm" ${S5.added.length?'':'disabled'}>${S5.confirmed?'Update':'Confirm the apps'}</button>
       </div>
     </div>
   </div>`;
@@ -832,7 +832,7 @@ function renderHmMeet() {
 
   const picker = (role, current) => `
     <select data-pickperson="${role}">
-      <option value="">Select from the org…</option>
+      <option value="">Choose someone…</option>
       ${ORG_PEOPLE
         .filter(p => role !== 'buddy' || p.team || p.dept === 'Global FP&A')
         .map(p => `<option value="${p.id}" ${current === p.id ? 'selected' : ''}>${p.name}, ${p.role}, ${p.dept}</option>`).join('')}
@@ -921,7 +921,7 @@ function renderHmMeet() {
           <div class="meet-count">${others.length} named, ${withWhy} with a reason written${others.length > 15 ? '. That is over the fifteen this screen expects' : ''}</div>
         </div>
 
-        <div class="callout soft" data-assume="M-21">
+        <div class="callout soft pnote" data-assume="M-21">
           ${ic('exclamation-triangle.svg')}
           <div><b>This may already exist.</b> The onboarding platform ships <b>“select people to meet”</b> and
           <b>“select helpful contacts”</b> as manager setup, surfaced on the new hire’s dashboard. If that is what it
@@ -1014,20 +1014,20 @@ function renderHmCalendar() {
 
         <div class="callout soft mt16">
           ${ic('info-circle.svg')}
-          <div><b>No IT setup window.</b> IT is not committing to an hour on Day 1, so Jordan sets the machine up
-          themselves and the help desk is open all day. That pointer sits in Jordan’s checklist, not your calendar. ${am('M-33')}</div>
+          <div><b>No IT setup slot.</b> IT doesn’t book time on Day 1, so Jordan sets up their own laptop and the
+          IT help desk is open all day. That’s in Jordan’s checklist, not your calendar. ${am('M-33')}</div>
         </div>
 
         <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
-          <div>The unticked holds are suggestions you have to accept one at a time. If they were created
+          <div>The unticked meetings are suggestions you have to accept one at a time. If they were created
           automatically like your 1:1, this screen would have nothing on it for you to do, which is the point of the
           disposition above. ${am('M-06')}</div>
         </div>
       </div>
       <div class="wiz-foot">
         <span class="saved-state">${ic('save.svg','sm')}Your 1:1 is already in the calendar</span>
-        <span class="missing">${Object.values(C.holds).filter(Boolean).length} of 2 suggested holds added</span>
+        <span class="missing">${[...DAY1_HOLDS, ...AFTER_DAY1_HOLDS].filter(h => !h.auto && C.holds[h.id]).length} of 2 suggested meetings added</span>
         <button class="btn primary" id="calConfirm">${C.confirmed?'Update':'Confirm the day'}</button>
       </div>
     </div>
@@ -1118,7 +1118,7 @@ function renderHmWelcome() {
             <div class="pv-text" id="wcPreview">${esc(W.body || WELCOME_BOILERPLATE)}${W.personal ? '\n\n'+esc(W.personal) : ''}</div>
           </div>
         </div>
-        <div class="share-model" data-assume="L-08">
+        <div class="share-model pnote" data-assume="L-08">
           ${ic('info-circle.svg')}
           <span><b>Order matters here.</b> This should land before Jordan is asked to write their own introduction, so
           the request arrives in context. Nothing enforces that today, and three welcome messages compete for the same
@@ -1218,9 +1218,9 @@ function renderHmCard() {
           <p class="sec-note">The question is about travel, not seniority. If they will spend on behalf of Equinix, they need one.</p>
           <div class="radio-row col mt16">
             <label><input type="radio" name="cardq" data-card="yes" ${C.needed===true?'checked':''}>
-              <b>Yes</b>, they'll travel on behalf of Equinix</label>
+              <span><b>Yes</b>, they'll travel on behalf of Equinix</span></label>
             <label><input type="radio" name="cardq" data-card="no" ${C.needed===false?'checked':''}>
-              <b>No</b>, not needed for this role</label>
+              <span><b>No</b>, not needed for this role</span></label>
           </div>
         </div>
 
@@ -1262,10 +1262,10 @@ function renderHmCard() {
    The subtraction review, this side's argument screen
    ============================================================ */
 const SUBTRACTION = [
-  { group:'remove', title:'Remove: should not exist in the future state', rows:[
+  { group:'remove', title:'Remove: this task should go', rows:[
     { task:'Receive portal login credentials', today:'None. This is not in the current manager checklist',
-      why:'A manager is an existing employee who already signs in to Equinix systems. The row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire logic applied to the wrong persona.',
-      cond:'Confirm no platform role or licence provisioning is hiding behind the row.', marker:'M-11' },
+      why:'A manager is an existing employee who already signs in to Equinix systems. The row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as new-hire sign-in logic applied to the wrong person.',
+      cond:'Confirm no system access or licence set-up is hiding behind the row.', marker:'M-11' },
     { task:'Order the computer', today:'Gone. The new hire chooses and orders their own machine',
       why:'This was the heaviest row on the list and the largest single saving: the manager used to place the order, and nothing moved until they did. Equipment selection is now a new hire task, so the manager step has no work left in it.',
       cond:'An exception path still has to be written: a role needing a machine outside its mapped build, an order landing after the start date, or a cost that needs approving. None of the three is specified.', marker:'M-01' },
@@ -1277,20 +1277,20 @@ const SUBTRACTION = [
       cond:'Nothing further.' },
   ]},
   { group:'automate', title:'Automate away: the outcome is needed, the manager action is not', rows:[
-    { task:'Schedule Day 1 calendar holds', today:'Manual. Schedule and host a Day 1 meeting',
-      why:'The Day 1 one-to-one is already specified as an automatic calendar placement. If blueprint-sourced slots are reliable, the rest can follow.',
-      cond:'The automatic placement has to be built, and blueprint slots reliable enough to auto-populate.', marker:'M-06' },
+    { task:'Schedule Day 1 meetings', today:'Manual. Schedule and host a Day 1 meeting',
+      why:'The Day 1 one-to-one is already specified as an automatic calendar placement. If the times People Experience sets per office are reliable, the rest can follow.',
+      cond:'The automatic placement has to be built, and the per-office times reliable enough to fill in on their own.', marker:'M-06' },
     { task:'Add new hire to team channels and distributions', today:'Manual and vague: “notify relevant stakeholders”',
       why:'Team membership data can generate the list; the manager approves it in one action.',
       cond:'Membership data good enough to generate a suggestion worth accepting.', marker:'M-18' },
-    { task:'Confirm your own contact details', today:'Manual. Verify your phone number in the worker record',
+    { task:'Confirm your own contact details', today:'Manual. Verify your phone number in your employee record',
       why:'Pre-fill turns the default action into a confirmation instead of data entry.',
-      cond:'Pre-fill from the worker record.', marker:'M-18' },
+      cond:'Pre-fill from the employee record.', marker:'M-18' },
   ]},
   { group:'reduce', title:'Reduce to exception-only: visible, but most managers should never touch it', rows:[
-    { task:'Confirm software and application stack', today:'Heavy. The manager requests access and software by hand',
-      why:'Should be a persona default the manager glances at.',
-      cond:'The persona blocker resolved. Today there is no full persona list, and the proposed job-family fallback is the approach the analysis rejects.', marker:'M-04' },
+    { task:'Confirm the new hire’s apps', today:'Heavy. The manager requests access and software by hand',
+      why:'Should be a standard list for the role that the manager glances at.',
+      cond:'Roles linked to standard app lists. Today they aren’t, and the proposed fallback (working it out from job family) is the approach the analysis rejects.', marker:'M-04' },
     { task:'Review and personalise the welcome email', today:'Manual. Written from scratch',
       why:'Pre-filled boilerplate plus a personal line is most of the saving.',
       cond:'Boilerplate authored and approved; the first-week block generated from the new hire’s real task list.', marker:'M-08' },
@@ -1302,20 +1302,20 @@ const SUBTRACTION = [
     { task:'Assign a buddy', today:'Manual. Select a buddy',
       why:'A judgement about people, with a suggestion to make agreement one tap.',
       cond:'Buddy policy defined: criteria, load limits, decline process, plus a privacy position on the performance signal.', marker:'M-07' },
-    { task:'Delegation and proxy', today:'Informal. Cover is arranged by asking someone',
-      why:'The requirement gives both managers and People Experience a standing proxy who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
-      cond:'A permission model. Nobody has said what a proxy is allowed to see or do.', marker:'M-20' },
+    { task:'Someone to act for the manager', today:'Informal. Cover is arranged by asking someone',
+      why:'The requirement gives both managers and People Experience a standing stand-in who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
+      cond:'A permission model. Nobody has said what a stand-in is allowed to see or do.', marker:'M-20' },
     { task:'Confirm new hire start logistics', today:'Partially manual. Determine office seating if applicable',
       why:'Narrowed to what only the manager knows: their own availability, cover if they are away, and team-specific instruction.',
-      cond:'Blueprint precedence settled, so the manager confirms location facts rather than entering them.', marker:'M-05' },
+      cond:'Settled that People Experience’s per-office details win, so the manager confirms location facts rather than entering them.', marker:'M-05' },
     { task:'New hire readiness view', today:'No equivalent. Managers have no single view',
       why:'This is the screen that earns the portal.',
       cond:'Readiness score composition defined, and the visibility matrix written so progress can show without exposing sensitive detail.', marker:'M-02' },
     { task:'Offer-accept notification and guide', today:'Fragmented. No single place explains the manager’s role',
       why:'The other screen that earns the portal.',
-      cond:'Guide content authored per persona, and its relationship to the existing companion guide resolved.', marker:'M-15' },
+      cond:'Guide content written for each type of manager, and its relationship to the existing companion guide resolved.', marker:'M-15' },
   ]},
-  { group:'undecided', title:'Undecided: cannot be dispositioned yet', rows:[
+  { group:'undecided', title:'Undecided: not enough is known to decide', rows:[
     { task:'Confirm corporate card requirement, NOW SPECIFIED', today:'Was not established; the source row was truncated with seven attributes blank',
       why:'Resolved. It is a manager yes/no, but framed around travel rather than entitlement, and the new hire’s half is an e-signature on Day 2. Built, and it belongs under Keep now.',
       cond:'Nothing blocking. Two details still open: the task’s final name in the portal, and whether cost centre and approver are captured with the yes.', marker:'M-19' },
@@ -1330,8 +1330,8 @@ const SUBTRACTION = [
       cond:'Question set and cadence owned by the survey workstream.' },
   ]},
   { group:'add', title:'Adds work: the exception to everything above', rows:[
-    { task:'Name the new hire’s team network', today:'Does not exist. This is net-new manager work.',
-      why:'The only item here that adds load. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggestion can be close to one tap. The case against is a new task, notifications to third parties, and a downstream scheduling flow.',
+    { task:'Name the new hire’s team network', today:'Does not exist. This is new work for managers.',
+      why:'The only item here that adds load. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggestion can be close to one tap. The case against is a new task, messages to other people, and a scheduling step after it.',
       cond:'An explicit decision that it is worth the cost.', marker:'M-10' },
   ]},
 ];
@@ -1384,25 +1384,25 @@ function handoffRows() {
     // to manager, where it used to run manager to new hire.
     // People Experience own the blueprint the manager confirms, so their
     // edit reopens a task the manager had already closed.
-    { dir:'hm', from:'People Experience blueprint', to:'Confirm the first-day details', marker:'M-32',
+    { dir:'hm', from:'Office details set by People Experience', to:'Confirm the first-day details', marker:'M-32',
       done: !S.pexUpdate,
       state: S.pexUpdate
-        ? 'Blueprint changed. The manager’s confirmation is stale and the task has reopened'
-        : 'Blueprint stable. The manager is confirming current facts',
+        ? 'Office details changed. The manager’s confirmation is out of date and the task has reopened'
+        : 'Office details unchanged. The manager is confirming what’s current',
       hmRoute:'#/hm/logistics', nhRoute:'#/' },
     { dir:'nh', from:'Choose your equipment', to:'Equipment status table', marker:'L-04',
       done: S.equipment.deviceConfirmed,
       state: S.equipment.deviceConfirmed
         ? `Computer chosen by Jordan, and Priya’s table names it`
-        : 'NOT CHOSEN YET, and Priya sees it sitting with Jordan',
+        : 'Not chosen yet, and Priya sees it’s with Jordan',
       hmRoute:'#/hm/computer', nhRoute:'#/equipment' },
     { dir:'nh', from:'Equipment order submitted', to:'Readiness view + equipment table', marker:'L-04',
       done: S.equipment.submitted,
       state: S.equipment.submitted ? 'Ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
       hmRoute:'#/hm/', nhRoute:'#/equipment' },
-    { dir:'hm', from:'Assign a buddy', to:'Jordan’s people rail', marker:'L-01', conflict:true,
+    { dir:'hm', from:'Assign a buddy', to:'Jordan’s “Your people” card', marker:'L-01', conflict:true,
       done: !!buddy,
-      state: !buddy ? 'No buddy assigned, and Jordan’s rail says one is coming'
+      state: !buddy ? 'No buddy named, and Jordan’s card says so'
         : buddyVisibleToNH() ? `${buddy.name} assigned and visible to Jordan now`
         : `${buddy.name} assigned, hidden from Jordan until 72h before start`,
       hmRoute:'#/hm/buddy', nhRoute:'#/' },
@@ -1423,7 +1423,7 @@ function handoffRows() {
       hmRoute:'#/hm/welcome', nhRoute:'#/' },
     { dir:'hm', from:'First-day details', to:'“Your first day details” card', marker:'L-07',
       done: H.logistics.confirmed,
-      state: H.logistics.confirmed ? 'Confirmed, and it feeds the card that opens at Day −3' : 'Not confirmed, so the card would open with blueprint values only',
+      state: H.logistics.confirmed ? 'Confirmed, and it fills the card Jordan sees 3 days before starting' : 'Not confirmed, so the card would open with only the office’s standard details',
       hmRoute:'#/hm/logistics', nhRoute:'#/' },
     { dir:'hm', from:'Manager contact details', to:'Jordan’s manager contact card', marker:'L-03',
       done: H.contactConfirmed,
@@ -1437,8 +1437,8 @@ function handoffRows() {
       hmRoute:'#/hm/card', nhRoute:'#/' },
     { dir:'nh', from:'Start date confirmation', to:'Readiness view + every due date', marker:'L-11',
       done: S.startdate.confirmed || S.startdate.changeRequested,
-      state: S.startdate.changeRequested ? 'Change requested. Priya and PEX can see it, and dates hold until it is agreed'
-        : S.startdate.confirmed ? 'Confirmed, and every other due date is anchored to it'
+      state: S.startdate.changeRequested ? 'Change requested. Priya and People Experience can see it, and dates stay put until it’s agreed'
+        : S.startdate.confirmed ? 'Confirmed, and every other due date is counted from it'
         : 'Not confirmed, so the whole schedule is provisional',
       hmRoute:'#/hm/', nhRoute:'#/startdate' },
     { dir:'nh', from:'Task progress', to:'Readiness view', marker:'L-05',
@@ -1562,7 +1562,7 @@ function bindHm(route) {
     const c = $('#swConfirm');
     if (c) c.addEventListener('click', () => {
       H.software.confirmed = true; save(); rerender();
-      toast('Stack confirmed. Every item chosen by hand, because nothing could be suggested.');
+      toast('Apps confirmed. You picked each one by hand, because nothing could be suggested.');
     });
   }
 
@@ -1621,7 +1621,7 @@ function bindHm(route) {
       toast('Day 1 confirmed.', 'check-circle.svg');
     });
     const r = $('[data-resched]');
-    if (r) r.addEventListener('click', () => toast('Rescheduling opens your calendar. The hold cannot be removed, because meeting your new hire on Day 1 is a tracked measure.'));
+    if (r) r.addEventListener('click', () => toast('Rescheduling opens your calendar. You can’t delete this one, because Equinix tracks whether managers meet their new hire on Day 1.'));
   }
 
   if (route === '#/hm/welcome') {

@@ -351,8 +351,8 @@ function renderLanding() {
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
               <div class="o-name">Right to work documents <span class="chip info">Available now</span></div>
-              <div class="o-note">Country-specific, and nothing is holding it up, so start whenever you like.
-              You finish it in the Right to Work system, not here.</div>
+              <div class="o-note">Proof that you’re allowed to work in the country you’re joining. You can start it now,
+              and you finish it in the separate Right to Work system.</div>
             </div>
             <a class="o-go" data-ext="rtw">Open ${ic('external-link.svg','sm')}</a>
           </div>
@@ -406,8 +406,8 @@ function renderLanding() {
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
               <div class="o-name">Tax forms <span class="chip info">Payroll</span></div>
-              <div class="o-note">Country-specific, and Payroll runs it on their own timetable.
-              Your withholding figure is on the pay tab of your details; the forms themselves are not here. ${am('A-62')}</div>
+              <div class="o-note">Payroll sends these separately, on their own schedule. The tax figure you enter on the
+              Pay and banking tab of your details is all we need here. ${am('A-62')}</div>
             </div>
           </div>
         </div>
@@ -418,8 +418,8 @@ function renderLanding() {
 
     <div class="live-link" data-goto="#/todos">
       ${ic('list-tasks.svg','lg')}
-      <div><b>See the platform's own to-do view</b>
-      <p>The live portal groups these by phase, and counts one phase at a time.</p>
+      <div><b>See this list the way the current system shows it</b>
+      <p>The current system splits your to-dos into stages and counts one stage at a time.</p>
       <p class="pnote">Worth comparing against the list above before either model is agreed. ${am('A-56')}</p></div>
       ${ic('chevron-right.svg','lg')}
     </div>
@@ -519,7 +519,7 @@ function landingRail() {
              to sit on one line: every other role in this card is one line and
              hers ran to two. Her team is named by the green People Experience
              avatar and again in the note at the foot of the card. */}
-      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'Your onboarding concierge' }),
+      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'Your onboarding coordinator' }),
         `<div class="c-extra">Your first stop before Day 1</div>`, 'primary')}
       ${contactRow(PEOPLE.recruiter, `<div class="c-extra">Handed over to ${PEOPLE.pex.name.split(' ')[0]}</div>`, 'handed')}
       <div class="rail-note">${PEOPLE.recruiter.name.split(' ')[0]} handed you over a week after your offer was signed.
@@ -649,7 +649,7 @@ function readinessTracker(who) {
   <section class="rtrack" data-assume="A-52 M-22">
     <div class="rt-head">
       <div>
-        <div class="rt-title">Onboarding readiness</div>
+        <div class="rt-title">Ready for Day 1?</div>
         <div class="rt-sub">Everything that has to be true before Day 1, whoever owns it.
           ${who === 'hm' ? 'Your tasks are only part of it.' : 'Most of this happens without you.'}
           Open a step to see where it actually is. ${am('A-52')}</div>
@@ -837,7 +837,7 @@ function renderStartDate() {
           <div class="callout pnote">
             ${ic('exclamation-triangle.svg')}
             <div><b>Nobody has defined what happens next.</b> Who approves a change, how late one can be requested, and what
-            happens to work already in flight, such as an equipment order placed, a badge queued for print or calendar holds booked,
+            happens to work already under way, such as an equipment order placed, a badge queued for print or calendar holds booked,
             are all unanswered. The prototype shows the request being made, not resolved. ${am('L-11')}</div>
           </div>
           <button class="btn quiet mt16" id="sdUndo">Cancel the request and keep ${startDateText()}</button>
@@ -905,7 +905,7 @@ function renderBgCheck() {
     ${crumbs('Start your background check')}
     <div class="task-head" data-assume="A-50">
       <h1>Start your background check ${am('A-50')}</h1>
-      <p class="why">It runs on its own once you start it, and it can take a couple of weeks. The sooner it begins, the less it holds up.</p>
+      <p class="why">It runs on its own once you start it, and it can take a couple of weeks. The sooner it begins, the less it can delay your start.</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
@@ -1022,7 +1022,7 @@ function renderDetails() {
     <div class="task-head" data-assume="A-10">
       <h1>Your personal and contact details ${am('A-10')}</h1>
       <p class="why">So we can set up your record, reach you, and know who to call in an emergency.
-      Fields marked <span class="prefill-tag">${ic('check.svg','sm')}From your offer</span> came from what you gave us earlier ${am('A-01')}. Check them, and change anything that’s wrong. The rest is yours to add.</p>
+      Fields marked <span class="prefill-tag">${ic('check.svg','sm')}From your offer</span> came from what you gave us earlier. ${am('A-01')} Check them, and change anything that’s wrong. The rest is yours to add.</p>
     </div>
     <div class="task-shell" data-assume="A-01">
       <div class="wiz-tabs">
@@ -1131,7 +1131,7 @@ function tabDetails(jp) {
         ${jp ? '' : inp('zip','ZIP code',{cls:'narrow'})}
       </div>
       ${addrDone ? `<span class="verified">${ic('check-circle.svg','sm')}Address verified</span>` : ''}
-      <div class="note" style="max-width:520px; margin-top:10px;">This is your home address for your worker record.
+      <div class="note" style="max-width:520px; margin-top:10px;">This is your home address for your employee record.
       Where your equipment ships is decided in <a data-goto="#/equipment">your equipment order</a>, and it defaults to your office.</div>
     </div>
 
@@ -1366,29 +1366,29 @@ function officeAddress() { return S.country === 'JP' ? HIRE.officeAddressJP : HI
 /* One equipment table, rendered on both sides (L-04). Whichever side you
    change it from, the other sees the same three rows and the same blocker. */
 /* The live case names both people at the top of the equipment section, with
-   the start date and the manager's email, before the table itself (A-54). */
+   the start date and the manager's email, before the table itself. The layout
+   is kept from the live case; the wording is plain English (A-63). */
 function caseParties() {
   return `
     <div class="case-top">
-      <span class="case-num">HRC0943697</span>
-      <span class="chip done">Ready</span>
-      <span class="case-when">Created 21d ago</span>
-      <span class="case-when">Last updated just now</span>
-      <span class="case-hide">Hide details</span>
+      <span class="case-num">Case HRC0943697</span>
+      <span class="chip info">Open</span>
+      <span class="case-when">Opened 21 days ago</span>
+      <span class="case-when">Updated just now</span>
     </div>
-    <div class="case-parties" data-assume="A-54">
+    <div class="case-parties" data-assume="A-63">
       <div class="cp-side">
         <div class="cp-lbl">New hire</div>
         <div class="cp-who"><div class="avatar sm">${HIRE.initials}</div>
           <span>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</span></div>
-        <div class="cp-lbl mt12">Employment start date</div>
-        <div class="cp-val">${startDate().toISOString().slice(0,10)}</div>
+        <div class="cp-lbl mt12">Start date</div>
+        <div class="cp-val">${fmtDate(startDate())}</div>
       </div>
       <div class="cp-side">
         <div class="cp-lbl">Hiring manager</div>
         <div class="cp-who"><div class="avatar sm mgr">${MANAGER.initials}</div>
           <span>${MANAGER.name} (${MANAGER.username})</span></div>
-        <div class="cp-lbl mt12">Hiring manager email</div>
+        <div class="cp-lbl mt12">Manager’s email</div>
         <div class="cp-val">${MANAGER.email}</div>
       </div>
     </div>`;
@@ -1396,13 +1396,13 @@ function caseParties() {
 
 function equipmentTable(forManager) {
   return `
-    <div class="eq-status" data-assume="A-41 A-42 M-16 L-04 A-54">
-      <div class="eqs-bar">Equipment orders for ${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</div>
+    <div class="eq-status" data-assume="A-41 A-42 M-16 L-04 A-63">
+      <div class="eqs-bar">Equipment for ${HIRE.legalFirst} ${HIRE.legalLast}</div>
       ${caseParties()}
       <div class="eqs-h">
         <span class="eqs-note">${forManager
-          ? `Three items, three different owners. ${am('M-16')}`
-          : `Three items, three different owners. This table is the answer to “where is my equipment?” ${am('A-41')}`}</span>
+          ? `Where each item is up to. ${am('M-16')}`
+          : `Where each item is up to. ${am('A-41')}`}</span>
       </div>
       <table class="eq-table">
         <thead><tr><th>Equipment</th><th>Status</th></tr></thead>
@@ -1420,35 +1420,35 @@ function equipmentTable(forManager) {
     </div>`;
 }
 
-/* Status wording follows the live case as closely as it can. The live strings
-   name the person as "Name (username)" and quote the task title in full
-   (A-54). Ownership is carried in the sentence, the way the live table does
-   it, rather than in a separate column. */
+/* Ownership is carried in the sentence, the way the live table does it,
+   rather than in a separate column. The live strings themselves were
+   replaced with plain ones in the plain-English pass (A-63, retiring A-54). */
 function equipmentRows(forManager) {
   const E = S.equipment;
-  const hire = `<b>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</b>`;
-  const mgr = `<b>${MANAGER.name} (${MANAGER.username})</b>`;
+  const first = HIRE.preferred;
+  // Addressed to whoever is reading (A-63): "you" for the new hire, the new
+  // hire by name for the manager. The live case wrote both in the third person.
+  const who = forManager ? first : 'you';
+  const whoCap = forManager ? first : 'You';
   return [
     // The computer is the new hire's own pick now (A-60), so this row reports
     // their choice rather than waiting on the manager to place an order.
     { item:'Computer', icon:'laptop.svg',
-      status: E.deviceConfirmed ? 'CONFIRMED' : 'NOT CHOSEN YET', ok: E.deviceConfirmed,
+      status: E.deviceConfirmed ? 'Chosen' : 'Not chosen yet', ok: E.deviceConfirmed,
       unblock: E.deviceConfirmed
-        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, chosen by ${hire}. Ordered on submission of the
-           <b>“Choose your equipment”</b> task.`
-        : `To place an order for a computer the new hire, ${hire}, must first complete the
-           <b>“Choose your equipment”</b> task.`,
+        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, chosen by ${who}. It’s ordered when ${who === 'you' ? 'you submit' : first + ' submits'} the order below.`
+        : forManager ? `${first} hasn’t chosen yet. It’s their task, and nothing waits on you.`
+        : `Choose your computer above to order it.`,
       marker:'A-60' },
     { item:'Computer accessories', icon:'desktop.svg',
-      status: E.submitted ? 'INC6369627' : 'NOT ORDERED YET', ok:E.submitted,
+      status: E.submitted ? 'Ordered' : 'Not ordered yet', ok:E.submitted,
       unblock: E.submitted
-        ? `New, with Global Helpdesk Tier 2. ${forManager ? 'Ordered by ' + hire + '.' : ''}`
-        : `To place an order for computer accessories the new hire, ${hire}, must complete the
-           <b>“Order your workspace tech accessories”</b> task.` },
+        ? `Order INC6369627, with the IT help desk. ${forManager ? 'Ordered by ' + first + '.' : ''}`
+        : forManager ? `${first} orders these themselves, on their equipment task.`
+        : `Choose your accessories below and submit the order.` },
     { item:'Mobile phone', icon:'mobile.svg',
-      status:'NOT ORDERED YET', ok:false,
-      unblock:`To place an order for a mobile phone the new hire, ${hire}, must complete the
-        <b>“Order a phone”</b> task, which is available on their first day.`, marker:'A-40' },
+      status:'Not ordered yet', ok:false,
+      unblock:`${whoCap} can order one on the first day, if the role needs it.`, marker:'A-40' },
   ];
 }
 
@@ -1542,7 +1542,7 @@ function renderEquipment() {
     <div class="task-shell mt24">
       <div class="wiz-body">
         <div class="form-sec" data-assume="A-37 A-39">
-          <h3>Order your workspace tech accessories</h3>
+          <h3>Accessories for working from home</h3>
           <div class="callout soft">
             ${ic('info-circle.svg')}
             <div><b>These are for your at-home workspace.</b> You have the option of an Equinix-approved headset, or
@@ -1553,7 +1553,7 @@ function renderEquipment() {
           <div class="field mt16">
             <label>Select accessories <span class="req">required</span></label>
             <select id="eqChoice">
-              <option value="" ${!E.choice?'selected':''}>-- None --</option>
+              <option value="" ${!E.choice?'selected':''}>Choose one</option>
               <option value="headset" ${E.choice==='headset'?'selected':''}>Headset only</option>
               <option value="more" ${E.choice==='more'?'selected':''}>Headset and other accessories</option>
             </select>
@@ -1585,7 +1585,7 @@ function renderEquipment() {
             ${ic('users-friends.svg')}
             <div>
               <b>Need something different?</b> If an adjustment would help you work comfortably, tell us.
-              <a data-goto-adjust="1">review adjustments and formal accommodations</a>. Asking changes nothing about your role.
+              See <a data-goto-adjust="1">adjustments and formal accommodations</a>. Asking changes nothing about your role.
               ${am('A-06')}
             </div>
           </div>
@@ -1800,8 +1800,8 @@ function renderNetwork() {
           <h2>${HIRE.manager} hasn’t named anyone yet</h2>
           <p>This fills in when your manager picks the people you’ll work with most, the ones outside your own team,
           and writes a line about why each of them matters. You’ll get their names, her reasons, and times you can book.</p>
-          <p class="wp-note">${ic('info-circle.svg','sm')} Nothing is waiting on you. This is here so you can see it exists,
-          not so you can chase it. ${am('L-06')}</p>
+          <p class="wp-note">${ic('info-circle.svg','sm')} Nothing is waiting on you. This is here so you know it’s coming,
+          not so you have to ask about it. ${am('L-06')}</p>
         </div>
       </div>
     </div>`;
@@ -2083,8 +2083,8 @@ function renderIntro() {
 
         <div class="divider"></div>
         <div class="req-list" data-assume="A-17">
-          <b>Requirements</b> ${am('A-17')}: JPG or PNG, under 5MB, at least 600 by 600 pixels<br>
-          <b>Guidelines</b> ${am('A-17')}: plain light background, face the camera with both eyes visible, no hats or sunglasses, taken within the last six months<br>
+          <b>Requirements:</b> ${am('A-17')} JPG or PNG, under 5MB, at least 600 by 600 pixels<br>
+          <b>Guidelines:</b> ${am('A-17')} plain light background, face the camera with both eyes visible, no hats or sunglasses, taken within the last six months<br>
           <em style="color:var(--ink-faint)">Placeholder values. The real badge specification comes from the workplace team.</em>
         </div>
 
@@ -2177,7 +2177,7 @@ function renderPolicies() {
     ${crumbs('Policies and privacy notices')}
     <div class="task-head">
       <h1>Policies and privacy notices</h1>
-      <p class="why">The documents we need you to read and acknowledge before you start. About 10 minutes ${am('A-23')}, and you can stop
+      <p class="why">The documents we need you to read and acknowledge before you start. About 10 minutes, ${am('A-23')} and you can stop
       any time. What you’ve acknowledged stays acknowledged.</p>
     </div>
     <div class="pol-head">
@@ -2185,8 +2185,8 @@ function renderPolicies() {
         <div class="nums" style="color:var(--eq-dark-blue)"><span>${acked} of ${total} acknowledged</span></div>
         <div class="prog-bar" style="background:var(--cloud)"><i style="width:${(acked/total)*100}%"></i></div>
       </div>
-      <span class="chip info">${ic('globe.svg','sm')}Served in ${docLanguage()}, set by your country of hire rather than by preference ${am('A-03')}</span>
-      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan, so your list includes a country addendum</span>` : ''}
+      <span class="chip info">${ic('globe.svg','sm')}In ${docLanguage()}, the language for your country of hire ${am('A-03')}</span>
+      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan, so your list includes a Japan supplement</span>` : ''}
     </div>
 
     <div class="doc-list">${DOCS.map(d => docCard(d, jp)).join('')}</div>
@@ -2287,7 +2287,7 @@ function currentPackCard(jp) {
       </div>
     </div>
     ${pack.addenda ? `
-    <div class="pack-flag">
+    <div class="pack-flag pnote">
       ${ic('exclamation-triangle.svg','sm')}
       <span><b>Shown because it is true today, not because it is right.</b> Every US hire receives all ${pack.addenda} state
       addenda regardless of where they work, so ${pack.addenda - 1} of them do not apply to you. Across all countries the live
@@ -2318,36 +2318,36 @@ function renderFlow() {
     { x:2, lbl:'Offer accepted', sub:'and signed', major:true },
     { x:10, lbl:'Identity verified', sub:'account created' },
     { x:19, lbl:'Portal opens', sub:'you are here', major:true },
-    { x:36, lbl:'Day −12', sub:'accessories' },
-    { x:48, lbl:'Day −7', sub:'JD + intro' },
-    { x:63, lbl:'Day −4', sub:'details + policies' },
-    { x:80, lbl:'Day −1', sub:'credentials' },
+    { x:36, lbl:'12 days before', sub:'accessories' },
+    { x:48, lbl:'7 days before', sub:'job, intro' },
+    { x:63, lbl:'4 days before', sub:'details, policies' },
+    { x:80, lbl:'1 day before', sub:'sign-in details' },
     { x:95, lbl:'Day 1', sub:'and beyond', major:true },
   ];
   const you = [
-    { x:36, r:22, cls:'you', lbl:'Accessories order', sub:'first, due Day −12' },
+    { x:36, r:22, cls:'you', lbl:'Accessories order', sub:'first, due 12 days before' },
     { x:30, r:72, cls:'you', lbl:'Suggested network', sub:'optional, no due date' },
-    { x:44, r:22, cls:'you', lbl:'Badge photo', sub:'due Day −10, print lead' },
-    { x:52, r:72, cls:'you', lbl:'Job description', sub:'confirm, due Day −7' },
-    { x:60, r:22, cls:'you', lbl:'Introduce yourself', sub:'due Day −7' },
-    { x:70, r:72, cls:'you', lbl:'Personal details', sub:'3 tabs, due Day −4' },
-    { x:78, r:22, cls:'you', lbl:'Policies pack', sub:'6 documents, due Day −4' },
-    { x:95, r:50, cls:'day1', lbl:'Day 1', sub:'badge waiting, kit set' },
+    { x:44, r:22, cls:'you', lbl:'Badge photo', sub:'due 10 days before, to print' },
+    { x:52, r:72, cls:'you', lbl:'Job description', sub:'confirm, due 7 days before' },
+    { x:60, r:22, cls:'you', lbl:'Introduce yourself', sub:'due 7 days before' },
+    { x:70, r:72, cls:'you', lbl:'Personal details', sub:'4 tabs, due 4 days before' },
+    { x:78, r:22, cls:'you', lbl:'Policies', sub:'6 documents, due 4 days before' },
+    { x:95, r:50, cls:'day1', lbl:'Day 1', sub:'badge and laptop waiting' },
   ];
   const later = [
     { x:22, r:30, cls:'later', lbl:'Right to work', sub:'open now, other system' },
-    { x:22, r:74, cls:'later', lbl:'Medical check', sub:'country-conditional' },
-    { x:44, r:30, cls:'later', lbl:'Benefits enrolment', sub:'opens Day −30' },
-    { x:66, r:74, cls:'later', lbl:'Setup instructions', sub:'Day −3' },
-    { x:78, r:74, cls:'later', lbl:'First day details', sub:'Day −3' },
-    { x:88, r:30, cls:'later', lbl:'Credentials', sub:'Day −1' },
-    { x:97, r:74, cls:'later', lbl:'Phone, info governance', sub:'Day 1, Week 1' },
+    { x:22, r:74, cls:'later', lbl:'Medical check', sub:'some countries only' },
+    { x:44, r:30, cls:'later', lbl:'Benefits enrolment', sub:'opens 30 days before' },
+    { x:66, r:74, cls:'later', lbl:'Setup instructions', sub:'3 days before' },
+    { x:78, r:74, cls:'later', lbl:'First day details', sub:'3 days before' },
+    { x:88, r:30, cls:'later', lbl:'Sign-in details', sub:'1 day before' },
+    { x:97, r:74, cls:'later', lbl:'Phone, information governance', sub:'Day 1, first week' },
   ];
   const other = [
-    { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, no action from you' },
+    { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, nothing for you to do' },
     { x:48, r:50, cls:'other', lbl:'Computer, your manager', sub:'their task, not yours' },
-    { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their timetable, no date yet' },
-    { x:88, r:50, cls:'other', lbl:'Badge photo sent on', sub:'printing is not tracked here' },
+    { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their schedule, no date yet' },
+    { x:88, r:50, cls:'other', lbl:'Badge printing', sub:'not tracked here' },
   ];
   // x is the date position and r the row. Both are intent, not final geometry:
   // a node is as wide as its label, so layoutFlowLanes() below corrects the
@@ -2381,16 +2381,16 @@ function renderFlow() {
           <div class="apt-lbl">${a.lbl}</div><div class="apt-sub">${a.sub}</div></div>`).join('')}
       </div>
       ${lane(`What ${HIRE.preferred} does in this portal, under “Do these now”`, 'user-circle.svg', you, '', 130)}
-      ${lane('Open elsewhere, or opens later, visible so the list has an end', 'clock.svg', later, '', 130)}
-      ${lane('Handled by other teams, visible but never actioned here', 'users-friends.svg', other, 'other', 100)}
+      ${lane('Done somewhere else, or opens later', 'clock.svg', later, '', 130)}
+      ${lane('Handled by other teams, nothing for you to do', 'users-friends.svg', other, 'other', 100)}
       <div class="flow-legend">
         <span class="lg-item"><span class="lg-swatch you"></span>Your tasks, in this portal</span>
         <span class="lg-item"><span class="lg-swatch later"></span>Elsewhere or not yet open</span>
         <span class="lg-item"><span class="lg-swatch other"></span>Other teams, status only</span>
-        <span class="lg-item">${am('A-33')} ${am('A-40')} ${am('A-11')} timing and ownership carry assumptions</span>
+        <span class="lg-item pnote">${am('A-33')} ${am('A-40')} ${am('A-11')} timing and ownership carry assumptions</span>
       </div>
       <div class="flow-foot">${ic('info-circle.svg','sm')}<b>More to-dos are assigned after Day 1.</b> This diagram
-      stops at the start date. The live portal carries on through the first week and the first month. ${am('A-48')}</div>
+      stops at the start date. The current system carries on through the first week and the first month. ${am('A-48')}</div>
     </div>
   </div>`;
 }
@@ -2408,7 +2408,7 @@ function renderShell() {
   $('#hdrYou').innerHTML = pex
     ? `<div>
          <div class="who">${PEOPLE.pex.name}</div>
-         <div class="when">${PEOPLE.pex.role}, ${pexCaseload().length} hires in flight</div>
+         <div class="when">${PEOPLE.pex.role}, ${pexCaseload().length} active hires</div>
        </div>
        <div class="avatar pex">${PEOPLE.pex.initials}</div>`
     : hm
@@ -2434,6 +2434,7 @@ function renderShell() {
   // the relationship. It also sat on top of the caseload's action column,
   // which is right-aligned, so it covered the button on the bottom row.
   document.body.classList.toggle('no-chat', pex);
+  document.body.classList.toggle('pex-side', pex);
 }
 
 /* ---------- assumptions panel ---------- */
@@ -2590,7 +2591,7 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.notes?'on':''}" data-pc="notes:on">Shown</button>
     </div>
     <div class="pc-sub">Rationale, ${ASSUMPTIONS.length} assumption markers and the manager dispositions. Off by default so the portal reads as itself.</div>
-    <div class="pc-h">Persona</div>
+    <div class="pc-h">Type of hire</div>
     <div class="pc-row">
       <button class="pc-btn ${S.persona==='external'?'on':''}" data-pc="persona:external">External new hire</button>
       <button class="pc-btn ${S.persona==='conversion'?'on':''}" data-pc="persona:conversion">Contract-to-permanent</button>
@@ -2608,15 +2609,15 @@ function renderProtoDrawer() {
     the home screen, at fifty only triage works.</div>
     <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Blueprint unchanged</button>
-      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">Blueprint revised</button>
+      <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Office details unchanged</button>
+      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">Office details changed</button>
     </div>
     <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
     <div class="pc-row">
       <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">Single build</button>
       <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">Choice of builds</button>
     </div>
-    <div class="pc-h">Runway to Day 1 <span class="pc-mark">A-45</span></div>
+    <div class="pc-h">Time until Day 1 <span class="pc-mark">A-45</span></div>
     <div class="pc-row">
       <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">Two weeks out</button>
       <button class="pc-btn ${S.horizon==='3mo'?'on':''}" data-pc="horizon:3mo">Three months out</button>
@@ -2675,7 +2676,7 @@ function applyScenario(name) {
     hmPartial(); namePeople();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
     S.hm.software = { confirmed:true, added:['Anaplan','Tableau','Power BI'] };
-    S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true, itSetup:true } };
+    S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true } };
     S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team. Shout if anything is unclear before the 18th.' };
     S.hm.channels.accepted = true;
   };
@@ -2779,8 +2780,8 @@ function renderTodos() {
   <div class="page">
     ${crumbs('All to-dos')}
     <h1>All to-dos</h1>
-    <p class="why">This is the platform's own view, as UAT shows it: one phase at a time, with its own count.
-    Your task list on the home screen is the designed alternative. Both are here so the difference is visible. ${am('A-56')}</p>
+    <p class="why">This is the view the current system has, as its test build shows it: one stage at a time, each with its own count.
+    Your task list on the home screen is the proposed replacement. Both are here so the difference is visible. ${am('A-56')}</p>
 
     <div class="td-bar">Tasks/To-Dos</div>
     <div class="td-wrap" data-assume="A-56 A-44">
@@ -3148,7 +3149,7 @@ function bindEquipment() {
   const sub = $('#eqSubmit');
   if (sub) sub.addEventListener('click', () => {
     S.equipment.submitted = true; save(); rerender();
-    toast('Order submitted. Incident INC6369627 raised with Global Helpdesk Tier 2.', 'check-circle.svg');
+    toast('Order submitted. The IT help desk has it as INC6369627.', 'check-circle.svg');
   });
   const send = $('#incSend');
   if (send) send.addEventListener('click', () => {

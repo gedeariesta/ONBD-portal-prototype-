@@ -66,7 +66,7 @@ and hidden by `body:not(.notes)`. Off by default so the portal reads as
 itself; on, it reveals the reasoning and the assumption markers. This is why
 you can be blunt in the copy — it is not in the product view.
 
-**The assumption register.** 115 entries (109 live, 6 retired) in `data.js`,
+**The assumption register.** 116 entries (109 live, 7 retired) in `data.js`,
 each with provenance: `UAT` / `1:1` / `PRIOR` / `PRD` / `ASSUMED`. Every
 uncertain claim on screen carries a marker like `A-04` linking to its entry.
 When you change something that contradicts a documented decision, **retire
@@ -80,10 +80,21 @@ has not asked for one.
 
 Recent work, newest first:
 
-1. Rebuilt the "Your people" card on one emphasis system
-2. Fixed six review findings + built checks for the bug classes behind them
-3. Removed buddy auto-assignment (Janine's correction) + design/feature/text audits
-4. Added the People Experience coordinator portal
+1. Plain-English and design clean-up pass (see below)
+2. Rebuilt the "Your people" card on one emphasis system
+3. Fixed six review findings + built checks for the bug classes behind them
+4. Removed buddy auto-assignment (Janine's correction) + design/feature/text audits
+5. Added the People Experience coordinator portal
+
+The clean-up pass replaced spec vocabulary with plain words across all three
+lenses: *persona* → role, *blueprint* → office/location details, *in flight*
+→ active, *proxy* → stand-in, *nudge/chase* → remind, *compliance pack* →
+required documents, *holds* → meetings, *Day −14* → in 14 days, and so on.
+`v3/tools/prose.js` holds the glossary and fails on any of those words in
+the product view (notes off). Design notes and register entries keep the spec's
+terms on purpose, because reviewers need to match them to the source. The
+equipment table was the one place this contradicted a decision: A-54 (copy
+the ServiceNow strings verbatim) is retired in favour of A-63.
 
 All checks clean: 364 screen-states, 0 contrast failures, 0 text under 11px,
 0 unlabelled controls, 20/20 flows, no dead code.
@@ -161,6 +172,16 @@ Both measured, both in the published tokens rather than in this prototype:
 `v3/tools/ratio.js` has the maths. Run it before inventing a colour.
 
 ## Traps
+
+- **An assumption marker leaves its spaces behind when notes are off.**
+  `Requirements ${am('A-17')}: JPG` reads as "Requirements : JPG". Put the
+  marker after the punctuation. `prose.js` catches it.
+- **A text run inside a flex row becomes its own column.** `Due <b>8 Aug</b>,
+  earlier than…` in a `display:flex` line wrapped into two ragged stacks.
+  Wrap the sentence in a `<span>` or don't make the line flex.
+- **Nothing floats over the content column.** Prototype controls live in the
+  ribbon now, and the chat button is a 52px circle in the margin. `audit2.js`
+  checks this at 1280px, where the margin is thinnest.
 
 - **`:first-of-type` / `:last-of-type` count elements of that tag, not that
   class.** `.pxc-row:first-of-type` never matched, because the header above it

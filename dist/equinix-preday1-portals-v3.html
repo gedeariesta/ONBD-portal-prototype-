@@ -579,7 +579,7 @@ small{color:var(--text-tertiary);}
 .field{margin-bottom:16px; max-width:520px;}
 .field label{display:block; font-weight:700; font-size:var(--t-sm); color:var(--charcoal); margin-bottom:5px;}
 .field label .opt{font-weight:400; color:var(--ink-faint);}
-.field .note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; margin-top:5px; line-height:1.45;}
+.note, .field .note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; margin-top:5px; line-height:1.45;}
 /* Inputs follow the system's field spec: hairline border in the metal
    grays, 8px radius, Book weight, a strong-border hover, and the standard
    3px blue focus glow. Invalid borders and error text are Equinix Red. */
@@ -746,8 +746,10 @@ small{color:var(--text-tertiary);}
 .sec-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:24px 26px;}
 .sec-card > .sec-top{display:flex; align-items:flex-start; gap:10px; margin-bottom:6px;}
 .sec-card > .sec-top h2{flex:1; font-size:var(--t-lead);}
-.sec-card .due-line{font-size:var(--t-meta); color:var(--carbon); display:flex; gap:6px; align-items:center; margin-bottom:12px;}
-.sec-card .due-line .ic{color:var(--platinum);}
+/* Block, not flex: a flex row turns every text run into its own column, so
+   a due date followed by a sentence wrapped into two ragged stacks. */
+.sec-card .due-line{font-size:var(--t-meta); color:var(--carbon); margin-bottom:12px;}
+.sec-card .due-line .ic{color:var(--platinum); vertical-align:-2px; margin-right:6px;}
 .sec-card .due-line b{color:var(--charcoal); white-space:nowrap;}
 .char-count{font-size:var(--t-meta); color:var(--ink-faint); text-align:right; margin-top:4px;}
 .char-count.warn{color:var(--warn); font-weight:700;}
@@ -916,14 +918,18 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .a-entry .a-resolve b{color:var(--charcoal); font-weight:700;}
 .a-entry .nolink{font-size:var(--t-micro); color:var(--text-secondary); font-style:italic; margin-top:4px;}
 
-/* chat panel */
+/* chat panel. Round, and small enough to sit in the page margin at 1280px;
+   the label opens out leftwards on hover or keyboard focus. */
 .chat-fab{
-  position:fixed; right:26px; bottom:26px; z-index:80;
-  display:flex; align-items:center; gap:10px; border:none; cursor:pointer;
+  position:fixed; right:12px; bottom:20px; z-index:80;
+  display:flex; align-items:center; justify-content:center; gap:0; border:none; cursor:pointer;
   background:var(--eq-dark-blue); color:var(--white); border-radius:99px;
-  padding:12px 20px; font-weight:700; font-size:var(--t-ui); box-shadow:var(--shadow-2);
+  height:52px; min-width:52px; padding:0 14px; font-family:inherit;
+  font-weight:700; font-size:var(--t-ui); box-shadow:var(--shadow-2);
 }
-.chat-fab:hover{background:var(--eq-blue);}
+.chat-fab .cf-label{max-width:0; overflow:hidden; white-space:nowrap; transition:max-width .18s ease, margin .18s ease;}
+.chat-fab:hover, .chat-fab:focus-visible{background:var(--eq-blue);}
+.chat-fab:hover .cf-label, .chat-fab:focus-visible .cf-label{max-width:200px; margin-left:10px;}
 body.no-chat .chat-fab{display:none;}
 .chat-msgs{display:flex; flex-direction:column; gap:10px;}
 .msg{max-width:85%; border-radius:12px; padding:10px 14px; font-size:var(--t-sm); font-weight:400;}
@@ -935,22 +941,20 @@ body.no-chat .chat-fab{display:none;}
 .chat-in input:focus{border-color:var(--eq-blue);}
 .chat-hand{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; padding:0 22px 12px;}
 
-/* ---------- Prototype controls ---------- */
-.proto-fab{
-  position:fixed; left:26px; bottom:26px; z-index:80;
-  display:flex; align-items:center; gap:8px; cursor:pointer; border:none;
-  background:var(--charcoal); color:var(--eq-aqua); border-radius:99px;
-  padding:10px 18px; font-weight:700; font-size:var(--t-meta); box-shadow:var(--shadow-2);
-  letter-spacing:.02em;
+/* ---------- Prototype controls ----------
+   In the ribbon with the other prototype devices, opening a drawer below it. */
+.rb-proto{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  background:none; border:1px solid var(--eq-aqua); color:var(--eq-aqua); border-radius:99px;
+  font-family:inherit; font-size:var(--t-micro); font-weight:700; padding:2px 11px; letter-spacing:.02em;
 }
-.proto-fab:hover{background:var(--black);}
+.rb-proto:hover, body:has(.proto-drawer.show) .rb-proto{background:var(--eq-aqua); color:var(--charcoal);}
 .proto-drawer{
-  position:fixed; left:26px; bottom:78px; z-index:85; width:330px;
+  position:fixed; right:26px; top:40px; z-index:85; width:330px;
   background:var(--charcoal); color:var(--cloud); border-radius:14px; box-shadow:var(--shadow-2);
   padding:18px 20px; display:none;
-  /* Anchored to the bottom, this grew upward off the top of the screen and
-     the first control group could not be reached at all. */
-  max-height:calc(100vh - 96px); overflow-y:auto; overscroll-behavior:contain;
+  /* Capped to the viewport so the last control group can always be scrolled to. */
+  max-height:calc(100vh - 56px); overflow-y:auto; overscroll-behavior:contain;
 }
 .proto-drawer::-webkit-scrollbar{width:9px;}
 .proto-drawer::-webkit-scrollbar-thumb{background:var(--carbon); border-radius:99px;}
@@ -2043,7 +2047,6 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 }
 .case-num{font-size:var(--t-base); font-weight:800; color:var(--charcoal);}
 .case-when{font-size:var(--t-meta); color:var(--carbon);}
-.case-hide{margin-left:auto; font-size:var(--t-meta); font-weight:700; color:var(--action); cursor:pointer;}
 .req{font-size:var(--t-micro); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--eq-red); margin-left:6px;}
 .eqs-bar{
   background:var(--charcoal); color:var(--white); font-weight:700; font-size:var(--t-sm);
@@ -2130,6 +2133,9 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
    portals on purpose: this one is worked, not read.
    ============================================================ */
 .page.pex{max-width:1340px;}
+/* The coordinator's page is wider than the other two, so the header widens
+   with it; otherwise the logo sat inset from everything below it. */
+body.pex-side .hdr-in{max-width:1340px;}
 
 /* ---------- lens nav ---------- */
 .px-nav{
@@ -2472,6 +2478,12 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   <span class="rb-link" id="rbAssume">assumptions</span>
   <span class="rb-link" id="rbFlow">Flow overview</span>
   <span class="rb-link" data-goto="#/handoffs">How they connect</span>
+  <!-- Prototype controls live in the ribbon, with the other prototype devices.
+       As a floating button they sat over the left edge of every screen. -->
+  <button class="rb-proto" id="protoFab" aria-haspopup="true">
+    <span class="ic sm" style="-webkit-mask-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBkPSJNNTY5LjUxNyA0NDAuMDEzQzU4Ny45NzUgNDcyLjAwNyA1NjQuODA2IDUxMiA1MjcuOTQgNTEySDQ4LjA1NGMtMzYuOTM3IDAtNTkuOTk5LTQwLjA1NS00MS41NzctNzEuOTg3TDI0Ni40MjMgMjMuOTg1YzE4LjQ2Ny0zMi4wMDkgNjQuNzItMzEuOTUxIDgzLjE1NCAwbDIzOS45NCA0MTYuMDI4ek0yODggMzU0Yy0yNS40MDUgMC00NiAyMC41OTUtNDYgNDZzMjAuNTk1IDQ2IDQ2IDQ2IDQ2LTIwLjU5NSA0Ni00Ni0yMC41OTUtNDYtNDYtNDZ6bS00My42NzMtMTY1LjM0Nmw3LjQxOCAxMzZjLjM0NyA2LjM2NCA1LjYwOSAxMS4zNDYgMTEuOTgyIDExLjM0Nmg0OC41NDZjNi4zNzMgMCAxMS42MzUtNC45ODIgMTEuOTgyLTExLjM0Nmw3LjQxOC0xMzZjLjM3NS02Ljg3NC01LjA5OC0xMi42NTQtMTEuOTgyLTEyLjY1NGgtNjMuMzgzYy02Ljg4NCAwLTEyLjM1NiA1Ljc4LTExLjk4MSAxMi42NTR6Ii8+PC9zdmc+');mask-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBkPSJNNTY5LjUxNyA0NDAuMDEzQzU4Ny45NzUgNDcyLjAwNyA1NjQuODA2IDUxMiA1MjcuOTQgNTEySDQ4LjA1NGMtMzYuOTM3IDAtNTkuOTk5LTQwLjA1NS00MS41NzctNzEuOTg3TDI0Ni40MjMgMjMuOTg1YzE4LjQ2Ny0zMi4wMDkgNjQuNzItMzEuOTUxIDgzLjE1NCAwbDIzOS45NCA0MTYuMDI4ek0yODggMzU0Yy0yNS40MDUgMC00NiAyMC41OTUtNDYgNDZzMjAuNTk1IDQ2IDQ2IDQ2IDQ2LTIwLjU5NSA0Ni00Ni0yMC41OTUtNDYtNDYtNDZ6bS00My42NzMtMTY1LjM0Nmw3LjQxOCAxMzZjLjM0NyA2LjM2NCA1LjYwOSAxMS4zNDYgMTEuOTgyIDExLjM0Nmg0OC41NDZjNi4zNzMgMCAxMS42MzUtNC45ODIgMTEuOTgyLTExLjM0Nmw3LjQxOC0xMzZjLjM3NS02Ljg3NC01LjA5OC0xMi42NTQtMTEuOTgyLTEyLjY1NGgtNjMuMzgzYy02Ljg4NCAwLTEyLjM1NiA1Ljc4LTExLjk4MSAxMi42NTR6Ii8+PC9zdmc+')"></span>
+    Prototype controls
+  </button>
 </div>
 
 <!-- Header -->
@@ -2514,17 +2526,15 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   </div>
 </aside>
 
-<!-- Chat entry point -->
-<button class="chat-fab" id="chatFab">
+<!-- Chat entry point. A round button that sits in the page margin and shows
+     its label on hover or focus; the full-width pill covered the right-hand
+     column of every screen. -->
+<button class="chat-fab" id="chatFab" aria-label="Questions? Ask here">
   <span class="ic lg" style="-webkit-mask-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBINjRDMjguNyAwIDAgMjguNyAwIDY0djI4OGMwIDM1LjMgMjguNyA2NCA2NCA2NGg5NnY4NGMwIDkuOCAxMS4yIDE1LjUgMTkuMSA5LjdMMzA0IDQxNmgxNDRjMzUuMyAwIDY0LTI4LjcgNjQtNjRWNjRjMC0zNS4zLTI4LjctNjQtNjQtNjR6TTMyMCAxMzMuMmMxNC44IDAgMjYuOCAxMiAyNi44IDI2LjhzLTEyIDI2LjgtMjYuOCAyNi44LTI2LjgtMTItMjYuOC0yNi44IDEyLTI2LjggMjYuOC0yNi44em0tMTI4IDBjMTQuOCAwIDI2LjggMTIgMjYuOCAyNi44cy0xMiAyNi44LTI2LjggMjYuOC0yNi44LTEyLTI2LjgtMjYuOCAxMi0yNi44IDI2LjgtMjYuOHptMTY0LjIgMTQwLjlDMzMxLjMgMzAzLjMgMjk0LjggMzIwIDI1NiAzMjBjLTM4LjggMC03NS4zLTE2LjctMTAwLjItNDUuOS01LjgtNi43LTUtMTYuOCAxLjgtMjIuNSA2LjctNS43IDE2LjgtNSAyMi41IDEuOCAxOC44IDIyIDQ2LjUgMzQuNiA3NS44IDM0LjYgMjkuNCAwIDU3LTEyLjYgNzUuOC0zNC43IDUuOC02LjcgMTUuOS03LjUgMjIuNi0xLjggNi44IDUuOCA3LjYgMTUuOSAxLjkgMjIuNnoiLz48L3N2Zz4=');mask-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDQ4IDBINjRDMjguNyAwIDAgMjguNyAwIDY0djI4OGMwIDM1LjMgMjguNyA2NCA2NCA2NGg5NnY4NGMwIDkuOCAxMS4yIDE1LjUgMTkuMSA5LjdMMzA0IDQxNmgxNDRjMzUuMyAwIDY0LTI4LjcgNjQtNjRWNjRjMC0zNS4zLTI4LjctNjQtNjQtNjR6TTMyMCAxMzMuMmMxNC44IDAgMjYuOCAxMiAyNi44IDI2LjhzLTEyIDI2LjgtMjYuOCAyNi44LTI2LjgtMTItMjYuOC0yNi44IDEyLTI2LjggMjYuOC0yNi44em0tMTI4IDBjMTQuOCAwIDI2LjggMTIgMjYuOCAyNi44cy0xMiAyNi44LTI2LjggMjYuOC0yNi44LTEyLTI2LjgtMjYuOCAxMi0yNi44IDI2LjgtMjYuOHptMTY0LjIgMTQwLjlDMzMxLjMgMzAzLjMgMjk0LjggMzIwIDI1NiAzMjBjLTM4LjggMC03NS4zLTE2LjctMTAwLjItNDUuOS01LjgtNi43LTUtMTYuOCAxLjgtMjIuNSA2LjctNS43IDE2LjgtNSAyMi41IDEuOCAxOC44IDIyIDQ2LjUgMzQuNiA3NS44IDM0LjYgMjkuNCAwIDU3LTEyLjYgNzUuOC0zNC43IDUuOC02LjcgMTUuOS03LjUgMjIuNi0xLjggNi44IDUuOCA3LjYgMTUuOSAxLjkgMjIuNnoiLz48L3N2Zz4=')"></span>
-  Questions? Ask here
+  <span class="cf-label">Questions? Ask here</span>
 </button>
 
-<!-- Prototype controls (Stage 6, clearly a prototype device) -->
-<button class="proto-fab" id="protoFab">
-  <span class="ic sm" style="-webkit-mask-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBkPSJNNTY5LjUxNyA0NDAuMDEzQzU4Ny45NzUgNDcyLjAwNyA1NjQuODA2IDUxMiA1MjcuOTQgNTEySDQ4LjA1NGMtMzYuOTM3IDAtNTkuOTk5LTQwLjA1NS00MS41NzctNzEuOTg3TDI0Ni40MjMgMjMuOTg1YzE4LjQ2Ny0zMi4wMDkgNjQuNzItMzEuOTUxIDgzLjE1NCAwbDIzOS45NCA0MTYuMDI4ek0yODggMzU0Yy0yNS40MDUgMC00NiAyMC41OTUtNDYgNDZzMjAuNTk1IDQ2IDQ2IDQ2IDQ2LTIwLjU5NSA0Ni00Ni0yMC41OTUtNDYtNDYtNDZ6bS00My42NzMtMTY1LjM0Nmw3LjQxOCAxMzZjLjM0NyA2LjM2NCA1LjYwOSAxMS4zNDYgMTEuOTgyIDExLjM0Nmg0OC41NDZjNi4zNzMgMCAxMS42MzUtNC45ODIgMTEuOTgyLTExLjM0Nmw3LjQxOC0xMzZjLjM3NS02Ljg3NC01LjA5OC0xMi42NTQtMTEuOTgyLTEyLjY1NGgtNjMuMzgzYy02Ljg4NCAwLTEyLjM1NiA1Ljc4LTExLjk4MSAxMi42NTR6Ii8+PC9zdmc+');mask-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBkPSJNNTY5LjUxNyA0NDAuMDEzQzU4Ny45NzUgNDcyLjAwNyA1NjQuODA2IDUxMiA1MjcuOTQgNTEySDQ4LjA1NGMtMzYuOTM3IDAtNTkuOTk5LTQwLjA1NS00MS41NzctNzEuOTg3TDI0Ni40MjMgMjMuOTg1YzE4LjQ2Ny0zMi4wMDkgNjQuNzItMzEuOTUxIDgzLjE1NCAwbDIzOS45NCA0MTYuMDI4ek0yODggMzU0Yy0yNS40MDUgMC00NiAyMC41OTUtNDYgNDZzMjAuNTk1IDQ2IDQ2IDQ2IDQ2LTIwLjU5NSA0Ni00Ni0yMC41OTUtNDYtNDYtNDZ6bS00My42NzMtMTY1LjM0Nmw3LjQxOCAxMzZjLjM0NyA2LjM2NCA1LjYwOSAxMS4zNDYgMTEuOTgyIDExLjM0Nmg0OC41NDZjNi4zNzMgMCAxMS42MzUtNC45ODIgMTEuOTgyLTExLjM0Nmw3LjQxOC0xMzZjLjM3NS02Ljg3NC01LjA5OC0xMi42NTQtMTEuOTgyLTEyLjY1NGgtNjMuMzgzYy02Ljg4NCAwLTEyLjM1NiA1Ljc4LTExLjk4MSAxMi42NTR6Ii8+PC9zdmc+')"></span>
-  Prototype controls
-</button>
+<!-- Prototype controls drawer (Stage 6, clearly a prototype device) -->
 <div class="proto-drawer" id="protoDrawer"></div>
 
 <div class="toast" id="toast"></div>
@@ -2790,9 +2800,12 @@ const ASSUMPTIONS = [
     assumed:'CONFLICT, unresolved. This prototype has the new hire choosing accessories before Day 1. The manager mockup has peripherals and accessories ordered by the new hire on Day 1, through IT self-service.',
     resolve:'Both cannot be right, and the difference is a fortnight of shipping time. Pre-Day 1 means the desk is complete on the first morning. Day 1 self-service means it is not. Decide which, because the accessories task is the earliest thing on the new hire’s list today.', oi:'' },
 
-  { id:'A-54', group:'design', prov:'UAT', screen:'Equipment', route:'#/equipment',
+  { id:'A-54', group:'retired', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The equipment screens follow the live HR case: both people named as “Name (username)” with the employment start date and the manager’s email above the table, status written as a full sentence quoting the task that unblocks it, and the incident shown with its Activity, Attachments and Summary tabs.',
-    resolve:'Taken from the UAT screens rather than invented, so the future state does not quietly drop wording people already recognise. Two things to settle: the live status line for the phone reads “To place an order for a mobile phone new hire, Alp Basol (abasol), must complete” and is missing an article, and the case shows a photo for the manager but initials for the new hire. Both are small, and both are easier to fix before the push to production than after.', oi:'' },
+    resolve:'Taken from the UAT screens rather than invented, so the future state does not quietly drop wording people already recognise. Two things to settle: the live status line for the phone reads “To place an order for a mobile phone new hire, Alp Basol (abasol), must complete” and is missing an article, and the case shows a photo for the manager but initials for the new hire. Both are small, and both are easier to fix before the push to production than after. Retired in the plain-English pass: the layout of the case stays, the wording does not (A-63).', oi:'' },
+  { id:'A-63', group:'design', prov:'ASSUMED', screen:'Equipment', route:'#/equipment',
+    assumed:'The equipment table keeps the live case’s shape (case number, both people, one row per item) but its status lines are written in plain English and addressed to whoever is reading: “Choose your computer above to order it” for the new hire, “Jordan hasn’t chosen yet” for the manager. The case state reads Open rather than the live Ready, and the start date is written out rather than as 2026-08-18.',
+    resolve:'Reverses A-54, which copied the live strings word for word so that nothing people already recognise was dropped. Read by the new hire, those strings describe them in the third person (“the new hire, Jordan Reyes (jreyes), must first complete…”) and a case marked Ready with nothing ordered reads as a contradiction. The cost is that the prototype no longer matches the ServiceNow build line for line, so if the live wording cannot change, this is a request to the ServiceNow team rather than a design that can ship as drawn.', oi:'' },
   { id:'A-55', group:'blocks', prov:'UAT', screen:'Equipment', route:'#/equipment',
     assumed:'The accessories order is raised as an incident at Urgency 3 - Low, and its Summary tab shows the stored record rather than a written summary: checkbox values render as true and false, the HR task SysID is on display, and the accessories choice is stored as the sentence “Headset and other accessories”.',
     resolve:'Two separate problems. Urgency: nothing ships until this incident is worked, and the desk is incomplete on Day 1 if it is not, so Low is the wrong default for an order with a hard date behind it. Confirm whether urgency is derived from the start date at all. Summary: it is readable by someone who knows the form and confusing to a new hire checking their own order, which is exactly who has the tab open. Neither needs a redesign, both need a decision before this reaches production.', oi:'' },
@@ -3220,7 +3233,7 @@ const READINESS = [
    reference material that arrives alongside it today. */
 const CURRENT_PACK = {
   US: { handbook:'US Employee Handbook (November 2024)',
-        addenda:25, addendaNote:'state handbook addenda. Every US hire receives all of them, whichever state they work in',
+        addenda:25, addendaNote:'state supplements. Every US hire gets all of them, whichever state they work in',
         extras:['2026 Equinix U.S. Benefits Booklet','GovDocs'],
         total:28 },
   JP: { handbook:'就業規則, Japanese employment regulations (April 2025)',
@@ -3249,14 +3262,14 @@ const COMING_UP = [
     note:'Shows what you’ll qualify for and when coverage begins', icon:'shield-check.svg',
     expl:'Opens 30 days before your start date. Nothing to prepare between now and then.' },
   { name:'Equipment setup instructions', opens:'3 days before you start',
-    note:'You set the machine up yourself, and the IT help desk is open all day', icon:'portal-window.svg',
+    note:'You set up your own laptop, and the IT help desk is open all day', icon:'portal-window.svg',
     expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
     dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
   { name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
-    expl:'Held until 3 days out so the details are final rather than provisional.' },
-  { name:'Collect your Equinix credentials', opens:'1 day before you start',
-    note:'', icon:'lock.svg',
+    expl:'Held back until 3 days before you start, so what you see is final.' },
+  { name:'Get your Equinix sign-in details', opens:'1 day before you start',
+    note:'Your username and how to set your password', icon:'lock.svg',
     expl:'Your sign-in details, ready the day before you start.',
     dnote:'A to-do in the live portal that nobody has documented the contents of. Worth pinning down: it sits awkwardly beside the current practice of managers handing over sign-in details.' },
   { name:'Order a phone', opens:'Day 1, optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
@@ -3265,7 +3278,7 @@ const COMING_UP = [
   { name:'Complete your at-home workspace setup', opens:'No due date, optional', note:'', icon:'desktop.svg',
     expl:'Optional, with no due date. Nothing is waiting on you.',
     dnote:'Shipped exactly as the live portal has it, so optional behaviour is visible here.' },
-  { name:'Information governance', opens:'Your first week', note:'', icon:'file-alt.svg', marker:'A-21',
+  { name:'Information governance', opens:'Your first week', note:'Short training on how Equinix handles information', icon:'file-alt.svg', marker:'A-21',
     expl:'Runs in your first week, once you have your Equinix account. It covers how we handle information here.' },
 ];
 
@@ -3305,8 +3318,8 @@ const DISPOSITIONS = {
   keep:      { label:'Keep',            cls:'keep',      hint:'Genuinely requires manager judgement' },
   reduce:    { label:'Exception-only',  cls:'reduce',    hint:'Visible, but most managers should never touch it' },
   automate:  { label:'Automate away',   cls:'automate',  hint:'The outcome is still needed, the manager action is not' },
-  remove:    { label:'Remove',          cls:'remove',    hint:'This task should not exist in the future state' },
-  undecided: { label:'Undecided',       cls:'undecided', hint:'Cannot be dispositioned yet' },
+  remove:    { label:'Remove',          cls:'remove',    hint:'This task should go' },
+  undecided: { label:'Undecided',       cls:'undecided', hint:'Not enough is known to decide' },
   add:       { label:'Adds work',       cls:'add',       hint:'The only proposal that increases manager load' },
 };
 
@@ -3412,7 +3425,7 @@ const SOFTWARE_CATALOG = [
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
   { id:'nho', label:'New Hire Orientation', time:'09:00 to 13:00',
-    auto:true, blueprint:true, note:'From the orientation blueprint for your location. PEX owns it, so you cannot move it.' },
+    auto:true, blueprint:true, note:'Set by People Experience for your office, so you can’t move it.' },
   { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'13:00 to 14:00',
     auto:true, locked:true, note:'Automatically placed, one hour, immediately after orientation ends. You can reschedule it, but not delete it.' },
   { id:'teamIntro', label:'Team introduction', time:'14:30 to 15:00', auto:false },
@@ -3742,7 +3755,7 @@ function hmTasks() {
       done: S.equipment.submitted, icon:'laptop.svg', marker:'M-01', dueOff:-7, sys:'ServiceNow', srcDue:true,
       why:'Jordan chooses and orders this themselves. Nothing here waits on you.',
       dispNote:'Recommended for deletion. The order moved to the new hire, so all this does is tell you it happened, which the readiness view already does.' },
-    { id:'software', label:'Confirm the application stack', disp:'reduce', route:'#/hm/software',
+    { id:'software', label:'Choose Jordan’s apps', disp:'reduce', route:'#/hm/software',
       done: H.software.confirmed, icon:'portal-window.svg', marker:'M-04', blocked:true,
       dueOff:-4, sys:'ServiceNow', srcDue:true,
       why:'Which applications Jordan gets on day one.',
@@ -3753,7 +3766,7 @@ function hmTasks() {
       dispNote:'Two screens merged into one, and the second named role was dropped. Your judgement, so it stays, but nothing is suggested for you.' },
     { id:'calendar', label:'Set up their first day', disp:'automate', route:'#/hm/calendar',
       done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06', dueOff:-5, sys:'Outlook', marker2:'M-23',
-      why:'The holds that make Day 1 work.',
+      why:'The calendar invites that make Day 1 work.',
       dispNote:'Your 1:1 is already placed automatically. The rest should be too, and then this becomes a glance rather than a task.' },
     { id:'welcome', label:'Send a welcome note', disp:'reduce', route:'#/hm/welcome',
       done: H.welcome.sent, icon:'email.svg', marker:'M-08', dueOff:-2, sys:'Email', srcDue:true,
@@ -3776,7 +3789,7 @@ function hmTasks() {
   list.push(
     { id:'day1meet', label:'Meet Jordan and walk them in', disp:'automate', route:null, phase:1,
       done:false, icon:'users-friends.svg', marker:'M-30', dueOff:0, sys:'Outlook',
-      why:'Straight after orientation ends. The hold is already in your calendar.',
+      why:'Straight after orientation ends. It’s already in your calendar.',
       dispNote:'Already placed automatically. It is on this list to be visible, not to be done.' },
     { id:'plan', label:'Agree their 30, 60 and 90 day plan', disp:'keep', route:null, phase:2,
       done:false, icon:'list-tasks.svg', marker:'M-30', dueOff:4, sys:'Not decided',
@@ -3834,14 +3847,14 @@ function hmDone() { return hmTasks().filter(t => t.done).length; }
 /* Third-party tasks: PEX, EUT, CRE. Fixed states, not interactive. */
 function thirdPartyTasks() {
   return [
-    { label:'Background check', owner:'HR Operations', state: 'running', note:'In progress, no action from anyone' },
+    { label:'Background check', owner:'HR Operations', state: 'running', note:'Running. Nobody needs to do anything' },
     // Badge print is deliberately absent: security has no integration and no
     // place to confirm completion, so any status shown here would be invented.
-    { label:'Badge photo received', owner:'Workplace / CRE', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
+    { label:'Badge photo received', owner:'Workplace & Real Estate', state: S.photo.done || S.photo.confirmedExisting ? 'ready' : 'waiting',
       note: (S.photo.done || S.photo.confirmedExisting)
         ? 'Sent on to Workplace. Printing is not tracked here'
         : 'Waiting on Jordan’s badge photo' },
-    { label:'Orientation blueprint assigned', owner:'People Experience', state:'ready', note:'Denver blueprint assigned' },
+    { label:'Day 1 location details', owner:'People Experience', state:'ready', note:'Denver details set' },
   ];
 }
 
@@ -3897,7 +3910,7 @@ function hmBlockers() {
       action:'Answer it', route:'#/hm/card' });
   }
   if (!S.hm.software.confirmed) {
-    out.push({ sev:'low', text:'The application stack cannot be resolved, because Jordan’s persona is not mapped. That is a platform gap, not something you can fix here.',
+    out.push({ sev:'low', text:'We can’t suggest Jordan’s apps, because their role isn’t linked to a standard app list yet. That’s a gap in the system, not something you can fix here.',
       action:'See why', route:'#/hm/software' });
   }
   return out;
@@ -3912,7 +3925,7 @@ function hmWaitingOnNewHire() {
   if (!S.equipment.submitted) {
     out.push({ text: S.equipment.deviceConfirmed
       ? 'Equipment is chosen but the order has not been submitted yet.'
-      : 'Equipment has not been chosen yet. The lead time runs 5 to 7 business days.',
+      : 'Equipment has not been chosen yet. Delivery takes 5 to 7 working days.',
       marker:'M-24' });
   }
   if (!S.bgcheck.launched) out.push({ text:'The background check has not been started. It runs the longest of anything here.' });
@@ -4027,8 +4040,8 @@ function othersStrip() {
   return `
   <div class="others-strip" data-assume="M-02">
     <div class="os-h">
-      <b>Everyone else</b>
-      <span>Three teams, none of them users of this portal. ${am('M-02')}</span>
+      <b>Other teams</b>
+      <span>Three teams working on Jordan’s start outside this portal. ${am('M-02')}</span>
     </div>
     <div class="os-bar">
       ${rows.map(r => `
@@ -4092,7 +4105,7 @@ function renderHmHome() {
 
     <div class="hm-figs">
       <div class="hm-fig-card">
-        <div class="hfc-h"><b>${HIRE.preferred}\u2019s journey <i>their ${nhProgressRows().length} tasks, not yours</i></b>
+        <div class="hfc-h"><b>${HIRE.preferred}\u2019s tasks <i>their ${nhProgressRows().length}, not yours</i></b>
           <span class="pnote">A plain count of tasks done over tasks assigned. No agreed formula,
           no weighting, and no definition of what \u201cready\u201d means. ${am('M-02')}</span>
         </div>
@@ -4130,7 +4143,7 @@ function renderHmHome() {
     ${(() => { const w = hmWaitingOnNewHire(); return w.length ? `
     <div class="waiting-on" data-assume="M-03">
       <div class="wo-h">${ic('hourglass.svg','sm')}<b>Waiting on Jordan</b>
-        <span>Their tasks, not yours. Listed so nothing is invisible.</span></div>
+        <span>Their tasks, not yours. Listed so you can see what’s still open.</span></div>
       ${w.map(x => `<div class="wo-row">${x.text}${x.marker ? ' '+am(x.marker) : ''}</div>`).join('')}
     </div>` : ''; })()}` : `
     <div class="blockers clear">
@@ -4255,7 +4268,7 @@ function hmRail() {
       </div>
       <div class="rail-note warn-note">${ic('info-circle.svg','sm')}
         <span><b>Jordan already has your details.</b> Your name, Teams handle and email are on their portal from today,
-        and they can contact you before Day 1. Nothing sets an expectation about how fast you reply. ${am('L-03')}</span>
+        and they can contact you before Day 1. Nobody has said how quickly you should reply. ${am('L-03')}</span>
       </div>
     </div>
 
@@ -4279,7 +4292,7 @@ function hmRail() {
           ? `<span class="chip done">${ic('check.svg','sm')}Queued</span>`
           : `<button class="btn secondary sm" data-quickconfirm="channels">Add all</button>`}
       </div>
-      <div class="rail-note">Both of these were separate tasks. They are one tap here because neither needs your judgement.</div>
+      <div class="rail-note">One tap each. Neither needs a decision from you.</div>
     </div>
 
     <div class="rail-card">
@@ -4332,9 +4345,9 @@ function renderHmLogistics() {
     <div class="task-shell">
       <div class="wiz-body">
         <div class="form-sec" data-assume="M-05">
-          <h3>From the orientation blueprint ${am('M-05')}</h3>
-          <p class="sec-note">Maintained by People Experience for this location, and read-only here. If something is wrong,
-          it should be fixed in the blueprint so every new starter in Denver gets the corrected version.</p>
+          <h3>Set by People Experience for this office ${am('M-05')}</h3>
+          <p class="sec-note">You can’t change these here. If something’s wrong, tell Maya, so it gets fixed for every
+          new starter in Denver, not only Jordan.</p>
           <div class="bp-card">
             ${blueprint.map(([k,v]) => `<div class="bp-row"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
           </div>
@@ -4359,7 +4372,7 @@ function renderHmLogistics() {
               <label><input type="radio" name="avail" data-avail="yes" ${L.available?'checked':''}>Yes, I’ll be there</label>
               <label><input type="radio" name="avail" data-avail="no" ${!L.available?'checked':''}>No, someone else will cover</label>
             </div>
-            <div class="note">Meeting your new hire on Day 1 is tracked as a programme measure, so this answer matters beyond this screen.</div>
+            <div class="note">Equinix tracks whether managers meet their new hire on Day 1, so this answer is counted.</div>
           </div>
 
           ${!L.available ? `
@@ -4438,7 +4451,7 @@ function renderHmComputer() {
               <div>
                 <b>Jordan has not chosen yet.</b>
                 <p>Their equipment task is open and nothing is waiting on you. If it is still open close to
-                the start date, the readiness view will raise it.</p>
+                the start date, it will be flagged on your home screen.</p>
               </div>
             </div>`}
         </div>
@@ -4451,7 +4464,7 @@ function renderHmComputer() {
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic('info-circle.svg','sm')}Nothing on this screen is yours to action</span>
+        <span class="saved-state">${ic('info-circle.svg','sm')}Nothing on this screen is yours to do</span>
         <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
       </div>
     </div>
@@ -4465,9 +4478,9 @@ function renderHmSoftware() {
   const S5 = S.hm.software;
   return `
   <div class="page">
-    ${hmCrumbs('Confirm the application stack')}
+    ${hmCrumbs('Choose Jordan’s apps')}
     <div class="task-head" data-assume="M-04">
-      <h1>Confirm the application stack ${am('M-04')}</h1>
+      <h1>Choose Jordan’s apps ${am('M-04')}</h1>
       <p class="why">Which applications Jordan has on their first day.</p>
       ${dispBanner('reduce', 'Meant to be exception-only: a persona-based default stack you glance at and confirm. It cannot work that way today.', 'M-04')}
     </div>
@@ -4475,26 +4488,26 @@ function renderHmSoftware() {
     <div class="blocked-panel" data-assume="M-04">
       ${ic('exclamation-triangle.svg','xl')}
       <div>
-        <h2>There is no default stack to show you</h2>
-        <p>This screen is supposed to open with the applications Jordan’s role normally gets, so you can confirm them in
-        one action. That needs a persona, and no full persona list exists in the platform yet. The fallback under
-        discussion is deriving persona from job family, which is the approach the requirements analysis rejected as
-        inaccurate for most roles.</p>
-        <p><b>So here is what the task actually looks like today:</b> an empty list you fill in by hand, the opposite
-        of what it is meant to be. Drawn honestly, not aspirationally. ${am('M-04')}</p>
+        <h2>There’s no standard app list to show you</h2>
+        <p>This screen should open with the apps people in Jordan’s role usually get, so you can confirm them in one
+        go. It can’t yet: roles aren’t linked to app lists in the system. Until they are, you pick the apps by hand
+        below. ${am('M-04')}</p>
+        <p class="pnote">The fallback under discussion is working out the role from job family, which the
+        requirements analysis rejected as inaccurate for most roles. So this screen is drawn as the task really is
+        today, an empty list filled by hand, rather than as it is meant to be.</p>
       </div>
     </div>
 
     <div class="task-shell mt24">
       <div class="wiz-body">
         <div class="form-sec">
-          <h3>Default stack for Jordan’s persona</h3>
-          <div class="empty-stack">${ic('times.svg','lg')}<span>Empty, persona not mapped</span></div>
+          <h3>Standard apps for Jordan’s role</h3>
+          <div class="empty-stack">${ic('times.svg','lg')}<span>None yet. The role isn’t linked to a list</span></div>
         </div>
         <div class="form-sec">
-          <h3>Add applications by hand</h3>
-          <p class="sec-note">Catalogue items only. Each one raises its own request and inherits that item’s existing
-          approval flow and lead time.</p>
+          <h3>Add apps by hand</h3>
+          <p class="sec-note">Only apps from the IT catalogue. Each one becomes its own request, with that app’s usual
+          approval and wait time.</p>
           <div class="acc-grid">
             ${SOFTWARE_CATALOG.map(a => `
               <label class="check acc">
@@ -4512,8 +4525,8 @@ function renderHmSoftware() {
       </div>
       <div class="wiz-foot">
         <span class="saved-state">${ic('save.svg','sm')}${S5.added.length} selected</span>
-        <span class="missing">Every application here was chosen by hand because the platform could not suggest any.</span>
-        <button class="btn primary" id="swConfirm" ${S5.added.length?'':'disabled'}>${S5.confirmed?'Update':'Confirm the stack'}</button>
+        <span class="missing">You pick each app by hand, because the system can’t suggest any yet.</span>
+        <button class="btn primary" id="swConfirm" ${S5.added.length?'':'disabled'}>${S5.confirmed?'Update':'Confirm the apps'}</button>
       </div>
     </div>
   </div>`;
@@ -4538,7 +4551,7 @@ function renderHmMeet() {
 
   const picker = (role, current) => `
     <select data-pickperson="${role}">
-      <option value="">Select from the org…</option>
+      <option value="">Choose someone…</option>
       ${ORG_PEOPLE
         .filter(p => role !== 'buddy' || p.team || p.dept === 'Global FP&A')
         .map(p => `<option value="${p.id}" ${current === p.id ? 'selected' : ''}>${p.name}, ${p.role}, ${p.dept}</option>`).join('')}
@@ -4627,7 +4640,7 @@ function renderHmMeet() {
           <div class="meet-count">${others.length} named, ${withWhy} with a reason written${others.length > 15 ? '. That is over the fifteen this screen expects' : ''}</div>
         </div>
 
-        <div class="callout soft" data-assume="M-21">
+        <div class="callout soft pnote" data-assume="M-21">
           ${ic('exclamation-triangle.svg')}
           <div><b>This may already exist.</b> The onboarding platform ships <b>“select people to meet”</b> and
           <b>“select helpful contacts”</b> as manager setup, surfaced on the new hire’s dashboard. If that is what it
@@ -4720,20 +4733,20 @@ function renderHmCalendar() {
 
         <div class="callout soft mt16">
           ${ic('info-circle.svg')}
-          <div><b>No IT setup window.</b> IT is not committing to an hour on Day 1, so Jordan sets the machine up
-          themselves and the help desk is open all day. That pointer sits in Jordan’s checklist, not your calendar. ${am('M-33')}</div>
+          <div><b>No IT setup slot.</b> IT doesn’t book time on Day 1, so Jordan sets up their own laptop and the
+          IT help desk is open all day. That’s in Jordan’s checklist, not your calendar. ${am('M-33')}</div>
         </div>
 
         <div class="callout pnote mt16">
           ${ic('question-circle.svg')}
-          <div>The unticked holds are suggestions you have to accept one at a time. If they were created
+          <div>The unticked meetings are suggestions you have to accept one at a time. If they were created
           automatically like your 1:1, this screen would have nothing on it for you to do, which is the point of the
           disposition above. ${am('M-06')}</div>
         </div>
       </div>
       <div class="wiz-foot">
         <span class="saved-state">${ic('save.svg','sm')}Your 1:1 is already in the calendar</span>
-        <span class="missing">${Object.values(C.holds).filter(Boolean).length} of 2 suggested holds added</span>
+        <span class="missing">${[...DAY1_HOLDS, ...AFTER_DAY1_HOLDS].filter(h => !h.auto && C.holds[h.id]).length} of 2 suggested meetings added</span>
         <button class="btn primary" id="calConfirm">${C.confirmed?'Update':'Confirm the day'}</button>
       </div>
     </div>
@@ -4824,7 +4837,7 @@ function renderHmWelcome() {
             <div class="pv-text" id="wcPreview">${esc(W.body || WELCOME_BOILERPLATE)}${W.personal ? '\n\n'+esc(W.personal) : ''}</div>
           </div>
         </div>
-        <div class="share-model" data-assume="L-08">
+        <div class="share-model pnote" data-assume="L-08">
           ${ic('info-circle.svg')}
           <span><b>Order matters here.</b> This should land before Jordan is asked to write their own introduction, so
           the request arrives in context. Nothing enforces that today, and three welcome messages compete for the same
@@ -4924,9 +4937,9 @@ function renderHmCard() {
           <p class="sec-note">The question is about travel, not seniority. If they will spend on behalf of Equinix, they need one.</p>
           <div class="radio-row col mt16">
             <label><input type="radio" name="cardq" data-card="yes" ${C.needed===true?'checked':''}>
-              <b>Yes</b>, they'll travel on behalf of Equinix</label>
+              <span><b>Yes</b>, they'll travel on behalf of Equinix</span></label>
             <label><input type="radio" name="cardq" data-card="no" ${C.needed===false?'checked':''}>
-              <b>No</b>, not needed for this role</label>
+              <span><b>No</b>, not needed for this role</span></label>
           </div>
         </div>
 
@@ -4968,10 +4981,10 @@ function renderHmCard() {
    The subtraction review, this side's argument screen
    ============================================================ */
 const SUBTRACTION = [
-  { group:'remove', title:'Remove: should not exist in the future state', rows:[
+  { group:'remove', title:'Remove: this task should go', rows:[
     { task:'Receive portal login credentials', today:'None. This is not in the current manager checklist',
-      why:'A manager is an existing employee who already signs in to Equinix systems. The row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as pre-hire logic applied to the wrong persona.',
-      cond:'Confirm no platform role or licence provisioning is hiding behind the row.', marker:'M-11' },
+      why:'A manager is an existing employee who already signs in to Equinix systems. The row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as new-hire sign-in logic applied to the wrong person.',
+      cond:'Confirm no system access or licence set-up is hiding behind the row.', marker:'M-11' },
     { task:'Order the computer', today:'Gone. The new hire chooses and orders their own machine',
       why:'This was the heaviest row on the list and the largest single saving: the manager used to place the order, and nothing moved until they did. Equipment selection is now a new hire task, so the manager step has no work left in it.',
       cond:'An exception path still has to be written: a role needing a machine outside its mapped build, an order landing after the start date, or a cost that needs approving. None of the three is specified.', marker:'M-01' },
@@ -4983,20 +4996,20 @@ const SUBTRACTION = [
       cond:'Nothing further.' },
   ]},
   { group:'automate', title:'Automate away: the outcome is needed, the manager action is not', rows:[
-    { task:'Schedule Day 1 calendar holds', today:'Manual. Schedule and host a Day 1 meeting',
-      why:'The Day 1 one-to-one is already specified as an automatic calendar placement. If blueprint-sourced slots are reliable, the rest can follow.',
-      cond:'The automatic placement has to be built, and blueprint slots reliable enough to auto-populate.', marker:'M-06' },
+    { task:'Schedule Day 1 meetings', today:'Manual. Schedule and host a Day 1 meeting',
+      why:'The Day 1 one-to-one is already specified as an automatic calendar placement. If the times People Experience sets per office are reliable, the rest can follow.',
+      cond:'The automatic placement has to be built, and the per-office times reliable enough to fill in on their own.', marker:'M-06' },
     { task:'Add new hire to team channels and distributions', today:'Manual and vague: “notify relevant stakeholders”',
       why:'Team membership data can generate the list; the manager approves it in one action.',
       cond:'Membership data good enough to generate a suggestion worth accepting.', marker:'M-18' },
-    { task:'Confirm your own contact details', today:'Manual. Verify your phone number in the worker record',
+    { task:'Confirm your own contact details', today:'Manual. Verify your phone number in your employee record',
       why:'Pre-fill turns the default action into a confirmation instead of data entry.',
-      cond:'Pre-fill from the worker record.', marker:'M-18' },
+      cond:'Pre-fill from the employee record.', marker:'M-18' },
   ]},
   { group:'reduce', title:'Reduce to exception-only: visible, but most managers should never touch it', rows:[
-    { task:'Confirm software and application stack', today:'Heavy. The manager requests access and software by hand',
-      why:'Should be a persona default the manager glances at.',
-      cond:'The persona blocker resolved. Today there is no full persona list, and the proposed job-family fallback is the approach the analysis rejects.', marker:'M-04' },
+    { task:'Confirm the new hire’s apps', today:'Heavy. The manager requests access and software by hand',
+      why:'Should be a standard list for the role that the manager glances at.',
+      cond:'Roles linked to standard app lists. Today they aren’t, and the proposed fallback (working it out from job family) is the approach the analysis rejects.', marker:'M-04' },
     { task:'Review and personalise the welcome email', today:'Manual. Written from scratch',
       why:'Pre-filled boilerplate plus a personal line is most of the saving.',
       cond:'Boilerplate authored and approved; the first-week block generated from the new hire’s real task list.', marker:'M-08' },
@@ -5008,20 +5021,20 @@ const SUBTRACTION = [
     { task:'Assign a buddy', today:'Manual. Select a buddy',
       why:'A judgement about people, with a suggestion to make agreement one tap.',
       cond:'Buddy policy defined: criteria, load limits, decline process, plus a privacy position on the performance signal.', marker:'M-07' },
-    { task:'Delegation and proxy', today:'Informal. Cover is arranged by asking someone',
-      why:'The requirement gives both managers and People Experience a standing proxy who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
-      cond:'A permission model. Nobody has said what a proxy is allowed to see or do.', marker:'M-20' },
+    { task:'Someone to act for the manager', today:'Informal. Cover is arranged by asking someone',
+      why:'The requirement gives both managers and People Experience a standing stand-in who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
+      cond:'A permission model. Nobody has said what a stand-in is allowed to see or do.', marker:'M-20' },
     { task:'Confirm new hire start logistics', today:'Partially manual. Determine office seating if applicable',
       why:'Narrowed to what only the manager knows: their own availability, cover if they are away, and team-specific instruction.',
-      cond:'Blueprint precedence settled, so the manager confirms location facts rather than entering them.', marker:'M-05' },
+      cond:'Settled that People Experience’s per-office details win, so the manager confirms location facts rather than entering them.', marker:'M-05' },
     { task:'New hire readiness view', today:'No equivalent. Managers have no single view',
       why:'This is the screen that earns the portal.',
       cond:'Readiness score composition defined, and the visibility matrix written so progress can show without exposing sensitive detail.', marker:'M-02' },
     { task:'Offer-accept notification and guide', today:'Fragmented. No single place explains the manager’s role',
       why:'The other screen that earns the portal.',
-      cond:'Guide content authored per persona, and its relationship to the existing companion guide resolved.', marker:'M-15' },
+      cond:'Guide content written for each type of manager, and its relationship to the existing companion guide resolved.', marker:'M-15' },
   ]},
-  { group:'undecided', title:'Undecided: cannot be dispositioned yet', rows:[
+  { group:'undecided', title:'Undecided: not enough is known to decide', rows:[
     { task:'Confirm corporate card requirement, NOW SPECIFIED', today:'Was not established; the source row was truncated with seven attributes blank',
       why:'Resolved. It is a manager yes/no, but framed around travel rather than entitlement, and the new hire’s half is an e-signature on Day 2. Built, and it belongs under Keep now.',
       cond:'Nothing blocking. Two details still open: the task’s final name in the portal, and whether cost centre and approver are captured with the yes.', marker:'M-19' },
@@ -5036,8 +5049,8 @@ const SUBTRACTION = [
       cond:'Question set and cadence owned by the survey workstream.' },
   ]},
   { group:'add', title:'Adds work: the exception to everything above', rows:[
-    { task:'Name the new hire’s team network', today:'Does not exist. This is net-new manager work.',
-      why:'The only item here that adds load. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggestion can be close to one tap. The case against is a new task, notifications to third parties, and a downstream scheduling flow.',
+    { task:'Name the new hire’s team network', today:'Does not exist. This is new work for managers.',
+      why:'The only item here that adds load. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggestion can be close to one tap. The case against is a new task, messages to other people, and a scheduling step after it.',
       cond:'An explicit decision that it is worth the cost.', marker:'M-10' },
   ]},
 ];
@@ -5090,25 +5103,25 @@ function handoffRows() {
     // to manager, where it used to run manager to new hire.
     // People Experience own the blueprint the manager confirms, so their
     // edit reopens a task the manager had already closed.
-    { dir:'hm', from:'People Experience blueprint', to:'Confirm the first-day details', marker:'M-32',
+    { dir:'hm', from:'Office details set by People Experience', to:'Confirm the first-day details', marker:'M-32',
       done: !S.pexUpdate,
       state: S.pexUpdate
-        ? 'Blueprint changed. The manager’s confirmation is stale and the task has reopened'
-        : 'Blueprint stable. The manager is confirming current facts',
+        ? 'Office details changed. The manager’s confirmation is out of date and the task has reopened'
+        : 'Office details unchanged. The manager is confirming what’s current',
       hmRoute:'#/hm/logistics', nhRoute:'#/' },
     { dir:'nh', from:'Choose your equipment', to:'Equipment status table', marker:'L-04',
       done: S.equipment.deviceConfirmed,
       state: S.equipment.deviceConfirmed
         ? `Computer chosen by Jordan, and Priya’s table names it`
-        : 'NOT CHOSEN YET, and Priya sees it sitting with Jordan',
+        : 'Not chosen yet, and Priya sees it’s with Jordan',
       hmRoute:'#/hm/computer', nhRoute:'#/equipment' },
     { dir:'nh', from:'Equipment order submitted', to:'Readiness view + equipment table', marker:'L-04',
       done: S.equipment.submitted,
       state: S.equipment.submitted ? 'Ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
       hmRoute:'#/hm/', nhRoute:'#/equipment' },
-    { dir:'hm', from:'Assign a buddy', to:'Jordan’s people rail', marker:'L-01', conflict:true,
+    { dir:'hm', from:'Assign a buddy', to:'Jordan’s “Your people” card', marker:'L-01', conflict:true,
       done: !!buddy,
-      state: !buddy ? 'No buddy assigned, and Jordan’s rail says one is coming'
+      state: !buddy ? 'No buddy named, and Jordan’s card says so'
         : buddyVisibleToNH() ? `${buddy.name} assigned and visible to Jordan now`
         : `${buddy.name} assigned, hidden from Jordan until 72h before start`,
       hmRoute:'#/hm/buddy', nhRoute:'#/' },
@@ -5129,7 +5142,7 @@ function handoffRows() {
       hmRoute:'#/hm/welcome', nhRoute:'#/' },
     { dir:'hm', from:'First-day details', to:'“Your first day details” card', marker:'L-07',
       done: H.logistics.confirmed,
-      state: H.logistics.confirmed ? 'Confirmed, and it feeds the card that opens at Day −3' : 'Not confirmed, so the card would open with blueprint values only',
+      state: H.logistics.confirmed ? 'Confirmed, and it fills the card Jordan sees 3 days before starting' : 'Not confirmed, so the card would open with only the office’s standard details',
       hmRoute:'#/hm/logistics', nhRoute:'#/' },
     { dir:'hm', from:'Manager contact details', to:'Jordan’s manager contact card', marker:'L-03',
       done: H.contactConfirmed,
@@ -5143,8 +5156,8 @@ function handoffRows() {
       hmRoute:'#/hm/card', nhRoute:'#/' },
     { dir:'nh', from:'Start date confirmation', to:'Readiness view + every due date', marker:'L-11',
       done: S.startdate.confirmed || S.startdate.changeRequested,
-      state: S.startdate.changeRequested ? 'Change requested. Priya and PEX can see it, and dates hold until it is agreed'
-        : S.startdate.confirmed ? 'Confirmed, and every other due date is anchored to it'
+      state: S.startdate.changeRequested ? 'Change requested. Priya and People Experience can see it, and dates stay put until it’s agreed'
+        : S.startdate.confirmed ? 'Confirmed, and every other due date is counted from it'
         : 'Not confirmed, so the whole schedule is provisional',
       hmRoute:'#/hm/', nhRoute:'#/startdate' },
     { dir:'nh', from:'Task progress', to:'Readiness view', marker:'L-05',
@@ -5268,7 +5281,7 @@ function bindHm(route) {
     const c = $('#swConfirm');
     if (c) c.addEventListener('click', () => {
       H.software.confirmed = true; save(); rerender();
-      toast('Stack confirmed. Every item chosen by hand, because nothing could be suggested.');
+      toast('Apps confirmed. You picked each one by hand, because nothing could be suggested.');
     });
   }
 
@@ -5327,7 +5340,7 @@ function bindHm(route) {
       toast('Day 1 confirmed.', 'check-circle.svg');
     });
     const r = $('[data-resched]');
-    if (r) r.addEventListener('click', () => toast('Rescheduling opens your calendar. The hold cannot be removed, because meeting your new hire on Day 1 is a tracked measure.'));
+    if (r) r.addEventListener('click', () => toast('Rescheduling opens your calendar. You can’t delete this one, because Equinix tracks whether managers meet their new hire on Day 1.'));
   }
 
   if (route === '#/hm/welcome') {
@@ -5541,12 +5554,20 @@ function pexCaseload() {
       eqChosen:     r() < (near ? 0.85 : 0.5),
       eqOrdered:    r() < (near ? 0.72 : 0.3),
       eqEta:        4 + Math.floor(r() * 18),
-      blockedBy:    ['End User Technology','Workplace / CRE','IT Procurement'][Math.floor(r() * 3)],
+      blockedBy:    ['End User Technology','Workplace & Real Estate','IT Procurement'][Math.floor(r() * 3)],
       blocked:      r() < 0.22,
       escalations:  r() < 0.16 ? 1 + Math.floor(r() * 2) : 0,
       dataVerified: r() < 0.78,
       dateMoved:    r() < 0.1,
       nudged:       {},
+    });
+    const h = out[out.length - 1];
+    /* Task completion for generated hires follows from the fields above.
+       Jordan's come from the real state instead (pexWithLiveJordan). */
+    Object.assign(h, {
+      startConfirmed: !h.dateMoved, detailsDone: h.dataVerified,
+      firstDayDone: h.mgrColo || h.proxy, appsDone: h.persona,
+      welcomeSent: h.startOff < 40, calendarDone: h.startOff < 30,
     });
   }
   PEX_CASELOAD_CACHE = out;
@@ -5584,6 +5605,9 @@ function pexWithLiveJordan(list) {
     escalations: 0,
     dataVerified: true,
     dateMoved: S.startdate.changeRequested,
+    startConfirmed: S.startdate.confirmed, detailsDone: S.details.submitted,
+    firstDayDone: H.logistics.confirmed, appsDone: H.software.confirmed,
+    welcomeSent: H.welcome.sent, calendarDone: H.calendar.confirmed,
     live: true,
     nudged: S.pex ? (S.pex.nudged[HIRE.username] || {}) : {},
   };
@@ -5604,17 +5628,17 @@ const PEX_QUEUES = [
     src:'PRD 3.6 requires SLA measurement by timestamps between activities.',
     batch:'Partly. Nudging is batchable, resolving is not.',
     test: h => h.startOff <= 10 && (!h.bgcheck || h.compliance < 4),
-    reason: h => !h.bgcheck ? 'Background check not started' : 'Compliance pack incomplete',
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: h => !h.bgcheck ? 'Background check not started' : 'Required documents not signed',
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'blocked', label:'Blocked on another team', icon:'hourglass.svg', sev:'high',
-    blurb:'Equipment, software, badge or access stuck with a fulfilment team',
+    blurb:'Equipment, apps, badge or access held up by the team supplying it',
     why:'The coordinator is the only person watching every queue. The manager sees one hire; the fulfilment teams see one item type.',
     src:'PRD S2-US13 AC2: each request carries its own status tracker visible to NH, HM and PEX.',
     batch:'Yes. Chase by owning team.',
     test: h => h.blocked,
     reason: h => `Waiting on ${h.blockedBy}`,
-    waiting: h => h.blockedBy, action:'Chase' },
+    waiting: h => h.blockedBy, action:'Remind' },
 
   /* Reframed: auto-assignment was cut. The PRD's SLA assigned a buddy from a
      pool at Day −1 if the manager had not, which made this queue a window in
@@ -5628,52 +5652,52 @@ const PEX_QUEUES = [
     batch:'Yes.',
     test: h => !h.buddy && h.startOff <= 21,
     reason: h => h.startOff <= 3 ? 'Days out, and nothing will assign one' : 'Manager has not named one',
-    waiting: () => 'hiring manager', action:'Nudge' },
+    waiting: () => 'hiring manager', action:'Remind' },
 
   { id:'proxy', label:'No Day 1 host', icon:'user-circle.svg', sev:'high',
-    blurb:'Manager not co-located and no proxy named',
+    blurb:'Manager isn’t in the same office and nobody is standing in',
     why:'Somebody has to physically meet the new hire. If the manager cannot, and nobody is named, Day 1 has no host.',
     src:'PRD 3.6 makes manager co-location and Day 1 proxy assignment filters. The pairing exists to find this gap.',
     batch:'Yes.',
     test: h => !h.mgrColo && !h.proxy && h.startOff <= 30,
-    reason: () => 'Manager is not on site and no proxy is named',
+    reason: () => 'Manager won’t be there and nobody is standing in',
     waiting: () => 'hiring manager', action:'Assign' },
 
-  { id:'persona', label:'Persona not mapped', icon:'portal-window.svg', sev:'med',
-    blurb:'Role does not resolve to a provisioning persona',
+  { id:'persona', label:'No standard app list', icon:'portal-window.svg', sev:'med',
+    blurb:'The role isn’t linked to a standard set of apps, so the manager picks them by hand',
     why:'Sourced and explicit: the coordinator is alerted, and until it is resolved the manager gets an empty software stack.',
     src:'PRD S2-US16 edge case 1. Persona not mapped, empty stack, manager selects from catalogue, coordinator alerted.',
     batch:'Partly.',
     test: h => !h.persona,
-    reason: () => 'Manager is filling the software stack by hand',
-    waiting: () => 'platform', action:'Map' },
+    reason: () => 'Manager is picking apps by hand',
+    waiting: () => 'the system', action:'Link role' },
 
-  { id:'compliance', label:'Compliance pack incomplete', icon:'shield-check.svg', sev:'high',
-    blurb:'Unacknowledged required documents approaching Day −2',
+  { id:'compliance', label:'Required documents not signed', icon:'shield-check.svg', sev:'high',
+    blurb:'Policies still to acknowledge, with the start date close',
     why:'Auditable records must exist before Day 1. This is the queue with legal consequence rather than experience consequence.',
     src:'PRD S2-US19. Due Day −4, escalation Day −2, completion visible to the PEX dashboard.',
     batch:'Yes. Nudge in batch.',
     test: h => h.compliance < 6 && h.startOff <= 6,
-    reason: h => `${6 - h.compliance} of 6 documents outstanding`,
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: h => `${6 - h.compliance} of 6 documents still to sign`,
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'rtw', label:'Right to work outstanding', icon:'id-card.svg', sev:'high',
-    blurb:'Country-conditional checks not started or incomplete',
+    blurb:'Proof of right to work, where the country requires it, not finished',
     why:'Section 2 is validated in person at orientation. If Section 1 is not done beforehand, Day 1 stalls.',
     src:'PRD S2-US03; technical requirements give PEX I-9 Section 2 compliance management.',
     batch:'Partly.',
     test: h => !h.rtw && h.startOff <= 12,
-    reason: () => 'Section 1 not complete. Section 2 is validated in person on Day 1.',
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: () => 'The new hire’s part isn’t done. The rest is checked in person on Day 1.',
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'badge', label:'No badge photo', icon:'photo.svg', sev:'high',
-    blurb:'No photo submitted approaching the print lead',
+    blurb:'No photo yet, and the badge takes a day to print',
     why:'24-hour print lead and the badge must be ready at 9am on Day 1. Miss it and the new hire cannot get into the building.',
     src:'PRD S2-US08. Due Day −2, 24-hour print lead, ready 9am Day 1.',
     batch:'Yes.',
     test: h => !h.photo && !h.remote && h.startOff <= 7,
-    reason: h => `Print lead is 24 hours. ${h.startOff} days to go.`,
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: h => `Takes a day to print. Starts in ${h.startOff} days.`,
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'eta', label:'Equipment will miss Day 1', icon:'laptop.svg', sev:'high',
     blurb:'Estimated delivery falls after the start date',
@@ -5682,35 +5706,35 @@ const PEX_QUEUES = [
     batch:'No. Case by case.',
     test: h => h.eqOrdered ? h.eqEta > h.startOff : (h.startOff <= 9 && !h.eqChosen),
     reason: h => h.eqOrdered
-      ? `${h.eqEta} day lead against ${h.startOff} days to go`
-      : 'Not chosen yet, and the lead time no longer fits',
-    waiting: h => h.eqOrdered ? 'End User Technology' : 'new hire', action:'Issue loaner' },
+      ? `Delivery takes ${h.eqEta} days, and they start in ${h.startOff}`
+      : 'Not chosen yet, and there’s no longer time to deliver it',
+    waiting: h => h.eqOrdered ? 'End User Technology' : 'new hire', action:'Lend a laptop' },
 
-  { id:'escalated', label:'Escalated cases', icon:'comment-lines.svg', sev:'high',
-    blurb:'Raised from any portal by any persona',
+  { id:'escalated', label:'Help requests', icon:'comment-lines.svg', sev:'high',
+    blurb:'Questions a new hire or manager has passed to you',
     why:'The coordinator is the human handoff point for tier 1 and above.',
     src:'PRD 3.4 onboarding-context tagging on all cases; 3.7 human handoff for tier 1+.',
     batch:'No.',
     test: h => h.escalations > 0,
-    reason: h => `${h.escalations} open case${h.escalations > 1 ? 's' : ''}`,
+    reason: h => `${h.escalations} open request${h.escalations > 1 ? 's' : ''}`,
     waiting: () => 'you', action:'Open' },
 
-  { id:'dataver', label:'Recruitment data unverified', icon:'clipboard.svg', sev:'low',
-    blurb:'Data copied from recruiting has not been checked across',
+  { id:'dataver', label:'Recruiting details not checked', icon:'clipboard.svg', sev:'low',
+    blurb:'Details copied over from recruiting that nobody has checked yet',
     why:'Named as current coordinator work, but with no stated trigger, no SLA and no completion definition.',
     src:'Lucid Fulfiller lane. See Open Items OI-11 — this is real work with no documented shape.',
     batch:'Unknown.',
     test: h => !h.dataVerified,
-    reason: () => 'No trigger, SLA or completion defined for this duty',
+    reason: () => 'Not checked yet',
     waiting: () => 'you', action:'Verify' },
 
   { id:'datemoved', label:'Start date moved', icon:'calendar.svg', sev:'med',
-    blurb:'Every SLA, nudge and deadline recalculates',
+    blurb:'Every deadline and reminder moves with it',
     why:'Somebody has to check nothing was silently missed in the shift.',
     src:'PRD 3.2 start date change handling; S2-US20 recalculates sends. Neither addresses the coordinator. See OI-12.',
     batch:'No.',
     test: h => h.dateMoved,
-    reason: () => 'Dates recalculated. Nothing confirms what was re-checked.',
+    reason: () => 'Dates moved. Nothing confirms anyone re-checked them.',
     waiting: () => 'you', action:'Review' },
 ];
 
@@ -5752,7 +5776,7 @@ function renderPexToday() {
         ${next.startOff} day${next.startOff === 1 ? '' : 's'} out in ${esc(next.loc)}.</p>
       </div>
       <div class="px-sum-stats">
-        ${[['In flight', all.length], ['Need you', needing], ['Start this week', thisWeek]]
+        ${[['Active', all.length], ['Need you', needing], ['Start this week', thisWeek]]
           .map(([l, n]) => `<div class="px-stat"><b>${n}</b><span>${l}</span></div>`).join('')}
       </div>
     </div>
@@ -5761,7 +5785,7 @@ function renderPexToday() {
       <div class="px-clear">
         ${ic('check-circle.svg','xl')}
         <div><b>Nothing needs you right now.</b>
-        <p>Every hire in flight is on track. This screen is meant to be empty.</p></div>
+        <p>Every active hire is on track. This screen is meant to be empty.</p></div>
       </div>` : groups.map(g => pexQueueBlock(g.q, g.hires)).join('')}
 
     <div class="callout pnote mt16" data-assume="X-00">
@@ -5788,7 +5812,7 @@ function pexQueueBlock(q, hires) {
         const sendable = hires.filter(h => q.waiting(h) !== 'you').length;
         return sendable
           ? `<button class="btn secondary sm" data-pexbatch="${q.id}">Remind all ${sendable}</button>`
-          : `<span class="pxq-mine">${ic('user.svg','sm')}Yours to work</span>`;
+          : `<span class="pxq-mine">${ic('user.svg','sm')}Yours to handle</span>`;
       })()}
     </div>
     <div class="pxq-why pnote">
@@ -5817,7 +5841,7 @@ function pexQueueRow(q, h) {
       <span class="pxr-sub">${esc(h.role)} · ${esc(h.loc)}</span>
     </div>
     <div class="pxr-when">
-      <b>Day −${h.startOff}</b>
+      <b>In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
       <span>${dueText(pexStart(h))}</span>
     </div>
     <div class="pxr-reason">${q.reason(h)}</div>
@@ -5851,8 +5875,8 @@ const PEX_FILTERS = [
   { id:'loc',      label:'Work location', opts:() => ['', ...new Set(pexCaseload().map(h => h.loc))] },
   { id:'tz',       label:'Time zone', opts:() => ['', ...new Set(pexCaseload().map(h => h.tz))] },
   { id:'remote',   label:'Remote or on-site', opts:[['','Any'],['remote','Remote'],['onsite','On site']] },
-  { id:'mgrColo',  label:'Manager co-location', opts:[['','Any'],['yes','Co-located'],['no','Not co-located']] },
-  { id:'proxy',    label:'Day 1 proxy', opts:[['','Any'],['yes','Named'],['no','Not named']] },
+  { id:'mgrColo',  label:'Manager’s office', opts:[['','Any'],['yes','Same as the hire'],['no','Different']] },
+  { id:'proxy',    label:'Day 1 stand-in', opts:[['','Any'],['yes','Named'],['no','Not named']] },
 ];
 
 /* Two of these — manager co-location and Day 1 proxy — exist specifically
@@ -5860,7 +5884,7 @@ const PEX_FILTERS = [
    a design hint, and it is: combined they are the "no Day 1 host" queue. */
 
 const PEX_SAVED_VIEWS = [
-  { id:'all',     name:'Everyone in flight', shared:true,  f:{} },
+  { id:'all',     name:'Everyone active', shared:true,  f:{} },
   { id:'week',    name:'Starting this week', shared:true,  f:{ startWindow:'7' } },
   { id:'nohost',  name:'No Day 1 host',      shared:true,  f:{ mgrColo:'no', proxy:'no' } },
   { id:'apac',    name:'APAC caseload',      shared:false, f:{ region:'APAC' } },
@@ -5912,7 +5936,7 @@ function renderPexCaseload() {
     <div class="px-listhead" data-assume="X-01">
       <div>
         <h1>All new hires</h1>
-        <p class="lede">${rows.length} of ${all.length} in flight${active.length ? ', filtered' : ''}.
+        <p class="lede">${rows.length} of ${all.length} active${active.length ? ', filtered' : ''}.
         Every hire you own, whatever state they are in.</p>
       </div>
       <div class="px-views">
@@ -5986,11 +6010,11 @@ function pexRow(h) {
       </div>
     </td>
     <td class="px-c-when">
-      <b class="${soon ? 'soon' : ''}">Day −${h.startOff}</b>
+      <b class="${soon ? 'soon' : ''}">In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
       <span>${dueText(pexStart(h))}</span>
     </td>
     <td><span class="px-loc">${esc(h.loc)}</span><span class="px-sub">${esc(h.region)} · ${h.remote ? 'Remote' : 'On site'}</span></td>
-    <td><span class="px-mgr">${esc(h.mgr)}</span>${!h.mgrColo ? `<span class="px-sub">Not co-located</span>` : ''}</td>
+    <td><span class="px-mgr">${esc(h.mgr)}</span>${!h.mgrColo ? `<span class="px-sub">In a different office</span>` : ''}</td>
     <td class="px-c-prog">${pexStepper(ph)}</td>
     <td class="px-c-wait">
       ${waiting.length
@@ -6077,13 +6101,13 @@ function renderPexHire() {
         <h1>${esc(h.first)} ${esc(h.last)}</h1>
         <p class="lede">${esc(h.role)} · ${esc(h.dept)} · reporting to ${esc(h.mgr)}</p>
         <div class="px-rec-facts">
-          <span>${ic('calendar.svg','sm')}Starts ${fmtDate(pexStart(h))} <b>(Day −${h.startOff})</b></span>
+          <span>${ic('calendar.svg','sm')}Starts ${fmtDate(pexStart(h))} <b>(in ${h.startOff} day${h.startOff === 1 ? '' : 's'})</b></span>
           <span>${ic('globe.svg','sm')}${esc(h.loc)}, ${esc(h.country)} · ${h.tz}</span>
-          <span>${ic('user.svg','sm')}${h.remote ? 'Remote' : 'On site'} · manager ${h.mgrColo ? 'co-located' : 'not co-located'}</span>
+          <span>${ic('user.svg','sm')}${h.remote ? 'Remote' : 'On site'} · manager ${h.mgrColo ? 'in the same office' : 'in a different office'}</span>
         </div>
       </div>
       <div class="px-rec-side">
-        ${h.live ? '<span class="chip info">Live record, shared with both portals</span>' : '<span class="chip waiting">Modelled</span>'}
+        ${h.live ? '<span class="chip info">Live: the same record Jordan and Priya see</span>' : '<span class="chip waiting">Sample hire</span>'}
         <div class="px-rec-ready"><b>${ph.done} of ${ph.total}</b><span>ready</span></div>
       </div>
     </div>
@@ -6137,7 +6161,7 @@ function pexOwnerColumn(title, who, h) {
         <div class="pxc-body">
           <span class="pxc-label">${r.label}</span>
           ${r.note ? `<span class="pxc-note">${r.note}</span>` : ''}
-          ${r.sensitive ? `<span class="pxc-lock">${ic('lock.svg','sm')}Content withheld</span>` : ''}
+          ${r.sensitive ? `<span class="pxc-lock">${ic('lock.svg','sm')}Answers hidden from you</span>` : ''}
         </div>
         ${r.owner ? `<span class="pxc-owner">${r.owner}</span>` : ''}
       </div>`).join('')}
@@ -6149,37 +6173,37 @@ function pexOwnerRows(who, h) {
   if (who === 'nh') return [
     { label:'Background check started', state: st(h.bgcheck), sensitive:true,
       note: h.bgcheck ? 'Running with the provider' : 'Not started' },
-    { label:'Start date confirmed', state: h.dateMoved ? 'wait' : 'done',
+    { label:'Start date confirmed', state: h.dateMoved ? 'wait' : st(h.startConfirmed),
       note: h.dateMoved ? 'Change requested, sitting with you' : '' },
     { label:'Equipment chosen and ordered', state: st(h.eqOrdered, h.eqChosen),
       note: h.eqOrdered ? `Ships in ${h.eqEta} days` : h.eqChosen ? 'Chosen, order not submitted' : 'Not chosen' },
-    { label:'Personal and contact details', state: st(h.dataVerified), sensitive:true,
+    { label:'Personal and contact details', state: st(h.detailsDone), sensitive:true,
       note: 'Identity documents, emergency contact and banking' },
-    { label:'Right to work, Section 1', state: st(h.rtw), sensitive:true,
-      note: h.rtw ? 'Complete. Section 2 in person on Day 1.' : 'Outstanding' },
+    { label:'Right to work, their part', state: st(h.rtw), sensitive:true,
+      note: h.rtw ? 'Done. The rest is checked in person on Day 1.' : 'Not done' },
     { label:'Badge photo', state: h.remote ? 'done' : st(h.photo),
       note: h.remote ? 'Remote hire, no badge required' : h.photo ? 'Sent to Workplace' : 'Not submitted' },
-    { label:'Compliance pack', state: h.compliance >= 6 ? 'done' : 'open', sensitive:true,
+    { label:'Required documents', state: h.compliance >= 6 ? 'done' : 'open', sensitive:true,
       note:`${h.compliance} of 6 acknowledged` },
   ];
   if (who === 'hm') return [
-    { label:'First-day details confirmed', state: st(h.mgrColo || h.proxy), owner:h.mgr,
-      note: h.mgrColo ? 'Manager is on site' : h.proxy ? 'Proxy named' : 'No host for Day 1' },
+    { label:'First-day details confirmed', state: st(h.firstDayDone), owner:h.mgr,
+      note: !h.mgrColo && !h.proxy ? 'Nobody to meet them on Day 1' : !h.firstDayDone ? 'Not confirmed yet' : h.mgrColo ? 'Manager will be there' : 'Stand-in will meet them' },
     { label:'Buddy named', state: st(h.buddy), owner:h.mgr,
       note: h.buddy ? 'Accepted' : 'Nothing assigns one automatically' },
-    { label:'Application stack', state: h.persona ? 'done' : 'open', owner:h.mgr,
-      note: h.persona ? 'Confirmed' : 'Blocked, persona not mapped' },
-    { label:'Welcome note', state: st(h.startOff < 40), owner:h.mgr },
-    { label:'Day 1 calendar', state: st(h.startOff < 30), owner:h.mgr },
+    { label:'Apps for Day 1', state: h.appsDone ? 'done' : 'open', owner:h.mgr,
+      note: h.persona ? 'Confirmed' : h.appsDone ? 'Picked by hand, no standard list for the role' : 'Held up: no standard app list for the role' },
+    { label:'Welcome note', state: st(h.welcomeSent), owner:h.mgr },
+    { label:'Day 1 calendar', state: st(h.calendarDone), owner:h.mgr },
   ];
   return [
     { label:'Background check clearance', state: st(h.bgcheck), owner:'HR Operations' },
-    { label:'Equipment fulfilment', state: st(h.eqOrdered && !h.blocked, h.eqOrdered), owner:'End User Technology',
+    { label:'Equipment delivery', state: st(h.eqOrdered && !h.blocked, h.eqOrdered), owner:'End User Technology',
       note: h.blocked ? `Blocked with ${h.blockedBy}` : '' },
-    { label:'Badge production', state: h.remote ? 'done' : st(h.photo), owner:'Workplace / CRE',
+    { label:'Badge production', state: h.remote ? 'done' : st(h.photo), owner:'Workplace & Real Estate',
       note:'Printing is not tracked here' },
-    { label:'Orientation blueprint', state:'done', owner:'People Experience',
-      note:`${h.loc} blueprint assigned` },
+    { label:'Location details', state:'done', owner:'People Experience',
+      note:`${h.loc} details set` },
     ...(h.medicalNeeded ? [{ label:'Medical check', state: st(h.medicalDone), owner:'People Experience',
       note:`Required in ${h.country}. No country list exists yet.` }] : []),
   ];
@@ -6192,17 +6216,17 @@ function pexActivity(h) {
   const d = n => dueText(addDays(simToday(), -n));
   const ev = [];
   if (h.dateMoved) ev.push([0, 'Start date', `${h.preferred} requested a new start date. Sitting with you.`]);
-  if (h.escalations) ev.push([0, 'Escalation', `${h.escalations} case${h.escalations>1?'s':''} raised from the manager's portal.`]);
-  if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Lead time ${h.eqEta} days.`]);
+  if (h.escalations) ev.push([0, 'Help request', `${h.escalations} help request${h.escalations>1?'s':''} passed on from the manager.`]);
+  if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Delivery takes ${h.eqEta} days.`]);
   if (h.buddy) ev.push([2, 'People', `${h.mgr} named a buddy and they accepted.`]);
   if (h.bgcheck) ev.push([3, 'Background check', `Launched by ${h.preferred}. Running with the provider.`]);
-  if (!h.persona) ev.push([4, 'Provisioning', 'Persona lookup returned empty. You were alerted.']);
-  ev.push([6, 'Blueprint', `${h.loc} orientation blueprint assigned by People Experience.`]);
-  ev.push([9, 'Record', `Case created. Recruitment data ${h.dataVerified ? 'verified' : 'not yet verified'}.`]);
+  if (!h.persona) ev.push([4, 'Apps', 'No standard app list for this role. You were told.']);
+  ev.push([6, 'Location', `${h.loc} Day 1 details set by People Experience.`]);
+  ev.push([9, 'Record', `Record created. Recruiting details ${h.dataVerified ? 'checked' : 'not checked yet'}.`]);
 
   return `
   <section class="px-activity" data-assume="X-02">
-    <div class="section-h"><h2>Activity</h2><span class="hint">Every actor, one stream</span></div>
+    <div class="section-h"><h2>Activity</h2><span class="hint">Everything that’s happened, whoever did it</span></div>
     <div class="pxa-list">
       ${ev.map(([n, kind, text]) => `
         <div class="pxa-row">
@@ -6236,8 +6260,8 @@ function renderPexBlueprints() {
     ${pexHeader('blueprints')}
     <div class="px-listhead" data-assume="X-05">
       <div>
-        <h1>Orientation blueprints</h1>
-        <p class="lede">Prebuilt per location. You are the only editor, and everything downstream reads this.</p>
+        <h1>Location details</h1>
+        <p class="lede">One set per office. Only you can edit them, and every new hire and manager at that office sees what you set here.</p>
       </div>
     </div>
 
@@ -6253,7 +6277,7 @@ function renderPexBlueprints() {
       <div class="px-bp-edit">
         <div class="pxbp-h">
           <h2>${esc(B.loc)}</h2>
-          <span class="px-sub">Feeds ${hiresHere.length} hire${hiresHere.length === 1 ? '' : 's'} at this location</span>
+          <span class="px-sub">Used for ${hiresHere.length} hire${hiresHere.length === 1 ? '' : 's'} at this office</span>
         </div>
 
         <div class="callout ${B.dirty ? '' : 'soft'}">
@@ -6261,8 +6285,8 @@ function renderPexBlueprints() {
           <div>${B.dirty
             ? `<b>Unsaved change.</b> Publishing this moves orientation for every hire at ${esc(B.loc)}.
                Managers who already confirmed their first-day details will have that task reopened.`
-            : `<b>An error here surfaces on every hire at this location.</b> The new hire's first-day details
-               screen is read-only against this, and the manager confirms against it rather than authoring it.`}</div>
+            : `<b>A mistake here reaches every hire at this office.</b> New hires see these details as they are,
+               and managers confirm them but can't change them.`}</div>
         </div>
 
         <div class="field mt16" style="max-width:none;">
@@ -6277,7 +6301,7 @@ function renderPexBlueprints() {
                 ${['12:00','13:00','14:00'].map(t => `<option ${B.until===t?'selected':''}>${t}</option>`).join('')}
               </select></div>
           </div>
-          <div class="note">The manager's Day 1 one-to-one is placed automatically straight after this ends.</div>
+          <div class="note">The manager's Day 1 one-to-one goes in their calendar automatically, straight after this ends.</div>
         </div>
 
         <div class="field" style="max-width:none;">
@@ -6314,7 +6338,7 @@ function pexHeader(active) {
   const tabs = [
     ['today',      'Today',      '#/pex/'],
     ['caseload',   'Caseload',   '#/pex/caseload'],
-    ['blueprints', 'Blueprints', '#/pex/blueprints'],
+    ['blueprints', 'Locations', '#/pex/blueprints'],
   ];
   const needing = pexAllExceptions().size;
   return `
@@ -6700,8 +6724,8 @@ function renderLanding() {
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
               <div class="o-name">Right to work documents <span class="chip info">Available now</span></div>
-              <div class="o-note">Country-specific, and nothing is holding it up, so start whenever you like.
-              You finish it in the Right to Work system, not here.</div>
+              <div class="o-note">Proof that you’re allowed to work in the country you’re joining. You can start it now,
+              and you finish it in the separate Right to Work system.</div>
             </div>
             <a class="o-go" data-ext="rtw">Open ${ic('external-link.svg','sm')}</a>
           </div>
@@ -6755,8 +6779,8 @@ function renderLanding() {
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
               <div class="o-name">Tax forms <span class="chip info">Payroll</span></div>
-              <div class="o-note">Country-specific, and Payroll runs it on their own timetable.
-              Your withholding figure is on the pay tab of your details; the forms themselves are not here. ${am('A-62')}</div>
+              <div class="o-note">Payroll sends these separately, on their own schedule. The tax figure you enter on the
+              Pay and banking tab of your details is all we need here. ${am('A-62')}</div>
             </div>
           </div>
         </div>
@@ -6767,8 +6791,8 @@ function renderLanding() {
 
     <div class="live-link" data-goto="#/todos">
       ${ic('list-tasks.svg','lg')}
-      <div><b>See the platform's own to-do view</b>
-      <p>The live portal groups these by phase, and counts one phase at a time.</p>
+      <div><b>See this list the way the current system shows it</b>
+      <p>The current system splits your to-dos into stages and counts one stage at a time.</p>
       <p class="pnote">Worth comparing against the list above before either model is agreed. ${am('A-56')}</p></div>
       ${ic('chevron-right.svg','lg')}
     </div>
@@ -6868,7 +6892,7 @@ function landingRail() {
              to sit on one line: every other role in this card is one line and
              hers ran to two. Her team is named by the green People Experience
              avatar and again in the note at the foot of the card. */}
-      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'Your onboarding concierge' }),
+      ${contactRow(Object.assign({}, PEOPLE.pex, { role:'Your onboarding coordinator' }),
         `<div class="c-extra">Your first stop before Day 1</div>`, 'primary')}
       ${contactRow(PEOPLE.recruiter, `<div class="c-extra">Handed over to ${PEOPLE.pex.name.split(' ')[0]}</div>`, 'handed')}
       <div class="rail-note">${PEOPLE.recruiter.name.split(' ')[0]} handed you over a week after your offer was signed.
@@ -6998,7 +7022,7 @@ function readinessTracker(who) {
   <section class="rtrack" data-assume="A-52 M-22">
     <div class="rt-head">
       <div>
-        <div class="rt-title">Onboarding readiness</div>
+        <div class="rt-title">Ready for Day 1?</div>
         <div class="rt-sub">Everything that has to be true before Day 1, whoever owns it.
           ${who === 'hm' ? 'Your tasks are only part of it.' : 'Most of this happens without you.'}
           Open a step to see where it actually is. ${am('A-52')}</div>
@@ -7186,7 +7210,7 @@ function renderStartDate() {
           <div class="callout pnote">
             ${ic('exclamation-triangle.svg')}
             <div><b>Nobody has defined what happens next.</b> Who approves a change, how late one can be requested, and what
-            happens to work already in flight, such as an equipment order placed, a badge queued for print or calendar holds booked,
+            happens to work already under way, such as an equipment order placed, a badge queued for print or calendar holds booked,
             are all unanswered. The prototype shows the request being made, not resolved. ${am('L-11')}</div>
           </div>
           <button class="btn quiet mt16" id="sdUndo">Cancel the request and keep ${startDateText()}</button>
@@ -7254,7 +7278,7 @@ function renderBgCheck() {
     ${crumbs('Start your background check')}
     <div class="task-head" data-assume="A-50">
       <h1>Start your background check ${am('A-50')}</h1>
-      <p class="why">It runs on its own once you start it, and it can take a couple of weeks. The sooner it begins, the less it holds up.</p>
+      <p class="why">It runs on its own once you start it, and it can take a couple of weeks. The sooner it begins, the less it can delay your start.</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
@@ -7371,7 +7395,7 @@ function renderDetails() {
     <div class="task-head" data-assume="A-10">
       <h1>Your personal and contact details ${am('A-10')}</h1>
       <p class="why">So we can set up your record, reach you, and know who to call in an emergency.
-      Fields marked <span class="prefill-tag">${ic('check.svg','sm')}From your offer</span> came from what you gave us earlier ${am('A-01')}. Check them, and change anything that’s wrong. The rest is yours to add.</p>
+      Fields marked <span class="prefill-tag">${ic('check.svg','sm')}From your offer</span> came from what you gave us earlier. ${am('A-01')} Check them, and change anything that’s wrong. The rest is yours to add.</p>
     </div>
     <div class="task-shell" data-assume="A-01">
       <div class="wiz-tabs">
@@ -7480,7 +7504,7 @@ function tabDetails(jp) {
         ${jp ? '' : inp('zip','ZIP code',{cls:'narrow'})}
       </div>
       ${addrDone ? `<span class="verified">${ic('check-circle.svg','sm')}Address verified</span>` : ''}
-      <div class="note" style="max-width:520px; margin-top:10px;">This is your home address for your worker record.
+      <div class="note" style="max-width:520px; margin-top:10px;">This is your home address for your employee record.
       Where your equipment ships is decided in <a data-goto="#/equipment">your equipment order</a>, and it defaults to your office.</div>
     </div>
 
@@ -7715,29 +7739,29 @@ function officeAddress() { return S.country === 'JP' ? HIRE.officeAddressJP : HI
 /* One equipment table, rendered on both sides (L-04). Whichever side you
    change it from, the other sees the same three rows and the same blocker. */
 /* The live case names both people at the top of the equipment section, with
-   the start date and the manager's email, before the table itself (A-54). */
+   the start date and the manager's email, before the table itself. The layout
+   is kept from the live case; the wording is plain English (A-63). */
 function caseParties() {
   return `
     <div class="case-top">
-      <span class="case-num">HRC0943697</span>
-      <span class="chip done">Ready</span>
-      <span class="case-when">Created 21d ago</span>
-      <span class="case-when">Last updated just now</span>
-      <span class="case-hide">Hide details</span>
+      <span class="case-num">Case HRC0943697</span>
+      <span class="chip info">Open</span>
+      <span class="case-when">Opened 21 days ago</span>
+      <span class="case-when">Updated just now</span>
     </div>
-    <div class="case-parties" data-assume="A-54">
+    <div class="case-parties" data-assume="A-63">
       <div class="cp-side">
         <div class="cp-lbl">New hire</div>
         <div class="cp-who"><div class="avatar sm">${HIRE.initials}</div>
           <span>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</span></div>
-        <div class="cp-lbl mt12">Employment start date</div>
-        <div class="cp-val">${startDate().toISOString().slice(0,10)}</div>
+        <div class="cp-lbl mt12">Start date</div>
+        <div class="cp-val">${fmtDate(startDate())}</div>
       </div>
       <div class="cp-side">
         <div class="cp-lbl">Hiring manager</div>
         <div class="cp-who"><div class="avatar sm mgr">${MANAGER.initials}</div>
           <span>${MANAGER.name} (${MANAGER.username})</span></div>
-        <div class="cp-lbl mt12">Hiring manager email</div>
+        <div class="cp-lbl mt12">Manager’s email</div>
         <div class="cp-val">${MANAGER.email}</div>
       </div>
     </div>`;
@@ -7745,13 +7769,13 @@ function caseParties() {
 
 function equipmentTable(forManager) {
   return `
-    <div class="eq-status" data-assume="A-41 A-42 M-16 L-04 A-54">
-      <div class="eqs-bar">Equipment orders for ${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</div>
+    <div class="eq-status" data-assume="A-41 A-42 M-16 L-04 A-63">
+      <div class="eqs-bar">Equipment for ${HIRE.legalFirst} ${HIRE.legalLast}</div>
       ${caseParties()}
       <div class="eqs-h">
         <span class="eqs-note">${forManager
-          ? `Three items, three different owners. ${am('M-16')}`
-          : `Three items, three different owners. This table is the answer to “where is my equipment?” ${am('A-41')}`}</span>
+          ? `Where each item is up to. ${am('M-16')}`
+          : `Where each item is up to. ${am('A-41')}`}</span>
       </div>
       <table class="eq-table">
         <thead><tr><th>Equipment</th><th>Status</th></tr></thead>
@@ -7769,35 +7793,35 @@ function equipmentTable(forManager) {
     </div>`;
 }
 
-/* Status wording follows the live case as closely as it can. The live strings
-   name the person as "Name (username)" and quote the task title in full
-   (A-54). Ownership is carried in the sentence, the way the live table does
-   it, rather than in a separate column. */
+/* Ownership is carried in the sentence, the way the live table does it,
+   rather than in a separate column. The live strings themselves were
+   replaced with plain ones in the plain-English pass (A-63, retiring A-54). */
 function equipmentRows(forManager) {
   const E = S.equipment;
-  const hire = `<b>${HIRE.legalFirst} ${HIRE.legalLast} (${HIRE.username})</b>`;
-  const mgr = `<b>${MANAGER.name} (${MANAGER.username})</b>`;
+  const first = HIRE.preferred;
+  // Addressed to whoever is reading (A-63): "you" for the new hire, the new
+  // hire by name for the manager. The live case wrote both in the third person.
+  const who = forManager ? first : 'you';
+  const whoCap = forManager ? first : 'You';
   return [
     // The computer is the new hire's own pick now (A-60), so this row reports
     // their choice rather than waiting on the manager to place an order.
     { item:'Computer', icon:'laptop.svg',
-      status: E.deviceConfirmed ? 'CONFIRMED' : 'NOT CHOSEN YET', ok: E.deviceConfirmed,
+      status: E.deviceConfirmed ? 'Chosen' : 'Not chosen yet', ok: E.deviceConfirmed,
       unblock: E.deviceConfirmed
-        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, chosen by ${hire}. Ordered on submission of the
-           <b>“Choose your equipment”</b> task.`
-        : `To place an order for a computer the new hire, ${hire}, must first complete the
-           <b>“Choose your equipment”</b> task.`,
+        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, chosen by ${who}. It’s ordered when ${who === 'you' ? 'you submit' : first + ' submits'} the order below.`
+        : forManager ? `${first} hasn’t chosen yet. It’s their task, and nothing waits on you.`
+        : `Choose your computer above to order it.`,
       marker:'A-60' },
     { item:'Computer accessories', icon:'desktop.svg',
-      status: E.submitted ? 'INC6369627' : 'NOT ORDERED YET', ok:E.submitted,
+      status: E.submitted ? 'Ordered' : 'Not ordered yet', ok:E.submitted,
       unblock: E.submitted
-        ? `New, with Global Helpdesk Tier 2. ${forManager ? 'Ordered by ' + hire + '.' : ''}`
-        : `To place an order for computer accessories the new hire, ${hire}, must complete the
-           <b>“Order your workspace tech accessories”</b> task.` },
+        ? `Order INC6369627, with the IT help desk. ${forManager ? 'Ordered by ' + first + '.' : ''}`
+        : forManager ? `${first} orders these themselves, on their equipment task.`
+        : `Choose your accessories below and submit the order.` },
     { item:'Mobile phone', icon:'mobile.svg',
-      status:'NOT ORDERED YET', ok:false,
-      unblock:`To place an order for a mobile phone the new hire, ${hire}, must complete the
-        <b>“Order a phone”</b> task, which is available on their first day.`, marker:'A-40' },
+      status:'Not ordered yet', ok:false,
+      unblock:`${whoCap} can order one on the first day, if the role needs it.`, marker:'A-40' },
   ];
 }
 
@@ -7891,7 +7915,7 @@ function renderEquipment() {
     <div class="task-shell mt24">
       <div class="wiz-body">
         <div class="form-sec" data-assume="A-37 A-39">
-          <h3>Order your workspace tech accessories</h3>
+          <h3>Accessories for working from home</h3>
           <div class="callout soft">
             ${ic('info-circle.svg')}
             <div><b>These are for your at-home workspace.</b> You have the option of an Equinix-approved headset, or
@@ -7902,7 +7926,7 @@ function renderEquipment() {
           <div class="field mt16">
             <label>Select accessories <span class="req">required</span></label>
             <select id="eqChoice">
-              <option value="" ${!E.choice?'selected':''}>-- None --</option>
+              <option value="" ${!E.choice?'selected':''}>Choose one</option>
               <option value="headset" ${E.choice==='headset'?'selected':''}>Headset only</option>
               <option value="more" ${E.choice==='more'?'selected':''}>Headset and other accessories</option>
             </select>
@@ -7934,7 +7958,7 @@ function renderEquipment() {
             ${ic('users-friends.svg')}
             <div>
               <b>Need something different?</b> If an adjustment would help you work comfortably, tell us.
-              <a data-goto-adjust="1">review adjustments and formal accommodations</a>. Asking changes nothing about your role.
+              See <a data-goto-adjust="1">adjustments and formal accommodations</a>. Asking changes nothing about your role.
               ${am('A-06')}
             </div>
           </div>
@@ -8149,8 +8173,8 @@ function renderNetwork() {
           <h2>${HIRE.manager} hasn’t named anyone yet</h2>
           <p>This fills in when your manager picks the people you’ll work with most, the ones outside your own team,
           and writes a line about why each of them matters. You’ll get their names, her reasons, and times you can book.</p>
-          <p class="wp-note">${ic('info-circle.svg','sm')} Nothing is waiting on you. This is here so you can see it exists,
-          not so you can chase it. ${am('L-06')}</p>
+          <p class="wp-note">${ic('info-circle.svg','sm')} Nothing is waiting on you. This is here so you know it’s coming,
+          not so you have to ask about it. ${am('L-06')}</p>
         </div>
       </div>
     </div>`;
@@ -8432,8 +8456,8 @@ function renderIntro() {
 
         <div class="divider"></div>
         <div class="req-list" data-assume="A-17">
-          <b>Requirements</b> ${am('A-17')}: JPG or PNG, under 5MB, at least 600 by 600 pixels<br>
-          <b>Guidelines</b> ${am('A-17')}: plain light background, face the camera with both eyes visible, no hats or sunglasses, taken within the last six months<br>
+          <b>Requirements:</b> ${am('A-17')} JPG or PNG, under 5MB, at least 600 by 600 pixels<br>
+          <b>Guidelines:</b> ${am('A-17')} plain light background, face the camera with both eyes visible, no hats or sunglasses, taken within the last six months<br>
           <em style="color:var(--ink-faint)">Placeholder values. The real badge specification comes from the workplace team.</em>
         </div>
 
@@ -8526,7 +8550,7 @@ function renderPolicies() {
     ${crumbs('Policies and privacy notices')}
     <div class="task-head">
       <h1>Policies and privacy notices</h1>
-      <p class="why">The documents we need you to read and acknowledge before you start. About 10 minutes ${am('A-23')}, and you can stop
+      <p class="why">The documents we need you to read and acknowledge before you start. About 10 minutes, ${am('A-23')} and you can stop
       any time. What you’ve acknowledged stays acknowledged.</p>
     </div>
     <div class="pol-head">
@@ -8534,8 +8558,8 @@ function renderPolicies() {
         <div class="nums" style="color:var(--eq-dark-blue)"><span>${acked} of ${total} acknowledged</span></div>
         <div class="prog-bar" style="background:var(--cloud)"><i style="width:${(acked/total)*100}%"></i></div>
       </div>
-      <span class="chip info">${ic('globe.svg','sm')}Served in ${docLanguage()}, set by your country of hire rather than by preference ${am('A-03')}</span>
-      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan, so your list includes a country addendum</span>` : ''}
+      <span class="chip info">${ic('globe.svg','sm')}In ${docLanguage()}, the language for your country of hire ${am('A-03')}</span>
+      ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan, so your list includes a Japan supplement</span>` : ''}
     </div>
 
     <div class="doc-list">${DOCS.map(d => docCard(d, jp)).join('')}</div>
@@ -8636,7 +8660,7 @@ function currentPackCard(jp) {
       </div>
     </div>
     ${pack.addenda ? `
-    <div class="pack-flag">
+    <div class="pack-flag pnote">
       ${ic('exclamation-triangle.svg','sm')}
       <span><b>Shown because it is true today, not because it is right.</b> Every US hire receives all ${pack.addenda} state
       addenda regardless of where they work, so ${pack.addenda - 1} of them do not apply to you. Across all countries the live
@@ -8667,36 +8691,36 @@ function renderFlow() {
     { x:2, lbl:'Offer accepted', sub:'and signed', major:true },
     { x:10, lbl:'Identity verified', sub:'account created' },
     { x:19, lbl:'Portal opens', sub:'you are here', major:true },
-    { x:36, lbl:'Day −12', sub:'accessories' },
-    { x:48, lbl:'Day −7', sub:'JD + intro' },
-    { x:63, lbl:'Day −4', sub:'details + policies' },
-    { x:80, lbl:'Day −1', sub:'credentials' },
+    { x:36, lbl:'12 days before', sub:'accessories' },
+    { x:48, lbl:'7 days before', sub:'job, intro' },
+    { x:63, lbl:'4 days before', sub:'details, policies' },
+    { x:80, lbl:'1 day before', sub:'sign-in details' },
     { x:95, lbl:'Day 1', sub:'and beyond', major:true },
   ];
   const you = [
-    { x:36, r:22, cls:'you', lbl:'Accessories order', sub:'first, due Day −12' },
+    { x:36, r:22, cls:'you', lbl:'Accessories order', sub:'first, due 12 days before' },
     { x:30, r:72, cls:'you', lbl:'Suggested network', sub:'optional, no due date' },
-    { x:44, r:22, cls:'you', lbl:'Badge photo', sub:'due Day −10, print lead' },
-    { x:52, r:72, cls:'you', lbl:'Job description', sub:'confirm, due Day −7' },
-    { x:60, r:22, cls:'you', lbl:'Introduce yourself', sub:'due Day −7' },
-    { x:70, r:72, cls:'you', lbl:'Personal details', sub:'3 tabs, due Day −4' },
-    { x:78, r:22, cls:'you', lbl:'Policies pack', sub:'6 documents, due Day −4' },
-    { x:95, r:50, cls:'day1', lbl:'Day 1', sub:'badge waiting, kit set' },
+    { x:44, r:22, cls:'you', lbl:'Badge photo', sub:'due 10 days before, to print' },
+    { x:52, r:72, cls:'you', lbl:'Job description', sub:'confirm, due 7 days before' },
+    { x:60, r:22, cls:'you', lbl:'Introduce yourself', sub:'due 7 days before' },
+    { x:70, r:72, cls:'you', lbl:'Personal details', sub:'4 tabs, due 4 days before' },
+    { x:78, r:22, cls:'you', lbl:'Policies', sub:'6 documents, due 4 days before' },
+    { x:95, r:50, cls:'day1', lbl:'Day 1', sub:'badge and laptop waiting' },
   ];
   const later = [
     { x:22, r:30, cls:'later', lbl:'Right to work', sub:'open now, other system' },
-    { x:22, r:74, cls:'later', lbl:'Medical check', sub:'country-conditional' },
-    { x:44, r:30, cls:'later', lbl:'Benefits enrolment', sub:'opens Day −30' },
-    { x:66, r:74, cls:'later', lbl:'Setup instructions', sub:'Day −3' },
-    { x:78, r:74, cls:'later', lbl:'First day details', sub:'Day −3' },
-    { x:88, r:30, cls:'later', lbl:'Credentials', sub:'Day −1' },
-    { x:97, r:74, cls:'later', lbl:'Phone, info governance', sub:'Day 1, Week 1' },
+    { x:22, r:74, cls:'later', lbl:'Medical check', sub:'some countries only' },
+    { x:44, r:30, cls:'later', lbl:'Benefits enrolment', sub:'opens 30 days before' },
+    { x:66, r:74, cls:'later', lbl:'Setup instructions', sub:'3 days before' },
+    { x:78, r:74, cls:'later', lbl:'First day details', sub:'3 days before' },
+    { x:88, r:30, cls:'later', lbl:'Sign-in details', sub:'1 day before' },
+    { x:97, r:74, cls:'later', lbl:'Phone, information governance', sub:'Day 1, first week' },
   ];
   const other = [
-    { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, no action from you' },
+    { x:26, r:50, cls:'other', lbl:'Background check', sub:'running, nothing for you to do' },
     { x:48, r:50, cls:'other', lbl:'Computer, your manager', sub:'their task, not yours' },
-    { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their timetable, no date yet' },
-    { x:88, r:50, cls:'other', lbl:'Badge photo sent on', sub:'printing is not tracked here' },
+    { x:70, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their schedule, no date yet' },
+    { x:88, r:50, cls:'other', lbl:'Badge printing', sub:'not tracked here' },
   ];
   // x is the date position and r the row. Both are intent, not final geometry:
   // a node is as wide as its label, so layoutFlowLanes() below corrects the
@@ -8730,16 +8754,16 @@ function renderFlow() {
           <div class="apt-lbl">${a.lbl}</div><div class="apt-sub">${a.sub}</div></div>`).join('')}
       </div>
       ${lane(`What ${HIRE.preferred} does in this portal, under “Do these now”`, 'user-circle.svg', you, '', 130)}
-      ${lane('Open elsewhere, or opens later, visible so the list has an end', 'clock.svg', later, '', 130)}
-      ${lane('Handled by other teams, visible but never actioned here', 'users-friends.svg', other, 'other', 100)}
+      ${lane('Done somewhere else, or opens later', 'clock.svg', later, '', 130)}
+      ${lane('Handled by other teams, nothing for you to do', 'users-friends.svg', other, 'other', 100)}
       <div class="flow-legend">
         <span class="lg-item"><span class="lg-swatch you"></span>Your tasks, in this portal</span>
         <span class="lg-item"><span class="lg-swatch later"></span>Elsewhere or not yet open</span>
         <span class="lg-item"><span class="lg-swatch other"></span>Other teams, status only</span>
-        <span class="lg-item">${am('A-33')} ${am('A-40')} ${am('A-11')} timing and ownership carry assumptions</span>
+        <span class="lg-item pnote">${am('A-33')} ${am('A-40')} ${am('A-11')} timing and ownership carry assumptions</span>
       </div>
       <div class="flow-foot">${ic('info-circle.svg','sm')}<b>More to-dos are assigned after Day 1.</b> This diagram
-      stops at the start date. The live portal carries on through the first week and the first month. ${am('A-48')}</div>
+      stops at the start date. The current system carries on through the first week and the first month. ${am('A-48')}</div>
     </div>
   </div>`;
 }
@@ -8757,7 +8781,7 @@ function renderShell() {
   $('#hdrYou').innerHTML = pex
     ? `<div>
          <div class="who">${PEOPLE.pex.name}</div>
-         <div class="when">${PEOPLE.pex.role}, ${pexCaseload().length} hires in flight</div>
+         <div class="when">${PEOPLE.pex.role}, ${pexCaseload().length} active hires</div>
        </div>
        <div class="avatar pex">${PEOPLE.pex.initials}</div>`
     : hm
@@ -8783,6 +8807,7 @@ function renderShell() {
   // the relationship. It also sat on top of the caseload's action column,
   // which is right-aligned, so it covered the button on the bottom row.
   document.body.classList.toggle('no-chat', pex);
+  document.body.classList.toggle('pex-side', pex);
 }
 
 /* ---------- assumptions panel ---------- */
@@ -8939,7 +8964,7 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.notes?'on':''}" data-pc="notes:on">Shown</button>
     </div>
     <div class="pc-sub">Rationale, ${ASSUMPTIONS.length} assumption markers and the manager dispositions. Off by default so the portal reads as itself.</div>
-    <div class="pc-h">Persona</div>
+    <div class="pc-h">Type of hire</div>
     <div class="pc-row">
       <button class="pc-btn ${S.persona==='external'?'on':''}" data-pc="persona:external">External new hire</button>
       <button class="pc-btn ${S.persona==='conversion'?'on':''}" data-pc="persona:conversion">Contract-to-permanent</button>
@@ -8957,15 +8982,15 @@ function renderProtoDrawer() {
     the home screen, at fifty only triage works.</div>
     <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
     <div class="pc-row">
-      <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Blueprint unchanged</button>
-      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">Blueprint revised</button>
+      <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Office details unchanged</button>
+      <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">Office details changed</button>
     </div>
     <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
     <div class="pc-row">
       <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">Single build</button>
       <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">Choice of builds</button>
     </div>
-    <div class="pc-h">Runway to Day 1 <span class="pc-mark">A-45</span></div>
+    <div class="pc-h">Time until Day 1 <span class="pc-mark">A-45</span></div>
     <div class="pc-row">
       <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">Two weeks out</button>
       <button class="pc-btn ${S.horizon==='3mo'?'on':''}" data-pc="horizon:3mo">Three months out</button>
@@ -9024,7 +9049,7 @@ function applyScenario(name) {
     hmPartial(); namePeople();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
     S.hm.software = { confirmed:true, added:['Anaplan','Tableau','Power BI'] };
-    S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true, itSetup:true } };
+    S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true } };
     S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team. Shout if anything is unclear before the 18th.' };
     S.hm.channels.accepted = true;
   };
@@ -9128,8 +9153,8 @@ function renderTodos() {
   <div class="page">
     ${crumbs('All to-dos')}
     <h1>All to-dos</h1>
-    <p class="why">This is the platform's own view, as UAT shows it: one phase at a time, with its own count.
-    Your task list on the home screen is the designed alternative. Both are here so the difference is visible. ${am('A-56')}</p>
+    <p class="why">This is the view the current system has, as its test build shows it: one stage at a time, each with its own count.
+    Your task list on the home screen is the proposed replacement. Both are here so the difference is visible. ${am('A-56')}</p>
 
     <div class="td-bar">Tasks/To-Dos</div>
     <div class="td-wrap" data-assume="A-56 A-44">
@@ -9497,7 +9522,7 @@ function bindEquipment() {
   const sub = $('#eqSubmit');
   if (sub) sub.addEventListener('click', () => {
     S.equipment.submitted = true; save(); rerender();
-    toast('Order submitted. Incident INC6369627 raised with Global Helpdesk Tier 2.', 'check-circle.svg');
+    toast('Order submitted. The IT help desk has it as INC6369627.', 'check-circle.svg');
   });
   const send = $('#incSend');
   if (send) send.addEventListener('click', () => {

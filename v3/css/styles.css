@@ -572,7 +572,7 @@ small{color:var(--text-tertiary);}
 .field{margin-bottom:16px; max-width:520px;}
 .field label{display:block; font-weight:700; font-size:var(--t-sm); color:var(--charcoal); margin-bottom:5px;}
 .field label .opt{font-weight:400; color:var(--ink-faint);}
-.field .note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; margin-top:5px; line-height:1.45;}
+.note, .field .note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; margin-top:5px; line-height:1.45;}
 /* Inputs follow the system's field spec: hairline border in the metal
    grays, 8px radius, Book weight, a strong-border hover, and the standard
    3px blue focus glow. Invalid borders and error text are Equinix Red. */
@@ -739,8 +739,10 @@ small{color:var(--text-tertiary);}
 .sec-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:24px 26px;}
 .sec-card > .sec-top{display:flex; align-items:flex-start; gap:10px; margin-bottom:6px;}
 .sec-card > .sec-top h2{flex:1; font-size:var(--t-lead);}
-.sec-card .due-line{font-size:var(--t-meta); color:var(--carbon); display:flex; gap:6px; align-items:center; margin-bottom:12px;}
-.sec-card .due-line .ic{color:var(--platinum);}
+/* Block, not flex: a flex row turns every text run into its own column, so
+   a due date followed by a sentence wrapped into two ragged stacks. */
+.sec-card .due-line{font-size:var(--t-meta); color:var(--carbon); margin-bottom:12px;}
+.sec-card .due-line .ic{color:var(--platinum); vertical-align:-2px; margin-right:6px;}
 .sec-card .due-line b{color:var(--charcoal); white-space:nowrap;}
 .char-count{font-size:var(--t-meta); color:var(--ink-faint); text-align:right; margin-top:4px;}
 .char-count.warn{color:var(--warn); font-weight:700;}
@@ -909,14 +911,18 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .a-entry .a-resolve b{color:var(--charcoal); font-weight:700;}
 .a-entry .nolink{font-size:var(--t-micro); color:var(--text-secondary); font-style:italic; margin-top:4px;}
 
-/* chat panel */
+/* chat panel. Round, and small enough to sit in the page margin at 1280px;
+   the label opens out leftwards on hover or keyboard focus. */
 .chat-fab{
-  position:fixed; right:26px; bottom:26px; z-index:80;
-  display:flex; align-items:center; gap:10px; border:none; cursor:pointer;
+  position:fixed; right:12px; bottom:20px; z-index:80;
+  display:flex; align-items:center; justify-content:center; gap:0; border:none; cursor:pointer;
   background:var(--eq-dark-blue); color:var(--white); border-radius:99px;
-  padding:12px 20px; font-weight:700; font-size:var(--t-ui); box-shadow:var(--shadow-2);
+  height:52px; min-width:52px; padding:0 14px; font-family:inherit;
+  font-weight:700; font-size:var(--t-ui); box-shadow:var(--shadow-2);
 }
-.chat-fab:hover{background:var(--eq-blue);}
+.chat-fab .cf-label{max-width:0; overflow:hidden; white-space:nowrap; transition:max-width .18s ease, margin .18s ease;}
+.chat-fab:hover, .chat-fab:focus-visible{background:var(--eq-blue);}
+.chat-fab:hover .cf-label, .chat-fab:focus-visible .cf-label{max-width:200px; margin-left:10px;}
 body.no-chat .chat-fab{display:none;}
 .chat-msgs{display:flex; flex-direction:column; gap:10px;}
 .msg{max-width:85%; border-radius:12px; padding:10px 14px; font-size:var(--t-sm); font-weight:400;}
@@ -928,22 +934,20 @@ body.no-chat .chat-fab{display:none;}
 .chat-in input:focus{border-color:var(--eq-blue);}
 .chat-hand{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; padding:0 22px 12px;}
 
-/* ---------- Prototype controls ---------- */
-.proto-fab{
-  position:fixed; left:26px; bottom:26px; z-index:80;
-  display:flex; align-items:center; gap:8px; cursor:pointer; border:none;
-  background:var(--charcoal); color:var(--eq-aqua); border-radius:99px;
-  padding:10px 18px; font-weight:700; font-size:var(--t-meta); box-shadow:var(--shadow-2);
-  letter-spacing:.02em;
+/* ---------- Prototype controls ----------
+   In the ribbon with the other prototype devices, opening a drawer below it. */
+.rb-proto{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  background:none; border:1px solid var(--eq-aqua); color:var(--eq-aqua); border-radius:99px;
+  font-family:inherit; font-size:var(--t-micro); font-weight:700; padding:2px 11px; letter-spacing:.02em;
 }
-.proto-fab:hover{background:var(--black);}
+.rb-proto:hover, body:has(.proto-drawer.show) .rb-proto{background:var(--eq-aqua); color:var(--charcoal);}
 .proto-drawer{
-  position:fixed; left:26px; bottom:78px; z-index:85; width:330px;
+  position:fixed; right:26px; top:40px; z-index:85; width:330px;
   background:var(--charcoal); color:var(--cloud); border-radius:14px; box-shadow:var(--shadow-2);
   padding:18px 20px; display:none;
-  /* Anchored to the bottom, this grew upward off the top of the screen and
-     the first control group could not be reached at all. */
-  max-height:calc(100vh - 96px); overflow-y:auto; overscroll-behavior:contain;
+  /* Capped to the viewport so the last control group can always be scrolled to. */
+  max-height:calc(100vh - 56px); overflow-y:auto; overscroll-behavior:contain;
 }
 .proto-drawer::-webkit-scrollbar{width:9px;}
 .proto-drawer::-webkit-scrollbar-thumb{background:var(--carbon); border-radius:99px;}
@@ -2036,7 +2040,6 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 }
 .case-num{font-size:var(--t-base); font-weight:800; color:var(--charcoal);}
 .case-when{font-size:var(--t-meta); color:var(--carbon);}
-.case-hide{margin-left:auto; font-size:var(--t-meta); font-weight:700; color:var(--action); cursor:pointer;}
 .req{font-size:var(--t-micro); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--eq-red); margin-left:6px;}
 .eqs-bar{
   background:var(--charcoal); color:var(--white); font-weight:700; font-size:var(--t-sm);
@@ -2123,6 +2126,9 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
    portals on purpose: this one is worked, not read.
    ============================================================ */
 .page.pex{max-width:1340px;}
+/* The coordinator's page is wider than the other two, so the header widens
+   with it; otherwise the logo sat inset from everything below it. */
+body.pex-side .hdr-in{max-width:1340px;}
 
 /* ---------- lens nav ---------- */
 .px-nav{

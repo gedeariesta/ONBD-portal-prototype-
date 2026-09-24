@@ -6,10 +6,12 @@ const ROUTES = ['','#/equipment','#/details','#/jd','#/intro','#/policies','#/ne
 
 (async()=>{
  const b=await launch();
- const p=await b.newPage({viewport:{width:1440,height:1000}});
+ const f=[];
+ // 1280 is the narrowest width the page declares; the margins are thinnest there.
+ for(const width of [1440,1280]){
+ const p=await b.newPage({viewport:{width,height:1000}});
  await p.goto(BASE,{waitUntil:'networkidle'});
  await p.evaluate(()=>localStorage.clear()); await p.reload({waitUntil:'networkidle'}); await p.waitForTimeout(400);
- const f=[];
  for(const r of ROUTES){
   await p.evaluate(h=>location.hash=h||'#/',r); await p.waitForTimeout(240);
   const out=await p.evaluate(()=>{
@@ -39,7 +41,7 @@ const ROUTES = ['','#/equipment','#/details','#/jd','#/intro','#/policies','#/ne
     }});
 
    // B. fixed overlays covering an interactive element
-   document.querySelectorAll('.chat-fab,.proto-fab,.proto-drawer').forEach(fx=>{
+   document.querySelectorAll('.chat-fab,.proto-drawer').forEach(fx=>{
     if(!vis(fx))return; const r=fx.getBoundingClientRect();
     document.querySelectorAll('#app button:not([disabled]),#app a,#app input,#app select').forEach(t=>{
      if(!vis(t))return; const q=t.getBoundingClientRect();
@@ -79,6 +81,19 @@ const ROUTES = ['','#/equipment','#/details','#/jd','#/intro','#/policies','#/ne
       bad.push(`TEXT CLIPPED "${(e.textContent||'').trim().slice(0,32)}" ${e.scrollWidth}>${e.clientWidth}`);
     }});
 
+   // G. a floating button over the content column. B only catches it covering
+   //    a control, and only where one happens to be on screen; the old chat
+   //    pill sat over the right-hand column's text on every screen and never
+   //    tripped it. Anything fixed has to live in the page margin.
+   const cols=[...document.querySelectorAll('#app .page > *')].filter(vis).map(e=>e.getBoundingClientRect());
+   if(cols.length){
+    const L=Math.min(...cols.map(c=>c.left)), R=Math.max(...cols.map(c=>c.right));
+    document.querySelectorAll('.chat-fab').forEach(fx=>{
+     if(!vis(fx))return; const q=fx.getBoundingClientRect();
+     if(q.left<R && q.right>L) bad.push(`FLOATING BUTTON OVER CONTENT ${fx.className.split(' ')[0]} spans ${q.left.toFixed(0)}-${q.right.toFixed(0)}, content ${L.toFixed(0)}-${R.toFixed(0)}`);
+    });
+   }
+
    // F. empty interactive elements (no label, no icon)
    document.querySelectorAll('#app button,#app a[data-goto]').forEach(e=>{
     if(!vis(e))return;
@@ -87,7 +102,9 @@ const ROUTES = ['','#/equipment','#/details','#/jd','#/intro','#/policies','#/ne
    });
    return bad;
   });
-  out.forEach(x=>f.push(`${(r||'#/').padEnd(20)} ${x}`));
+  out.forEach(x=>f.push(`${width} ${(r||'#/').padEnd(20)} ${x}`));
+ }
+ await p.close();
  }
  const uniq=[...new Set(f)];
  console.log(uniq.length?`FINDINGS (${uniq.length}):\n`+uniq.join('\n'):'no findings');

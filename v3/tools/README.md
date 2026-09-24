@@ -31,9 +31,10 @@ Two environment knobs, both optional:
 | `dead.js` | Top-level declarations nothing references |
 | `deadcss.js` | CSS classes and custom properties nothing uses |
 | `qa.js` | 364 screen-states (28 routes × 13 control combinations): console errors, `undefined`/`NaN` in rendered text, near-empty screens, horizontal overflow |
+| `prose.js` | Plain English over 140 screen-states with design notes off: a glossary of jargon (each with what to say instead), and any space before punctuation, which is what a hidden assumption marker leaves behind |
 | `a11y.js` | WCAG AA contrast computed from rendered colours, text under 11px, unlabelled controls, missing alt text |
 | `flows.js` | 20 interaction flows end to end, including scroll behaviour and flow-diagram packing |
-| `audit2.js` | Stacked hairlines, fixed overlays covering controls, clipped fixed panels, ragged rows, clipped text, empty controls |
+| `audit2.js` | Stacked hairlines, fixed overlays covering controls, the chat button over the content column, clipped fixed panels, ragged rows, clipped text, empty controls, at 1440 and 1280px |
 | `audit3.js` | Absolutely-positioned content escaping its parent or colliding, at 1280/1440/1680px |
 | `flowcheck.js` | Flow diagram: nothing outside its track, nothing overlapping, axis dots still on their true dates |
 | `scrollkeep.js` | A state change holds scroll position |

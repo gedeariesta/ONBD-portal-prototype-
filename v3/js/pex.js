@@ -127,12 +127,20 @@ function pexCaseload() {
       eqChosen:     r() < (near ? 0.85 : 0.5),
       eqOrdered:    r() < (near ? 0.72 : 0.3),
       eqEta:        4 + Math.floor(r() * 18),
-      blockedBy:    ['End User Technology','Workplace / CRE','IT Procurement'][Math.floor(r() * 3)],
+      blockedBy:    ['End User Technology','Workplace & Real Estate','IT Procurement'][Math.floor(r() * 3)],
       blocked:      r() < 0.22,
       escalations:  r() < 0.16 ? 1 + Math.floor(r() * 2) : 0,
       dataVerified: r() < 0.78,
       dateMoved:    r() < 0.1,
       nudged:       {},
+    });
+    const h = out[out.length - 1];
+    /* Task completion for generated hires follows from the fields above.
+       Jordan's come from the real state instead (pexWithLiveJordan). */
+    Object.assign(h, {
+      startConfirmed: !h.dateMoved, detailsDone: h.dataVerified,
+      firstDayDone: h.mgrColo || h.proxy, appsDone: h.persona,
+      welcomeSent: h.startOff < 40, calendarDone: h.startOff < 30,
     });
   }
   PEX_CASELOAD_CACHE = out;
@@ -170,6 +178,9 @@ function pexWithLiveJordan(list) {
     escalations: 0,
     dataVerified: true,
     dateMoved: S.startdate.changeRequested,
+    startConfirmed: S.startdate.confirmed, detailsDone: S.details.submitted,
+    firstDayDone: H.logistics.confirmed, appsDone: H.software.confirmed,
+    welcomeSent: H.welcome.sent, calendarDone: H.calendar.confirmed,
     live: true,
     nudged: S.pex ? (S.pex.nudged[HIRE.username] || {}) : {},
   };
@@ -190,17 +201,17 @@ const PEX_QUEUES = [
     src:'PRD 3.6 requires SLA measurement by timestamps between activities.',
     batch:'Partly. Nudging is batchable, resolving is not.',
     test: h => h.startOff <= 10 && (!h.bgcheck || h.compliance < 4),
-    reason: h => !h.bgcheck ? 'Background check not started' : 'Compliance pack incomplete',
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: h => !h.bgcheck ? 'Background check not started' : 'Required documents not signed',
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'blocked', label:'Blocked on another team', icon:'hourglass.svg', sev:'high',
-    blurb:'Equipment, software, badge or access stuck with a fulfilment team',
+    blurb:'Equipment, apps, badge or access held up by the team supplying it',
     why:'The coordinator is the only person watching every queue. The manager sees one hire; the fulfilment teams see one item type.',
     src:'PRD S2-US13 AC2: each request carries its own status tracker visible to NH, HM and PEX.',
     batch:'Yes. Chase by owning team.',
     test: h => h.blocked,
     reason: h => `Waiting on ${h.blockedBy}`,
-    waiting: h => h.blockedBy, action:'Chase' },
+    waiting: h => h.blockedBy, action:'Remind' },
 
   /* Reframed: auto-assignment was cut. The PRD's SLA assigned a buddy from a
      pool at Day −1 if the manager had not, which made this queue a window in
@@ -214,52 +225,52 @@ const PEX_QUEUES = [
     batch:'Yes.',
     test: h => !h.buddy && h.startOff <= 21,
     reason: h => h.startOff <= 3 ? 'Days out, and nothing will assign one' : 'Manager has not named one',
-    waiting: () => 'hiring manager', action:'Nudge' },
+    waiting: () => 'hiring manager', action:'Remind' },
 
   { id:'proxy', label:'No Day 1 host', icon:'user-circle.svg', sev:'high',
-    blurb:'Manager not co-located and no proxy named',
+    blurb:'Manager isn’t in the same office and nobody is standing in',
     why:'Somebody has to physically meet the new hire. If the manager cannot, and nobody is named, Day 1 has no host.',
     src:'PRD 3.6 makes manager co-location and Day 1 proxy assignment filters. The pairing exists to find this gap.',
     batch:'Yes.',
     test: h => !h.mgrColo && !h.proxy && h.startOff <= 30,
-    reason: () => 'Manager is not on site and no proxy is named',
+    reason: () => 'Manager won’t be there and nobody is standing in',
     waiting: () => 'hiring manager', action:'Assign' },
 
-  { id:'persona', label:'Persona not mapped', icon:'portal-window.svg', sev:'med',
-    blurb:'Role does not resolve to a provisioning persona',
+  { id:'persona', label:'No standard app list', icon:'portal-window.svg', sev:'med',
+    blurb:'The role isn’t linked to a standard set of apps, so the manager picks them by hand',
     why:'Sourced and explicit: the coordinator is alerted, and until it is resolved the manager gets an empty software stack.',
     src:'PRD S2-US16 edge case 1. Persona not mapped, empty stack, manager selects from catalogue, coordinator alerted.',
     batch:'Partly.',
     test: h => !h.persona,
-    reason: () => 'Manager is filling the software stack by hand',
-    waiting: () => 'platform', action:'Map' },
+    reason: () => 'Manager is picking apps by hand',
+    waiting: () => 'the system', action:'Link role' },
 
-  { id:'compliance', label:'Compliance pack incomplete', icon:'shield-check.svg', sev:'high',
-    blurb:'Unacknowledged required documents approaching Day −2',
+  { id:'compliance', label:'Required documents not signed', icon:'shield-check.svg', sev:'high',
+    blurb:'Policies still to acknowledge, with the start date close',
     why:'Auditable records must exist before Day 1. This is the queue with legal consequence rather than experience consequence.',
     src:'PRD S2-US19. Due Day −4, escalation Day −2, completion visible to the PEX dashboard.',
     batch:'Yes. Nudge in batch.',
     test: h => h.compliance < 6 && h.startOff <= 6,
-    reason: h => `${6 - h.compliance} of 6 documents outstanding`,
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: h => `${6 - h.compliance} of 6 documents still to sign`,
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'rtw', label:'Right to work outstanding', icon:'id-card.svg', sev:'high',
-    blurb:'Country-conditional checks not started or incomplete',
+    blurb:'Proof of right to work, where the country requires it, not finished',
     why:'Section 2 is validated in person at orientation. If Section 1 is not done beforehand, Day 1 stalls.',
     src:'PRD S2-US03; technical requirements give PEX I-9 Section 2 compliance management.',
     batch:'Partly.',
     test: h => !h.rtw && h.startOff <= 12,
-    reason: () => 'Section 1 not complete. Section 2 is validated in person on Day 1.',
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: () => 'The new hire’s part isn’t done. The rest is checked in person on Day 1.',
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'badge', label:'No badge photo', icon:'photo.svg', sev:'high',
-    blurb:'No photo submitted approaching the print lead',
+    blurb:'No photo yet, and the badge takes a day to print',
     why:'24-hour print lead and the badge must be ready at 9am on Day 1. Miss it and the new hire cannot get into the building.',
     src:'PRD S2-US08. Due Day −2, 24-hour print lead, ready 9am Day 1.',
     batch:'Yes.',
     test: h => !h.photo && !h.remote && h.startOff <= 7,
-    reason: h => `Print lead is 24 hours. ${h.startOff} days to go.`,
-    waiting: () => 'new hire', action:'Nudge' },
+    reason: h => `Takes a day to print. Starts in ${h.startOff} days.`,
+    waiting: () => 'new hire', action:'Remind' },
 
   { id:'eta', label:'Equipment will miss Day 1', icon:'laptop.svg', sev:'high',
     blurb:'Estimated delivery falls after the start date',
@@ -268,35 +279,35 @@ const PEX_QUEUES = [
     batch:'No. Case by case.',
     test: h => h.eqOrdered ? h.eqEta > h.startOff : (h.startOff <= 9 && !h.eqChosen),
     reason: h => h.eqOrdered
-      ? `${h.eqEta} day lead against ${h.startOff} days to go`
-      : 'Not chosen yet, and the lead time no longer fits',
-    waiting: h => h.eqOrdered ? 'End User Technology' : 'new hire', action:'Issue loaner' },
+      ? `Delivery takes ${h.eqEta} days, and they start in ${h.startOff}`
+      : 'Not chosen yet, and there’s no longer time to deliver it',
+    waiting: h => h.eqOrdered ? 'End User Technology' : 'new hire', action:'Lend a laptop' },
 
-  { id:'escalated', label:'Escalated cases', icon:'comment-lines.svg', sev:'high',
-    blurb:'Raised from any portal by any persona',
+  { id:'escalated', label:'Help requests', icon:'comment-lines.svg', sev:'high',
+    blurb:'Questions a new hire or manager has passed to you',
     why:'The coordinator is the human handoff point for tier 1 and above.',
     src:'PRD 3.4 onboarding-context tagging on all cases; 3.7 human handoff for tier 1+.',
     batch:'No.',
     test: h => h.escalations > 0,
-    reason: h => `${h.escalations} open case${h.escalations > 1 ? 's' : ''}`,
+    reason: h => `${h.escalations} open request${h.escalations > 1 ? 's' : ''}`,
     waiting: () => 'you', action:'Open' },
 
-  { id:'dataver', label:'Recruitment data unverified', icon:'clipboard.svg', sev:'low',
-    blurb:'Data copied from recruiting has not been checked across',
+  { id:'dataver', label:'Recruiting details not checked', icon:'clipboard.svg', sev:'low',
+    blurb:'Details copied over from recruiting that nobody has checked yet',
     why:'Named as current coordinator work, but with no stated trigger, no SLA and no completion definition.',
     src:'Lucid Fulfiller lane. See Open Items OI-11 — this is real work with no documented shape.',
     batch:'Unknown.',
     test: h => !h.dataVerified,
-    reason: () => 'No trigger, SLA or completion defined for this duty',
+    reason: () => 'Not checked yet',
     waiting: () => 'you', action:'Verify' },
 
   { id:'datemoved', label:'Start date moved', icon:'calendar.svg', sev:'med',
-    blurb:'Every SLA, nudge and deadline recalculates',
+    blurb:'Every deadline and reminder moves with it',
     why:'Somebody has to check nothing was silently missed in the shift.',
     src:'PRD 3.2 start date change handling; S2-US20 recalculates sends. Neither addresses the coordinator. See OI-12.',
     batch:'No.',
     test: h => h.dateMoved,
-    reason: () => 'Dates recalculated. Nothing confirms what was re-checked.',
+    reason: () => 'Dates moved. Nothing confirms anyone re-checked them.',
     waiting: () => 'you', action:'Review' },
 ];
 
@@ -338,7 +349,7 @@ function renderPexToday() {
         ${next.startOff} day${next.startOff === 1 ? '' : 's'} out in ${esc(next.loc)}.</p>
       </div>
       <div class="px-sum-stats">
-        ${[['In flight', all.length], ['Need you', needing], ['Start this week', thisWeek]]
+        ${[['Active', all.length], ['Need you', needing], ['Start this week', thisWeek]]
           .map(([l, n]) => `<div class="px-stat"><b>${n}</b><span>${l}</span></div>`).join('')}
       </div>
     </div>
@@ -347,7 +358,7 @@ function renderPexToday() {
       <div class="px-clear">
         ${ic('check-circle.svg','xl')}
         <div><b>Nothing needs you right now.</b>
-        <p>Every hire in flight is on track. This screen is meant to be empty.</p></div>
+        <p>Every active hire is on track. This screen is meant to be empty.</p></div>
       </div>` : groups.map(g => pexQueueBlock(g.q, g.hires)).join('')}
 
     <div class="callout pnote mt16" data-assume="X-00">
@@ -374,7 +385,7 @@ function pexQueueBlock(q, hires) {
         const sendable = hires.filter(h => q.waiting(h) !== 'you').length;
         return sendable
           ? `<button class="btn secondary sm" data-pexbatch="${q.id}">Remind all ${sendable}</button>`
-          : `<span class="pxq-mine">${ic('user.svg','sm')}Yours to work</span>`;
+          : `<span class="pxq-mine">${ic('user.svg','sm')}Yours to handle</span>`;
       })()}
     </div>
     <div class="pxq-why pnote">
@@ -403,7 +414,7 @@ function pexQueueRow(q, h) {
       <span class="pxr-sub">${esc(h.role)} · ${esc(h.loc)}</span>
     </div>
     <div class="pxr-when">
-      <b>Day −${h.startOff}</b>
+      <b>In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
       <span>${dueText(pexStart(h))}</span>
     </div>
     <div class="pxr-reason">${q.reason(h)}</div>
@@ -437,8 +448,8 @@ const PEX_FILTERS = [
   { id:'loc',      label:'Work location', opts:() => ['', ...new Set(pexCaseload().map(h => h.loc))] },
   { id:'tz',       label:'Time zone', opts:() => ['', ...new Set(pexCaseload().map(h => h.tz))] },
   { id:'remote',   label:'Remote or on-site', opts:[['','Any'],['remote','Remote'],['onsite','On site']] },
-  { id:'mgrColo',  label:'Manager co-location', opts:[['','Any'],['yes','Co-located'],['no','Not co-located']] },
-  { id:'proxy',    label:'Day 1 proxy', opts:[['','Any'],['yes','Named'],['no','Not named']] },
+  { id:'mgrColo',  label:'Manager’s office', opts:[['','Any'],['yes','Same as the hire'],['no','Different']] },
+  { id:'proxy',    label:'Day 1 stand-in', opts:[['','Any'],['yes','Named'],['no','Not named']] },
 ];
 
 /* Two of these — manager co-location and Day 1 proxy — exist specifically
@@ -446,7 +457,7 @@ const PEX_FILTERS = [
    a design hint, and it is: combined they are the "no Day 1 host" queue. */
 
 const PEX_SAVED_VIEWS = [
-  { id:'all',     name:'Everyone in flight', shared:true,  f:{} },
+  { id:'all',     name:'Everyone active', shared:true,  f:{} },
   { id:'week',    name:'Starting this week', shared:true,  f:{ startWindow:'7' } },
   { id:'nohost',  name:'No Day 1 host',      shared:true,  f:{ mgrColo:'no', proxy:'no' } },
   { id:'apac',    name:'APAC caseload',      shared:false, f:{ region:'APAC' } },
@@ -498,7 +509,7 @@ function renderPexCaseload() {
     <div class="px-listhead" data-assume="X-01">
       <div>
         <h1>All new hires</h1>
-        <p class="lede">${rows.length} of ${all.length} in flight${active.length ? ', filtered' : ''}.
+        <p class="lede">${rows.length} of ${all.length} active${active.length ? ', filtered' : ''}.
         Every hire you own, whatever state they are in.</p>
       </div>
       <div class="px-views">
@@ -572,11 +583,11 @@ function pexRow(h) {
       </div>
     </td>
     <td class="px-c-when">
-      <b class="${soon ? 'soon' : ''}">Day −${h.startOff}</b>
+      <b class="${soon ? 'soon' : ''}">In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
       <span>${dueText(pexStart(h))}</span>
     </td>
     <td><span class="px-loc">${esc(h.loc)}</span><span class="px-sub">${esc(h.region)} · ${h.remote ? 'Remote' : 'On site'}</span></td>
-    <td><span class="px-mgr">${esc(h.mgr)}</span>${!h.mgrColo ? `<span class="px-sub">Not co-located</span>` : ''}</td>
+    <td><span class="px-mgr">${esc(h.mgr)}</span>${!h.mgrColo ? `<span class="px-sub">In a different office</span>` : ''}</td>
     <td class="px-c-prog">${pexStepper(ph)}</td>
     <td class="px-c-wait">
       ${waiting.length
@@ -663,13 +674,13 @@ function renderPexHire() {
         <h1>${esc(h.first)} ${esc(h.last)}</h1>
         <p class="lede">${esc(h.role)} · ${esc(h.dept)} · reporting to ${esc(h.mgr)}</p>
         <div class="px-rec-facts">
-          <span>${ic('calendar.svg','sm')}Starts ${fmtDate(pexStart(h))} <b>(Day −${h.startOff})</b></span>
+          <span>${ic('calendar.svg','sm')}Starts ${fmtDate(pexStart(h))} <b>(in ${h.startOff} day${h.startOff === 1 ? '' : 's'})</b></span>
           <span>${ic('globe.svg','sm')}${esc(h.loc)}, ${esc(h.country)} · ${h.tz}</span>
-          <span>${ic('user.svg','sm')}${h.remote ? 'Remote' : 'On site'} · manager ${h.mgrColo ? 'co-located' : 'not co-located'}</span>
+          <span>${ic('user.svg','sm')}${h.remote ? 'Remote' : 'On site'} · manager ${h.mgrColo ? 'in the same office' : 'in a different office'}</span>
         </div>
       </div>
       <div class="px-rec-side">
-        ${h.live ? '<span class="chip info">Live record, shared with both portals</span>' : '<span class="chip waiting">Modelled</span>'}
+        ${h.live ? '<span class="chip info">Live: the same record Jordan and Priya see</span>' : '<span class="chip waiting">Sample hire</span>'}
         <div class="px-rec-ready"><b>${ph.done} of ${ph.total}</b><span>ready</span></div>
       </div>
     </div>
@@ -723,7 +734,7 @@ function pexOwnerColumn(title, who, h) {
         <div class="pxc-body">
           <span class="pxc-label">${r.label}</span>
           ${r.note ? `<span class="pxc-note">${r.note}</span>` : ''}
-          ${r.sensitive ? `<span class="pxc-lock">${ic('lock.svg','sm')}Content withheld</span>` : ''}
+          ${r.sensitive ? `<span class="pxc-lock">${ic('lock.svg','sm')}Answers hidden from you</span>` : ''}
         </div>
         ${r.owner ? `<span class="pxc-owner">${r.owner}</span>` : ''}
       </div>`).join('')}
@@ -735,37 +746,37 @@ function pexOwnerRows(who, h) {
   if (who === 'nh') return [
     { label:'Background check started', state: st(h.bgcheck), sensitive:true,
       note: h.bgcheck ? 'Running with the provider' : 'Not started' },
-    { label:'Start date confirmed', state: h.dateMoved ? 'wait' : 'done',
+    { label:'Start date confirmed', state: h.dateMoved ? 'wait' : st(h.startConfirmed),
       note: h.dateMoved ? 'Change requested, sitting with you' : '' },
     { label:'Equipment chosen and ordered', state: st(h.eqOrdered, h.eqChosen),
       note: h.eqOrdered ? `Ships in ${h.eqEta} days` : h.eqChosen ? 'Chosen, order not submitted' : 'Not chosen' },
-    { label:'Personal and contact details', state: st(h.dataVerified), sensitive:true,
+    { label:'Personal and contact details', state: st(h.detailsDone), sensitive:true,
       note: 'Identity documents, emergency contact and banking' },
-    { label:'Right to work, Section 1', state: st(h.rtw), sensitive:true,
-      note: h.rtw ? 'Complete. Section 2 in person on Day 1.' : 'Outstanding' },
+    { label:'Right to work, their part', state: st(h.rtw), sensitive:true,
+      note: h.rtw ? 'Done. The rest is checked in person on Day 1.' : 'Not done' },
     { label:'Badge photo', state: h.remote ? 'done' : st(h.photo),
       note: h.remote ? 'Remote hire, no badge required' : h.photo ? 'Sent to Workplace' : 'Not submitted' },
-    { label:'Compliance pack', state: h.compliance >= 6 ? 'done' : 'open', sensitive:true,
+    { label:'Required documents', state: h.compliance >= 6 ? 'done' : 'open', sensitive:true,
       note:`${h.compliance} of 6 acknowledged` },
   ];
   if (who === 'hm') return [
-    { label:'First-day details confirmed', state: st(h.mgrColo || h.proxy), owner:h.mgr,
-      note: h.mgrColo ? 'Manager is on site' : h.proxy ? 'Proxy named' : 'No host for Day 1' },
+    { label:'First-day details confirmed', state: st(h.firstDayDone), owner:h.mgr,
+      note: !h.mgrColo && !h.proxy ? 'Nobody to meet them on Day 1' : !h.firstDayDone ? 'Not confirmed yet' : h.mgrColo ? 'Manager will be there' : 'Stand-in will meet them' },
     { label:'Buddy named', state: st(h.buddy), owner:h.mgr,
       note: h.buddy ? 'Accepted' : 'Nothing assigns one automatically' },
-    { label:'Application stack', state: h.persona ? 'done' : 'open', owner:h.mgr,
-      note: h.persona ? 'Confirmed' : 'Blocked, persona not mapped' },
-    { label:'Welcome note', state: st(h.startOff < 40), owner:h.mgr },
-    { label:'Day 1 calendar', state: st(h.startOff < 30), owner:h.mgr },
+    { label:'Apps for Day 1', state: h.appsDone ? 'done' : 'open', owner:h.mgr,
+      note: h.persona ? 'Confirmed' : h.appsDone ? 'Picked by hand, no standard list for the role' : 'Held up: no standard app list for the role' },
+    { label:'Welcome note', state: st(h.welcomeSent), owner:h.mgr },
+    { label:'Day 1 calendar', state: st(h.calendarDone), owner:h.mgr },
   ];
   return [
     { label:'Background check clearance', state: st(h.bgcheck), owner:'HR Operations' },
-    { label:'Equipment fulfilment', state: st(h.eqOrdered && !h.blocked, h.eqOrdered), owner:'End User Technology',
+    { label:'Equipment delivery', state: st(h.eqOrdered && !h.blocked, h.eqOrdered), owner:'End User Technology',
       note: h.blocked ? `Blocked with ${h.blockedBy}` : '' },
-    { label:'Badge production', state: h.remote ? 'done' : st(h.photo), owner:'Workplace / CRE',
+    { label:'Badge production', state: h.remote ? 'done' : st(h.photo), owner:'Workplace & Real Estate',
       note:'Printing is not tracked here' },
-    { label:'Orientation blueprint', state:'done', owner:'People Experience',
-      note:`${h.loc} blueprint assigned` },
+    { label:'Location details', state:'done', owner:'People Experience',
+      note:`${h.loc} details set` },
     ...(h.medicalNeeded ? [{ label:'Medical check', state: st(h.medicalDone), owner:'People Experience',
       note:`Required in ${h.country}. No country list exists yet.` }] : []),
   ];
@@ -778,17 +789,17 @@ function pexActivity(h) {
   const d = n => dueText(addDays(simToday(), -n));
   const ev = [];
   if (h.dateMoved) ev.push([0, 'Start date', `${h.preferred} requested a new start date. Sitting with you.`]);
-  if (h.escalations) ev.push([0, 'Escalation', `${h.escalations} case${h.escalations>1?'s':''} raised from the manager's portal.`]);
-  if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Lead time ${h.eqEta} days.`]);
+  if (h.escalations) ev.push([0, 'Help request', `${h.escalations} help request${h.escalations>1?'s':''} passed on from the manager.`]);
+  if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Delivery takes ${h.eqEta} days.`]);
   if (h.buddy) ev.push([2, 'People', `${h.mgr} named a buddy and they accepted.`]);
   if (h.bgcheck) ev.push([3, 'Background check', `Launched by ${h.preferred}. Running with the provider.`]);
-  if (!h.persona) ev.push([4, 'Provisioning', 'Persona lookup returned empty. You were alerted.']);
-  ev.push([6, 'Blueprint', `${h.loc} orientation blueprint assigned by People Experience.`]);
-  ev.push([9, 'Record', `Case created. Recruitment data ${h.dataVerified ? 'verified' : 'not yet verified'}.`]);
+  if (!h.persona) ev.push([4, 'Apps', 'No standard app list for this role. You were told.']);
+  ev.push([6, 'Location', `${h.loc} Day 1 details set by People Experience.`]);
+  ev.push([9, 'Record', `Record created. Recruiting details ${h.dataVerified ? 'checked' : 'not checked yet'}.`]);
 
   return `
   <section class="px-activity" data-assume="X-02">
-    <div class="section-h"><h2>Activity</h2><span class="hint">Every actor, one stream</span></div>
+    <div class="section-h"><h2>Activity</h2><span class="hint">Everything that’s happened, whoever did it</span></div>
     <div class="pxa-list">
       ${ev.map(([n, kind, text]) => `
         <div class="pxa-row">
@@ -822,8 +833,8 @@ function renderPexBlueprints() {
     ${pexHeader('blueprints')}
     <div class="px-listhead" data-assume="X-05">
       <div>
-        <h1>Orientation blueprints</h1>
-        <p class="lede">Prebuilt per location. You are the only editor, and everything downstream reads this.</p>
+        <h1>Location details</h1>
+        <p class="lede">One set per office. Only you can edit them, and every new hire and manager at that office sees what you set here.</p>
       </div>
     </div>
 
@@ -839,7 +850,7 @@ function renderPexBlueprints() {
       <div class="px-bp-edit">
         <div class="pxbp-h">
           <h2>${esc(B.loc)}</h2>
-          <span class="px-sub">Feeds ${hiresHere.length} hire${hiresHere.length === 1 ? '' : 's'} at this location</span>
+          <span class="px-sub">Used for ${hiresHere.length} hire${hiresHere.length === 1 ? '' : 's'} at this office</span>
         </div>
 
         <div class="callout ${B.dirty ? '' : 'soft'}">
@@ -847,8 +858,8 @@ function renderPexBlueprints() {
           <div>${B.dirty
             ? `<b>Unsaved change.</b> Publishing this moves orientation for every hire at ${esc(B.loc)}.
                Managers who already confirmed their first-day details will have that task reopened.`
-            : `<b>An error here surfaces on every hire at this location.</b> The new hire's first-day details
-               screen is read-only against this, and the manager confirms against it rather than authoring it.`}</div>
+            : `<b>A mistake here reaches every hire at this office.</b> New hires see these details as they are,
+               and managers confirm them but can't change them.`}</div>
         </div>
 
         <div class="field mt16" style="max-width:none;">
@@ -863,7 +874,7 @@ function renderPexBlueprints() {
                 ${['12:00','13:00','14:00'].map(t => `<option ${B.until===t?'selected':''}>${t}</option>`).join('')}
               </select></div>
           </div>
-          <div class="note">The manager's Day 1 one-to-one is placed automatically straight after this ends.</div>
+          <div class="note">The manager's Day 1 one-to-one goes in their calendar automatically, straight after this ends.</div>
         </div>
 
         <div class="field" style="max-width:none;">
@@ -900,7 +911,7 @@ function pexHeader(active) {
   const tabs = [
     ['today',      'Today',      '#/pex/'],
     ['caseload',   'Caseload',   '#/pex/caseload'],
-    ['blueprints', 'Blueprints', '#/pex/blueprints'],
+    ['blueprints', 'Locations', '#/pex/blueprints'],
   ];
   const needing = pexAllExceptions().size;
   return `

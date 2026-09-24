@@ -20,6 +20,12 @@
   <span class="rb-link" id="rbAssume">assumptions</span>
   <span class="rb-link" id="rbFlow">Flow overview</span>
   <span class="rb-link" data-goto="#/handoffs">How they connect</span>
+  <!-- Prototype controls live in the ribbon, with the other prototype devices.
+       As a floating button they sat over the left edge of every screen. -->
+  <button class="rb-proto" id="protoFab" aria-haspopup="true">
+    <span class="ic sm" style="-webkit-mask-image:url('assets/icons/exclamation-triangle.svg');mask-image:url('assets/icons/exclamation-triangle.svg')"></span>
+    Prototype controls
+  </button>
 </div>
 
 <!-- Header -->
@@ -62,17 +68,15 @@
   </div>
 </aside>
 
-<!-- Chat entry point -->
-<button class="chat-fab" id="chatFab">
+<!-- Chat entry point. A round button that sits in the page margin and shows
+     its label on hover or focus; the full-width pill covered the right-hand
+     column of every screen. -->
+<button class="chat-fab" id="chatFab" aria-label="Questions? Ask here">
   <span class="ic lg" style="-webkit-mask-image:url('assets/icons/comment-smile.svg');mask-image:url('assets/icons/comment-smile.svg')"></span>
-  Questions? Ask here
+  <span class="cf-label">Questions? Ask here</span>
 </button>
 
-<!-- Prototype controls (Stage 6, clearly a prototype device) -->
-<button class="proto-fab" id="protoFab">
-  <span class="ic sm" style="-webkit-mask-image:url('assets/icons/exclamation-triangle.svg');mask-image:url('assets/icons/exclamation-triangle.svg')"></span>
-  Prototype controls
-</button>
+<!-- Prototype controls drawer (Stage 6, clearly a prototype device) -->
 <div class="proto-drawer" id="protoDrawer"></div>
 
 <div class="toast" id="toast"></div>
