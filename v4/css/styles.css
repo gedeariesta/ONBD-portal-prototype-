@@ -426,7 +426,7 @@ small{color:var(--text-tertiary);}
   transition:border-color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
 }
 .ask-bar:focus-within{border-color:var(--eqx-aqua); background:rgba(255,255,255,.09);}
-.ask-bar > .ic{color:var(--eqx-aqua);}
+.ask-av{width:30px; height:30px; flex:none; border-radius:50%; background:var(--grad-pastel); padding:2px;}
 .ask-bar input{flex:1; min-width:0; background:none; border:none; outline:none; color:var(--white);
   font:inherit; font-size:var(--t-base); padding:8px 0;}
 .ask-bar input::placeholder{color:var(--scene-text);}
@@ -463,7 +463,20 @@ small{color:var(--text-tertiary);}
 .ucard.later .u-go{transition:transform var(--dur-fast) var(--ease-standard);}
 
 /* ---------- Handbooks: one link, one acknowledgment (A-66) ---------- */
-.hb-row{display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-top:14px; padding-left:50px;}
+/* Eight handbooks nested in one task, each signed in DocuSign (A-76). */
+.hb-card{margin-bottom:24px;}
+.hb-list{list-style:none; margin:0; padding:0;}
+.hb-item{display:grid; grid-template-columns:22px 1fr auto 170px; align-items:center; gap:14px;
+  padding:10px 0; border-top:var(--border-hairline) solid var(--border-subtle);}
+.hb-item:first-child{border-top:none;}
+.hb-n{width:18px; height:18px; border-radius:50%; border:1px solid var(--border-default); display:flex; align-items:center; justify-content:center;}
+.hb-item.signed .hb-n{background:var(--st-done); border-color:var(--st-done); color:var(--white);}
+.hb-name{font-size:var(--t-ui); font-weight:var(--fw-bold); color:var(--text-primary);}
+.hb-read{font-size:var(--t-meta); color:var(--eqx-blue-dark); cursor:pointer; display:inline-flex; gap:5px; align-items:center;}
+.hb-when{font-size:var(--t-meta); color:var(--ink-on-green); justify-self:end;}
+.hb-item .btn{justify-self:end;}
+.hb-note{display:flex; gap:6px; align-items:center; margin-top:10px; font-size:var(--t-meta); color:var(--text-secondary);}
+.ack-hint{font-size:var(--t-meta); color:var(--text-secondary); align-self:center;}
 
 /* ---------- Personal details, in Workday (A-65) ---------- */
 .wd-h{font-size:var(--t-lead); margin-bottom:14px;}
@@ -991,18 +1004,22 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .chat-fab{
   position:fixed; right:12px; bottom:20px; z-index:80;
   display:flex; align-items:center; justify-content:center; gap:0; border:none; cursor:pointer;
-  background:var(--eqx-red); color:var(--white); border-radius:var(--radius-pill);
-  height:52px; min-width:52px; padding:0 14px; font-family:inherit;
+  background:linear-gradient(135deg, var(--eqx-purple) 0%, var(--eqx-red) 100%); color:var(--white); border-radius:var(--radius-pill);
+  height:56px; min-width:56px; padding:0 6px; font-family:inherit;
   font-weight:700; font-size:var(--t-ui); box-shadow:var(--shadow-2);
 }
 .chat-fab .cf-label{max-width:0; overflow:hidden; white-space:nowrap; transition:max-width .18s ease, margin .18s ease;}
-.chat-fab:hover, .chat-fab:focus-visible{background:var(--eqx-red-dark);}
-.chat-fab:hover .cf-label, .chat-fab:focus-visible .cf-label{max-width:200px; margin-left:10px;}
+.chat-fab .cf-av{width:44px; height:44px; flex:none; filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));}
+.chat-fab:hover, .chat-fab:focus-visible{box-shadow:var(--shadow-3, var(--shadow-2)), 0 0 0 3px rgba(233,28,36,.25);}
+.chat-fab:hover .cf-label, .chat-fab:focus-visible .cf-label{max-width:200px; margin:0 12px 0 6px;}
 body.no-chat .chat-fab{display:none;}
 .chat-msgs{display:flex; flex-direction:column; gap:10px;}
 .msg{max-width:88%; border-radius:var(--radius); padding:11px 14px; font-size:var(--t-ui); font-weight:400; line-height:1.5;}
 .msg.bot{background:var(--silver); color:var(--text-primary); align-self:flex-start; border-bottom-left-radius:2px;}
 .msg.me{background:var(--eqx-ink); color:var(--white); align-self:flex-end; border-bottom-right-radius:2px;}
+.sk-searched{display:flex; gap:6px; align-items:flex-start; margin:8px 0; padding:8px 10px; border-radius:var(--radius-sm);
+  background:var(--surface); font-size:var(--t-meta); color:var(--text-secondary);}
+.sk-searched .ic{margin-top:2px; flex:none;}
 .msg.handed{background:var(--ok-bg); color:var(--ink-on-green); display:flex; gap:8px; align-items:flex-start;}
 .msg.handed .ic{margin-top:3px; flex:none;}
 .chat-quick{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
@@ -1021,8 +1038,9 @@ body.no-chat .chat-fab{display:none;}
   display:inline-flex; align-items:center; justify-content:center; flex:none; border-radius:50%;
   background:var(--grad-pastel); color:var(--eqx-ink);
 }
-.sk-mark{width:38px; height:38px;}
-.sk-sum-mark{width:28px; height:28px; margin-top:1px;}
+.sk-mark img, .sk-sum-mark img, .skt-av img, .ask-av img{width:100%; height:100%; object-fit:contain; display:block;}
+.sk-mark{width:40px; height:40px; padding:3px;}
+.sk-sum-mark{width:34px; height:34px; padding:2px; margin-top:-2px;}
 .skt-av{width:22px; height:22px;}
 /* The where-you-are card is drawn by the system: a grey card with its own
    label saying so, and never inside a speech bubble. */
@@ -1075,15 +1093,40 @@ body.no-chat .chat-fab{display:none;}
 .sk-fail-h{font-size:var(--t-micro); font-weight:var(--fw-extrabold); letter-spacing:var(--ls-eyebrow); text-transform:uppercase; color:var(--ink-on-warn);}
 .msg.wrong{text-decoration:line-through; text-decoration-color:var(--eqx-red); color:var(--text-secondary);}
 
-/* ---------- Sidekick's summary, inside a scene ---------- */
-.sk-summary{
+/* ---------- Sidekick's brief, inside a scene (A-75) ----------
+   The same shape on all three homes: period, one sentence, one thing to do,
+   a count, and a second layer behind "What's coming up". */
+.sk-brief{
   display:flex; gap:12px; align-items:flex-start; margin-top:28px; max-width:640px;
   background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.14); border-radius:var(--radius);
   padding:14px 16px; font-size:var(--t-base); font-weight:var(--fw-light); line-height:1.5; color:var(--cloud);
 }
-.sk-summary b{color:var(--white); font-weight:var(--fw-bold); margin-right:4px;}
-.sk-sum-l{display:block; margin-top:8px; font-size:var(--t-meta); color:var(--scene-text); font-weight:var(--fw-book);}
-.sk-summary + .ask-bar{margin-top:16px;}
+.skb-main{flex:1; min-width:0;}
+.skb-h{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+.skb-h b{color:var(--white); font-weight:var(--fw-bold);}
+.skb-period{font-size:var(--t-micro); font-weight:var(--fw-extrabold); letter-spacing:var(--ls-eyebrow); text-transform:uppercase; color:var(--eqx-aqua);}
+.skb-say{margin:4px 0 0; color:var(--cloud); font-size:var(--t-base); font-weight:var(--fw-book); line-height:1.5; max-width:none;}
+.skb-focus{
+  display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:12px; width:100%;
+  margin-top:12px; padding:11px 14px; text-align:left; cursor:pointer; font:inherit;
+  background:var(--white); color:var(--text-primary); border:none; border-radius:var(--radius-sm);
+}
+.skb-focus:hover, .skb-focus:focus-visible{box-shadow:0 0 0 3px rgba(199,253,255,.45);}
+.skb-fl{font-size:var(--t-micro); font-weight:var(--fw-extrabold); letter-spacing:var(--ls-eyebrow); text-transform:uppercase; color:var(--eqx-red-dark, #B3161C);}
+.skb-fn{font-size:var(--t-ui); font-weight:var(--fw-bold);}
+.skb-fd{font-size:var(--t-meta); color:var(--text-secondary); white-space:nowrap;}
+.skb-focus .ic{color:var(--eqx-red);}
+.skb-foot{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; flex-wrap:wrap;}
+.skb-count{font-size:var(--t-meta); color:var(--cloud); font-weight:var(--fw-book);}
+.skb-more{background:none; border:none; color:var(--eqx-aqua); font:inherit; font-size:var(--t-meta); font-weight:var(--fw-bold);
+  cursor:pointer; display:inline-flex; align-items:center; gap:6px; padding:4px 0;}
+.skb-more:hover{text-decoration:underline;}
+.skb-list{list-style:none; margin:8px 0 0; padding:0; border-top:1px solid rgba(255,255,255,.14);}
+.skb-list li{display:flex; justify-content:space-between; gap:16px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.10);
+  font-size:var(--t-sm); color:var(--cloud);}
+.skb-when{color:var(--scene-text); white-space:nowrap; font-size:var(--t-meta);}
+.sk-sum-l{display:block; margin-top:10px; font-size:var(--t-meta); color:var(--scene-text); font-weight:var(--fw-book);}
+.sk-brief + .ask-bar{margin-top:16px;}
 
 /* ---------- Prototype controls ----------
    In the ribbon with the other prototype devices, opening a drawer below it. */
@@ -2205,7 +2248,6 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 
 /* The real document pack (A-51) */
 .read-card.stack{flex-direction:column; align-items:stretch; gap:0;}
-.read-card.stack .rc-top{display:flex; gap:13px; align-items:flex-start;}
 .pack-flag{
   display:flex; gap:9px; align-items:flex-start; margin-top:12px; padding:11px 14px;
   background:var(--warn-bg); border-radius:var(--radius); font-size:var(--t-meta); color:var(--ink-on-warn); font-weight:400; line-height:1.55;
@@ -2543,3 +2585,23 @@ body.pex-side .hdr-in{max-width:1340px;}
 /* The ribbon stays one line at laptop width: its buttons must never wrap. */
 .proto-ribbon > *, .proto-ribbon button{white-space:nowrap;}
 @media (max-width:1400px){ .proto-ribbon .rb-long{display:none;} .proto-ribbon{gap:14px;} }
+
+/* At risk (A-79): the one flashing thing in the product. Reduced motion
+   gets a steady dot with a ring instead. */
+.risk-dot{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--eqx-red);
+  margin-right:6px; vertical-align:1px; box-shadow:0 0 0 0 rgba(233,28,36,.6); animation:riskPulse 1.4s ease-out infinite;}
+@keyframes riskPulse{0%{box-shadow:0 0 0 0 rgba(233,28,36,.6);} 70%{box-shadow:0 0 0 7px rgba(233,28,36,0);} 100%{box-shadow:0 0 0 0 rgba(233,28,36,0);}}
+@media (prefers-reduced-motion: reduce){ .risk-dot{animation:none; box-shadow:0 0 0 3px rgba(233,28,36,.25);} }
+
+/* Existing onboarding videos (A-80): a quiet card with a small scene thumbnail. */
+.vcard{display:flex; gap:16px; align-items:center; width:100%; text-align:left; cursor:pointer; font:inherit;
+  background:var(--surface-card, #fff); border:1px solid var(--border-subtle); border-radius:var(--radius); padding:12px; margin:0 0 12px;}
+.vcard:hover, .vcard:focus-visible{border-color:var(--eqx-ink);}
+.v-thumb{flex:none; width:128px; height:72px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;
+  color:var(--white); background:radial-gradient(120% 90% at 80% 100%, rgba(71,0,99,.85), transparent 60%), var(--eqx-ink);}
+.v-thumb .ic{width:26px; height:26px;}
+.v-body{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.v-kicker{font-size:var(--t-micro); font-weight:var(--fw-extrabold); letter-spacing:var(--ls-eyebrow); text-transform:uppercase; color:var(--text-secondary);}
+.v-title{font-size:var(--t-ui); font-weight:var(--fw-bold); color:var(--text-primary);}
+.v-note{font-size:var(--t-meta); color:var(--text-secondary);}
+.lcards + .vcard{margin-top:12px;}

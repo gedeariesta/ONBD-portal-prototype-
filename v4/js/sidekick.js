@@ -64,7 +64,15 @@ const SK_NH = [
     } },
   { id:'handbook', q:'Do I need to read the handbook before I start?', keys:['handbook','policy','policies','code of conduct','notice','acknowledge','read before'],
     src:'Employee handbooks and notices', task:'policies',
-    say: () => `No. Handbooks open in your first week: one link to all of them, and one acknowledgment. The notices you acknowledge that week are separate, so the date you acknowledged each one is kept.` },
+    say: () => `No. They open in your first week as one task: eight handbooks and a few notices, each signed in DocuSign, which keeps the date and time. You can read them now if you like; signing opens on your start date.` },
+  { id:'benefits', q:'When do I enrol in benefits?', keys:['benefit','benefits','insurance','medical plan','dental','401k','pension','enrol','enroll'],
+    src:'Benefits enrolment for new starters',
+    say: () => `On your second day. The task links straight to the enrolment site for your country, so there’s nothing to look up or prepare before you start.` },
+  // Janine's example (A-78): a question like this is answered from the
+  // office's own article first. Handing to a person is the unhappy path.
+  { id:'office', q:'Is there a gym in the office?', keys:['gym','fitness','shower','bike','locker','canteen','cafeteria','kitchen','facilities'],
+    src: () => `${S.country === 'JP' ? 'Tokyo' : 'Denver'} office guide`,
+    say: () => `The ${S.country === 'JP' ? 'Tokyo' : 'Denver'} office guide lists what’s in the building, including any gym or fitness room, showers, bike storage and where to eat, and who to ask at reception. Your badge works for all of it from Day 1.` },
   { id:'date', q:'Can I change my start date?', keys:['start date','change my start','move my start','delay','different date','later start'],
     src:'Changing your start date', task:'startdate',
     say: () => `Yes. Ask on <b>Confirm your start date</b>. ${PEOPLE.pex.name.split(' ')[0]} and ${HIRE.manager.split(' ')[0]} both see the request, and your other dates stay as they are until it’s agreed.` },
@@ -104,14 +112,78 @@ const skSrc = it => typeof it.src === 'function' ? it.src() : it.src;
 /* The thread lives in memory only: a conversation is not state the other
    two views read. The handoffs are, so those are saved. */
 let SK_THREAD = [];
+/* The Sidekick mascot, supplied by Gede from the internal launch banner. */
+const SK_AV = 'assets/sidekick/sidekick-head.png';
+const skAv = () => `<img class="sk-av" src="${SK_AV}" alt="">`;
 let SK_LAST_Q = '';
+
+/* ---------- the brief: one shape on all three homes (A-75) ----------
+   Top layer: the time period, one sentence, the one thing to do first and
+   a count. "What's coming up" opens the next layer. Every value is read from
+   the task list or the queues; Sidekick only words the sentence. The next
+   thing appears on its own once the first is done, so nobody is shown every
+   open item at once. */
+const SK_MORE = {};
+function skBrief(who, o) {
+  const open = !!SK_MORE[who];
+  return `
+  <div class="sk-brief" data-assume="A-75">
+    <span class="sk-sum-mark">${skAv()}</span>
+    <div class="skb-main">
+      <div class="skb-h"><b>Sidekick</b><span class="skb-period">${o.period}</span></div>
+      <p class="skb-say">${o.say}</p>
+      ${o.focus ? `
+      <button class="skb-focus" type="button" ${o.focus.route ? `data-goto="${o.focus.route}"` : ''}>
+        <span class="skb-fl">${o.focus.label}</span>
+        <span class="skb-fn">${o.focus.name}</span>
+        <span class="skb-fd">${o.focus.due}</span>
+        ${ic('arrow-right.svg','sm')}
+      </button>` : ''}
+      <div class="skb-foot">
+        <span class="skb-count">${o.count}</span>
+        ${o.more && o.more.length ? `<button class="skb-more" type="button" data-skmore="${who}" aria-expanded="${open}">
+          ${open ? 'Hide what’s coming up' : 'What’s coming up'} ${ic(open ? 'chevron-up.svg' : 'chevron-down.svg','sm')}</button>` : ''}
+      </div>
+      ${open ? `<ul class="skb-list">${o.more.map(m => `<li><span>${m.name}</span><span class="skb-when">${m.when}</span></li>`).join('')}</ul>` : ''}
+      <span class="sk-sum-l">${o.note} ${am('A-75')}</span>
+    </div>
+  </div>`;
+}
+
+/* The new hire's brief. Same structure as the manager's and the
+   coordinator's: period, sentence, the one next task, a count. */
+function nhBrief() {
+  const tasks = taskList(), done = tasks.filter(t => t.status === 'done').length;
+  const next = nextTask(), days = daysToStart();
+  const od = tasks.filter(t => isOverdue(t.key));
+  const say = !next
+    ? `Everything before Day 1 is done, and nothing is waiting on you. Your first-day details arrive here three days before you start.`
+    : `${od.length ? `${od.length} ${od.length > 1 ? 'things are' : 'thing is'} past due, but ${od.length > 1 ? 'they’re' : 'it’s'} still open. ` : ''}`
+      + `One thing to do now. When it’s done, I’ll show you the next.`;
+  const more = [
+    ...tasks.filter(t => t.status !== 'done' && (!next || t.key !== next.key)).map(t => ({ name:t.name, when:`Due ${dueText(dueFor(t.key))}` })),
+    { name:'Your first day details arrive', when:'3 days before you start' },
+    ...day1Items().map(t => ({ name:t.name, when:'Day 1' })),
+    { name:'Benefits enrolment', when:'Day 2' },
+    ...week1Items().map(t => ({ name:t.name, when:'First week' })),
+  ];
+  return skBrief('nh', {
+    period: next ? `This week · ${days} day${days === 1 ? '' : 's'} to go` : 'Before Day 1',
+    say,
+    focus: next && { label: done ? 'Next' : 'Start here', name: next.name,
+      due: `Due ${dueText(dueFor(next.key))}`, route: next.route },
+    count: `${done} of ${tasks.length} done before Day 1`,
+    more,
+    note: 'Drawn from your task list. The order is set by due date, not by Sidekick.',
+  });
+}
 
 /* ---------- the ask bar, drawn inside a scene ---------- */
 function sidekickAskBar(who) {
   const list = skList(who).slice(who === 'hm' ? 0 : 1, who === 'hm' ? 3 : 4);
   return `
   <form class="ask-bar" data-askform="${who}" data-assume="A-71">
-    ${ic('sparkle.svg','lg')}
+    <span class="ask-av">${skAv()}</span>
     <input type="text" data-askinput="1" aria-label="Ask Sidekick"
       placeholder="${who === 'hm' ? 'Ask Sidekick about Jordan’s start' : 'Ask Sidekick anything about starting at Equinix'}">
     <button class="btn primary sm" type="submit">Ask</button>
@@ -216,7 +288,7 @@ function skTeamsPreview() {
   <div class="sk-teams" data-assume="A-73">
     <div class="sk-teams-h">${ic('comment-lines.svg','sm')}How Sidekick reminds you, in Teams ${am('A-73')}</div>
     <div class="sk-teams-card">
-      <div class="skt-from"><span class="skt-av">${ic('sparkle.svg','sm')}</span><b>Sidekick</b><span>Onboarding</span></div>
+      <div class="skt-from"><span class="skt-av">${skAv()}</span><b>Sidekick</b><span>Onboarding</span></div>
       <div class="skt-msg">${b ? `${HIRE.preferred} starts in ${daysToStart()} days. ${b.text.split('.')[0]}.` : `${HIRE.preferred} starts in ${daysToStart()} days, and nothing needs you.`}</div>
       ${b && b.route ? `<div class="skt-acts"><span class="skt-btn">${b.action}</span><span class="skt-btn ghost">Remind me Friday</span></div>` : ''}
     </div>
@@ -254,8 +326,9 @@ function skAsk(q) {
          <div class="sk-fb" data-skfb="${it.id}"><span>Was this right?</span>
            <button type="button" data-skfbv="yes">Yes</button><button type="button" data-skfbv="no">No</button></div>
        </div>${skTaskCard(it.task)}`
-    : `<div class="msg bot">I’m not sure about that one, and I’d rather not guess. A person on the People Operations
-         team can answer it. They’ll see this conversation, so you won’t need to explain again.
+    : `<div class="msg bot">I looked, and nothing I can read answers that, so I’d rather not guess.
+         <div class="sk-searched">${ic('search.svg','sm')}Searched ${skSources(who)}. Nothing matched.</div>
+         A person on the People Operations team can answer it. They’ll see this conversation, so you won’t need to explain again.
          <div class="sk-fb"><button type="button" class="btn brand sm" data-skhuman="1">Talk to a person</button></div>
        </div>`;
   SK_THREAD.push({ who, html: me + bot });
@@ -264,14 +337,21 @@ function skAsk(q) {
   const b = $('#chatPanel .panel-b'); if (b) b.scrollTop = b.scrollHeight;
 }
 
+/* What an unanswered question was checked against before a person is
+   offered (A-72, A-78). Escalation is the unhappy path, not the default. */
+const skSources = who => who === 'hm'
+  ? 'the HR articles for managers and the onboarding guide for managers'
+  : `the HR knowledge articles, the ${S.country === 'JP' ? 'Tokyo' : 'Denver'} office guide and the new starter FAQ`;
+
 /* The red button. Lands in the coordinator's Help requests queue for
    Jordan, with the question attached (L-13), and says so. */
 function skHandoff() {
   const who = skWho();
   S.sidekick.handoffs.push({ who, q: SK_LAST_Q || 'Asked for a person', at: fmtDate(simToday()) });
   save();
-  SK_THREAD.push({ who, html: `<div class="msg bot handed">${ic('check-circle.svg','sm')} Passed to the People Operations team,
-    with this conversation attached. They reply by email. ${PEOPLE.pex.name} can see it too. ${am('A-72')}</div>` });
+  SK_THREAD.push({ who, html: `<div class="msg bot handed">${ic('check-circle.svg','sm')} Passed to the People Operations support team,
+    with this conversation attached. They answer most questions directly and pass anything complex to a specialist.
+    They reply by email, and ${PEOPLE.pex.name} can see it too. ${am('A-72')}</div>` });
   renderSidekick();
   const b = $('#chatPanel .panel-b'); if (b) b.scrollTop = b.scrollHeight;
   toast('Passed to a person. They reply by email.', 'check-circle.svg');

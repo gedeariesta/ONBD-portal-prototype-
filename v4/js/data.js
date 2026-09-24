@@ -299,18 +299,18 @@ const ASSUMPTIONS = [
   { id:'A-65', group:'blocks', prov:'MTG', screen:'Personal details, in Workday', route:'#/details',
     assumed:'Personal details are one Workday task on Day 1: legal and preferred name, address, emergency contacts, bank, tax and voluntary self-identification. The portal links to it and learns only that it is done. Equipment that ships to a home uses the address on the offer.',
     resolve:'Workday stays the system of record for anything personal, for privacy, architecture and retention reasons, and the payroll-required fields are entered once rather than reviewed again downstream (both said in the Artifacts meeting). Open: whether bank details entered on Day 1 reach the first payroll run; if not, this becomes a Workday task before the start date and a fourth thing before Day 1.', oi:'' },
-  { id:'A-66', group:'blocks', prov:'MTG', screen:'Policies and notices', route:'#/policies',
+  { id:'A-66', group:'retired', prov:'MTG', screen:'Policies and notices', route:'#/policies',
     assumed:'Policies and notices open in the first week. Labour notices are acknowledged in ServiceNow, each with its date and time kept for audit. The handbooks are one link to the SharePoint site and one acknowledgment, not a pack of documents. The notices can be read ahead before the start date; nothing can be signed.',
-    resolve:'Handbook access starts after the start date, the roughly 35 handbooks need one task rather than one each, and labour notices sit in ServiceNow for the timestamp (all said in the Artifacts meeting). Open: Netherlands and Canada contracts refer to the handbook, which a new hire cannot see before they start; whether acknowledging is mandatory before the next task opens; and which code of conduct and whistleblower acknowledgments can go, since compliance learning already asks for some of them.', oi:'' },
+    resolve:'Handbook access starts after the start date, the roughly 35 handbooks need one task rather than one each, and labour notices sit in ServiceNow for the timestamp (all said in the Artifacts meeting). Open: Netherlands and Canada contracts refer to the handbook, which a new hire cannot see before they start; whether acknowledging is mandatory before the next task opens; and which code of conduct and whistleblower acknowledgments can go, since compliance learning already asks for some of them. Retired after the review with Janine: the handbooks are eight acknowledgements nested in one task, not one link and one acknowledgment, and signing goes through DocuSign rather than ServiceNow (A-76).', oi:'' },
   { id:'A-67', group:'design', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'The job description is confirmed on Day 1. It can be read now, and a mismatch can be raised now, rather than waiting for the start date.',
     resolve:'Nothing in the meetings places it. The other reading is to drop it: the offer already describes the role, and a mismatch found on Day 1 is late. Raising a mismatch early is kept because it is the one part of the task that is worth more before the start date than after it.', oi:'' },
   { id:'A-68', group:'design', prov:'ASSUMED', screen:'Badge photo and introduction', route:'#/intro',
     assumed:'The badge photo and the introduction are optional before Day 1, with no due date. A photo sent by ten days before the start gets the badge printed in time; without one, the photo is taken at reception.',
     resolve:'The badge needs print time before Day 1, but the photo is not one of the three things. Two readings are open: keep it optional, as drawn, or make it a Day 1 step and accept that nobody arrives with a printed badge. The introduction loses most of its value after Day 1, which is the case for keeping it optional rather than moving it.', oi:'' },
-  { id:'A-69', group:'content', prov:'MTG', screen:'Benefits enrolment', route:'#/',
+  { id:'A-69', group:'retired', prov:'MTG', screen:'Benefits enrolment', route:'#/',
     assumed:'Benefits enrolment is a first-week task that links straight to the enrolment site for the country: Benefacts countries, and PlanSource in the US, with the same experience either way.',
-    resolve:'Q4 scope, per the Sidekick meeting: Benefacts countries whose links are ready by the end of October, and PlanSource for the US once its links are supplied. Darwin countries follow from Q1, quarter by quarter, as they move into Darwin. For now benefits stays a ServiceNow task with a page widget linking to enrolment.', oi:'' },
+    resolve:'Q4 scope, per the Sidekick meeting: Benefacts countries whose links are ready by the end of October, and PlanSource for the US once its links are supplied. Darwin countries follow from Q1, quarter by quarter, as they move into Darwin. For now benefits stays a ServiceNow task with a page widget linking to enrolment. Retired after the review with Janine: enrolment moves to Day 2 (A-77). The link-per-country scope above still stands.', oi:'' },
   { id:'A-70', group:'design', prov:'ASSUMED', screen:'Sidekick', route:'#/',
     assumed:'Sidekick talks, the system decides. Anything with a deadline, a signature or personal data is read from the task list and drawn by the system, in a card Sidekick cannot word. Sidekick explains it and points at it.',
     resolve:'The rule is the prototype’s, not the meetings’. It is how a wrong answer stays cheap: Stephanie found Sidekick sending a direct deposit question to ADP, and with this rule the card under the wrong sentence still opens the right Workday task. It needs agreeing before anything is costed, because it decides what the AI layer is allowed to do.', oi:'' },
@@ -326,6 +326,27 @@ const ASSUMPTIONS = [
   { id:'A-74', group:'design', prov:'MTG', screen:'Coordinator Today', route:'#/pex/',
     assumed:'The coordinator’s Today screen opens with Sidekick’s two-sentence read of the queues, and Sidekick turns a question into a caseload filter. What needs the coordinator is still decided by the queue rules; Sidekick only puts the counts in order.',
     resolve:'Janine described a dedicated view of who starts on a given day, who has not finished, and red and orange risk, with filters by region and start date. Summarising structured data is where AI is most reliable, so this is where the AI layer does the most. Open: whether a written summary helps a coordinator who reads the queues anyway.', oi:'' },
+  { id:'A-75', group:'design', prov:'MTG', screen:'Sidekick brief, all three homes', route:'#/',
+    assumed:'The new hire, the manager and the coordinator get the same Sidekick brief at the top of their home: the time period, one sentence, the one thing to do first, a count, and “What’s coming up” behind it. The next thing appears on its own once the first is done, so nobody is shown every open item at once.',
+    resolve:'Proposed by Gede and discussed with Janine: a layered view, simple on top, detail on selection, and one structure across the three lenses. Open, and to settle with user testing: whether people read the difference between things to do and things already done, and whether one thing at a time feels guided or hides too much.', oi:'' },
+  { id:'A-76', group:'blocks', prov:'MTG', screen:'Handbooks and notices', route:'#/policies',
+    assumed:'Handbooks and notices are one first-week task. The eight handbook acknowledgements sit inside it as eight items rather than eight tasks, and each one is signed in DocuSign, which keeps the date and time. The notices are signed the same way. Nothing can be signed before the start date. The eight handbook names on screen are placeholders.',
+    resolve:'Agreed with Janine. Brian and Janine discussed a DocuSign layer for compliance acknowledgements and offer acceptance, so that acknowledgement does not have to be built into ServiceNow. Open: the real list of eight and whether it varies by country, whether DocuSign returns the signed state to the portal or the portal only links out, and the Netherlands and Canada contracts that refer to a handbook the new hire cannot yet see.', oi:'' },
+  { id:'A-77', group:'content', prov:'MTG', screen:'Benefits enrolment', route:'#/',
+    assumed:'Benefits enrolment opens on Day 2 and links straight to the enrolment site for the country.',
+    resolve:'Janine moved it to Day 2 rather than the pre-Day 1 sequence. The country scope in A-69 still applies: Benefacts countries and PlanSource in the US first, Darwin countries from Q1.', oi:'' },
+  { id:'A-78', group:'design', prov:'MTG', screen:'Sidekick', route:'#/',
+    assumed:'Before offering a person, Sidekick searches the HR knowledge articles, the office guide and the new starter FAQ, and says what it searched. A question like “Is there a gym in the office?” is answered from the office guide. Handing to a person is the unhappy path. Support then runs in tiers: People Operations answers first, and anything complex goes to a specialist.',
+    resolve:'Janine’s correction: escalation should not be the default response. Tier one is planned to run through the Manila team for quick answers, with tier two for complex cases. The office guide’s wording in the prototype is illustrative; the real facilities content has to be supplied per office. Open: which sources a pre-hire’s Sidekick can search (A-71).', oi:'' },
+  { id:'A-79', group:'design', prov:'MTG', screen:'Coordinator caseload and Today', route:'#/pex/caseload',
+    assumed:'A hire starting within seven days with any high-severity item still open gets a flashing red dot beside the start date, for example a background check not started for a Monday start. It is the only thing in the product that moves; with reduced motion it is a steady dot. Progress runs green for done and blue for in progress.',
+    resolve:'Discussed with Janine: a colour progression for progress, and something more prominent for problems that need attention now. The seven-day window and “high severity” are the prototype’s choices, not agreed thresholds.', oi:'' },
+  { id:'A-80', group:'content', prov:'MTG', screen:'Onboarding videos', route:'#/',
+    assumed:'The portal uses the onboarding videos that already exist: one before Day 1 and one for Day 1. The others stay as supporting links. Nothing new is produced first.',
+    resolve:'Janine’s call: Adair’s video for pre-Day 1 and Brandy’s for Day 1, rather than waiting on employee communications for new content. The titles on screen are descriptive, not the videos’ real titles, and the videos are not embedded in the prototype.', oi:'' },
+  { id:'A-81', group:'content', prov:'MTG', screen:'Checklists and buddy content', route:'#/',
+    assumed:'The hiring-manager and candidate checklists do not survive as documents. Their actions become tasks where they need doing, and their guidance becomes HR articles Sidekick can answer from. The buddy programme materials are handled the same way.',
+    resolve:'Janine: the checklists should translate into the AI-first experience rather than be preserved as a standalone document, and Megan’s buddy materials are well advanced. Open: which checklist lines are tasks and which are guidance, line by line.', oi:'' },
 ];
 
 const GROUP_LABELS = {
@@ -717,6 +738,20 @@ const READINESS = [
    Counts are from the current-state business process document list, not invented.
    The mockup's acknowledgement pack is the intended future core; this is the
    reference material that arrives alongside it today. */
+/* v4: the eight handbook acknowledgements, as one task with each one nested
+   inside it, and each signed in DocuSign (A-76). The names are placeholders
+   until the real list is supplied; the count of eight is what was agreed. */
+const HANDBOOKS = [
+  { id:'hb-main', us:'Employee Handbook, United States', jp:'Work rules (就業規則)' },
+  { id:'hb-local', us:'Colorado supplement', jp:'Tokyo office supplement' },
+  { id:'hb-infosec', us:'Information security', jp:'Information security' },
+  { id:'hb-leave', us:'Leave and time off', jp:'Leave and time off' },
+  { id:'hb-respect', us:'Respectful workplace and anti-harassment', jp:'Respectful workplace and anti-harassment' },
+  { id:'hb-safety', us:'Health and safety', jp:'Health and safety' },
+  { id:'hb-hours', us:'Working hours and overtime', jp:'Working hours and overtime' },
+  { id:'hb-travel', us:'Travel and expenses', jp:'Travel and expenses' },
+];
+
 const CURRENT_PACK = {
   US: { handbook:'US Employee Handbook (November 2024)',
         addenda:25, addendaNote:'state supplements. Every US hire gets all of them, whichever state they work in',
@@ -748,6 +783,13 @@ const CARD_FLOW = {
    before Day 1 (opens on its own, nothing to do yet), Day 1, or the first
    week. Pre-hire is limited to the three tasks (A-64); nothing here is due
    before the start date. */
+/* v4: the existing onboarding videos, rather than new content (A-80). One
+   before Day 1, one for Day 1; the rest stay as supporting links. */
+const VIDEOS = {
+  pre:  { title:'Welcome to Equinix, before you start', note:'The existing welcome video from the onboarding team. Watch it any time before Day 1.' },
+  day1: { title:'Your first day, explained', note:'The existing Day 1 video: orientation, meeting your team and what happens after.' },
+};
+
 const COMING_UP = [
   { id:'setup', when:'pre', name:'Equipment setup instructions', opens:'3 days before you start',
     note:'You set up your own laptop, and the IT help desk is open all day', icon:'portal-window.svg',
@@ -763,9 +805,9 @@ const COMING_UP = [
   { id:'phone', when:'day1', name:'Order a phone', opens:'Day 1, optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
     expl:'Ordered on or after Day 1, and only if your role needs one.',
     dnote:'Keeping it out of pre-boarding is a choice, not an oversight.' },
-  { id:'benefits', when:'week1', name:'Benefits enrolment', opens:'Your first week', marker:'A-69',
+  { id:'benefits', when:'week1', name:'Benefits enrolment', opens:'Day 2', marker:'A-77',
     note:'One link, straight to the right enrolment site for your country', icon:'shield-check.svg',
-    expl:'Opens in your first week. The task links you straight to the enrolment site for your country, so there is nothing to look up and nothing to prepare before then.',
+    expl:'Opens on your second day. The task links you straight to the enrolment site for your country, so there is nothing to look up and nothing to prepare before then.',
     dnote:'Q4 scope, per the September meetings: Benefacts countries with links ready by the end of October, and PlanSource for the US. Darwin countries follow from Q1, quarter by quarter.' },
   { id:'infogov', when:'week1', name:'Information governance', opens:'Your first week', note:'Short training on how Equinix handles information', icon:'file-alt.svg', marker:'A-21',
     expl:'Runs in your first week, once you have your Equinix account. It covers how we handle information here.' },

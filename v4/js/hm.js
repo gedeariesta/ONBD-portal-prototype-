@@ -219,7 +219,7 @@ const NH_TASK_LABELS = {
   startdate:'Confirm the start date', bgcheck:'Start the background check',
   equipment:'Choose equipment', details:'Personal details, in Workday',
   jd:'Check the job description', intro:'Badge photo and a hello (optional)',
-  policies:'Policies and notices',
+  policies:'Handbooks and notices',
 };
 
 /* New hire progress as the manager may see it (M-03 / L-05): names and
@@ -301,6 +301,28 @@ function hmSummary() {
 /* ============================================================
    H-00: readiness view (the manager's home)
    ============================================================ */
+/* The manager's brief (A-73, A-75): the same shape as the new hire's. The
+   first open task before Day 1, by due date, is the one thing shown. */
+function hmBrief() {
+  const pre = hmTasks().filter(t => !t.phase);
+  const open = pre.filter(t => !t.done).sort((a, b) => a.dueOff - b.dueOff);
+  // The one thing agrees with the sentence: the first blocker's task if the
+  // sentence names one, otherwise the next task by due date.
+  const b = hmBlockers().find(x => x.sev !== 'low' && x.route);
+  const next = (b && open.find(t => t.route === b.route)) || open[0];
+  const w = hmWaitingOnNewHire(), days = daysToStart();
+  return skBrief('hm', {
+    period: `This week · ${HIRE.preferred} starts in ${days} day${days === 1 ? '' : 's'}`,
+    say: hmSummary(),
+    focus: next && { label:'Do first', name: next.label,
+      due: `Due ${dueText(addDays(startDate(), next.dueOff))}`, route: next.route },
+    count: `${pre.length - open.length} of ${pre.length} of yours done before Day 1`
+      + (w.length ? ` · ${w.length} of ${HIRE.preferred}’s own open` : ''),
+    more: open.filter(t => t !== next).map(t => ({ name:t.label, when:`Due ${dueText(addDays(startDate(), t.dueOff))}` })),
+    note: `Written from ${HIRE.preferred}’s record. What needs you is set by the rules on this page, not by Sidekick.`,
+  });
+}
+
 function renderHmHome() {
   const R = readiness();
   const blockers = hmBlockers();
@@ -329,16 +351,13 @@ function renderHmHome() {
           <div class="eyebrow">Your new hire · Before Day 1</div>
           <h1>${hire.name.split(' ')[0]} starts in <span class="grad">${days} day${days === 1 ? '' : 's'}</span>.</h1>
           <p class="lede">${startDateText()}. ${hire.role}, ${hire.loc}, ${hire.arrangement}.</p>
-          <div class="sk-summary" data-assume="A-73">
-            <span class="sk-sum-mark">${ic('sparkle.svg','sm')}</span>
-            <div><b>Sidekick</b> ${hmSummary()}
-              <span class="sk-sum-l">Written from ${HIRE.preferred}’s record. What needs you is set by the rules on this page, not by Sidekick. ${am('A-73')}</span></div>
-          </div>
+          ${hmBrief()}
           ${sidekickAskBar('hm')}
         </div>
         <div class="scene-stats">
-          <div class="stat"><b>${R.mine.done}/${R.mine.total}</b><span class="stat-l">your tasks done</span>
-            <span class="stat-s">${R.mine.pct}% of your list</span></div>
+          ${(() => { const pre = tasks.filter(t => !t.phase), d = pre.filter(t => t.done).length;
+            return `<div class="stat"><b>${d}/${pre.length}</b><span class="stat-l">yours done</span>
+            <span class="stat-s">before Day 1</span></div>`; })()}
           <div class="stat"><b>${R.theirs.done}/${R.theirs.total}</b><span class="stat-l">${HIRE.preferred}’s done</span>
             <div class="three">${nhProgressRows().filter(r => r.group === 'pre').map(r => `<i class="${r.status === 'done' ? 'on' : ''}"></i>`).join('')}</div></div>
         </div>
@@ -548,7 +567,7 @@ function hmRail() {
         </div>
       </div>
       <ul class="res-list mt8">
-        <li><a data-ext="guide">${ic('file-alt.svg','sm')}Manager Onboarding Guide ${am('M-15')}</a></li>
+        <li><a data-ext="guide">${ic('file-alt.svg','sm')}Manager Onboarding Guide ${am('M-15')} ${am('A-81')}</a></li>
         <li><a data-goto="#/handoffs">${ic('users-connected.svg','sm')}How the portals connect</a></li>
       </ul>
       ${buddy ? `<div class="rail-note">Buddy assigned: <b>${buddy.name}</b>${S.hm.buddy.notified ? ', notified' : ''}.</div>` : ''}
@@ -997,7 +1016,7 @@ function renderHmCalendar() {
    ============================================================ */
 const WELCOME_TODO = {
   details:'enter your personal details in Workday', rtw2:'bring your right to work documents',
-  policies:'acknowledge the policies and notices',
+  policies:'sign the handbooks and notices',
 };
 function renderHmWelcome() {
   const W = S.hm.welcome;
@@ -1010,7 +1029,7 @@ function renderHmWelcome() {
   const firstWeek = [
     `Before you start: ${join(taskList().map(say))}`,
     `On your first day: ${join(day1Items().map(say))}`,
-    `In your first week: ${join([...week1Items().map(say), 'enrol in benefits'], ', then ')}`,
+    `In your first week: ${join(['enrol in benefits on Day 2', ...week1Items().map(say)])}`,
   ];
   const sysList = `<b>What to expect before and after you start</b>
           <ol>${firstWeek.map(f => `<li>${f}</li>`).join('')}</ol>`;

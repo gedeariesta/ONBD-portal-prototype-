@@ -11,7 +11,7 @@ register row.
 | Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` |
 | Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` |
 | Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 128 · 113 live · 15 retired |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired |
 | Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
@@ -52,6 +52,15 @@ requests queue (A-72, L-13). The manager's home and the coordinator's Today
 open with a short Sidekick summary built only from rules already on the page
 (A-73, A-74). Answers are written in advance and matched on keywords: nothing
 calls a model.
+
+**After the review with Janine** (A-75 to A-81): the Sidekick mascot replaces
+the sparkle; all three homes share one layered brief (period, one sentence,
+the one thing to do first, a count, and "What's coming up" behind it);
+handbooks are one first-week task with eight acknowledgements nested inside,
+each signed in DocuSign, as are the notices; benefits enrolment moves to Day 2;
+Sidekick says what it searched before offering a person; at-risk hires starting
+within a week get the one flashing marker in the product; and the existing
+onboarding videos appear before Day 1 and on Day 1.
 
 ## Run it
 

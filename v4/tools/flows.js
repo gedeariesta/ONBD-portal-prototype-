@@ -52,8 +52,11 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   // 5b. Policies are first-week work (A-66): readable now, nothing signable
   await go('#/policies');
   await p.evaluate(() => document.querySelector('[data-dochead]').click()); await p.waitForTimeout(250);
-  const ackLocked = await p.evaluate(() => [...document.querySelectorAll('[data-ack], [data-hback]')].every(x => x.disabled));
+  const ackLocked = await p.evaluate(() => [...document.querySelectorAll('[data-ack], [data-hbsign]')].every(x => x.disabled));
   check('policies cannot be acknowledged before the start date', ackLocked);
+  // A-76: eight handbooks nested in one task, each with its own DocuSign signature
+  const hb = await p.evaluate(() => document.querySelectorAll('.hb-card .hb-item').length);
+  check('eight handbooks sit inside one task', hb === 8, `${hb} items`);
 
   // 6. Inside Equinix strip: chapter change must not scroll
   await go('#/');
@@ -96,10 +99,15 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   check('Sidekick answers', await p.evaluate(() => document.querySelectorAll('#chatMsgs .msg.bot').length >= 2));
   check('the answer names its article', await p.evaluate(() => !!document.querySelector('#chatMsgs .sk-src')));
   check('a system card sits under the answer', await p.evaluate(() => !!document.querySelector('#chatMsgs .sk-sys')));
+  // A-78: an office question is answered from the office guide, not escalated
   await p.evaluate(() => { const i=document.getElementById('chatInput'); i.value='Is there a gym in the office?'; document.getElementById('chatSendBtn').click(); });
   await p.waitForTimeout(350);
-  const offers = await p.evaluate(() => !!document.querySelector('#chatMsgs [data-skhuman]'));
-  check('an unmatched question offers a person', offers);
+  check('the gym question is answered from the office guide', await p.evaluate(() =>
+    /office guide/.test([...document.querySelectorAll('#chatMsgs .sk-src')].pop()?.innerText || '')));
+  await p.evaluate(() => { const i=document.getElementById('chatInput'); i.value='Can I bring my dog to work?'; document.getElementById('chatSendBtn').click(); });
+  await p.waitForTimeout(350);
+  const offers = await p.evaluate(() => !!document.querySelector('#chatMsgs [data-skhuman]') && !!document.querySelector('#chatMsgs .sk-searched'));
+  check('an unmatched question says what it searched, then offers a person', offers);
   await p.evaluate(() => document.querySelector('#chatMsgs [data-skhuman]').click()); await p.waitForTimeout(350);
   await p.evaluate(() => document.querySelector('.panel.show .x').click()); await p.waitForTimeout(250);
   await go('#/pex/');
@@ -120,6 +128,20 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   const within = await p.evaluate(() => location.hash === '#/pex/caseload' &&
     [...document.querySelectorAll('.px-table tbody tr')].every(tr => { const m = tr.innerText.match(/In (\d+) days?/); return !m || +m[1] <= 7; }));
   check('a Sidekick question filters the caseload', within);
+  await go('#/');
+
+  // 10d. A-75: the same brief on all three homes, one thing first, a second layer on request
+  for (const r of ['#/', '#/hm/', '#/pex/']) {
+    await go(r);
+    const ok1 = await p.evaluate(() => !!document.querySelector('.sk-brief .skb-focus') && !document.querySelector('.skb-list'));
+    await p.evaluate(() => document.querySelector('[data-skmore]').click()); await p.waitForTimeout(300);
+    const ok2 = await p.evaluate(() => document.querySelectorAll('.skb-list li').length > 0);
+    await p.evaluate(() => document.querySelector('[data-skmore]').click()); await p.waitForTimeout(200);
+    check(`Sidekick brief on ${r}: one thing first, more on request`, ok1 && ok2);
+  }
+  // A-79: at-risk hires flash on the caseload
+  await go('#/pex/caseload');
+  check('at-risk hires are flagged', await p.evaluate(() => document.querySelectorAll('.risk-dot').length > 0));
   await go('#/');
 
   // 11. Assumptions panel opens and links

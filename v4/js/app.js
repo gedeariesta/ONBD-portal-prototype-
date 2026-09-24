@@ -74,7 +74,7 @@ const DEFAULT_STATE = () => ({
   jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
   intro: { text:'', consent:false, useBadge:false, saved:false, dismissed:[], done:false },
   photo: { uploaded:false, dataUrl:null, consent:false, done:false, confirmedExisting:false, replacing:false },
-  policies: { open:{}, read:{}, acked:{}, cobcVisited:false, submitted:false, handbookAcked:'' },
+  policies: { open:{}, read:{}, acked:{}, cobcVisited:false, submitted:false, hbSigned:{}, hbOpen:true },
   network: { booked:{} },
   // Questions passed from Sidekick to a person (A-72). Saved, because the
   // coordinator's Help requests queue reads them (L-13).
@@ -151,7 +151,9 @@ function photoSectionDone() {
 }
 function policiesStatus() {
   if (S.policies.submitted) return 'done';
-  return Object.values(S.policies.acked).filter(Boolean).length > 0 ? 'inprogress' : 'notstarted';
+  return Object.values(S.policies.acked).filter(Boolean).length + hbSignedCount() > 0 ? 'inprogress' : 'notstarted';
+}
+function hbSignedCount() { return HANDBOOKS.filter(h => (S.policies.hbSigned || {})[h.id]).length;
 }
 /* v4: three things before Day 1, and only three (A-64). Pre-hire was
    limited to the background check, equipment and the start date in the
@@ -209,7 +211,7 @@ function taskList() {
 /* The first open task, which Sidekick and the hero both point at. */
 function nextTask() { return taskList().find(t => t.status !== 'done') || null; }
 
-/* Day 1 and the first week (A-65, A-66, A-67). Each either opens a preview
+/* Day 1 and the first week (A-65, A-76, A-67). Each either opens a preview
    of its screen, or explains itself in place like the coming-up cards. */
 function day1Items() {
   const jp = S.country === 'JP';
@@ -228,9 +230,9 @@ function day1Items() {
 }
 function week1Items() {
   return [
-    { key:'policies', route:'#/policies', icon:'shield-check.svg', sys:'ServiceNow', marker:'A-66',
-      name:'Policies and notices',
-      why:'A few notices to acknowledge, and one link to every handbook' },
+    { key:'policies', route:'#/policies', icon:'shield-check.svg', sys:'DocuSign', marker:'A-76',
+      name:'Handbooks and notices',
+      why:'One task: eight handbooks and a few notices, each signed in DocuSign' },
   ];
 }
 
@@ -259,6 +261,7 @@ function renderLanding() {
              without you, and your first-day details turn up here three days before you start.`
           : `You start as ${esc(HIRE.role)} on <b>${startDateText()}</b>. Three things to do before then, and you’re ready.
              Everything else waits until you’ve started.`} ${am('A-64')}</p>
+        ${nhBrief()}
         ${sidekickAskBar('nh')}
       </div>
       <div class="scene-stats" data-assume="A-64">
@@ -299,6 +302,7 @@ function renderLanding() {
         <div class="tcards">${tasks.map(taskCard).join('')}</div>
 
         <div class="section-h"><h3>Optional, if you have time</h3><span class="hint">Nothing waits on these</span></div>
+        ${videoCard('pre')}
         <div class="tcards">
           <div class="tcard optional ${introStatus() === 'done' ? 'done' : ''}" data-task="#/intro" data-assume="A-68">
             <div class="tic">${ic('comment-smile.svg','lg')}</div>
@@ -366,6 +370,7 @@ function renderLanding() {
           <span class="hint">About three things, most of them in person</span>
         </div>
         <div class="lcards">${day1Items().map(laterCard).join('')}${comingCards('day1')}</div>
+        ${videoCard('day1')}
 
         <div class="section-h stack journey-h">
           <span class="eyebrow">First week</span>
@@ -438,6 +443,20 @@ function comingCards(when) {
    the system it lives in, and an arrow only where it opens a read-ahead
    preview. Without a route it explains itself in place, like the
    coming-up rows beside it. */
+/* An existing onboarding video (A-80): not embedded in the prototype. */
+function videoCard(id) {
+  const v = VIDEOS[id];
+  return `
+  <button class="vcard" type="button" data-video="${id}" data-assume="A-80">
+    <span class="v-thumb">${ic('play.svg','lg')}</span>
+    <span class="v-body">
+      <span class="v-kicker">Video</span>
+      <span class="v-title">${v.title} ${am('A-80')}</span>
+      <span class="v-note">${v.note}</span>
+    </span>
+  </button>`;
+}
+
 function laterCard(t) {
   const row = `
     <div class="u-row">
@@ -1800,19 +1819,19 @@ function convPhotoBlock() {
 function renderPolicies() {
   const P = S.policies;
   const jp = S.country === 'JP';
-  const acked = Object.values(P.acked).filter(Boolean).length;
-  const total = DOCS.length;
+  const acked = Object.values(P.acked).filter(Boolean).length + hbSignedCount();
+  const total = DOCS.length + HANDBOOKS.length;
   const ro = P.submitted && P._viewing;
 
   if (P.submitted && !ro) {
     return `
     <div class="page">
-      ${crumbs('Policies and notices')}
+      ${crumbs('Handbooks and notices')}
       <div class="task-shell">
         <div class="confirm-panel">
           <div class="big-check">${ic('check.svg','xl')}</div>
           <h2>All ${total} acknowledged. This task is closed.</h2>
-          <p>Each acknowledgment was recorded with the date and time, the document version and the language you read it in.
+          <p>Each one was signed in DocuSign, which keeps the date and time, the document version and the language you read it in.
           The documents stay available here whenever you want them.</p>
           <button class="btn secondary" data-reopen="policies">Reopen the documents</button>
           <button class="btn primary" data-goto="#/">Back to your tasks</button>
@@ -1823,22 +1842,24 @@ function renderPolicies() {
 
   return `
   <div class="page">
-    ${crumbs('Policies and notices')}
-    <div class="task-head" data-assume="A-66">
+    ${crumbs('Handbooks and notices')}
+    <div class="task-head" data-assume="A-76">
       <div class="eyebrow">First week</div>
-      <h1>Policies and notices ${am('A-66')}</h1>
-      <p class="why">In your first week: a few notices to acknowledge, and one link to every handbook. About 10 minutes, ${am('A-23')}
-      and you can stop any time. ${polOpen() ? '' : `You can read ahead now. Acknowledging opens on ${fmtLong(startDate())}.`}</p>
+      <h1>Handbooks and notices ${am('A-76')}</h1>
+      <p class="why">One task in your first week: eight handbooks and a few notices, each signed in DocuSign. About 20 minutes, ${am('A-23')}
+      and you can stop any time. ${polOpen() ? '' : `You can read ahead now. Signing opens on ${fmtLong(startDate())}.`}</p>
     </div>
     <div class="pol-head">
       <div class="prog-count">
-        <div class="nums" style="color:var(--eq-dark-blue)"><span>${acked} of ${total} acknowledged</span></div>
+        <div class="nums" style="color:var(--eq-dark-blue)"><span>${acked} of ${total} signed</span></div>
         <div class="prog-bar" style="background:var(--cloud)"><i style="width:${(acked/total)*100}%"></i></div>
       </div>
       <span class="chip info">${ic('globe.svg','sm')}In ${docLanguage()}, the language for your country of hire ${am('A-03')}</span>
       ${jp ? `<span class="chip info">${ic('flag.svg','sm')}Japan, so your list includes a Japan supplement</span>` : ''}
     </div>
 
+    ${handbookCard(jp)}
+    <div class="section-h"><h2>Notices</h2><span class="hint">${DOCS.length} to read and sign</span></div>
     <div class="doc-list">${DOCS.map(d => docCard(d, jp)).join('')}</div>
 
     <div class="read-group">
@@ -1849,7 +1870,6 @@ function renderPolicies() {
           <div><div class="o-name">Company factsheet</div>
           <div class="o-note">Who we are, what we do, and the numbers that matter. English only.</div></div>
         </div>
-        ${currentPackCard(jp)}
       </div>
     </div>
 
@@ -1857,9 +1877,9 @@ function renderPolicies() {
       ? `<div class="mt24 review-banner ok" style="max-width:720px;">${ic('check-circle.svg','lg')}
           <div><b>Task closed</b><p>Everything is acknowledged and recorded. The documents stay readable here.</p></div></div>`
       : `<div class="mt24" style="display:flex; align-items:center; gap:16px;">
-          <button class="btn primary" id="submitPolicies" ${acked===total && polOpen() ?'':'disabled'}>Submit all acknowledgments</button>
+          <button class="btn primary" id="submitPolicies" ${acked===total && polOpen() ?'':'disabled'}>Finish this task</button>
           <span style="font-size:var(--t-meta); color:var(--carbon);">${!polOpen() ? `Opens on ${fmtLong(startDate())}. Nothing to do before then.`
-            : acked===total ? 'Everything is acknowledged. One click finishes the task.' : `${total-acked} still to acknowledge before you can submit.`}</span>
+            : acked===total ? 'Everything is signed. One click finishes the task.' : `${total-acked} still to sign before you can finish.`}</span>
         </div>`}
   </div>`;
 }
@@ -1923,30 +1943,40 @@ function docCard(d, jp) {
   </div>`;
 }
 
-/* Handbooks, as agreed in September (A-66): one link to the SharePoint site
-   that holds every handbook, and one acknowledgment, instead of a pack of
-   28 documents per US hire. What the live process sends today is kept in
-   the design notes, because it is the argument for the change (A-51). */
-function currentPackCard(jp) {
+/* Handbooks, as agreed with Janine (A-76): one task with the eight
+   acknowledgements nested inside it, rather than eight tasks, and each one
+   signed in DocuSign rather than built into ServiceNow. What the live
+   process sends today stays in the design notes, because it is the
+   argument for the change (A-51). */
+function handbookCard(jp) {
   const pack = CURRENT_PACK[jp ? 'JP' : 'US'];
-  const H = S.policies;
+  const H = S.policies, signed = H.hbSigned || {}, n = hbSignedCount();
   return `
-  <div class="read-card stack" data-assume="A-66 A-51">
-    <div class="rc-top">
-      <div class="tic">${ic('file-alt.svg')}</div>
-      <div>
-        <div class="o-name">Employee handbooks ${am('A-66')}</div>
-        <div class="o-note">Every handbook that applies to you, on one Equinix site. You acknowledge them once, together,
-        rather than one document at a time.</div>
+  <div class="doc hb-card ${n === HANDBOOKS.length ? 'acked' : ''} ${H.hbOpen ? 'open' : ''}" data-assume="A-76 A-51">
+    <div class="doc-h" data-hbhead="1">
+      <div class="dic">${n === HANDBOOKS.length ? ic('check.svg') : ic('file-alt.svg')}</div>
+      <div class="d-main">
+        <div class="d-name">Employee handbooks ${am('A-76')}</div>
+        <div class="d-desc">Eight handbooks, one task. Each is signed on its own in DocuSign, which keeps the record.</div>
       </div>
+      <span class="chip ${n === HANDBOOKS.length ? 'done' : 'notstarted'}">${n} of ${HANDBOOKS.length} signed</span>
+      ${ic(H.hbOpen ? 'chevron-up.svg' : 'chevron-down.svg','lg')}
     </div>
-    <div class="hb-row">
-      <button class="btn secondary sm" data-ext="handbooks">${ic('external-link.svg','sm')} Open the handbook site</button>
-      ${H.handbookAcked
-        ? `<span class="ack-done">${ic('check-circle.svg','sm')}Acknowledged <span class="rec-note">${esc(H.handbookAcked)}</span></span>`
-        : `<label class="check ${polOpen() ? '' : 'disabled'}"><input type="checkbox" data-hback="1" ${polOpen() ? '' : 'disabled'}>
-            <span>I’ve read the handbooks that apply to me.</span></label>`}
-    </div>
+    ${H.hbOpen ? `
+    <div class="doc-body">
+      <ol class="hb-list">
+        ${HANDBOOKS.map(h => `
+        <li class="hb-item ${signed[h.id] ? 'signed' : ''}">
+          <span class="hb-n">${signed[h.id] ? ic('check.svg','sm') : ''}</span>
+          <span class="hb-name">${esc(jp ? h.jp : h.us)}</span>
+          <a class="hb-read" data-ext="handbooks">Read ${ic('external-link.svg','sm')}</a>
+          ${signed[h.id]
+            ? `<span class="hb-when">Signed ${esc(signed[h.id])}</span>`
+            : `<button class="btn secondary sm" data-hbsign="${h.id}" ${polOpen() ? '' : 'disabled'}>${ic('edit-pen.svg','sm')}Sign in DocuSign</button>`}
+        </li>`).join('')}
+      </ol>
+      ${polOpen() ? '' : `<div class="hb-note">${ic('lock.svg','sm')}You can read them now. Signing opens on ${fmtLong(startDate())}.</div>`}
+    </div>` : ''}
     <div class="pack-flag pnote">
       ${ic('exclamation-triangle.svg','sm')}
       <span><b>What this replaces.</b> Today a US hire is sent the ${esc(pack.handbook)}${pack.addenda ? `, all ${pack.addenda} state
@@ -1957,21 +1987,19 @@ function currentPackCard(jp) {
   </div>`;
 }
 
-/* Acknowledging opens on the start date (A-66). Before then the notices
+/* Acknowledging opens on the start date (A-76). Before then the notices
    can be read ahead, but nothing can be signed. */
 function polOpen() { return daysToStart() <= 0; }
 
 function ackRow(d, canAck, acked, lang) {
   if (acked) {
-    return `<div class="ack-done">${ic('check-circle.svg')}Acknowledged
-      <span class="rec-note">${fmtDate(simToday())}, version 3.2, ${esc(lang)}. The date and time are kept for audit.</span></div>`;
+    return `<div class="ack-done">${ic('check-circle.svg')}Signed in DocuSign
+      <span class="rec-note">${fmtDate(simToday())}, version 3.2, ${esc(lang)}. DocuSign keeps the date and time for audit.</span></div>`;
   }
   return `
   <div class="ack-row">
-    <label class="check ${canAck?'':'disabled'}">
-      <input type="checkbox" data-ack="${d.id}" ${canAck?'':'disabled'}>
-      <span>I have read and I agree to the ${d.title}.</span>
-    </label>
+    <button class="btn secondary sm" data-ack="${d.id}" ${canAck?'':'disabled'}>${ic('edit-pen.svg','sm')}Sign in DocuSign</button>
+    <span class="ack-hint">${canAck ? 'Opens DocuSign, then brings you back here.' : polOpen() ? 'Read it to the end first.' : `Opens on ${fmtLong(startDate())}.`}</span>
   </div>`;
 }
 
@@ -2003,7 +2031,7 @@ function renderFlow() {
   const after = [
     { x:80, r:22, cls:'later', lbl:'Personal details', sub:'in Workday, Day 1' },
     { x:84, r:72, cls:'later', lbl:'Job description', sub:'confirm on Day 1' },
-    { x:95, r:22, cls:'later', lbl:'Policies and notices', sub:'first week' },
+    { x:95, r:22, cls:'later', lbl:'Handbooks and notices', sub:'first week' },
     { x:96, r:72, cls:'later', lbl:'Benefits', sub:'first week, one link' },
   ];
   const later = [
@@ -2855,8 +2883,20 @@ function loadPhoto(file) {
 
 /* ---------- policies bindings ---------- */
 function bindPolicies() {
-  const hb = $('[data-hback]');
-  if (hb) hb.addEventListener('change', () => { S.policies.handbookAcked = fmtDate(simToday()); save(); rerender(); });
+  const hbh = $('[data-hbhead]');
+  if (hbh) hbh.addEventListener('click', e => {
+    if (e.target.closest('.am')) return;
+    S.policies.hbOpen = !S.policies.hbOpen; save(); rerender();
+  });
+  // DocuSign is simulated: a short hand-off, then the signature comes back
+  // with its time (A-76).
+  $$('[data-hbsign]').forEach(b => b.addEventListener('click', () => {
+    b.disabled = true; b.textContent = 'Opening DocuSign…';
+    setTimeout(() => {
+      (S.policies.hbSigned = S.policies.hbSigned || {})[b.dataset.hbsign] = `${dueText(simToday())}, ${new Date().toTimeString().slice(0, 5)}`;
+      save(); rerender(); toast('Signed in DocuSign. The signed copy stays in DocuSign.', 'check-circle.svg');
+    }, 700);
+  }));
   $$('[data-dochead]').forEach(h => h.addEventListener('click', e => {
     if (e.target.closest('.am')) return;
     const id = h.dataset.dochead;
@@ -2874,8 +2914,9 @@ function bindPolicies() {
     if (!S.policies.read[id] && box.scrollHeight <= box.clientHeight + 4) { S.policies.read[id] = true; save(); autoRead = true; }
   });
   if (autoRead) { rerender(); return; }
-  $$('[data-ack]').forEach(cb => cb.addEventListener('change', () => {
-    if (cb.checked) { S.policies.acked[cb.dataset.ack] = true; save(); rerender(); }
+  $$('[data-ack]').forEach(b => b.addEventListener('click', () => {
+    b.disabled = true; b.textContent = 'Opening DocuSign…';
+    setTimeout(() => { S.policies.acked[b.dataset.ack] = true; save(); rerender(); }, 700);
   }));
   const cobc = $('[data-cobc]');
   if (cobc) cobc.addEventListener('click', () => {
@@ -2885,7 +2926,7 @@ function bindPolicies() {
   const sub = $('#submitPolicies');
   if (sub) sub.addEventListener('click', () => {
     S.policies.submitted = true; save(); rerender();
-    toast('All acknowledgements recorded. Task complete.', 'check-circle.svg');
+    toast('Everything signed. Task complete.', 'check-circle.svg');
   });
 }
 
@@ -2935,6 +2976,9 @@ document.addEventListener('click', e => {
     save(); rerender(); return;
   }
 
+  if (t.closest('[data-video]')) { toast('This plays the existing onboarding video. It isn’t embedded in the prototype.', 'play.svg'); return; }
+  const more = t.closest('[data-skmore]');
+  if (more) { const w = more.dataset.skmore; SK_MORE[w] = !SK_MORE[w]; rerender(); return; }
   const nav = t.closest('[data-goto]');
   if (nav) { closePanels(); $('#protoDrawer').classList.remove('show');
     if (nav.dataset.phase != null) { S.todoPhase = +nav.dataset.phase; save(); }

@@ -312,6 +312,15 @@ const PEX_QUEUES = [
     waiting: () => 'you', action:'Review' },
 ];
 
+/* At risk (A-79): starting within a week with something serious still
+   open, like a background check not started for a Monday start. The one
+   place the portal is allowed to flash; everything else stays calm. */
+function pexAtRisk(h) {
+  return h.startOff <= 7 && PEX_QUEUES.some(q => q.sev === 'high' && q.test(h));
+}
+const pexRiskDot = h => pexAtRisk(h)
+  ? `<span class="risk-dot" role="img" aria-label="At risk: starts within a week with something still open" title="At risk: starts within a week with something still open"></span>` : '';
+
 function pexQueue(q) {
   return pexCaseload().filter(q.test).sort((a, b) => a.startOff - b.startOff);
 }
@@ -347,6 +356,26 @@ function pexSummary(groups) {
     + (urgent ? ` Start with ${esc(urgent.h.preferred)} ${esc(urgent.h.last)}, who starts in ${urgent.h.startOff} day${urgent.h.startOff === 1 ? '' : 's'}: ${urgent.g.q.reason(urgent.h).charAt(0).toLowerCase() + urgent.g.q.reason(urgent.h).slice(1)}.` : '');
 }
 
+/* The coordinator's brief (A-74, A-75): the same shape as the other two.
+   The one thing is the soonest start waiting on someone else. */
+function pexBrief(groups, needing, active) {
+  const rank = { high:0, med:1, low:2 };
+  const urgent = groups.flatMap(g => g.hires.map(h => ({ h, g })))
+    .filter(x => x.g.q.waiting(x.h) !== 'you')
+    .sort((a, b) => a.h.startOff - b.h.startOff || rank[a.g.q.sev] - rank[b.g.q.sev])[0];
+  const top = groups.slice().sort((a, b) => rank[a.q.sev] - rank[b.q.sev] || b.hires.length - a.hires.length);
+  const why = urgent ? urgent.g.q.reason(urgent.h) : '';
+  return skBrief('pex', {
+    period: `Today · ${fmtDate(simToday())}`,
+    say: pexSummary(groups).split(' Start with')[0],
+    focus: urgent && { label:'Start with', name:`${esc(urgent.h.preferred)} ${esc(urgent.h.last)}: ${why.charAt(0).toLowerCase() + why.slice(1)}`,
+      due:`Starts in ${urgent.h.startOff} day${urgent.h.startOff === 1 ? '' : 's'}`, route:`#/pex/hire/${urgent.h.id}` },
+    count: `${needing} of ${active} need you`,
+    more: top.map(g => ({ name:g.q.label, when:`${g.hires.length} hire${g.hires.length > 1 ? 's' : ''}` })),
+    note: 'Counts come from the queues below, which are set by rules. Sidekick only puts them in order.',
+  });
+}
+
 /* Questions Sidekick turns into a caseload filter. The answer is the list
    itself, drawn by the system (A-74). */
 const PEX_ASKS = [
@@ -373,11 +402,7 @@ function renderPexToday() {
           <h1>${needing} hire${needing === 1 ? '' : 's'} <span class="grad">need you</span> today.</h1>
           <p class="lede">Out of ${all.length} active. ${thisWeek} start${thisWeek === 1 ? 's' : ''} within a week, and the next is
           ${esc(next.preferred)} ${esc(next.last)}, in ${next.startOff} day${next.startOff === 1 ? '' : 's'}, ${esc(next.loc)}.</p>
-          <div class="sk-summary" data-assume="A-74">
-            <span class="sk-sum-mark">${ic('sparkle.svg','sm')}</span>
-            <div><b>Sidekick</b> ${pexSummary(groups)}
-              <span class="sk-sum-l">Counts come from the queues below, which are set by rules. Sidekick only puts them in order. ${am('A-74')}</span></div>
-          </div>
+          ${pexBrief(groups, needing, all.length)}
           <div class="ask-chips">
             ${PEX_ASKS.map(a => `<button class="ask-chip" type="button" data-pexask="${a.id}">${ic('sparkle.svg','sm')} ${a.q}</button>`).join('')}
           </div>
@@ -459,7 +484,7 @@ function pexQueueRow(q, h) {
       <span class="pxr-sub">${esc(h.role)} · ${esc(h.loc)}</span>
     </div>
     <div class="pxr-when">
-      <b>In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
+      <b>${pexRiskDot(h)}In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
       <span>${dueText(pexStart(h))}</span>
     </div>
     <div class="pxr-reason">${q.reason(h)}</div>
@@ -630,7 +655,7 @@ function pexRow(h) {
       </div>
     </td>
     <td class="px-c-when">
-      <b class="${soon ? 'soon' : ''}">In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
+      <b class="${soon ? 'soon' : ''}">${pexRiskDot(h)}In ${h.startOff} day${h.startOff === 1 ? '' : 's'}</b>
       <span>${dueText(pexStart(h))}</span>
     </td>
     <td><span class="px-loc">${esc(h.loc)}</span><span class="px-sub">${esc(h.region)} · ${h.remote ? 'Remote' : 'On site'}</span></td>
@@ -813,7 +838,7 @@ function pexOwnerRows(who, h) {
     { group:'also', label:'Badge photo, optional', state: h.remote ? 'done' : st(h.photo),
       note: h.remote ? 'Remote hire, no badge required' : h.photo ? 'Sent to Workplace' : 'Otherwise taken at reception on Day 1' },
     { group:'later', label:'Personal details, in Workday', state:'later', sensitive:true, note:'Opens on Day 1' },
-    { group:'later', label:'Policies and notices', state:'later', sensitive:true, note:'Opens in the first week' },
+    { group:'later', label:'Handbooks and notices', state:'later', sensitive:true, note:'Opens in the first week' },
   ];
   if (who === 'hm') return [
     { label:'First-day details confirmed', state: st(h.firstDayDone), owner:h.mgr,

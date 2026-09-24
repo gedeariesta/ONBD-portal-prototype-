@@ -69,10 +69,12 @@ for (const [f, uri] of Object.entries(iconData)) {
 
 // Brand logos are raster, and only the ones actually referenced are carried:
 // the folder also holds the full lockups, which the app does not use.
-const logoDir = path.join(root, 'assets/logos');
-if (fs.existsSync(logoDir)) {
+// The Sidekick mascot is carried the same way.
+for (const dir of ['assets/logos', 'assets/sidekick']) {
+  const logoDir = path.join(root, dir);
+  if (!fs.existsSync(logoDir)) continue;
   for (const f of fs.readdirSync(logoDir)) {
-    const ref = `assets/logos/${f}`;
+    const ref = `${dir}/${f}`;
     if (!html.includes(ref)) continue;
     const ext = path.extname(f).slice(1).toLowerCase();
     const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
