@@ -73,9 +73,40 @@ When you change something that contradicts a documented decision, **retire
 the old entry rather than editing it** — the trail of what was decided and
 reversed is the most valuable thing in here.
 
+## v4, the AI-forward prototype (added 2026-09-24)
+
+`v4/` is the current working version; v1 to v3 stay frozen for comparison.
+Same stack and load order, plus `v4/js/sidekick.js` loaded before `app.js`.
+State key `onbd-proto-v4`. Harness in `v4/tools` (`node all.js`), build with
+`node build-standalone.js v4`, which writes
+`dist/equinix-preday1-portals-v4-ai-forward.html`.
+
+What changed, in the order a reviewer meets it:
+
+- **Look:** equinix.com 2026 direction. Ink scenes with huge type only on the
+  three home screens; calm cards everywhere else. Tokens at the top of
+  `v4/css/styles.css`.
+- **Journey:** three things before Day 1 (A-64); photo and intro optional
+  (A-68); details in Workday on Day 1 (A-65); policies in the first week
+  (A-66). The new hire, manager and coordinator all count the same three.
+- **Sidekick:** the rule is "Sidekick talks, the system decides" (A-70).
+  Scripted answers, keyword-matched, each citing an article; a handoff to a
+  person lands in the coordinator's Help requests (A-72, L-13). The manager
+  gets reminders in Teams (A-73); the coordinator gets a summary and
+  question-to-filter chips on Today (A-74).
+- **Register:** 128 entries, 113 live, 15 retired. New provenance `MTG`
+  for what was said in the September 2026 workstream meetings.
+
+Decisions that are easy to reverse if review disagrees: the manager's donut
+chart is gone (its numbers moved into the scene); the photo and introduction
+are optional; the job description is readable now but confirmed on Day 1;
+personal details are a Workday handoff; policies cannot be signed before the
+start date; the coordinator's compliance queue is removed and the badge queue
+is a low-severity heads-up.
+
 ## State of play
 
-Branch `claude/magical-planck-h6ef32`, pushed, clean. No PR opened — Gede
+v4 work is on branch `claude/equinix-preday-onboarding-f9rsa2`. The v3 notes below describe branch `claude/magical-planck-h6ef32`. No PR opened — Gede
 has not asked for one.
 
 Recent work, newest first:

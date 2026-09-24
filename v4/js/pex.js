@@ -99,7 +99,9 @@ function pexCaseload() {
     const [first, last] = PEX_NAMES[i];
     const place = PEX_LOCATIONS[Math.floor(rnd() * PEX_LOCATIONS.length)];
     const [role, dept] = PEX_ROLES[Math.floor(rnd() * PEX_ROLES.length)];
-    const startOff = 2 + Math.floor(rnd() * 74);          // pre-Day 1 only
+    let startOff = 2 + Math.floor(rnd() * 74);            // pre-Day 1 only
+    // Nobody starts on a weekend: move a Saturday or Sunday to the Monday.
+    while ([0, 6].includes(addDays(simToday(), startOff).getDay())) startOff++;
     const remote = rnd() < 0.42;
     const r = () => rnd();
     // Problems get likelier as the start date approaches, which is what

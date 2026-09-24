@@ -1,18 +1,18 @@
 # Pre-Day 1 portals — interactive prototype
 ### New hire, hiring manager, and the handoffs between them
 
-**Three versions live side by side, deliberately.** Each earlier one is left
+**Four versions live side by side, deliberately.** Each earlier one is left
 untouched so they can be cross-compared screen by screen and register row by
 register row.
 
-| | v1 | v2 | v3 |
-|---|---|---|---|
-| What it is | Original first pass | Edit notes applied | Both portals, wired together |
-| Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` |
-| Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` |
-| Sides | New hire | New hire | New hire **and** hiring manager |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) |
-| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter |
+| | v1 | v2 | v3 | v4 |
+|---|---|---|---|---|
+| What it is | Original first pass | Edit notes applied | Both portals, wired together | **AI-forward prototype**, a 2027 vision |
+| Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` |
+| Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` |
+| Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 128 · 113 live · 15 retired |
+| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
 (the real thing runs on ServiceNow Employee Center — this prototypes the
@@ -23,6 +23,36 @@ assumption inside it.** The build spec is `Pre_Day_1_Task_UI_Spec.xlsx`; this
 prototype exists to show flow and feel, surface knowledge and feature gaps,
 and let arguments happen before development instead of during it.
 
+
+## v4 — the AI-forward prototype
+
+v4 is a copy of v3, restyled and restructured. v3 is untouched, so the two can
+be compared screen by screen. The ribbon labels it **AI-forward prototype, a
+2027 vision, not an approved design**.
+
+**The look.** Taken from equinix.com's 2026 direction: ink "scenes" with huge
+type, a pastel gradient on the headline figures and faint isometric line art,
+used only where a screen earns one (the new hire's welcome, the manager's
+home, the coordinator's Today). Everywhere else is calm: white cards with a
+hairline border and no shadow, 4px buttons, a soft page wash.
+
+**The journey.** Only three things before Day 1, in due-date order: confirm
+the start date, start the background check, choose equipment (A-64). The badge
+photo and introduction are optional (A-68). Personal details become one
+Workday task on Day 1 (A-65), the job description is confirmed on Day 1 (A-67),
+and policies and notices open in the first week, with one link to the
+handbooks and one acknowledgment (A-66). All three lenses count the same three.
+
+**Sidekick.** One rule runs through it: *Sidekick talks, the system decides*
+(A-70). Anything with a deadline, a signature or personal data is drawn by the
+system in a card Sidekick cannot word; Sidekick explains it and points at it.
+Every answer names its knowledge article and asks whether it was right, and
+**Talk to a person** is always one tap away, landing in the coordinator's Help
+requests queue (A-72, L-13). The manager's home and the coordinator's Today
+open with a short Sidekick summary built only from rules already on the page
+(A-73, A-74). Answers are written in advance and matched on keywords: nothing
+calls a model.
+
 ## Run it
 
 **Easiest — the single file.** Each version builds to one fully self-contained
@@ -31,7 +61,7 @@ double-click it — no server, no folder structure needed. Rebuild after editing
 the sources with:
 
 ```bash
-node build-standalone.js v3     # or: v1, v2, or: all
+node build-standalone.js v4     # or: v1, v2, v3, or: all
 ```
 
 **Or serve the sources.** From the repo root:
@@ -41,6 +71,7 @@ python3 -m http.server 8080
 # v1 → http://localhost:8080
 # v2 → http://localhost:8080/v2/
 # v3 → http://localhost:8080/v3/
+# v4 → http://localhost:8080/v4/
 ```
 
 (Don't open the multi-file `index.html` directly from Downloads or a zip
@@ -392,6 +423,7 @@ js/data.js        v1 — content: assumption register, documents, copy
 js/app.js         v1 — state, router, all six stages of behaviour
 v2/               v2 — same structure, with its own copy of assets/
 v3/               v3 — both portals; adds js/hm.js for the manager side
+v4/               v4 — AI-forward prototype; adds js/sidekick.js
 assets/fonts/     Nexa Text (woff2)
 assets/icons/     brand icon subset + Fortress mark
 build-standalone.js  bundles either version into one portable HTML file

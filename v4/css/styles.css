@@ -2539,3 +2539,7 @@ body.pex-side .hdr-in{max-width:1340px;}
   background:var(--surface-subtle); border-radius:var(--radius-sm); padding:.35em .8em;
 }
 .side-tag.pex{color:var(--eq-dark-green); border-color:var(--tint-border-green); background:var(--eq-light-green);}
+
+/* The ribbon stays one line at laptop width: its buttons must never wrap. */
+.proto-ribbon > *, .proto-ribbon button{white-space:nowrap;}
+@media (max-width:1400px){ .proto-ribbon .rb-long{display:none;} .proto-ribbon{gap:14px;} }

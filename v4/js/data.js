@@ -306,7 +306,7 @@ const ASSUMPTIONS = [
     assumed:'The job description is confirmed on Day 1. It can be read now, and a mismatch can be raised now, rather than waiting for the start date.',
     resolve:'Nothing in the meetings places it. The other reading is to drop it: the offer already describes the role, and a mismatch found on Day 1 is late. Raising a mismatch early is kept because it is the one part of the task that is worth more before the start date than after it.', oi:'' },
   { id:'A-68', group:'design', prov:'ASSUMED', screen:'Badge photo and introduction', route:'#/intro',
-    assumed:'The badge photo and the introduction are optional before Day 1, with no due date. A photo sent by eight days before the start gets the badge printed in time; without one, the photo is taken at reception.',
+    assumed:'The badge photo and the introduction are optional before Day 1, with no due date. A photo sent by ten days before the start gets the badge printed in time; without one, the photo is taken at reception.',
     resolve:'The badge needs print time before Day 1, but the photo is not one of the three things. Two readings are open: keep it optional, as drawn, or make it a Day 1 step and accept that nobody arrives with a printed badge. The introduction loses most of its value after Day 1, which is the case for keeping it optional rather than moving it.', oi:'' },
   { id:'A-69', group:'content', prov:'MTG', screen:'Benefits enrolment', route:'#/',
     assumed:'Benefits enrolment is a first-week task that links straight to the enrolment site for the country: Benefacts countries, and PlanSource in the US, with the same experience either way.',
