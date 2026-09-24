@@ -6,7 +6,8 @@
 
      node build-standalone.js        # v1 → dist/equinix-preday1-prototype.html
      node build-standalone.js v2     # v2 → dist/equinix-preday1-prototype-v2.html
-     node build-standalone.js all    # both
+     node build-standalone.js v4     # v4 → dist/equinix-preday1-portals-v4-ai-forward.html
+     node build-standalone.js all    # every version
 */
 
 const fs = require('fs');
@@ -16,12 +17,13 @@ const VERSIONS = {
   v1: { src: '.',  out: 'equinix-preday1-prototype.html' },
   v2: { src: 'v2', out: 'equinix-preday1-prototype-v2.html' },
   v3: { src: 'v3', out: 'equinix-preday1-portals-v3.html' },
+  v4: { src: 'v4', out: 'equinix-preday1-portals-v4-ai-forward.html' },
 };
 
 const arg = (process.argv[2] || 'v1').toLowerCase();
 const targets = arg === 'all' ? Object.keys(VERSIONS) : [arg];
 for (const t of targets) {
-  if (!VERSIONS[t]) throw new Error(`Unknown version "${t}". Use v1, v2 or all.`);
+  if (!VERSIONS[t]) throw new Error(`Unknown version "${t}". Use ${Object.keys(VERSIONS).join(', ')} or all.`);
   build(VERSIONS[t]);
 }
 

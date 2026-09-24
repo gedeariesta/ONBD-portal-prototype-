@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Equinix Pre-Day 1 portals, AI-forward prototype (v4)</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Persistent prototype indicator (Stage 0, rule 5) -->
+<div class="proto-ribbon">
+  <span><b>AI-forward prototype</b> v4, a 2027 vision, not an approved design</span>
+  <span class="view-switch" id="viewSwitch">
+    <span class="vs-label">Viewing as</span>
+    <button class="vs on" data-view="nh">New hire</button>
+    <button class="vs" data-view="hm">Hiring manager</button>
+    <button class="vs" data-view="pex">People Experience</button>
+  </span>
+  <span class="rb-link" id="rbAssume">assumptions</span>
+  <span class="rb-link" id="rbFlow">Flow overview</span>
+  <span class="rb-link" data-goto="#/handoffs">How they connect</span>
+  <!-- Prototype controls live in the ribbon, with the other prototype devices.
+       As a floating button they sat over the left edge of every screen. -->
+  <button class="rb-proto" id="protoFab" aria-haspopup="true">
+    <span class="ic sm" style="-webkit-mask-image:url('assets/icons/exclamation-triangle.svg');mask-image:url('assets/icons/exclamation-triangle.svg')"></span>
+    Prototype controls
+  </button>
+</div>
+
+<!-- Header -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="brand" id="brandHome">
+      <img src="assets/logos/equinix-mark-red.png" alt="Equinix" width="44" height="29">
+      <span class="wordmark">EQUINIX</span>
+      <span class="sub" id="hdrSub">Your onboarding, before Day 1</span>
+    </div>
+    <div class="hdr-spacer"></div>
+    <div class="hdr-you" id="hdrYou"></div>
+  </div>
+</header>
+
+<!-- App -->
+<main id="app"></main>
+
+<!-- Overlay + slide-over panels -->
+<div class="overlay" id="overlay"></div>
+
+<aside class="panel" id="assumePanel" aria-label="Assumptions and gaps">
+  <div class="panel-h">
+    <h2>Assumptions &amp; gaps</h2>
+    <button class="x" aria-label="Close"><span class="ic" style="-webkit-mask-image:url('assets/icons/times.svg');mask-image:url('assets/icons/times.svg')"></span></button>
+  </div>
+  <div class="panel-b" id="assumeBody"></div>
+</aside>
+
+<!-- Sidekick (js/sidekick.js). The chat panel's ids are kept, so the
+     harness and the handlers did not have to move with the rename. -->
+<aside class="panel sk-panel" id="chatPanel" aria-label="Sidekick">
+  <div class="panel-h sk-h">
+    <div class="sk-title">
+      <span class="sk-mark"><span class="ic lg" style="-webkit-mask-image:url('assets/icons/sparkle.svg');mask-image:url('assets/icons/sparkle.svg')"></span></span>
+      <div><h2>Sidekick</h2><span class="sk-sub">Your onboarding guide</span></div>
+    </div>
+    <button class="x" aria-label="Close"><span class="ic" style="-webkit-mask-image:url('assets/icons/times.svg');mask-image:url('assets/icons/times.svg')"></span></button>
+  </div>
+  <div class="panel-b" id="chatBody"></div>
+  <div class="sk-foot">
+    <div class="chat-in">
+      <input type="text" id="chatInput" placeholder="Ask Sidekick anything…" aria-label="Ask Sidekick">
+      <button class="btn primary sm" id="chatSendBtn">Ask</button>
+    </div>
+    <div class="sk-human-row">
+      <span>Rather ask a person?</span>
+      <button class="btn brand sm" data-skhuman="1">Talk to a person</button>
+    </div>
+    <div class="chat-hand">Prototype: answers are written in advance and matched on keywords. Nothing here calls a model.</div>
+  </div>
+</aside>
+
+<!-- Sidekick entry point: the site's round red button, in the page margin.
+     Its label opens on hover or focus. -->
+<button class="chat-fab" id="chatFab" aria-label="Ask Sidekick">
+  <span class="ic lg" style="-webkit-mask-image:url('assets/icons/sparkle.svg');mask-image:url('assets/icons/sparkle.svg')"></span>
+  <span class="cf-label">Ask Sidekick</span>
+</button>
+
+<!-- Prototype controls drawer (Stage 6, clearly a prototype device) -->
+<div class="proto-drawer" id="protoDrawer"></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/hm.js"></script>
+<script src="js/pex.js"></script>
+<script src="js/sidekick.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
