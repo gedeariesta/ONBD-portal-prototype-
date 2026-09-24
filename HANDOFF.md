@@ -94,13 +94,17 @@ What changed, in the order a reviewer meets it:
   person lands in the coordinator's Help requests (A-72, L-13). The manager
   gets reminders in Teams (A-73); the coordinator gets a summary and
   question-to-filter chips on Today (A-74).
-- **After the review with Janine:** one layered Sidekick brief on all three
-  homes (A-75); handbooks as one task with eight DocuSign signatures (A-76,
+- **After the review with Janine:** a one-time Sidekick hello for the new
+  hire and manager, with "What's coming up" in the panel, and a layered brief
+  on the coordinator's Today only (A-75; a brief on every home was tried and
+  removed in Gede's review); handbooks as one task with eight DocuSign signatures (A-76,
   retires A-66); benefits on Day 2 (A-77, retires A-69); search before
   escalating, with tiered support (A-78); a flashing marker for at-risk hires
   (A-79); the existing videos (A-80); checklists become tasks or articles
   (A-81). The Sidekick mascot in `v4/assets/sidekick/` was cut from the
-  internal launch banner Gede supplied; `build-standalone.js` inlines it.
+  internal launch banner Gede supplied; always use the whole robot, never
+  a cropped head. `build-standalone.js` inlines it. `v4/tools/overlap.js`
+  catches chips and buttons that touch or overlap.
 - **Register:** 135 entries, 118 live, 17 retired. New provenance `MTG`
   for what was said in the September 2026 workstream meetings.
 

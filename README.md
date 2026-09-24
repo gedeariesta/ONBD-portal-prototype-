@@ -54,8 +54,10 @@ open with a short Sidekick summary built only from rules already on the page
 calls a model.
 
 **After the review with Janine** (A-75 to A-81): the Sidekick mascot replaces
-the sparkle; all three homes share one layered brief (period, one sentence,
-the one thing to do first, a count, and "What's coming up" behind it);
+the sparkle, always as the whole robot; Sidekick says hello once from its
+button when a new hire or manager first arrives, and their progress and
+"What's coming up" live in the Sidekick panel, while the coordinator's Today
+keeps a layered brief (period, one sentence, one thing first, a count);
 handbooks are one first-week task with eight acknowledgements nested inside,
 each signed in DocuSign, as are the notices; benefits enrolment moves to Day 2;
 Sidekick says what it searched before offering a person; at-risk hires starting

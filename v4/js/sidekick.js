@@ -112,17 +112,18 @@ const skSrc = it => typeof it.src === 'function' ? it.src() : it.src;
 /* The thread lives in memory only: a conversation is not state the other
    two views read. The handoffs are, so those are saved. */
 let SK_THREAD = [];
-/* The Sidekick mascot, supplied by Gede from the internal launch banner. */
-const SK_AV = 'assets/sidekick/sidekick-head.png';
+/* The Sidekick mascot, cut from the internal launch banner Gede supplied.
+   Always the whole robot, never a cropped head: that is how it is used. */
+const SK_AV = 'assets/sidekick/sidekick.png';   // the whole robot, as it appears in use
 const skAv = () => `<img class="sk-av" src="${SK_AV}" alt="">`;
 let SK_LAST_Q = '';
 
-/* ---------- the brief: one shape on all three homes (A-75) ----------
+/* ---------- the brief, on the coordinator's Today (A-74, A-75) ----------
    Top layer: the time period, one sentence, the one thing to do first and
    a count. "What's coming up" opens the next layer. Every value is read from
-   the task list or the queues; Sidekick only words the sentence. The next
-   thing appears on its own once the first is done, so nobody is shown every
-   open item at once. */
+   the queues; Sidekick only words the sentence. The new hire and the
+   manager get the same content in the Sidekick panel instead of on the page
+   (Gede's review: the panel already does the job), and a one-time hello. */
 const SK_MORE = {};
 function skBrief(who, o) {
   const open = !!SK_MORE[who];
@@ -150,32 +151,61 @@ function skBrief(who, o) {
   </div>`;
 }
 
-/* The new hire's brief. Same structure as the manager's and the
-   coordinator's: period, sentence, the one next task, a count. */
-function nhBrief() {
-  const tasks = taskList(), done = tasks.filter(t => t.status === 'done').length;
-  const next = nextTask(), days = daysToStart();
-  const od = tasks.filter(t => isOverdue(t.key));
-  const say = !next
-    ? `Everything before Day 1 is done, and nothing is waiting on you. Your first-day details arrive here three days before you start.`
-    : `${od.length ? `${od.length} ${od.length > 1 ? 'things are' : 'thing is'} past due, but ${od.length > 1 ? 'they’re' : 'it’s'} still open. ` : ''}`
-      + `One thing to do now. When it’s done, I’ll show you the next.`;
-  const more = [
-    ...tasks.filter(t => t.status !== 'done' && (!next || t.key !== next.key)).map(t => ({ name:t.name, when:`Due ${dueText(dueFor(t.key))}` })),
+/* What comes after the next task, for the new hire. Shown inside the
+   Sidekick panel behind "What's coming up" (A-75), not on the page: the
+   home already carries the task list, and a second block above it only
+   repeated it (Gede's review). */
+function nhComing() {
+  const next = nextTask();
+  return [
+    ...taskList().filter(t => t.status !== 'done' && (!next || t.key !== next.key)).map(t => ({ name:t.name, when:`Due ${dueText(dueFor(t.key))}` })),
     { name:'Your first day details arrive', when:'3 days before you start' },
     ...day1Items().map(t => ({ name:t.name, when:'Day 1' })),
     { name:'Benefits enrolment', when:'Day 2' },
     ...week1Items().map(t => ({ name:t.name, when:'First week' })),
   ];
-  return skBrief('nh', {
-    period: next ? `This week · ${days} day${days === 1 ? '' : 's'} to go` : 'Before Day 1',
-    say,
-    focus: next && { label: done ? 'Next' : 'Start here', name: next.name,
-      due: `Due ${dueText(dueFor(next.key))}`, route: next.route },
-    count: `${done} of ${tasks.length} done before Day 1`,
-    more,
-    note: 'Drawn from your task list. The order is set by due date, not by Sidekick.',
-  });
+}
+
+/* ---------- the greeting ----------
+   The first time someone lands on their side of the portal, Sidekick says
+   hello from its button and offers the one next thing, then gets out of the
+   way. Once per person per lens; opening the panel or closing the greeting
+   both count as seen (A-75). */
+let SK_HELLO_T = null;
+function skGreet() {
+  if (document.body.classList.contains('no-chat') || $('#chatPanel').classList.contains('show')) return;
+  const who = skWho();
+  S.sidekick.greeted = S.sidekick.greeted || {};
+  if (S.sidekick.greeted[who]) return;
+  S.sidekick.greeted[who] = true; save();
+  const next = who === 'nh' ? nextTask() : null;
+  const hmOpen = who === 'hm' ? hmTasks().filter(t => !t.phase && !t.done).length : 0;
+  const el = document.createElement('div');
+  el.className = 'sk-hello'; el.setAttribute('role', 'status');
+  el.innerHTML = `
+    <img class="skh-bot" src="${SK_AV}" alt="">
+    <div class="skh-body">
+      <b>Hi ${who === 'hm' ? esc(MANAGER.name.split(' ')[0]) : esc(HIRE.preferred)}, I’m Sidekick.</b>
+      <span>${who === 'hm'
+        ? `I can tell you what needs you before ${esc(HIRE.preferred)} starts. You have ${hmOpen} thing${hmOpen === 1 ? '' : 's'} open before Day 1.`
+        : next ? `Ask me anything about starting. First up: <b>${next.name.toLowerCase()}</b>.`
+               : `Ask me anything about starting. You’re all done before Day 1.`}</span>
+      <div class="skh-acts">
+        <button class="btn primary sm" type="button" data-skhello="open">Ask Sidekick</button>
+        ${next ? `<button class="btn quiet sm" type="button" data-skhello="go" data-route="${next.route}">Go to it</button>` : ''}
+      </div>
+    </div>
+    <button class="x skh-x" type="button" data-skhello="close" aria-label="Close">${ic('times.svg','sm')}</button>`;
+  skHelloClose();
+  document.body.appendChild(el);
+  $('#chatFab').classList.add('ping');
+  requestAnimationFrame(() => el.classList.add('show'));
+  SK_HELLO_T = setTimeout(skHelloClose, 12000);
+}
+function skHelloClose() {
+  clearTimeout(SK_HELLO_T);
+  document.querySelectorAll('.sk-hello').forEach(x => x.remove());
+  const f = $('#chatFab'); if (f) f.classList.remove('ping');
 }
 
 /* ---------- the ask bar, drawn inside a scene ---------- */
@@ -214,6 +244,9 @@ function skWhereCard(who) {
     <div class="three dark">${taskList().map(t => `<i class="${t.status === 'done' ? 'on' : ''}"></i>`).join('')}</div>
     ${n ? skSysRow({ name:n.name, meta:`Due ${dueText(dueFor(n.key))} · ${STATUS_CHIP[n.status][1]}`, route:n.route, icon:n.icon })
         : `<div class="sk-where-done">${ic('check-circle.svg','sm')}Nothing else until your first-day details arrive.</div>`}
+    <button class="sk-more" type="button" data-skmore="panel" aria-expanded="${!!SK_MORE.panel}">
+      ${SK_MORE.panel ? 'Hide what’s coming up' : 'What’s coming up'} ${ic(SK_MORE.panel ? 'chevron-up.svg' : 'chevron-down.svg','sm')}</button>
+    ${SK_MORE.panel ? `<ul class="sk-coming">${nhComing().map(m => `<li><span>${m.name}</span><span>${m.when}</span></li>`).join('')}</ul>` : ''}
   </div>`;
 }
 
@@ -267,7 +300,7 @@ function renderSidekick() {
     ${skWhereCard(who)}
     <div class="chat-msgs" id="chatMsgs">
       <div class="msg bot">${who === 'hm'
-        ? `Hi ${MANAGER.name.split(' ')[0]}. I can tell you what needs you before ${HIRE.preferred} starts, and why things are the way they are. I read the same record you see.`
+        ? `Hi ${MANAGER.name.split(' ')[0]}. ${hmSummary()} Ask me what needs you before ${HIRE.preferred} starts, or why things are the way they are. I read the same record you see.`
         : `Hi ${esc(HIRE.preferred)}. I’m Sidekick, your guide until you start and for your first weeks. Ask me anything. I’ll point you to the right task, and tell you when I’m not sure.`}</div>
       ${SK_THREAD.filter(m => m.who === who).map(m => m.html).join('')}
     </div>
@@ -363,6 +396,13 @@ function skClick(t) {
   const q = t.closest('[data-skq]');
   if (q) { skAsk(q.dataset.skq); return true; }
   if (t.closest('[data-skhuman]')) { skHandoff(); return true; }
+  const hello = t.closest('[data-skhello]');
+  if (hello) {
+    const a = hello.dataset.skhello; skHelloClose();
+    if (a === 'open') openChat();
+    if (a === 'go') location.hash = hello.dataset.route;
+    return true;
+  }
   const fb = t.closest('[data-skfbv]');
   if (fb) {
     const box = fb.closest('[data-skfb]');

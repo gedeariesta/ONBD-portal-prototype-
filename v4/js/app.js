@@ -78,7 +78,7 @@ const DEFAULT_STATE = () => ({
   network: { booked:{} },
   // Questions passed from Sidekick to a person (A-72). Saved, because the
   // coordinator's Help requests queue reads them (L-13).
-  sidekick: { handoffs:[] },
+  sidekick: { handoffs:[], greeted:{} },
   // ---- hiring manager side ----
   hm: {
     contactConfirmed: false, workPhone: '+1 303 555 0188',
@@ -261,7 +261,6 @@ function renderLanding() {
              without you, and your first-day details turn up here three days before you start.`
           : `You start as ${esc(HIRE.role)} on <b>${startDateText()}</b>. Three things to do before then, and you’re ready.
              Everything else waits until you’ve started.`} ${am('A-64')}</p>
-        ${nhBrief()}
         ${sidekickAskBar('nh')}
       </div>
       <div class="scene-stats" data-assume="A-64">
@@ -2525,7 +2524,8 @@ function render() {
   renderProtoDrawer();
   applyNotes();
   bindScreen(route);
-  if (route !== lastRoute) { window.scrollTo(0, 0); lastRoute = route; }
+  if (route !== lastRoute) { window.scrollTo(0, 0); lastRoute = route; skHelloClose(); }
+  skGreet();
 }
 /* Design notes are a body class, not a re-render: the markup always carries
    the commentary, CSS decides whether this viewer is reading it. */
@@ -2978,7 +2978,11 @@ document.addEventListener('click', e => {
 
   if (t.closest('[data-video]')) { toast('This plays the existing onboarding video. It isn’t embedded in the prototype.', 'play.svg'); return; }
   const more = t.closest('[data-skmore]');
-  if (more) { const w = more.dataset.skmore; SK_MORE[w] = !SK_MORE[w]; rerender(); return; }
+  if (more) {
+    const w = more.dataset.skmore; SK_MORE[w] = !SK_MORE[w];
+    if (w === 'panel') renderSidekick(); else rerender();
+    return;
+  }
   const nav = t.closest('[data-goto]');
   if (nav) { closePanels(); $('#protoDrawer').classList.remove('show');
     if (nav.dataset.phase != null) { S.todoPhase = +nav.dataset.phase; save(); }
@@ -3148,6 +3152,7 @@ document.addEventListener('click', e => {
 });
 
 function openChat() {
+  skHelloClose();
   renderSidekick();
   $('#chatPanel').classList.add('show');
   $('#overlay').classList.add('show');

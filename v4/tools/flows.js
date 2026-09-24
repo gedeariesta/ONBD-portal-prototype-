@@ -11,6 +11,12 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
 
   await p.goto(BASE, { waitUntil: 'networkidle' }); await p.waitForTimeout(500);
 
+  // 0. A-75: Sidekick says hello once, then never again
+  check('Sidekick says hello on first arrival', await p.evaluate(() => !!document.querySelector('.sk-hello')));
+  await p.evaluate(() => document.querySelector('[data-skhello="close"]').click()); await p.waitForTimeout(200);
+  await go('#/equipment'); await go('#/');
+  check('and only once', await p.evaluate(() => !document.querySelector('.sk-hello')));
+
   // 1. v4: three things before Day 1, in due-date order, start date first (A-64)
   const pre = await p.evaluate(() => [...document.querySelectorAll('.landing-grid .tcards')][0].querySelectorAll('.tcard').length);
   check('three things before Day 1', pre === 3, `${pre} task cards`);
@@ -130,15 +136,22 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   check('a Sidekick question filters the caseload', within);
   await go('#/');
 
-  // 10d. A-75: the same brief on all three homes, one thing first, a second layer on request
-  for (const r of ['#/', '#/hm/', '#/pex/']) {
-    await go(r);
-    const ok1 = await p.evaluate(() => !!document.querySelector('.sk-brief .skb-focus') && !document.querySelector('.skb-list'));
-    await p.evaluate(() => document.querySelector('[data-skmore]').click()); await p.waitForTimeout(300);
-    const ok2 = await p.evaluate(() => document.querySelectorAll('.skb-list li').length > 0);
-    await p.evaluate(() => document.querySelector('[data-skmore]').click()); await p.waitForTimeout(200);
-    check(`Sidekick brief on ${r}: one thing first, more on request`, ok1 && ok2);
-  }
+  // 10d. A-75: the coordinator's brief shows one thing first, more on request
+  await go('#/pex/');
+  const b1 = await p.evaluate(() => !!document.querySelector('.sk-brief .skb-focus') && !document.querySelector('.skb-list'));
+  await p.evaluate(() => document.querySelector('[data-skmore]').click()); await p.waitForTimeout(300);
+  const b2 = await p.evaluate(() => document.querySelectorAll('.skb-list li').length > 0);
+  await p.evaluate(() => document.querySelector('[data-skmore]').click()); await p.waitForTimeout(200);
+  check('the coordinator’s brief: one thing first, more on request', b1 && b2);
+  // the new hire's and manager's homes carry no brief; the panel does
+  await go('#/'); const noBriefNh = await p.evaluate(() => !document.querySelector('.sk-brief'));
+  await go('#/hm/'); const noBriefHm = await p.evaluate(() => !document.querySelector('.sk-brief'));
+  check('no Sidekick block on the new hire’s or manager’s home', noBriefNh && noBriefHm);
+  await go('#/');
+  await p.evaluate(() => document.getElementById('chatFab').click()); await p.waitForTimeout(300);
+  await p.evaluate(() => document.querySelector('[data-skmore="panel"]').click()); await p.waitForTimeout(300);
+  check('the panel shows what’s coming up', await p.evaluate(() => document.querySelectorAll('#chatBody .sk-coming li').length > 3));
+  await p.evaluate(() => document.querySelector('.panel.show .x').click()); await p.waitForTimeout(250);
   // A-79: at-risk hires flash on the caseload
   await go('#/pex/caseload');
   check('at-risk hires are flagged', await p.evaluate(() => document.querySelectorAll('.risk-dot').length > 0));
