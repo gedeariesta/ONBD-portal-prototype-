@@ -1,0 +1,148 @@
+const { launch, BASE, OUT, outDir } = require('./lib');
+const ok = [], bad = [];
+const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ? ` :: ${detail}` : ''));
+
+(async () => {
+  const b = await launch();
+  const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  const go = async h => { await p.evaluate(x => { location.hash = x; }, h); await p.waitForTimeout(320); };
+  const txt = async () => (await p.evaluate(() => document.getElementById('app').innerText));
+
+  await p.goto(BASE, { waitUntil: 'networkidle' }); await p.waitForTimeout(500);
+
+  // 1. Background check is first
+  const firstTask = await p.evaluate(() => document.querySelector('.tcard .t-name').innerText.trim());
+  check('background check is task 1', /background check/i.test(firstTask), firstTask);
+
+  // 2. Start the background check
+  await go('#/bgcheck');
+  await p.evaluate(() => { const b=[...document.querySelectorAll('button')].find(x=>/start the check/i.test(x.innerText)); if(b) b.click(); });
+  await p.waitForTimeout(1800); // the launch simulates an external redirect
+  check('background check launches', /launched|started|running|in progress/i.test(await txt()));
+
+  // 3. Equipment: confirm the single build
+  await go('#/equipment');
+  await p.evaluate(() => { const b=document.getElementById('devConfirm'); if(b) b.click(); });
+  await p.waitForTimeout(400);
+  check('equipment confirm works', (await txt()).includes('Confirmed'));
+
+  // 4. Equipment: choice mode + pick
+  await p.click('#protoFab');
+  await p.evaluate(() => document.querySelector('[data-pc="deviceMode:choice"]').click());
+  await p.waitForTimeout(450);
+  await p.evaluate(() => document.getElementById('protoDrawer').classList.remove('show'));
+  await go('#/equipment');
+  const cards = await p.evaluate(() => document.querySelectorAll('.dev-card').length);
+  check('choice mode shows the catalogue', cards === 4, `${cards} cards`);
+  await p.evaluate(() => document.querySelector('[data-device="mac"]').click());
+  await p.waitForTimeout(400);
+  check('late-delivery warning fires', (await txt()).includes('after you start'));
+
+  // 5. Details: banking tab + validation
+  await go('#/details');
+  await p.evaluate(() => [...document.querySelectorAll('[data-tab]')].find(e=>/banking/i.test(e.innerText)).click());
+  await p.waitForTimeout(350);
+  const bankFields = await p.evaluate(() => document.querySelectorAll('[data-input^="bank"]').length);
+  check('banking tab has its fields', bankFields >= 5, `${bankFields} fields`);
+  await p.evaluate(() => { const i=document.querySelector('[data-input="bankName"]'); i.value='First National'; i.dispatchEvent(new Event('input',{bubbles:true})); });
+  await p.waitForTimeout(300);
+  check('banking input persists', await p.evaluate(() => document.querySelector('[data-input="bankName"]').value === 'First National'));
+
+  // 6. Inside Equinix strip: chapter change must not scroll
+  await go('#/');
+  await p.evaluate(() => window.scrollTo(0, 500)); await p.waitForTimeout(200);
+  const y0 = await p.evaluate(() => window.scrollY);
+  await p.evaluate(() => document.querySelectorAll('.is-dot')[2].click()); await p.waitForTimeout(350);
+  check('carousel does not scroll the page', y0 === await p.evaluate(() => window.scrollY));
+
+  // 7. Design notes toggle
+  await p.click('#protoFab');
+  await p.evaluate(() => document.querySelector('[data-pc="notes:on"]').click()); await p.waitForTimeout(350);
+  const marks = await p.evaluate(() => [...document.querySelectorAll('.am')].filter(e=>e.offsetParent).length);
+  check('design notes reveal markers', marks > 10, `${marks} markers`);
+  await p.evaluate(() => document.querySelector('[data-pc="notes:off"]').click()); await p.waitForTimeout(300);
+  check('design notes hide again', await p.evaluate(() => ![...document.querySelectorAll('.am')].some(e=>e.offsetParent)));
+  await p.evaluate(() => document.getElementById('protoDrawer').classList.remove('show'));
+
+  // 8. Manager side: PEX reopen
+  await p.click('#protoFab');
+  await p.evaluate(() => document.querySelector('[data-pc="scenario:inprogress"]').click()); await p.waitForTimeout(450);
+  await p.evaluate(() => document.querySelector('[data-pc="pexUpdate:yes"]').click()); await p.waitForTimeout(450);
+  await p.evaluate(() => document.getElementById('protoDrawer').classList.remove('show'));
+  await go('#/hm/');
+  check('PEX change reopens the task', await p.evaluate(() => !!document.querySelector('.tcard.reopened')));
+  check('PEX change raises a blocker', /People Experience moved orientation/.test(await txt()));
+
+  // 9. Welcome tone templates
+  await go('#/hm/welcome');
+  const before = await p.evaluate(() => document.getElementById('wcBody').value.slice(0,30));
+  await p.evaluate(() => document.querySelector('[data-tone="formal"]').click()); await p.waitForTimeout(400);
+  const after = await p.evaluate(() => document.getElementById('wcBody').value.slice(0,30));
+  check('tone switch rewrites the draft', before !== after && /Dear/.test(after), after);
+
+  // 10. Chat panel
+  await go('#/');
+  await p.evaluate(() => document.getElementById('chatFab').click()); await p.waitForTimeout(350);
+  await p.evaluate(() => document.querySelector('[data-q]').click()); await p.waitForTimeout(400);
+  check('assistant answers', await p.evaluate(() => document.querySelectorAll('#chatMsgs .msg.bot').length >= 2));
+
+  // 11. Assumptions panel opens and links
+  await p.evaluate(() => document.querySelector('.panel.show .x').click()); await p.waitForTimeout(250);
+  await p.evaluate(() => document.getElementById('rbAssume').click()); await p.waitForTimeout(400);
+  const entries = await p.evaluate(() => document.querySelectorAll('#assumeBody .a-entry').length);
+  check('assumption register renders', entries > 50, `${entries} entries`);
+
+  // 12. Keyboard: tab to first control and check a visible focus ring
+  await p.evaluate(() => document.querySelector('.panel.show .x').click()); await p.waitForTimeout(250);
+  await p.keyboard.press('Tab'); await p.keyboard.press('Tab');
+  const hasRing = await p.evaluate(() => { const a=document.activeElement; if(!a) return false;
+    const s=getComputedStyle(a); return (s.boxShadow && s.boxShadow!=='none') || (s.outlineStyle && s.outlineStyle!=='none'); });
+  // 17-19. Scroll behaviour: a state change must hold position, navigation
+  // must start at the top. render() used to scrollTo(0,0) unconditionally,
+  // so every button press yanked the page up.
+  await go('#/hm/');
+  await p.evaluate(() => window.scrollTo(0, 600)); await p.waitForTimeout(200);
+  const sBefore = await p.evaluate(() => Math.round(window.scrollY));
+  await p.evaluate(() => document.querySelector('[data-quickconfirm]')?.click()); await p.waitForTimeout(420);
+  const sAfter = await p.evaluate(() => Math.round(window.scrollY));
+  check('a state change holds scroll position', Math.abs(sAfter - sBefore) <= 40, `${sBefore} -> ${sAfter}`);
+
+  await p.evaluate(() => window.scrollTo(0, 600)); await p.waitForTimeout(200);
+  await go('#/hm/buddy');
+  check('navigation starts at the top', await p.evaluate(() => window.scrollY) === 0);
+
+  // 20. Flow diagram: nothing outside its track, nothing overlapping, and
+  // every axis dot still on its true date after the labels were packed.
+  await go('#/flow');
+  await p.waitForTimeout(400);
+  const flow = await p.evaluate(() => {
+    const bad = [];
+    const scan = (sel, boxSel) => document.querySelectorAll(boxSel).forEach(bx => {
+      const br = bx.getBoundingClientRect();
+      const items = [...bx.querySelectorAll(sel)].map(e => e.getBoundingClientRect());
+      items.forEach(r => { if (r.left < br.left - 1 || r.right > br.right + 1) bad.push('outside ' + sel); });
+      for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
+        const a = items[i], c = items[j];
+        if (Math.min(a.right,c.right) - Math.max(a.left,c.left) > 1 &&
+            Math.min(a.bottom,c.bottom) - Math.max(a.top,c.top) > 1) bad.push('overlap ' + sel);
+      }
+    });
+    scan('.axis-pt', '.flow-axis'); scan('.fnode', '.lane-track');
+    document.querySelectorAll('.axis-pt').forEach(pt => {
+      const ax = pt.closest('.flow-axis').getBoundingClientRect();
+      const want = ax.left + (parseFloat(pt.dataset.x) / 100) * ax.width;
+      const d = pt.querySelector('.apt-dot').getBoundingClientRect();
+      if (Math.abs((d.left + d.right) / 2 - want) > 1.5) bad.push('dot off date');
+    });
+    return [...new Set(bad)];
+  });
+  check('flow diagram packs without clipping or overlap', flow.length === 0, flow.join(', '));
+
+  check('keyboard focus is visible', hasRing);
+
+  console.log(`PASS ${ok.length}`); ok.forEach(o => console.log('  ok  ', o));
+  console.log(`\nFAIL ${bad.length}`); bad.forEach(x => console.log('  FAIL', x));
+  if (errs.length) console.log('\nPAGE ERRORS:', [...new Set(errs)].join(' | '));
+  await b.close();
+})();

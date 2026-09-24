@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+node_modules/
+# Screenshot scratch written by the QA harness; never part of the prototype.
+audit/
+shots/

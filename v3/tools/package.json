@@ -1,0 +1,12 @@
+{
+  "name": "equinix-preday1-qa",
+  "private": true,
+  "description": "Headless checks for the Pre-Day 1 portal prototype.",
+  "scripts": {
+    "serve": "python3 -m http.server 8080 --directory ../..",
+    "check": "node all.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}
