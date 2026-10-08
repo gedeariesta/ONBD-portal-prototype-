@@ -4,117 +4,109 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Onboarding Executive View</title>
+<link rel="stylesheet" href="../design-package/fonts.css">
 <link rel="stylesheet" href="../design-package/tokens.css">
 <link rel="stylesheet" href="../design-package/components.css">
 <style>
   :root {
     --navy: #1A1A2E; --eqx-red: #ED1C24; --purple: #7B2FBE; --panel: #F5F5F5;
-    --rag-g: #4CAF50; --rag-a: #FFC107; --rag-r: #F44336;
-    /* Prompt asks for Arial; Tableau's own font is used first when installed. */
+    --st-g: #4CAF50; --st-a: #FFC107; --st-r: #F44336;
   }
   body { margin: 0; background: #E9E9E9; }
   .stage { padding: 12px; overflow: auto; }
-  .stage-inner { transform-origin: 0 0; }
-  .sizebar { display: flex; gap: 10px; align-items: center; padding: 6px 16px; font-size: 12px; color: #666; background: #fff; border-bottom: 1px solid #E6E6E6; flex-wrap: wrap; }
-  .sizebar b { color: #333; font-weight: 600; }
-  .sizebar .tab-filter { min-width: 0; }
+  .sizebar { display: flex; gap: 10px; align-items: center; padding: 6px 16px; font-size: 12px; color: #666; background: #fff; border-bottom: 1px solid #E6E6E6; }
   .sizebar .f-pills button { padding: 2px 8px; }
 
-  /* ---------- Dashboard canvas: Fixed size 1600 × 900 (Tableau "PowerPoint" preset, 16:9) ---------- */
-  .dash { width: 1600px; height: 900px; background: #fff; display: flex; flex-direction: column; box-shadow: 0 0 0 1px #D4D4D4; position: relative; }
+  /* Dashboard: fixed 1600 x 900 */
+  .dash { width: 1600px; height: 900px; background: #fff; display: flex; flex-direction: column; box-shadow: 0 0 0 1px #D4D4D4; transform-origin: 0 0; }
 
-  .hdr { background: var(--navy); color: #fff; display: flex; align-items: center; padding: 0 20px; height: 60px; flex: none; }
-  .hdr h1 { margin: 0; font: 600 22px/1.15 var(--tab-font-semibold); letter-spacing: .01em; }
-  .hdr .sub { font-size: 13px; color: #FF5A60; margin-top: 3px; } /* brand red lifted for contrast on navy */
-  .hdr .asof { margin-left: auto; text-align: right; font-size: 11px; color: #B8B8C8; line-height: 1.5; }
+  .hdr { background: var(--navy); color: #fff; display: flex; align-items: center; padding: 0 20px; height: 58px; flex: none; }
+  .hdr h1 { margin: 0; font: var(--tab-w-bold) 22px/1.15 var(--tab-font-semibold); }
+  .hdr .sub { font-size: 13px; color: #FF5A60; margin-top: 2px; }
+  .hdr .asof { margin-left: auto; text-align: right; font-size: 12px; color: #C4C4D4; line-height: 1.45; }
 
-  .fbar { display: flex; align-items: flex-end; gap: 10px; padding: 6px 16px 6px; border-bottom: 1px solid #EBEBEB; flex: none; }
-  .fbar .tab-filter { min-width: 0; width: 132px; }
-  .fbar .tab-filter .f-title { font-size: 11px; margin-bottom: 2px; }
-  .fbar .tab-filter select { height: 22px; font-size: 11px; }
-  .legend-rag { margin-left: auto; font-size: 11px; color: #555; display: flex; gap: 12px; align-items: center; padding-bottom: 3px; white-space: nowrap; }
-  .legend-rag b { color: #333; }
-  .rag { display: inline-block; width: 11px; height: 11px; flex: none; vertical-align: -1px; }
-  .rag svg { display: block; width: 11px; height: 11px; }
+  .fbar { display: flex; align-items: flex-end; gap: 10px; padding: 6px 16px; border-bottom: 1px solid #EBEBEB; flex: none; }
+  .fbar .tab-filter { min-width: 0; width: 134px; }
+  .fbar .tab-filter .f-title { font-size: 12px; margin-bottom: 2px; }
+  .fbar .tab-filter select { height: 22px; font-size: 12px; }
+  .fbar .tab-legend { margin-left: auto; padding-bottom: 4px; }
+  .fbar .tab-legend .lg-sw { width: 10px; height: 10px; }
 
-  /* ---------- KPI strip ---------- */
-  .kpis { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.18fr; gap: 0; padding: 10px 12px 6px; flex: none; }
+  /* KPI strip */
+  .kpis { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.18fr; padding: 8px 12px 4px; flex: none; }
   .cluster { display: flex; flex-direction: column; padding: 0 6px; min-width: 0; }
-  .cluster + .cluster { border-left: 1px solid #EBEBEB; }
-  .cluster.outcomes { border-left: 2px solid #CBCBCB; margin-left: 6px; padding-left: 12px; }
-  .c-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--purple); padding: 0 2px 3px; margin-bottom: 6px; }
-  .c-head span { font: 700 12px var(--tab-font-bold); color: var(--purple); text-transform: uppercase; letter-spacing: .05em; }
-  .c-head em { font-style: normal; font-size: 10px; color: #898989; }
-  .tile { background: var(--panel); padding: 7px 9px 6px; margin-bottom: 6px; height: 86px; box-sizing: border-box; position: relative; cursor: default; display: flex; flex-direction: column; }
+  .cluster.outcomes { border-left: 1px solid #D4D4D4; margin-left: 6px; padding-left: 12px; }
+  .c-head { font: var(--tab-w-bold) 14px var(--tab-font-bold); color: var(--purple); border-bottom: 1px solid var(--purple); padding: 0 0 3px; margin-bottom: 6px; }
+  .tile { background: var(--panel); border-left: 4px solid var(--st); padding: 6px 9px 5px; margin-bottom: 5px; height: 87px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; }
   .tile:last-child { margin-bottom: 0; }
-  .tile:hover { background: #EEEEEE; }
-  .t-name { font-size: 12px; color: #333; display: flex; gap: 5px; align-items: baseline; line-height: 1.2; padding-right: 86px; }
-  .t-row { display: flex; align-items: baseline; gap: 8px; margin-top: 3px; }
-  .t-val { font: 600 24px/1.05 var(--tab-font-semibold); color: #333; }
-  .t-tgt { font-size: 11px; color: #666; }
-  .t-gap { font-size: 11px; color: #333; }
-  .t-src { font-size: 10px; color: #898989; margin-top: auto; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding-right: 4px; }
-  .t-tag { position: absolute; top: 7px; right: 8px; font-size: 9px; letter-spacing: .06em; color: #898989; border: 1px solid #CBCBCB; padding: 1px 4px; background: #fff; }
-  .t-tag.real { color: #2E7D32; border-color: #A5D6A7; }
-  .t-spark { position: absolute; right: 9px; top: 30px; width: 96px; height: 26px; }
-  .pulse { display: flex; gap: 12px; margin-top: 4px; }
+  .t-name { font-size: 12px; color: #555; line-height: 1.2; }
+  .t-row { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
+  .t-val { font: var(--tab-w-bold) 26px/1.05 var(--tab-font-semibold); color: #333; }
+  .tile.sample .t-val, .tile.sample .pulse b { color: #777; }
+  .t-tgt, .t-gap { font-size: 12px; color: #666; }
+  .t-gap { color: #333; }
+  .t-src { font-size: 11px; color: #898989; margin-top: auto; line-height: 1.25; }
+  .t-spark { position: absolute; right: 9px; top: 28px; width: 96px; height: 26px; }
+  .pulse { display: flex; gap: 14px; margin-top: 2px; align-items: flex-end; }
   .pulse div { display: flex; flex-direction: column; }
-  .pulse b { font: 600 20px/1.05 var(--tab-font-semibold); color: #333; }
-  .pulse span { font-size: 10px; color: #666; }
-  .pulse .opt b, .pulse .opt span { color: #B4B4B4; font-weight: normal; font-size: 11px; }
-  .pulse .opt b { font-size: 13px; line-height: 20px; }
+  .pulse b { font: var(--tab-w-bold) 22px/1.05 var(--tab-font-semibold); }
+  .pulse span { font-size: 11px; color: #666; }
+  .pulse .opt b, .pulse .opt span { color: #B4B4B4; }
+  .pulse .opt b { font-size: 14px; line-height: 23px; font-weight: normal; }
 
-  .o-row { display: flex; align-items: center; gap: 6px; background: var(--panel); padding: 0 9px; height: 40px; margin-bottom: 4px; font-size: 12px; color: #333; }
+  .o-row { display: flex; align-items: center; gap: 8px; background: var(--panel); border-left: 4px solid var(--st); padding: 0 9px; height: 40px; margin-bottom: 4px; font-size: 12px; color: #333; }
   .o-row .o-name { flex: 1; line-height: 1.2; }
-  .o-row .o-val { font-size: 11px; color: #898989; white-space: nowrap; text-align: right; }
-  .o-row .o-val i { display: block; font-style: normal; font-size: 10px; color: #666; }
-  .roi { border: 1px dashed #CBCBCB; background: #FAFAFA; padding: 6px 9px; font-size: 10.5px; color: #898989; line-height: 1.35; margin-top: 2px; }
-  .roi b { color: #666; font-weight: 600; }
+  .o-row .o-val { font-size: 12px; color: #898989; white-space: nowrap; text-align: right; line-height: 1.3; }
+  .roi { background: #FAFAFA; border: 1px solid #E6E6E6; padding: 5px 9px; font-size: 11px; color: #898989; line-height: 1.35; margin-top: 1px; }
+  .roi b { color: #555; font-weight: var(--tab-w-bold); }
 
-  /* ---------- Middle row ---------- */
-  .mid { display: grid; grid-template-columns: 1.22fr 1fr; gap: 0; padding: 4px 12px 0; flex: 1; min-height: 0; }
-  .panel { padding: 6px 8px 0; min-width: 0; display: flex; flex-direction: column; }
+  /* Middle row */
+  .mid { display: grid; grid-template-columns: 1.22fr 1fr; padding: 6px 12px 0; flex: 1; min-height: 0; }
+  .panel { padding: 4px 8px 0; min-width: 0; display: flex; flex-direction: column; }
   .panel + .panel { border-left: 1px solid #EBEBEB; }
-  .p-head { display: flex; align-items: baseline; gap: 8px; border-bottom: 2px solid var(--purple); padding-bottom: 3px; margin-bottom: 4px; }
-  .p-head h2 { margin: 0; font: 700 12px var(--tab-font-bold); color: var(--purple); text-transform: uppercase; letter-spacing: .05em; }
-  .p-head .p-note { font-size: 10px; color: #898989; margin-left: auto; }
+  .panel .tab-sheet-title { font-size: 16px; }
+  .panel .cap { font-size: 11px; color: #898989; margin: 1px 0 4px; }
   .map-wrap { display: flex; gap: 8px; flex: 1; min-height: 0; }
   #map { flex: 1; min-width: 0; position: relative; }
   #map svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   #map .land { fill: #EBEBEB; stroke: #fff; stroke-width: .5; }
   #map .ctry { stroke: #fff; stroke-width: .6; cursor: pointer; transition: opacity .12s; }
-  #map .ctry.faded, #map .pt.faded, #map .rlbl.faded { opacity: .2; }
+  #map .faded { opacity: .2; }
   #map .rlbl text { font: 15px var(--tab-font-book); fill: #333; paint-order: stroke; stroke: rgba(255,255,255,.85); stroke-width: 3px; }
-  #map .rlbl .n { font: 600 20px var(--tab-font-semibold); }
-  .map-side { width: 150px; flex: none; display: flex; flex-direction: column; gap: 10px; padding-top: 6px; }
-  .map-side .tot { font: 600 26px/1 var(--tab-font-semibold); color: #333; }
-  .map-side .tot-l { font-size: 11px; color: #666; }
+  #map .rlbl .n { font: 700 20px var(--tab-font-bold); }
+  .map-side { width: 150px; flex: none; display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+  .map-side .tot { font: 700 28px/1 var(--tab-font-semibold); color: #333; }
+  .map-side .tot-l { font-size: 12px; color: #666; line-height: 1.35; margin-top: 2px; }
+  .sub-title { font-size: 12px; color: #333; margin: 2px 0 0; }
   #trend { height: 92px; flex: none; }
   .nho-wrap { display: flex; gap: 10px; flex: 1; min-height: 0; }
   #nho { flex: 1; min-width: 0; }
-  .nho-kpi { width: 150px; flex: none; display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+  .nho-kpi { width: 150px; flex: none; display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
   .nho-kpi .k { background: var(--panel); padding: 8px 10px; }
-  .nho-kpi .k b { display: block; font: 600 24px/1.1 var(--tab-font-semibold); color: #333; }
-  .nho-kpi .k span { font-size: 11px; color: #666; }
+  .nho-kpi .k b { display: block; font: 700 26px/1.1 var(--tab-font-semibold); color: #777; }
+  .nho-kpi .k span { font-size: 12px; color: #666; }
+  .nho-kpi .n { font-size: 11px; color: #898989; line-height: 1.4; padding: 0 2px; }
 
-  .foot { flex: none; padding: 5px 16px 7px; font-size: 10.5px; font-style: italic; color: #898989; border-top: 1px solid #EBEBEB; line-height: 1.4; }
+  .foot { flex: none; padding: 5px 16px 7px; font-size: 11px; font-style: italic; color: #898989; border-top: 1px solid #EBEBEB; line-height: 1.4; }
 
-  /* ---------- Notes tab ---------- */
-  .notes { max-width: 1100px; margin: 0 auto; background: #fff; padding: 20px 28px 28px; font-size: 13px; line-height: 1.55; color: #333; }
-  .notes h2 { font: 600 18px var(--tab-font-semibold); margin: 22px 0 8px; }
-  .notes h2:first-child { margin-top: 0; }
-  .notes table { border-collapse: collapse; width: 100%; font-size: 12px; }
-  .notes th, .notes td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #EBEBEB; vertical-align: top; }
-  .notes th { color: #666; font-weight: 600; border-bottom-color: #CBCBCB; }
-  .notes .pill { display: inline-block; border-radius: 10px; padding: 0 7px; font-size: 11px; color: #fff; background: #4996B2; white-space: nowrap; }
-  .notes .pill.m { background: #00B180; }
+  /* Definitions tab, laid out as a Tableau dashboard of text tables */
+  .defs { width: 1240px; max-width: 100%; margin: 0 auto; background: #fff; box-shadow: 0 0 0 1px #D4D4D4; }
+  .defs .hdr h1 { font-size: 20px; }
+  .defs .sheet { padding: 14px 20px 6px; }
+  .defs .tab-sheet-title { font-size: 16px; margin-bottom: 6px; }
+  .defs .tab-xtab td, .defs .tab-xtab th { white-space: normal; text-align: left; vertical-align: top; }
+  .defs .tab-xtab thead th { color: #333; font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); }
+  .defs .tab-xtab tbody th { border-right: 0; }
+  .defs .sw { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+  .defs .pill { display: inline-block; border-radius: 10px; padding: 0 7px; font-size: 11px; color: #fff; background: #4996B2; white-space: nowrap; }
+  .defs .pill.m { background: #00B180; }
   section[hidden] { display: none !important; }
 </style>
 </head>
 <body class="tab-root">
 
 <header class="tab-chrome">
-  <div class="crumbs">Explore › Onboarding Reimagined › Onboarding Dashboard › <b>Executive View</b> <span style="margin-left:8px;color:#898989">(mock-up for design review)</span></div>
+  <div class="crumbs">Explore › Onboarding Reimagined › Onboarding Dashboard › <b>Executive View</b></div>
   <div class="toolbar">
     <button class="tb-btn"><svg viewBox="0 0 16 16"><path d="M5 4 2 7l3 3M2 7h8a4 4 0 0 1 0 8H7"/></svg><span>Undo</span></button>
     <button class="tb-btn"><svg viewBox="0 0 16 16"><path d="m11 4 3 3-3 3M14 7H6a4 4 0 0 0 0 8h3"/></svg><span>Redo</span></button>
@@ -131,72 +123,70 @@
 </header>
 <nav class="tab-tabs" role="tablist">
   <button role="tab" aria-selected="true" data-tab="exec">Executive View</button>
-  <button role="tab" aria-selected="false" data-tab="notes">Build notes &amp; field spec</button>
+  <button role="tab" aria-selected="false" data-tab="defs">Definitions</button>
 </nav>
 
 <section id="exec">
   <div class="sizebar">
-    <span>Dashboard size: <b>Fixed 1600 × 900</b> (16:9)</span>
-    <div class="tab-filter"><div class="f-pills" id="zoom"><button aria-pressed="true" data-z="fit">Fit to window</button><button aria-pressed="false" data-z="1">100%</button></div></div>
-    <span style="margin-left:auto">Hover any tile for its field spec · click a region to highlight · Persona filter is wired to the real PEX figures</span>
+    <span>Size: 1600 x 900 (fixed)</span>
+    <div class="tab-filter" style="min-width:0"><div class="f-pills" id="zoom"><button aria-pressed="true" data-z="fit">Fit</button><button aria-pressed="false" data-z="1">100%</button></div></div>
   </div>
-  <div class="stage"><div class="stage-inner" id="stageInner">
+  <div class="stage"><div id="stageInner">
   <div class="dash" id="dash">
 
     <div class="hdr">
-      <div><h1>Onboarding Dashboard — Executive View</h1><div class="sub">Global Onboarding Reimagined · Monthly + Quarterly Refresh</div></div>
-      <div class="asof">Equipment: HAM Pro Report, Jan–May 2026<br>PEX &amp; new-hire volume: PEX 2026 dashboard, Jan–Sep 2026</div>
+      <div><h1>Onboarding Dashboard | Executive View</h1><div class="sub">Global Onboarding Reimagined | Monthly and Quarterly Refresh</div></div>
+      <div class="asof">Equipment: HAM Pro Report, Jan-May 2026<br>PEX and new hires: PEX 2026 dashboard, Jan-Sep 2026</div>
     </div>
 
     <div class="fbar">
-      <div class="tab-filter"><div class="f-title">Region</div><select id="fRegion"><option>(All)</option><option value="NA">North America</option><option value="LATAM">Latin America</option><option value="EMEA">EMEA</option><option value="APAC">Asia-Pacific</option></select></div>
+      <div class="tab-filter"><div class="f-title">Region</div><select id="fRegion"><option>(All)</option><option value="NA">North America</option><option value="LATAM">Latin America</option><option value="EMEA">EMEA</option><option value="APAC">Asia Pacific</option></select></div>
       <div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div>
       <div class="tab-filter"><div class="f-title">Work Location</div><select><option>(All)</option></select></div>
-      <div class="tab-filter"><div class="f-title">Persona Type</div><select id="fPersona"><option value="All">(All)</option><option>Regular</option><option value="NTC">NTC (new to career)</option><option>Exec</option></select></div>
-      <div class="tab-filter"><div class="f-title">Start Date Range</div><select><option>Jan–Sep 2026</option><option>Last 3 months</option><option>Last quarter</option></select></div>
-      <div class="tab-filter"><div class="f-title">Remote / On-Site</div><select><option>(All)</option><option>Remote</option><option>On-site</option><option>Hybrid</option></select></div>
-      <div class="legend-rag"><b>Data readiness:</b>
-        <span><span class="rag" data-rag="g"></span> Documented / available</span>
-        <span><span class="rag" data-rag="a"></span> Partial, pending integration or build</span>
-        <span><span class="rag" data-rag="r"></span> No instrument yet</span>
-        <span style="color:#898989">(readiness, not performance)</span></div>
+      <div class="tab-filter"><div class="f-title">Persona Type</div><select id="fPersona"><option value="All">(All)</option><option>Regular</option><option value="NTC">NTC</option><option>Exec</option></select></div>
+      <div class="tab-filter"><div class="f-title">Start Date</div><select><option>Jan-Sep 2026</option><option>Last 3 months</option><option>Last quarter</option></select></div>
+      <div class="tab-filter"><div class="f-title">Remote / On-Site</div><select><option>(All)</option><option>Remote</option><option>On-Site</option><option>Hybrid</option></select></div>
+      <div id="statusLegend"></div>
     </div>
 
     <div class="kpis" id="kpis"></div>
 
     <div class="mid">
       <div class="panel">
-        <div class="p-head"><h2>New Hires by Region</h2><span class="rag" data-rag="g"></span><span class="p-note">Regional split illustrative · monthly volume real (Workday via PEX)</span></div>
+        <div class="tab-sheet-title">New Hires by Region</div>
+        <div class="cap">Regional split is sample data. Monthly totals are from Workday (PEX report).</div>
         <div class="map-wrap">
           <div id="map"></div>
           <div class="map-side">
-            <div><div class="tot" id="hiresTot">1,728</div><div class="tot-l">new hires, Jan–Sep 2026<br><span id="hiresPersona">all personas</span></div></div>
+            <div><div class="tot" id="hiresTot">1,728</div><div class="tot-l">New hires, Jan-Sep 2026<br><span id="hiresPersona">All personas</span></div></div>
             <div id="regionLegend"></div>
           </div>
         </div>
+        <div class="sub-title">New Hires by Month, 2026</div>
         <div id="trend"></div>
       </div>
       <div class="panel">
-        <div class="p-head"><h2>NHO Attendance — Live vs. Virtual</h2><span class="rag" data-rag="a"></span><span class="p-note">Illustrative · attendance capture not yet specified</span></div>
-        <div id="nhoLegend" style="margin:2px 0 4px"></div>
+        <div class="tab-sheet-title">NHO Attendance: Live vs Virtual</div>
+        <div class="cap">Sample data. Attendance capture method not yet defined.</div>
+        <div id="nhoLegend" style="margin:0 0 4px"></div>
         <div class="nho-wrap">
           <div id="nho"></div>
           <div class="nho-kpi">
-            <div class="k"><b id="nhoRate">—</b><span>attendance rate, last 6 cohorts</span></div>
-            <div class="k"><b id="nhoLive">—</b><span>of attendees joined live</span></div>
-            <div class="k" style="background:none;padding:0 2px;font-size:10.5px;color:#898989;line-height:1.4">Cohorts run twice a month (NHO Blueprint). Capture method to be confirmed with WFI.</div>
+            <div class="k"><b id="nhoRate"></b><span>Attendance rate, last 6 cohorts</span></div>
+            <div class="k"><b id="nhoLive"></b><span>Attended live</span></div>
+            <div class="n">Two cohorts a month (NHO Blueprint).</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="foot">Mock-up for design review. NH Sentiment, HM Success, Task Completion, the regional split and NHO attendance are illustrative. Equipment Success (HAM Pro Report, Jan–May 2026), PEX start-date and quality-audit rates, and monthly new-hire volume (PEX 2026 dashboard, Jan–Sep 2026) are real. Program Outcomes &amp; ROI have no instrument yet. Targets marked TBC are pending sign-off.</div>
+    <div class="foot">Mock-up for design review. Sample values (gray): NH Sentiment, HM Success, Task Completion %, regional split, NHO attendance. Source data: HAM Pro Report (Jan-May 2026) and PEX 2026 dashboard (Jan-Sep 2026). Program outcomes have no data source yet. TBC targets are pending sign-off.</div>
   </div>
   </div></div>
 </section>
 
-<section id="notes" hidden>
-  <div class="stage"><div class="notes" id="notesBody"></div></div>
+<section id="defs" hidden>
+  <div class="stage"><div class="defs" id="defsBody"></div></div>
 </section>
 
 <script src="../design-package/palettes.js"></script>

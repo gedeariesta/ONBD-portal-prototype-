@@ -2,7 +2,7 @@
 
 This is a **prototype of what we plan to measure and how it will be displayed** for the efficiency and effectiveness of the onboarding-reimagined project: the fields, measures, chart choices and filters. It isn't the dashboard itself. It's built to look like Tableau, and to contain only things Tableau can actually build, so the hand-off to whoever builds the real workbook is direct.
 
-This is separate from the portal prototypes (`v1`–`v3`) at the repo root.
+This is separate from the portal prototypes (`v1` to `v3`) at the repo root.
 
 ## What's here
 
@@ -13,8 +13,9 @@ This is separate from the portal prototypes (`v1`–`v3`) at the repo root.
 | `dist/` | One-file builds of both pages for sending around. Rebuild with `node tableau/tools/build_standalone.js`. |
 | `tools/build_geo.py` | Regenerates `exec-view/geo.js` (Natural Earth 110m, Web Mercator). |
 | `RESEARCH.md` | Tableau's look (fonts, grays, default colors), every mark type, the 24 Show Me charts, common builds, viz extensions, and the **limits on what to mock**. Sources included. |
+| `design-package/fonts.css` | News Cycle (open font, OFL) embedded as the stand-in for Tableau's font when Tableau Desktop isn't installed. |
 | `design-package/index.html` | The design package gallery, rendered inside Tableau Cloud viewer chrome. Three tabs: Show Me catalogue, Filters / legends / objects, Palettes & type. |
-| `design-package/tokens.css` | Design tokens: Tableau font stack, sizes (pt converted to px), F1–F9 grays, Tableau 10, tooltip / control / chrome colors, dashboard size presets. |
+| `design-package/tokens.css` | Design tokens: Tableau font stack, sizes (pt converted to px), F1 to F9 grays, Tableau 10, tooltip / control / chrome colors, dashboard size presets. |
 | `design-package/components.css` | Worksheet frame, crosstabs, BAN, legends, tooltip, quick filters, parameter controls, viewer toolbar and sheet tabs, containers. |
 | `design-package/charts.js` | `TabViz`: a dependency-free SVG kit that draws like Tableau. Includes hover tooltips and click-to-highlight. |
 | `design-package/palettes.json` / `.js` | All of Tableau's built-in categorical, sequential, diverging and shape palettes. |

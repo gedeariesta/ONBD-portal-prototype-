@@ -11,22 +11,21 @@
 
 :root {
   /* ---------- Type ----------
-     Tableau's own family ("Tableau Book", "Tableau Semibold", …) ships with
-     Tableau Desktop and installs system-wide, so anyone with Desktop sees the
-     real font here. Benton Sans is what it replaced; Arial is the fallback
-     Tableau's extension style guide itself names. No web font is loaded:
-     the Tableau family is not licensed for web embedding. */
-  --tab-font-book:     "Tableau Book", "Tableau Regular", "BentonSans Book", "Benton Sans", Arial, Helvetica, sans-serif;
-  --tab-font-light:    "Tableau Light", "BentonSans Light", Arial, Helvetica, sans-serif;
-  --tab-font-medium:   "Tableau Medium", "BentonSans Medium", Arial, Helvetica, sans-serif;
-  --tab-font-semibold: "Tableau Semibold", "BentonSans Medium", Arial, Helvetica, sans-serif;
-  --tab-font-bold:     "Tableau Bold", "BentonSans Bold", Arial, Helvetica, sans-serif;
+     Tableau's own family ("Tableau Book", "Tableau Semibold", ...) installs with
+     Tableau Desktop, so machines that have it see the real font. Everyone else
+     gets News Cycle (fonts.css), an open News Gothic revival close to Benton Sans,
+     which the Tableau family grew out of. Arial is the last fallback. */
+  --tab-font-book:     "Tableau Book", "Tableau Regular", "BentonSans Book", "Benton Sans", "News Cycle", Arial, Helvetica, sans-serif;
+  --tab-font-light:    "Tableau Light", "BentonSans Light", "News Cycle", Arial, Helvetica, sans-serif;
+  --tab-font-medium:   "Tableau Medium", "BentonSans Medium", "News Cycle", Arial, Helvetica, sans-serif;
+  --tab-font-semibold: "Tableau Semibold", "BentonSans Medium", "News Cycle", Arial, Helvetica, sans-serif;
+  --tab-font-bold:     "Tableau Bold", "BentonSans Bold", "News Cycle", Arial, Helvetica, sans-serif;
   /* Weights to pair with the fallbacks when the Tableau family is absent */
   --tab-w-book: 400;
   --tab-w-semibold: 600;
   --tab-w-bold: 700;
 
-  /* Sizes (pt in comments). Tableau text is small — resist enlarging it,
+  /* Sizes (pt in comments). Tableau text is small: resist enlarging it,
      or the mock promises density the real dashboard won't have. */
   --tab-size-dash-title:  24px;   /* 18pt dashboard title            */
   --tab-size-sheet-title: 20px;   /* 15pt worksheet title            */
@@ -45,7 +44,7 @@
   --tab-ink-disabled:#B4B4B4;     /* F7                              */
   --tab-ink-link:    #1F77B4;
 
-  /* ---------- Fills & lines (Tableau extension style guide F1–F9) ---------- */
+  /* ---------- Fills & lines (Tableau extension style guide F1-F9) ---------- */
   --tab-f1: #FAFAFA;
   --tab-f2: #F5F5F5;
   --tab-f25:#EBEBEB;
@@ -108,7 +107,7 @@
   --tab-chrome-tab-active: #FFFFFF;
   --tab-chrome-tab:    #F5F5F5;
 
-  /* Tableau extension style guide functional colors — for UI, not data */
+  /* Tableau extension style guide functional colors: for UI, not data */
   --tab-ui-blue:   #4996B2;       /* dimension pills */
   --tab-ui-green:  #00B180;       /* measure pills   */
   --tab-ui-go:     #2DCC97;

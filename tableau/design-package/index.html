@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tableau Design Package</title>
+<link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="components.css">
 <style>
@@ -47,8 +48,8 @@
 <body class="tab-root">
 
 <header class="tab-chrome">
-  <div class="crumbs">Explore › Onboarding Reimagined › <b>Measurement Mockup — Design Package</b></div>
-  <div class="toolbar" aria-label="View toolbar (mock — mirrors Tableau Cloud)">
+  <div class="crumbs">Explore › Onboarding Reimagined › <b>Design Package</b></div>
+  <div class="toolbar" aria-label="View toolbar">
     <button class="tb-btn" title="Undo"><svg viewBox="0 0 16 16"><path d="M5 4 2 7l3 3M2 7h8a4 4 0 0 1 0 8H7"/></svg><span>Undo</span></button>
     <button class="tb-btn" title="Redo"><svg viewBox="0 0 16 16"><path d="m11 4 3 3-3 3M14 7H6a4 4 0 0 0 0 8h3"/></svg><span>Redo</span></button>
     <button class="tb-btn" title="Revert"><svg viewBox="0 0 16 16"><path d="M3 3v4h4M3.5 7A5 5 0 1 1 4 11"/></svg><span>Revert</span></button>
@@ -76,19 +77,19 @@
 
 <!-- ============================================================ -->
 <section id="catalogue">
-  <p class="note"><b>Every chart below is one Tableau can build</b>, drawn the way Tableau draws it — square bars, gray value-axis gridlines only, headers left of the pane, Tableau 10 colors in fixed order. The gray strip under each shows the Show Me name and the shelf recipe (<span class="pill d">blue</span> = dimension, <span class="pill m">green</span> = measure). Hover a mark for the tooltip; click to highlight, click empty space to clear. <b>All numbers are placeholder sample data.</b></p>
+  <p class="note">Each chart here can be built in Tableau and is drawn with Tableau's defaults. The strip under each chart gives the Show Me name and shelf setup (<span class="pill d">blue</span> dimension, <span class="pill m">green</span> measure). Hover for tooltips. Click a mark to highlight. All numbers are sample data.</p>
 
   <h2 class="group">Big numbers (BANs)</h2>
   <div class="grid" style="grid-template-columns:1fr">
     <div class="card"><div class="kpis">
       <div id="ban1"></div><div id="ban2"></div><div id="ban3"></div><div id="ban4"></div>
     </div>
-    <div class="meta"><span class="showme">Text table (BAN pattern)</span> — each tile is its own sheet: Marks = Text · Text = <span class="pill m">AGG(Measure)</span> + a delta calc; sparkline is a separate line sheet with headers hidden, floated or tiled beside it.<div class="use">Use for the 4–6 headline efficiency/effectiveness KPIs across the top of the dashboard.</div></div></div>
+    <div class="meta"><span class="showme">Text table (BAN)</span>. One Text sheet per tile showing <span class="pill m">AGG(Measure)</span> and a change calc. The sparkline is a separate line sheet with axes hidden.</div></div></div>
   </div>
 
   <h2 class="group">Comparison</h2>
   <div class="grid">
-    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Avg days offer-accept → Day-1 ready, by region</h3><div class="tab-viz" id="c-hbar"></div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Avg Days to Day-1 Ready by Region</h3><div class="tab-viz" id="c-hbar"></div></div>
       <div class="meta"><span class="showme">Horizontal bars</span>
         <div class="shelf"><span class="k">Rows</span><span class="pill d">Region</span></div>
         <div class="shelf"><span class="k">Columns</span><span class="pill m">AVG(Days to Ready)</span></div>
@@ -112,7 +113,7 @@
         <div class="shelf"><span class="k">Rows</span><span class="pill m">AVG(CSAT)</span></div>
         <div class="shelf"><span class="k">Color</span><span class="pill d">Process</span></div></div></div>
 
-    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Before → after, per metric</h3><div id="lg-dots"></div><div class="tab-viz" id="c-dots"></div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Before vs After by Metric</h3><div id="lg-dots"></div><div class="tab-viz" id="c-dots"></div></div>
       <div class="meta"><span class="showme">Circle view (dumbbell build)</span>
         <div class="shelf"><span class="k">Rows</span><span class="pill d">Metric</span></div>
         <div class="shelf"><span class="k">Columns</span><span class="pill m">AVG(Value)</span> ×2 dual axis (Line w/ Path = Period, Circle)</div>
@@ -122,8 +123,8 @@
       <div class="meta"><span class="showme">Bullet graphs</span>
         <div class="shelf"><span class="k">Rows</span><span class="pill d">KPI</span></div>
         <div class="shelf"><span class="k">Columns</span><span class="pill m">SUM(Actual)</span></div>
-        <div class="shelf"><span class="k">Detail</span><span class="pill m">SUM(Target)</span> → reference line + 60/80% distribution bands</div>
-        <div class="use">The truest "efficiency vs target" view — one row per KPI, shared scale.</div></div></div>
+        <div class="shelf"><span class="k">Detail</span><span class="pill m">SUM(Target)</span> + reference line, 60% and 80% bands</div>
+        <div class="use">Best view for actual vs target: one row per KPI on a shared scale.</div></div></div>
   </div>
 
   <h2 class="group">Change over time</h2>
@@ -144,9 +145,9 @@
       <div class="meta"><span class="showme">Dual combination</span>
         <div class="shelf"><span class="k">Columns</span><span class="pill d">MONTH(Start Date)</span></div>
         <div class="shelf"><span class="k">Rows</span><span class="pill m">CNTD(Hire)</span><span class="pill m">AVG(Equip Ready)</span> dual axis · Bar + Line</div>
-        <div class="use">⚠ Two scales — easy to misread. Prefer two aligned sheets unless the relationship is the point.</div></div></div>
+        <div class="use">Two scales are easy to misread. Use two aligned sheets unless the relationship matters.</div></div></div>
 
-    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Onboarding journey — cohort Nov '26</h3><div id="lg-gantt"></div><div class="tab-viz" id="c-gantt"></div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Onboarding Timeline, Nov 2026 Cohort</h3><div id="lg-gantt"></div><div class="tab-viz" id="c-gantt"></div></div>
       <div class="meta"><span class="showme">Gantt chart</span>
         <div class="shelf"><span class="k">Columns</span><span class="pill m">DAY(Planned Start)</span></div>
         <div class="shelf"><span class="k">Rows</span><span class="pill d">Phase</span><span class="pill d">Step</span></div>
@@ -155,7 +156,7 @@
 
   <h2 class="group">Distribution &amp; relationship</h2>
   <div class="grid">
-    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Days offer-accept → all tasks complete</h3><div class="tab-viz" id="c-hist"></div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Days from Offer Accept to Tasks Complete</h3><div class="tab-viz" id="c-hist"></div></div>
       <div class="meta"><span class="showme">Histogram</span>
         <div class="shelf"><span class="k">Columns</span><span class="pill d">Days to Complete (bin)</span></div>
         <div class="shelf"><span class="k">Rows</span><span class="pill m">CNT(Days to Complete)</span> · reference line = median</div></div></div>
@@ -175,16 +176,16 @@
 
   <h2 class="group">Part-to-whole &amp; flow</h2>
   <div class="grid">
-    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Pipeline: offer → 30-day check-in</h3><div class="tab-viz" id="c-funnel"></div></div>
-      <div class="meta"><span class="showme">Funnel (not in Show Me — standard build)</span>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Pipeline: Offer to 30-Day Check-In</h3><div class="tab-viz" id="c-funnel"></div></div>
+      <div class="meta"><span class="showme">Funnel (custom build, not in Show Me)</span>
         <div class="shelf"><span class="k">Rows</span><span class="pill d">Stage</span> (sorted)</div>
         <div class="shelf"><span class="k">Columns</span><span class="pill m">-CNTD(Hire)</span><span class="pill m">CNTD(Hire)</span> dual axis, mirrored · label = step conversion calc</div></div></div>
 
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Day-1 readiness</h3><div class="row"><div class="tab-viz" id="c-pie"></div><div id="lg-pie"></div></div></div>
-      <div class="meta"><span class="showme">Pie → donut (dual-axis trick)</span>
+      <div class="meta"><span class="showme">Pie as donut (dual axis)</span>
         <div class="shelf"><span class="k">Rows</span><span class="pill m">MIN(0)</span><span class="pill m">MIN(0)</span> dual axis</div>
         <div class="shelf"><span class="k">Marks</span>Pie · Angle <span class="pill m">CNTD(Hire)</span> · Color <span class="pill d">Readiness</span>; 2nd pie white + Label</div>
-        <div class="use">≤ 4 slices only. A 100% stacked bar usually reads better.</div></div></div>
+        <div class="use">Four slices at most. A 100% stacked bar is usually clearer.</div></div></div>
 
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Support tickets by category</h3><div class="tab-viz" id="c-tree"></div></div>
       <div class="meta"><span class="showme">Treemap</span>
@@ -193,7 +194,7 @@
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Assistant questions by topic</h3><div class="tab-viz" id="c-bubbles"></div></div>
       <div class="meta"><span class="showme">Packed bubbles</span>
         <div class="shelf"><span class="k">Marks</span>Circle · Size <span class="pill m">CNT(Question)</span> · Color <span class="pill d">Topic</span> · Label <span class="pill d">Topic</span></div>
-        <div class="use">Decorative more than precise — use for "what are people asking", not for comparing.</div></div></div>
+        <div class="use">Good for showing topics, poor for comparing sizes.</div></div></div>
   </div>
 
   <h2 class="group">Tables &amp; grids</h2>
@@ -218,7 +219,7 @@
 
 <!-- ============================================================ -->
 <section id="controls" hidden>
-  <p class="note"><b>Interactive controls Tableau provides out of the box.</b> Filters ("quick filters") are bound to one field; parameters are free-standing values a calc reads. Their look is fixed-ish: Tableau only lets you change font, title, background and border — not shape. Mock only these.</p>
+  <p class="note">Built-in filter and parameter controls. Filters are tied to one field. Parameters hold a value that calculations read. Tableau lets you change their font, title, background and border, not their shape.</p>
   <div class="card" style="max-width:1366px;margin:0 auto 12px"><div class="ctl-grid">
     <div class="tab-filter"><div class="f-title">Region <span class="f-menu">▾</span></div>
       <label><input type="checkbox" checked>(All)</label><label><input type="checkbox" checked>Americas</label><label><input type="checkbox" checked>EMEA</label><label><input type="checkbox" checked>APAC</label>
@@ -229,7 +230,7 @@
     <div class="tab-filter"><div class="f-title">Hiring Manager <span class="f-menu">▾</span></div>
       <input class="f-input f-search" placeholder="Search">
       <label><input type="checkbox">Chen, L.</label><label><input type="checkbox" checked>Okafor, A.</label><label><input type="checkbox">Patel, R.</label>
-      <div class="cap">Multiple values (custom list / search) — best for long lists.</div></div>
+      <div class="cap">Multiple values (custom list). Use for long lists.</div></div>
     <div class="tab-filter"><div class="f-title">Days to Ready <span class="f-menu">▾</span></div>
       <div class="f-range-vals"><span>3</span><span>41</span></div>
       <input type="range" class="f-slider" min="3" max="41" value="41">
@@ -240,10 +241,10 @@
       <div class="cap">Relative date filter.</div></div>
     <div class="tab-filter"><div class="f-title">Process</div>
       <div class="f-pills"><button aria-pressed="true">All</button><button aria-pressed="false">Current</button><button aria-pressed="false">Reimagined</button></div>
-      <div class="cap">Single value (list) set to horizontal — the closest thing to segmented buttons.</div></div>
+      <div class="cap">Single value (list), horizontal. Closest thing to toggle buttons.</div></div>
     <div class="tab-filter"><div class="f-title">Metric (parameter) <span class="f-menu">▾</span></div>
       <select><option>Days to Day-1 ready</option><option>Days to productivity</option><option>% tasks on time</option></select>
-      <div class="cap">Parameter control — drives a CASE calc to swap the measure on a sheet ("metric swapper").</div></div>
+      <div class="cap">Parameter. Feeds a CASE calc that swaps the measure on a sheet.</div></div>
     <div class="tab-filter"><div class="f-title">Target (parameter)</div>
       <input class="f-input" value="14">
       <div class="cap">Type-in parameter. Also: slider parameter, and parameter actions (set by clicking a mark).</div></div>
@@ -267,7 +268,7 @@
       <div class="meta">Default tooltip: field names regular, values bold. Editable rich text; can embed another sheet ("Viz in Tooltip"). Command buttons can be turned off per sheet.</div></div>
 
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Dashboard objects</h3>
-      <div class="tab-text-obj"><b>Text object</b> — titles, notes, definitions. Rich text; hyperlinks live on web only.</div>
+      <div class="tab-text-obj"><b>Text object</b>: titles, notes, definitions. Links work on the web only.</div>
       <div style="padding:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="tab-nav-btn">◀ Back to Summary</button><button class="tab-nav-btn">Download ▾</button></div>
       </div>
       <div class="meta"><b>Layout:</b> Horizontal / Vertical container, Blank (spacer), Tiled vs Floating. <b>Content:</b> Worksheet, Text, Image, Web Page, Navigation button, Download button (PDF / PPT / PNG / Crosstab), Extension, Pulse metric, Data Story, Ask Data (retired). Device layouts: Desktop / Tablet / Phone.</div></div>
@@ -277,9 +278,9 @@
 <!-- ============================================================ -->
 <section id="style" hidden>
   <div class="grid" style="grid-template-columns:1fr">
-    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Type — Tableau family (Default theme)</h3>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Type: Tableau Family, Default Theme</h3>
       <table class="typespec" style="border-collapse:collapse;width:100%">
-        <tr><td>Dashboard title · 18pt Semibold</td><td><span class="tab-dash-title">Onboarding Reimagined — Efficiency</span></td></tr>
+        <tr><td>Dashboard title · 18pt Semibold</td><td><span class="tab-dash-title">Onboarding Reimagined | Efficiency</span></td></tr>
         <tr><td>Worksheet title · 15pt Book</td><td><span class="tab-sheet-title">Days to Day-1 ready, by region</span></td></tr>
         <tr><td>Big number · 24pt Semibold (custom)</td><td><span class="tab-ban"><span class="ban-value">12.4 days</span></span></td></tr>
         <tr><td>Headers / legend / tooltip · 9pt Book #333</td><td class="tab-header">Americas · EMEA · APAC</td></tr>
@@ -288,7 +289,7 @@
         <tr><td>Font in use on this machine</td><td id="fontcheck" class="tab-caption"></td></tr>
       </table></div></div>
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Categorical palettes (Format › Edit Colors)</h3><div id="pal-cat"></div></div>
-      <div class="meta"><b>Default = Tableau 10, assigned in fixed order.</b> Keep a series' color constant across every sheet (Tableau does this per field automatically once assigned). "Color Blind" (Tableau, 10) is the accessible alternative. Validator check on Tableau 10: red/green slots 3 & 5 collapse for deuteranopes, and orange, teal, yellow, pink and gray are below 3:1 on white — so always direct-label or pair with a legend, and keep categories ≤ 6.</div></div>
+      <div class="meta">Default is Tableau 10, assigned in order. Keep each series the same color on every sheet. Color Blind is the accessible alternative. Tableau 10 fails a color-blind check: red and green (slots 3 and 5) look the same to deuteranopes, and orange, teal, yellow, pink and gray are under 3:1 contrast on white. Label series directly or add a legend, and keep to six categories or fewer.</div></div>
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Sequential palettes</h3><div id="pal-seq"></div></div></div>
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Diverging palettes</h3><div id="pal-div"></div></div></div>
     <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Shape palettes</h3><div id="pal-shape"></div></div></div>
@@ -312,7 +313,7 @@
   document.querySelectorAll('.f-pills button').forEach(b => b.addEventListener('click', () => b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b))));
 
   /* ---- BANs ---- */
-  V.ban('#ban1', { label: 'Avg days offer-accept → Day-1 ready', value: '12.4', delta: -3.1, deltaText: '3.1 days', compare: 'vs prior quarter', lowerIsBetter: true, spark: [17, 16.2, 15.8, 15.1, 14, 13.2, 12.4] });
+  V.ban('#ban1', { label: 'Avg Days to Day-1 Ready', value: '12.4', delta: -3.1, deltaText: '3.1 days', compare: 'vs prior quarter', lowerIsBetter: true, spark: [17, 16.2, 15.8, 15.1, 14, 13.2, 12.4] });
   V.ban('#ban2', { label: '% pre-Day-1 tasks done on time', value: '87%', delta: 9, deltaText: '9 pts', compare: 'vs prior quarter', spark: [70, 72, 75, 78, 80, 84, 87] });
   V.ban('#ban3', { label: 'Equipment ready on Day 1', value: '93%', delta: 4, deltaText: '4 pts', compare: 'vs prior quarter', spark: [84, 86, 85, 89, 90, 92, 93] });
   V.ban('#ban4', { label: 'New-hire 30-day eNPS', value: '+41', delta: -2, deltaText: '2 pts', compare: 'vs prior quarter', spark: [36, 39, 44, 43, 45, 43, 41] });
@@ -337,7 +338,7 @@
 
   document.getElementById('lg-dots').innerHTML = V.legend({ title: 'Period', items: ['Before (FY26 H1)', 'After (pilot)'], colors: ['#BAB0AC', '#4E79A7'], inline: true });
   V.dots('#c-dots', { palette: '_cmp', dumbbell: true, dimA: 'Metric', dimB: 'Period', measure: 'Days', series: ['Before', 'After'], axisTitle: 'Days',
-    rows: [{ label: 'Offer → portal login', values: [6.2, 1.4] }, { label: 'Login → tasks complete', values: [11.5, 6.8] }, { label: 'Laptop ordered → delivered', values: [9.1, 5.2] }, { label: 'Day 1 → system access', values: [3.4, 0.6] }, { label: 'Day 1 → first 1:1', values: [7.8, 4.1] }] });
+    rows: [{ label: 'Offer to portal login', values: [6.2, 1.4] }, { label: 'Login to tasks complete', values: [11.5, 6.8] }, { label: 'Laptop ordered to delivered', values: [9.1, 5.2] }, { label: 'Day 1 → system access', values: [3.4, 0.6] }, { label: 'Day 1 → first 1:1', values: [7.8, 4.1] }] });
 
   V.bullet('#c-bullet', { dim: 'KPI', format: 'num', lowerIsBetter: true, colorByTarget: false,
     rows: [{ label: 'Days to Day-1 ready', actual: 12.4, target: 14 }, { label: 'Days to system access', actual: 0.6, target: 1 }, { label: 'Days to first 1:1', actual: 4.1, target: 5 }, { label: 'Days to productivity', actual: 47, target: 45 }] });
@@ -361,7 +362,7 @@
     tasks: [
       { group: 'Pre-boarding', label: 'Offer accepted', start: -28, dur: 1, status: 'Done' }, { group: 'Pre-boarding', label: 'Portal invite & login', start: -27, dur: 3, status: 'Done' },
       { group: 'Pre-boarding', label: 'Personal & bank details', start: -25, dur: 8, status: 'Done' }, { group: 'Pre-boarding', label: 'Right-to-work check', start: -22, dur: 10, status: 'Late' },
-      { group: 'Pre-boarding', label: 'Equipment ordered → shipped', start: -20, dur: 14, status: 'Done' }, { group: 'Day 1', label: 'System access live', start: -1, dur: 2, status: 'In progress' },
+      { group: 'Pre-boarding', label: 'Equipment ordered to shipped', start: -20, dur: 14, status: 'Done' }, { group: 'Day 1', label: 'System access live', start: -1, dur: 2, status: 'In progress' },
       { group: 'Day 1', label: 'Welcome session', start: 0, dur: 1, status: 'In progress' }, { group: 'First 30', label: 'First 1:1 with manager', start: 3, dur: 2, status: 'Planned' },
       { group: 'First 30', label: 'Mandatory training', start: 1, dur: 20, status: 'Planned' }, { group: 'First 30', label: '30-day check-in', start: 28, dur: 2, status: 'Planned' }] });
 
@@ -400,7 +401,7 @@
     cols: ['W1', 'W2', 'W4', 'W8', 'W12'], rows: [{ label: 'Engineering', values: [4.1, 3.9, 3.6, 3.8, 4.0] }, { label: 'Operations', values: [3.8, 3.5, 3.2, 3.4, 3.6] }, { label: 'Sales', values: [4.4, 4.2, 4.0, 3.9, 4.1] }, { label: 'Finance', values: [4.0, 4.0, 3.9, 4.1, 4.2] }, { label: 'G&A', values: [3.9, 3.7, 3.5, 3.7, 3.8] }] });
 
   V.heatmap('#c-heat', { sized: true, ramp: 'Red', rowField: 'Task Owner', colField: 'Days Overdue', measure: 'Tasks', format: 'int',
-    cols: ['1–2', '3–5', '6–10', '11–20', '20+'], rows: [{ label: 'New hire', values: [40, 22, 9, 4, 1] }, { label: 'Hiring manager', values: [28, 30, 18, 9, 5] }, { label: 'IT', values: [12, 15, 10, 6, 2] }, { label: 'HR ops', values: [20, 8, 3, 1, 0] }, { label: 'Facilities', values: [6, 9, 7, 5, 4] }] });
+    cols: ['1-2', '3-5', '6-10', '11-20', '20+'], rows: [{ label: 'New hire', values: [40, 22, 9, 4, 1] }, { label: 'Hiring manager', values: [28, 30, 18, 9, 5] }, { label: 'IT', values: [12, 15, 10, 6, 2] }, { label: 'HR ops', values: [20, 8, 3, 1, 0] }, { label: 'Facilities', values: [6, 9, 7, 5, 4] }] });
 
   /* ---- controls tab ---- */
   document.getElementById('lg-a').innerHTML = V.legend({ title: 'Region', items: ['Americas', 'EMEA', 'APAC', 'Greater China', 'India'] });
@@ -417,7 +418,7 @@
 
   const fc = document.getElementById('fontcheck');
   const has = f => document.fonts && document.fonts.check('12px "' + f + '"', 'a') && (function () { const c = document.createElement('canvas').getContext('2d'); c.font = '40px monospace'; const a = c.measureText('mmmmlllii').width; c.font = '40px "' + f + '", monospace'; return c.measureText('mmmmlllii').width !== a; })();
-  fc.textContent = has('Tableau Book') ? 'Tableau Book is installed — you are seeing the real Tableau typeface.' : has('Benton Sans') ? 'Benton Sans (pre-2018 Tableau UI font) — close match.' : 'Tableau fonts not installed — falling back to Arial. Install Tableau Desktop (or its fonts) for exact type.';
+  fc.textContent = has('Tableau Book') ? 'Tableau Book (installed).' : has('Benton Sans') ? 'Benton Sans (installed).' : 'Tableau fonts not installed. Showing News Cycle, the closest open match.';
 })();
 </script>
 </body>

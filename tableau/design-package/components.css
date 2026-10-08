@@ -1,7 +1,7 @@
 /* Tableau look-alike components: worksheet frame, legends, tooltip,
    quick filters, parameter controls, and the Tableau Cloud viewer chrome.
    Requires tokens.css. Everything here maps to an object Tableau really
-   has — see the "Builds as" notes in the gallery. */
+   has: see the "Builds as" notes in the gallery. */
 
 /* ---------- Worksheet (a sheet placed on a dashboard) ---------- */
 .tab-sheet {
@@ -44,7 +44,7 @@
 .tab-xtab td.mark { cursor: pointer; }
 .tab-xtab td.mark.faded { opacity: var(--tab-mark-faded); }
 
-/* ---------- Big number (BAN) — a Text-mark sheet, not a special object ---------- */
+/* ---------- Big number (BAN): a Text-mark sheet, not a special object ---------- */
 .tab-ban { display: flex; flex-direction: column; gap: 2px; }
 .tab-ban .ban-label { font-size: var(--tab-size-header); color: var(--tab-ink-axis); }
 .tab-ban .ban-value { font: var(--tab-w-semibold) var(--tab-size-ban)/1.1 var(--tab-font-semibold); color: var(--tab-ink-title); }

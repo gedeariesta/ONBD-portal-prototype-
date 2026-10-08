@@ -1,4 +1,4 @@
-/* TabViz — a small SVG kit that draws the way Tableau draws.
+/* TabViz: a small SVG kit that draws the way Tableau draws.
    ------------------------------------------------------------------
    Purpose: mock up worksheets for the onboarding efficiency /
    effectiveness dashboard so that every chart in the mock is one
@@ -55,7 +55,7 @@
   let _ctx;
   function tw(s, px = 12) {
     _ctx = _ctx || document.createElement('canvas').getContext('2d');
-    _ctx.font = px + 'px "Tableau Book", Arial, sans-serif';
+    _ctx.font = px + 'px "Tableau Book", "News Cycle", Arial, sans-serif';
     return _ctx.measureText(String(s)).width;
   }
 
@@ -145,7 +145,7 @@
      RENDERERS
      ================================================================ */
 
-  /* Horizontal bars — Show Me "horizontal bars".
+  /* Horizontal bars: Show Me "horizontal bars".
      build: Rows = Dimension · Columns = SUM(Measure) · Marks = Bar */
   function hbar(w, o) {
     const f = getFmt(o.format), data = o.sort === false ? o.data : [...o.data].sort((a, b) => b.value - a.value);
@@ -187,7 +187,7 @@
     return s + '</svg>';
   }
 
-  /* Stacked bars — Show Me "stacked bars". Horizontal.
+  /* Stacked bars: Show Me "stacked bars". Horizontal.
      build: Rows = Dim A · Columns = SUM(Measure) · Color = Dim B · Marks = Bar
      o.percent → quick table calc "Percent of Total" computed along Dim B. */
   function stackedBar(w, o) {
@@ -212,7 +212,7 @@
     return s + '</svg>';
   }
 
-  /* Side-by-side bars — Show Me "side-by-side bars".
+  /* Side-by-side bars: Show Me "side-by-side bars".
      build: Columns = Dim A, Dim B · Rows = SUM(Measure) · Color = Dim B
      Dim A becomes a column header row, panes separated by dividers. */
   function sideBySide(w, o) {
@@ -235,7 +235,7 @@
     return s + '</svg>';
   }
 
-  /* Lines (continuous) — Show Me "lines (continuous)" / "dual lines" when two series.
+  /* Lines (continuous): Show Me "lines (continuous)" / "dual lines" when two series.
      build: Columns = MONTH(Date) continuous (green pill) · Rows = Measure · Color = Dim · Marks = Line
      o.markers → Marks card > Color > Markers: All. o.endLabels → Label: Line Ends. */
   function line(w, o) {
@@ -264,7 +264,7 @@
     return s + '</svg>';
   }
 
-  /* Area (continuous, stacked) — Show Me "area charts (continuous)".
+  /* Area (continuous, stacked): Show Me "area charts (continuous)".
      build: Columns = continuous date · Rows = Measure · Color = Dim · Marks = Area (Stack Marks on) */
   function area(w, o) {
     const f = getFmt(o.format), xs = o.x, ser = o.series, h = o.height || 220, L = 44, top = 10, B = 28, R = 10;
@@ -283,7 +283,7 @@
     return s + '</svg>';
   }
 
-  /* Dual combination — Show Me "dual combination": bars + line on a dual axis.
+  /* Dual combination: Show Me "dual combination": bars + line on a dual axis.
      build: Columns = date · Rows = Measure A, Measure B → Dual Axis, mark types Bar + Line.
      Caution: two y-scales. Synchronize axes when units match, or prefer two stacked sheets. */
   function combo(w, o) {
@@ -320,7 +320,7 @@
     return s + '</svg>';
   }
 
-  /* Treemap — Show Me "treemap". build: Marks = Square · Size = SUM(Measure) · Color = Dim or measure · Label = Dim */
+  /* Treemap: Show Me "treemap". build: Marks = Square · Size = SUM(Measure) · Color = Dim or measure · Label = Dim */
   function treemap(w, o) {
     const f = getFmt(o.format), h = o.height || 220, data = [...o.data].sort((a, b) => b.value - a.value);
     const tot = data.reduce((a, d) => a + d.value, 0), area = w * h;
@@ -346,7 +346,7 @@
     return s + '</svg>';
   }
 
-  /* Circle view / dot plot — Show Me "circle views" & "side-by-side circles".
+  /* Circle view / dot plot: Show Me "circle views" & "side-by-side circles".
      build: Rows = Dim A · Columns = Measure · Color = Dim B · Marks = Circle. Add a gray bar on dual axis for a dumbbell. */
   function dots(w, o) {
     const f = getFmt(o.format), rows = o.rows, series = o.series, rowH = 24, top = 4;
@@ -364,7 +364,7 @@
     return s + '</svg>';
   }
 
-  /* Scatter plot — Show Me "scatter plot". build: Columns = Measure X · Rows = Measure Y · Detail = Dim · Marks = Circle
+  /* Scatter plot: Show Me "scatter plot". build: Columns = Measure X · Rows = Measure Y · Detail = Dim · Marks = Circle
      o.trend → Analytics pane > Trend Line (linear). o.quadrants → constant reference lines at medians/targets. */
   function scatter(w, o) {
     const fx = getFmt(o.formatX), fy = getFmt(o.formatY), pts = o.data, h = o.height || 240, L = 46, B = 40, top = 8, R = 10;
@@ -386,7 +386,7 @@
     return s + '</svg>';
   }
 
-  /* Histogram — Show Me "histogram". build: Create Bins on Measure → Columns = Measure (bin) · Rows = CNT(Measure) · Marks = Bar (no gaps) */
+  /* Histogram: Show Me "histogram". build: Create Bins on Measure → Columns = Measure (bin) · Rows = CNT(Measure) · Marks = Bar (no gaps) */
   function histogram(w, o) {
     const vals = o.values, size = o.binSize, h = o.height || 200, L = 40, B = 34, top = 8, R = 6;
     const lo = Math.floor(Math.min(...vals) / size) * size, nb = Math.ceil((Math.max(...vals) - lo + 1e-9) / size);
@@ -394,7 +394,7 @@
     const ticks = niceTicks(0, Math.max(...bins.map(b => b.n)), 4), y = lin(0, ticks[ticks.length - 1], h - B, top), bw = (w - L - R) / nb;
     let s = svgOpen(w, h) + yAxis(y, ticks, L, w - R, fmt.int, 'Count', (h - B + top) / 2);
     bins.forEach((b, i) => {
-      s += `<rect class="mark" data-key="bin${i}" x="${L + i * bw + .5}" y="${y(b.n)}" width="${bw - 1}" height="${y(0) - y(b.n)}" fill="${o.color || T10[0]}"${tip([[o.measure + ' (bin)', `${b.x0}–${b.x0 + size}`], ['Count', b.n]])}/>`;
+      s += `<rect class="mark" data-key="bin${i}" x="${L + i * bw + .5}" y="${y(b.n)}" width="${bw - 1}" height="${y(0) - y(b.n)}" fill="${o.color || T10[0]}"${tip([[o.measure + ' (bin)', `${b.x0}-${b.x0 + size}`], ['Count', b.n]])}/>`;
       if (nb <= 16 || i % 2 === 0) s += `<text class="ax-tick" x="${L + i * bw}" y="${h - B + 14}" text-anchor="middle">${b.x0}</text>`;
     });
     if (o.refLine != null) { const xr = L + (o.refLine - lo) / size * bw; s += `<line class="ref" x1="${xr}" x2="${xr}" y1="${top}" y2="${h - B}"/><text class="ax-tick" x="${xr + 4}" y="${top + 10}">${esc(o.refLabel || o.refLine)}</text>`; }
@@ -402,7 +402,7 @@
     return s + '</svg>';
   }
 
-  /* Box-and-whisker — Show Me "box-and-whisker plot". build: Columns = Dim · Rows = Measure · Detail = row-level ID · Marks = Circle · Analytics > Box Plot */
+  /* Box-and-whisker: Show Me "box-and-whisker plot". build: Columns = Dim · Rows = Measure · Detail = row-level ID · Marks = Circle · Analytics > Box Plot */
   function boxplot(w, o) {
     const f = getFmt(o.format), groups = o.groups, h = o.height || 230, L = 44, B = 28, top = 8, R = 6;
     const all = groups.flatMap(g => g.values), ticks = niceTicks(0, Math.max(...all), 4);
@@ -421,7 +421,7 @@
     return s + '</svg>';
   }
 
-  /* Gantt — Show Me "Gantt chart". build: Columns = Start date (continuous) · Rows = Task · Size = Duration · Color = Status · Marks = Gantt Bar
+  /* Gantt: Show Me "Gantt chart". build: Columns = Start date (continuous) · Rows = Task · Size = Duration · Color = Status · Marks = Gantt Bar
      o.today → reference line at TODAY(). */
   function gantt(w, o) {
     const tasks = o.tasks, rowH = 22, top = 20, hdrW = Math.min(w * .38, Math.max(...tasks.map(t => tw(t.label))) + 16);
@@ -441,7 +441,7 @@
     return s + '</svg>';
   }
 
-  /* Bullet graph — Show Me "bullet graphs". build: Rows = Dim · Columns = Actual · Detail = Target → Reference line (target) + distribution bands at 60%/80% of target */
+  /* Bullet graph: Show Me "bullet graphs". build: Rows = Dim · Columns = Actual · Detail = Target → Reference line (target) + distribution bands at 60%/80% of target */
   function bullet(w, o) {
     const f = getFmt(o.format), rows = o.rows, rowH = 30, top = 4, hdrW = Math.min(w * .38, Math.max(...rows.map(r => tw(r.label))) + 16);
     const plotH = rows.length * rowH, h = top + plotH + 24, max = Math.max(...rows.map(r => Math.max(r.actual, r.target, ...(r.bands || [])))) * 1.05;
@@ -458,7 +458,7 @@
     return s + '</svg>';
   }
 
-  /* Packed bubbles — Show Me "packed bubbles". build: Marks = Circle · Size = Measure · Color = Dim · Label = Dim */
+  /* Packed bubbles: Show Me "packed bubbles". build: Marks = Circle · Size = Measure · Color = Dim · Label = Dim */
   function bubbles(w, o) {
     const f = getFmt(o.format), h = o.height || 220, data = [...o.data].sort((a, b) => b.value - a.value);
     const maxR = Math.min(w, h) / 4.2, rs = data.map(d => Math.sqrt(d.value / data[0].value) * maxR), placed = [];
@@ -482,7 +482,7 @@
     return s + '</svg>';
   }
 
-  /* Heat map — Show Me "heat map" (square marks sized + colored by a measure)
+  /* Heat map: Show Me "heat map" (square marks sized + colored by a measure)
      and the full-cell variant used for cohort grids.
      build: Columns = Dim B · Rows = Dim A · Color = Measure · (Size = Measure) · Marks = Square */
   function heatmap(w, o) {
@@ -507,7 +507,7 @@
     return s + '</svg>';
   }
 
-  /* Funnel — not in Show Me; standard build: centered bars via Rows = Stage · Columns = -SUM(N) and SUM(N) on dual axis, or one bar with a hidden offset. */
+  /* Funnel: not in Show Me; standard build: centered bars via Rows = Stage · Columns = -SUM(N) and SUM(N) on dual axis, or one bar with a hidden offset. */
   function funnel(w, o) {
     const f = getFmt(o.format), st = o.stages, rowH = 30, hdrW = Math.min(w * .32, Math.max(...st.map(s => tw(s.label))) + 16), h = st.length * rowH + 6;
     const max = st[0].value, pw = w - hdrW - 70, cx = hdrW + pw / 2;
@@ -522,7 +522,7 @@
     return s + '</svg>';
   }
 
-  /* Sparkline — a line sheet with axes/headers hidden; used inside KPI tiles. */
+  /* Sparkline: a line sheet with axes/headers hidden; used inside KPI tiles. */
   function sparkline(w, o) {
     const v = o.values, h = o.height || 32, mn = Math.min(...v), mx = Math.max(...v), x = lin(0, v.length - 1, 2, w - 4), y = lin(mn, mx, h - 3, 3);
     const c = o.color || T10[0];
@@ -531,7 +531,7 @@
 
   /* ---------------- HTML-based sheets ---------------- */
 
-  /* Text table / crosstab — Show Me "text tables". build: Rows = Dim A · Columns = Dim B · Text = Measure · Marks = Text */
+  /* Text table / crosstab: Show Me "text tables". build: Rows = Dim A · Columns = Dim B · Text = Measure · Marks = Text */
   function textTable(el, o) {
     const f = getFmt(o.format), hl = !!o.highlight;
     const all = o.rows.flatMap(r => r.values), mn = Math.min(...all), mx = Math.max(...all);
@@ -548,7 +548,7 @@
     return s;
   }
 
-  /* BAN — big-ass number. A Text-mark sheet: Text = AGG(Measure), plus a delta calc and an optional sparkline sheet beside it. */
+  /* BAN: big-ass number. A Text-mark sheet: Text = AGG(Measure), plus a delta calc and an optional sparkline sheet beside it. */
   function ban(el, o) {
     const better = o.delta == null ? null : (o.lowerIsBetter ? o.delta < 0 : o.delta > 0);
     const arrow = o.delta == null ? '' : (o.delta > 0 ? '▲' : o.delta < 0 ? '▼' : '■');

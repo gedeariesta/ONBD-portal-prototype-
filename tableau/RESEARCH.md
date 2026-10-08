@@ -24,7 +24,7 @@ Confidence tags: **[official]** = Tableau docs / Tableau-published; **[derived]*
 The Tableau fonts install with Tableau Desktop but aren't licensed for web embedding. `tokens.css` names them first, so anyone with Desktop installed sees the real typeface. Everyone else falls back to Arial, which is the substitute Tableau's own extension guide names. The Palettes & type tab reports which font the browser is actually using.
 
 ### UI grays and functional colors [official, Extensions API style guide]
-Fills F1–F9: `#FAFAFA #F5F5F5 #EBEBEB #E6E6E6 #E1E1E1 #D4D4D4 #CBCBCB #B4B4B4 #666666 #333333`.
+Fills F1 to F9: `#FAFAFA #F5F5F5 #EBEBEB #E6E6E6 #E1E1E1 #D4D4D4 #CBCBCB #B4B4B4 #666666 #333333`.
 Functional colors: Dimension blue `#4996B2`, Measure green `#00B180`, Go `#2DCC97`, Attention `#EB4454`, Action `#EB8F50`. The blue/green pills in the gallery use these. Font colors are black at 100/80/70/60/35% opacity.
 
 ### Marks and defaults
