@@ -1,0 +1,143 @@
+/* Tableau look-alike design tokens
+   ------------------------------------------------------------------
+   Mirrors Tableau Desktop / Tableau Cloud's "Default" workbook theme
+   (the 10.x+ "Smooth" family) as closely as HTML allows, so a mockup
+   built from these reads as "this is what the real workbook will look
+   like" and nothing in it is impossible to build in Tableau.
+
+   Sources and confidence for every value: tableau/RESEARCH.md.
+   Point sizes are converted at Tableau's 96 dpi (1pt = 1.333px).
+   ------------------------------------------------------------------ */
+
+:root {
+  /* ---------- Type ----------
+     Tableau's own family ("Tableau Book", "Tableau Semibold", …) ships with
+     Tableau Desktop and installs system-wide, so anyone with Desktop sees the
+     real font here. Benton Sans is what it replaced; Arial is the fallback
+     Tableau's extension style guide itself names. No web font is loaded:
+     the Tableau family is not licensed for web embedding. */
+  --tab-font-book:     "Tableau Book", "Tableau Regular", "BentonSans Book", "Benton Sans", Arial, Helvetica, sans-serif;
+  --tab-font-light:    "Tableau Light", "BentonSans Light", Arial, Helvetica, sans-serif;
+  --tab-font-medium:   "Tableau Medium", "BentonSans Medium", Arial, Helvetica, sans-serif;
+  --tab-font-semibold: "Tableau Semibold", "BentonSans Medium", Arial, Helvetica, sans-serif;
+  --tab-font-bold:     "Tableau Bold", "BentonSans Bold", Arial, Helvetica, sans-serif;
+  /* Weights to pair with the fallbacks when the Tableau family is absent */
+  --tab-w-book: 400;
+  --tab-w-semibold: 600;
+  --tab-w-bold: 700;
+
+  /* Sizes (pt in comments). Tableau text is small — resist enlarging it,
+     or the mock promises density the real dashboard won't have. */
+  --tab-size-dash-title:  24px;   /* 18pt dashboard title            */
+  --tab-size-sheet-title: 20px;   /* 15pt worksheet title            */
+  --tab-size-ban:         32px;   /* 24pt big-number KPI (custom)    */
+  --tab-size-header:      12px;   /*  9pt row/column headers, legend */
+  --tab-size-body:        12px;   /*  9pt text-table cells, tooltip  */
+  --tab-size-axis:        11px;   /*  8pt axis tick labels           */
+  --tab-size-axis-title:  12px;   /*  9pt axis titles                */
+  --tab-size-caption:     11px;   /*  8pt captions, footnotes        */
+
+  /* ---------- Ink ---------- */
+  --tab-ink-title:   #333333;     /* titles, headers, cell text (F9) */
+  --tab-ink-body:    #333333;
+  --tab-ink-axis:    #666666;     /* tick labels, axis titles (F8)   */
+  --tab-ink-muted:   #898989;     /* captions, "null" counts         */
+  --tab-ink-disabled:#B4B4B4;     /* F7                              */
+  --tab-ink-link:    #1F77B4;
+
+  /* ---------- Fills & lines (Tableau extension style guide F1–F9) ---------- */
+  --tab-f1: #FAFAFA;
+  --tab-f2: #F5F5F5;
+  --tab-f25:#EBEBEB;
+  --tab-f3: #E6E6E6;
+  --tab-f4: #E1E1E1;
+  --tab-f5: #D4D4D4;
+  --tab-f6: #CBCBCB;
+  --tab-f7: #B4B4B4;
+  --tab-f8: #666666;
+  --tab-f9: #333333;
+
+  --tab-bg-dashboard: #FFFFFF;
+  --tab-bg-sheet:     #FFFFFF;
+  --tab-bg-band:      #F5F5F5;    /* row banding in text tables      */
+  --tab-grid:         #EBEBEB;    /* gridlines, value axis only      */
+  --tab-zero-line:    #B4B4B4;
+  --tab-divider:      #D4D4D4;    /* row / column dividers, pane edges */
+  --tab-axis-ruler:   #D4D4D4;
+  --tab-ref-line:     #666666;    /* reference lines, dashed         */
+  --tab-ref-band:     rgba(0,0,0,.06);
+
+  /* ---------- Marks ---------- */
+  --tab-mark-default: #4E79A7;    /* single-color marks: Tableau 10 blue */
+  --tab-mark-text:    #333333;    /* Text mark default is black/near-black */
+  --tab-mark-faded:   .25;        /* opacity of non-highlighted marks */
+  --tab-mark-null:    #BAB0AC;
+
+  /* ---------- Tableau 10 (default categorical, fixed order) ---------- */
+  --t10-blue:   #4E79A7;
+  --t10-orange: #F28E2B;
+  --t10-red:    #E15759;
+  --t10-teal:   #76B7B2;
+  --t10-green:  #59A14F;
+  --t10-yellow: #EDC948;
+  --t10-purple: #B07AA1;
+  --t10-pink:   #FF9DA7;
+  --t10-brown:  #9C755F;
+  --t10-gray:   #BAB0AC;
+
+  /* ---------- Tooltip ---------- */
+  --tab-tip-bg:     #FFFFFF;
+  --tab-tip-border: #C2C2C2;
+  --tab-tip-shadow: 0 1px 4px rgba(0,0,0,.18);
+  --tab-tip-label:  #666666;      /* field name   */
+  --tab-tip-value:  #333333;      /* field value  */
+
+  /* ---------- Quick filters / parameter controls ---------- */
+  --tab-ctl-border:   #CBCBCB;
+  --tab-ctl-bg:       #FFFFFF;
+  --tab-ctl-hover:    #F2F2F2;
+  --tab-ctl-accent:   #1F77B4;    /* checked box, slider thumb       */
+  --tab-ctl-radius:   2px;
+
+  /* ---------- Tableau Cloud / Server viewer chrome ---------- */
+  --tab-chrome-bg:     #FFFFFF;
+  --tab-chrome-border: #E6E6E6;
+  --tab-chrome-ink:    #333333;
+  --tab-chrome-icon:   #666666;
+  --tab-chrome-hover:  #F2F2F2;
+  --tab-chrome-tab-active: #FFFFFF;
+  --tab-chrome-tab:    #F5F5F5;
+
+  /* Tableau extension style guide functional colors — for UI, not data */
+  --tab-ui-blue:   #4996B2;       /* dimension pills */
+  --tab-ui-green:  #00B180;       /* measure pills   */
+  --tab-ui-go:     #2DCC97;
+  --tab-ui-red:    #EB4454;
+  --tab-ui-orange: #EB8F50;
+
+  /* ---------- Layout ----------
+     Dashboard size presets (Dashboard > Size). Fixed size is Tableau's
+     default and the safest to mock against. */
+  --tab-size-desktop-browser-w: 1000px;  --tab-size-desktop-browser-h: 800px;  /* default */
+  --tab-size-generic-desktop-w: 1366px;  --tab-size-generic-desktop-h: 768px;
+  --tab-size-laptop-w: 800px;            --tab-size-laptop-h: 600px;
+  --tab-size-powerpoint-w: 1600px;       --tab-size-powerpoint-h: 900px;
+
+  --tab-pad-outer: 4px;           /* object outer padding default    */
+  --tab-pad-inner: 4px;           /* object inner padding default    */
+  --tab-pad-sheet: 8px;
+}
+
+/* ---------- Base primitives (opt-in via class) ---------- */
+.tab-root {
+  font-family: var(--tab-font-book);
+  font-size: var(--tab-size-body);
+  color: var(--tab-ink-body);
+  background: var(--tab-bg-dashboard);
+  -webkit-font-smoothing: antialiased;
+}
+.tab-dash-title  { font: var(--tab-w-semibold) var(--tab-size-dash-title)/1.2 var(--tab-font-semibold); color: var(--tab-ink-title); margin: 0; }
+.tab-sheet-title { font: var(--tab-w-book) var(--tab-size-sheet-title)/1.25 var(--tab-font-book); color: var(--tab-ink-title); margin: 0; }
+.tab-caption     { font: var(--tab-w-book) var(--tab-size-caption)/1.35 var(--tab-font-book); color: var(--tab-ink-muted); }
+.tab-header      { font: var(--tab-w-book) var(--tab-size-header)/1.3 var(--tab-font-book); color: var(--tab-ink-title); }
+.tab-bold        { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); }

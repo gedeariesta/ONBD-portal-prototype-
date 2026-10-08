@@ -1,0 +1,122 @@
+/* Tableau look-alike components: worksheet frame, legends, tooltip,
+   quick filters, parameter controls, and the Tableau Cloud viewer chrome.
+   Requires tokens.css. Everything here maps to an object Tableau really
+   has — see the "Builds as" notes in the gallery. */
+
+/* ---------- Worksheet (a sheet placed on a dashboard) ---------- */
+.tab-sheet {
+  background: var(--tab-bg-sheet);
+  padding: var(--tab-pad-sheet);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tab-sheet > .tab-sheet-title { font-size: 15px; margin-bottom: 6px; } /* sheet titles on dashboards are usually set to ~11pt */
+.tab-sheet .tab-viz { flex: 1; min-height: 0; position: relative; }
+.tab-sheet .tab-viz svg { display: block; overflow: visible; }
+
+/* SVG text inside vizzes */
+.tab-viz text           { font-family: var(--tab-font-book); fill: var(--tab-ink-body); }
+.tab-viz .ax-tick       { font-size: var(--tab-size-axis); fill: var(--tab-ink-axis); }
+.tab-viz .ax-title      { font-size: var(--tab-size-axis-title); fill: var(--tab-ink-axis); }
+.tab-viz .hdr           { font-size: var(--tab-size-header); fill: var(--tab-ink-title); }
+.tab-viz .hdr-col       { font-size: var(--tab-size-header); fill: var(--tab-ink-title); }
+.tab-viz .lbl           { font-size: var(--tab-size-axis); fill: var(--tab-ink-body); }
+.tab-viz .lbl-in        { font-size: var(--tab-size-axis); fill: #fff; }
+.tab-viz .grid          { stroke: var(--tab-grid); stroke-width: 1; shape-rendering: crispEdges; }
+.tab-viz .zero          { stroke: var(--tab-zero-line); stroke-width: 1; shape-rendering: crispEdges; }
+.tab-viz .div           { stroke: var(--tab-divider); stroke-width: 1; shape-rendering: crispEdges; }
+.tab-viz .ref           { stroke: var(--tab-ref-line); stroke-width: 1; stroke-dasharray: 4 3; }
+.tab-viz .ref-band      { fill: var(--tab-ref-band); }
+.tab-viz .mark          { cursor: pointer; transition: opacity .12s; }
+.tab-viz .mark.faded    { opacity: var(--tab-mark-faded); }
+.tab-viz rect.mark      { shape-rendering: crispEdges; }
+
+/* ---------- Text tables (crosstab / highlight table) ---------- */
+.tab-xtab { border-collapse: collapse; font-size: var(--tab-size-body); color: var(--tab-ink-body); width: 100%; }
+.tab-xtab th, .tab-xtab td { padding: 3px 8px; text-align: right; white-space: nowrap; font-weight: normal; }
+.tab-xtab thead th { border-bottom: 1px solid var(--tab-divider); text-align: right; vertical-align: bottom; }
+.tab-xtab thead th.corner { text-align: left; color: var(--tab-ink-axis); }
+.tab-xtab tbody th { text-align: left; border-right: 1px solid var(--tab-divider); }
+.tab-xtab tbody tr:nth-child(even) td, .tab-xtab tbody tr:nth-child(even) th { background: var(--tab-bg-band); }
+.tab-xtab tbody tr.tot th, .tab-xtab tbody tr.tot td { border-top: 1px solid var(--tab-divider); font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); }
+.tab-xtab.hl tbody td { border: 1px solid #fff; }
+.tab-xtab td.mark { cursor: pointer; }
+.tab-xtab td.mark.faded { opacity: var(--tab-mark-faded); }
+
+/* ---------- Big number (BAN) — a Text-mark sheet, not a special object ---------- */
+.tab-ban { display: flex; flex-direction: column; gap: 2px; }
+.tab-ban .ban-label { font-size: var(--tab-size-header); color: var(--tab-ink-axis); }
+.tab-ban .ban-value { font: var(--tab-w-semibold) var(--tab-size-ban)/1.1 var(--tab-font-semibold); color: var(--tab-ink-title); }
+.tab-ban .ban-delta { font-size: var(--tab-size-header); color: var(--tab-ink-axis); }
+.tab-ban .ban-delta .up   { color: #59A14F; }
+.tab-ban .ban-delta .down { color: #E15759; }
+
+/* ---------- Legends (color / size / shape) ---------- */
+.tab-legend { font-size: var(--tab-size-header); color: var(--tab-ink-body); min-width: 120px; }
+.tab-legend .lg-title { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); margin-bottom: 4px; }
+.tab-legend .lg-item  { display: flex; align-items: center; gap: 6px; padding: 1px 0; cursor: pointer; }
+.tab-legend .lg-item:hover { background: var(--tab-ctl-hover); }
+.tab-legend .lg-sw    { width: 10px; height: 10px; flex: none; }
+.tab-legend .lg-ramp  { height: 10px; width: 140px; }
+.tab-legend .lg-ends  { display: flex; justify-content: space-between; width: 140px; font-size: var(--tab-size-axis); color: var(--tab-ink-axis); }
+.tab-legend.inline    { display: flex; flex-wrap: wrap; gap: 2px 14px; align-items: center; }
+.tab-legend.inline .lg-title { margin: 0 4px 0 0; }
+
+/* ---------- Tooltip ---------- */
+.tab-tooltip {
+  position: fixed; z-index: 1000; pointer-events: none;
+  background: var(--tab-tip-bg); border: 1px solid var(--tab-tip-border); box-shadow: var(--tab-tip-shadow);
+  padding: 6px 8px; font: var(--tab-size-body)/1.45 var(--tab-font-book); color: var(--tab-tip-value);
+  max-width: 280px; display: none;
+}
+.tab-tooltip .tt-row   { white-space: nowrap; }
+.tab-tooltip .tt-k     { color: var(--tab-tip-label); }
+.tab-tooltip .tt-v     { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); color: var(--tab-tip-value); }
+.tab-tooltip .tt-actions { margin-top: 6px; padding-top: 4px; border-top: 1px solid var(--tab-f3); color: var(--tab-ink-axis); font-size: var(--tab-size-caption); }
+
+/* ---------- Quick filters & parameter controls ---------- */
+.tab-filter { font-size: var(--tab-size-header); color: var(--tab-ink-body); min-width: 160px; }
+.tab-filter .f-title { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+.tab-filter .f-title .f-menu { color: var(--tab-ink-axis); font-family: var(--tab-font-book); font-weight: normal; cursor: pointer; padding: 0 2px; }
+.tab-filter label { display: flex; align-items: center; gap: 6px; padding: 1px 0; cursor: pointer; }
+.tab-filter input[type=checkbox], .tab-filter input[type=radio] { accent-color: var(--tab-ctl-accent); margin: 0; width: 12px; height: 12px; }
+.tab-filter select, .tab-filter .f-input {
+  width: 100%; height: 24px; border: 1px solid var(--tab-ctl-border); border-radius: var(--tab-ctl-radius);
+  background: var(--tab-ctl-bg); font: inherit; color: inherit; padding: 0 6px;
+}
+.tab-filter .f-search { margin-bottom: 4px; }
+.tab-filter .f-slider { width: 100%; accent-color: var(--tab-ctl-accent); margin: 4px 0 0; }
+.tab-filter .f-range-vals { display: flex; justify-content: space-between; color: var(--tab-ink-body); }
+.tab-filter .f-pills { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--tab-ctl-border); border-radius: var(--tab-ctl-radius); overflow: hidden; width: max-content; }
+.tab-filter .f-pills button { border: 0; border-right: 1px solid var(--tab-ctl-border); background: #fff; font: inherit; color: inherit; padding: 3px 10px; cursor: pointer; }
+.tab-filter .f-pills button:last-child { border-right: 0; }
+.tab-filter .f-pills button[aria-pressed=true] { background: #E6EEF6; color: #1F4E79; }
+.tab-filter .f-reldate { border: 1px solid var(--tab-ctl-border); padding: 6px; }
+.tab-filter .f-reldate .units { display: flex; gap: 10px; border-bottom: 1px solid var(--tab-f3); padding-bottom: 4px; margin-bottom: 4px; }
+.tab-filter .f-reldate .units span[aria-selected=true] { text-decoration: underline; color: var(--tab-ctl-accent); }
+
+/* ---------- Tableau Cloud viewer chrome ---------- */
+.tab-chrome { background: var(--tab-chrome-bg); border-bottom: 1px solid var(--tab-chrome-border); font: 13px/1 var(--tab-font-book); color: var(--tab-chrome-ink); }
+.tab-chrome .crumbs { display: flex; align-items: center; gap: 8px; padding: 10px 16px 6px; font-size: 12px; color: var(--tab-ink-axis); }
+.tab-chrome .crumbs b { color: var(--tab-chrome-ink); font-family: var(--tab-font-semibold); font-weight: var(--tab-w-semibold); }
+.tab-chrome .toolbar { display: flex; align-items: center; gap: 2px; padding: 4px 10px; border-top: 1px solid var(--tab-chrome-border); flex-wrap: wrap; }
+.tab-chrome .tb-btn { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 8px; border: 0; background: none; font: inherit; color: var(--tab-chrome-ink); cursor: pointer; border-radius: 2px; }
+.tab-chrome .tb-btn:hover { background: var(--tab-chrome-hover); }
+.tab-chrome .tb-btn svg { width: 16px; height: 16px; stroke: var(--tab-chrome-icon); fill: none; stroke-width: 1.5; }
+.tab-chrome .tb-sep { width: 1px; height: 18px; background: var(--tab-chrome-border); margin: 0 6px; }
+.tab-chrome .tb-spacer { flex: 1; }
+.tab-tabs { display: flex; gap: 0; background: var(--tab-chrome-tab); border-bottom: 1px solid var(--tab-chrome-border); padding: 0 10px; overflow-x: auto; }
+.tab-tabs button { border: 0; border-right: 1px solid var(--tab-chrome-border); background: transparent; font: 12px var(--tab-font-book); color: var(--tab-ink-axis); padding: 8px 14px; cursor: pointer; white-space: nowrap; }
+.tab-tabs button[aria-selected=true] { background: var(--tab-chrome-tab-active); color: var(--tab-chrome-ink); box-shadow: inset 0 2px 0 var(--tab-ctl-accent); }
+
+/* ---------- Dashboard canvas ---------- */
+.tab-dashboard { background: var(--tab-bg-dashboard); margin: 0 auto; box-shadow: 0 0 0 1px var(--tab-chrome-border); }
+.tab-dashboard.fixed-desktop-browser { width: var(--tab-size-desktop-browser-w); min-height: var(--tab-size-desktop-browser-h); }
+.tab-dashboard.fixed-generic-desktop { width: var(--tab-size-generic-desktop-w); min-height: var(--tab-size-generic-desktop-h); }
+.tab-hc { display: flex; }                 /* Horizontal container */
+.tab-vc { display: flex; flex-direction: column; } /* Vertical container */
+.tab-hc > *, .tab-vc > * { padding: var(--tab-pad-outer); }
+.tab-text-obj { padding: var(--tab-pad-sheet); font-size: var(--tab-size-body); color: var(--tab-ink-body); line-height: 1.4; }
+.tab-nav-btn { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border: 1px solid var(--tab-ctl-border); background: #fff; font: 12px var(--tab-font-book); color: var(--tab-ink-body); cursor: pointer; }
+.tab-nav-btn:hover { background: var(--tab-ctl-hover); }
