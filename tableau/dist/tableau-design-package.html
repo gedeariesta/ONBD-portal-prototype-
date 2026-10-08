@@ -1,0 +1,1998 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau Design Package</title>
+<style>
+/* Tableau look-alike design tokens
+   ------------------------------------------------------------------
+   Mirrors Tableau Desktop / Tableau Cloud's "Default" workbook theme
+   (the 10.x+ "Smooth" family) as closely as HTML allows, so a mockup
+   built from these reads as "this is what the real workbook will look
+   like" and nothing in it is impossible to build in Tableau.
+
+   Sources and confidence for every value: tableau/RESEARCH.md.
+   Point sizes are converted at Tableau's 96 dpi (1pt = 1.333px).
+   ------------------------------------------------------------------ */
+
+:root {
+  /* ---------- Type ----------
+     Tableau's own family ("Tableau Book", "Tableau Semibold", …) ships with
+     Tableau Desktop and installs system-wide, so anyone with Desktop sees the
+     real font here. Benton Sans is what it replaced; Arial is the fallback
+     Tableau's extension style guide itself names. No web font is loaded:
+     the Tableau family is not licensed for web embedding. */
+  --tab-font-book:     "Tableau Book", "Tableau Regular", "BentonSans Book", "Benton Sans", Arial, Helvetica, sans-serif;
+  --tab-font-light:    "Tableau Light", "BentonSans Light", Arial, Helvetica, sans-serif;
+  --tab-font-medium:   "Tableau Medium", "BentonSans Medium", Arial, Helvetica, sans-serif;
+  --tab-font-semibold: "Tableau Semibold", "BentonSans Medium", Arial, Helvetica, sans-serif;
+  --tab-font-bold:     "Tableau Bold", "BentonSans Bold", Arial, Helvetica, sans-serif;
+  /* Weights to pair with the fallbacks when the Tableau family is absent */
+  --tab-w-book: 400;
+  --tab-w-semibold: 600;
+  --tab-w-bold: 700;
+
+  /* Sizes (pt in comments). Tableau text is small — resist enlarging it,
+     or the mock promises density the real dashboard won't have. */
+  --tab-size-dash-title:  24px;   /* 18pt dashboard title            */
+  --tab-size-sheet-title: 20px;   /* 15pt worksheet title            */
+  --tab-size-ban:         32px;   /* 24pt big-number KPI (custom)    */
+  --tab-size-header:      12px;   /*  9pt row/column headers, legend */
+  --tab-size-body:        12px;   /*  9pt text-table cells, tooltip  */
+  --tab-size-axis:        11px;   /*  8pt axis tick labels           */
+  --tab-size-axis-title:  12px;   /*  9pt axis titles                */
+  --tab-size-caption:     11px;   /*  8pt captions, footnotes        */
+
+  /* ---------- Ink ---------- */
+  --tab-ink-title:   #333333;     /* titles, headers, cell text (F9) */
+  --tab-ink-body:    #333333;
+  --tab-ink-axis:    #666666;     /* tick labels, axis titles (F8)   */
+  --tab-ink-muted:   #898989;     /* captions, "null" counts         */
+  --tab-ink-disabled:#B4B4B4;     /* F7                              */
+  --tab-ink-link:    #1F77B4;
+
+  /* ---------- Fills & lines (Tableau extension style guide F1–F9) ---------- */
+  --tab-f1: #FAFAFA;
+  --tab-f2: #F5F5F5;
+  --tab-f25:#EBEBEB;
+  --tab-f3: #E6E6E6;
+  --tab-f4: #E1E1E1;
+  --tab-f5: #D4D4D4;
+  --tab-f6: #CBCBCB;
+  --tab-f7: #B4B4B4;
+  --tab-f8: #666666;
+  --tab-f9: #333333;
+
+  --tab-bg-dashboard: #FFFFFF;
+  --tab-bg-sheet:     #FFFFFF;
+  --tab-bg-band:      #F5F5F5;    /* row banding in text tables      */
+  --tab-grid:         #EBEBEB;    /* gridlines, value axis only      */
+  --tab-zero-line:    #B4B4B4;
+  --tab-divider:      #D4D4D4;    /* row / column dividers, pane edges */
+  --tab-axis-ruler:   #D4D4D4;
+  --tab-ref-line:     #666666;    /* reference lines, dashed         */
+  --tab-ref-band:     rgba(0,0,0,.06);
+
+  /* ---------- Marks ---------- */
+  --tab-mark-default: #4E79A7;    /* single-color marks: Tableau 10 blue */
+  --tab-mark-text:    #333333;    /* Text mark default is black/near-black */
+  --tab-mark-faded:   .25;        /* opacity of non-highlighted marks */
+  --tab-mark-null:    #BAB0AC;
+
+  /* ---------- Tableau 10 (default categorical, fixed order) ---------- */
+  --t10-blue:   #4E79A7;
+  --t10-orange: #F28E2B;
+  --t10-red:    #E15759;
+  --t10-teal:   #76B7B2;
+  --t10-green:  #59A14F;
+  --t10-yellow: #EDC948;
+  --t10-purple: #B07AA1;
+  --t10-pink:   #FF9DA7;
+  --t10-brown:  #9C755F;
+  --t10-gray:   #BAB0AC;
+
+  /* ---------- Tooltip ---------- */
+  --tab-tip-bg:     #FFFFFF;
+  --tab-tip-border: #C2C2C2;
+  --tab-tip-shadow: 0 1px 4px rgba(0,0,0,.18);
+  --tab-tip-label:  #666666;      /* field name   */
+  --tab-tip-value:  #333333;      /* field value  */
+
+  /* ---------- Quick filters / parameter controls ---------- */
+  --tab-ctl-border:   #CBCBCB;
+  --tab-ctl-bg:       #FFFFFF;
+  --tab-ctl-hover:    #F2F2F2;
+  --tab-ctl-accent:   #1F77B4;    /* checked box, slider thumb       */
+  --tab-ctl-radius:   2px;
+
+  /* ---------- Tableau Cloud / Server viewer chrome ---------- */
+  --tab-chrome-bg:     #FFFFFF;
+  --tab-chrome-border: #E6E6E6;
+  --tab-chrome-ink:    #333333;
+  --tab-chrome-icon:   #666666;
+  --tab-chrome-hover:  #F2F2F2;
+  --tab-chrome-tab-active: #FFFFFF;
+  --tab-chrome-tab:    #F5F5F5;
+
+  /* Tableau extension style guide functional colors — for UI, not data */
+  --tab-ui-blue:   #4996B2;       /* dimension pills */
+  --tab-ui-green:  #00B180;       /* measure pills   */
+  --tab-ui-go:     #2DCC97;
+  --tab-ui-red:    #EB4454;
+  --tab-ui-orange: #EB8F50;
+
+  /* ---------- Layout ----------
+     Dashboard size presets (Dashboard > Size). Fixed size is Tableau's
+     default and the safest to mock against. */
+  --tab-size-desktop-browser-w: 1000px;  --tab-size-desktop-browser-h: 800px;  /* default */
+  --tab-size-generic-desktop-w: 1366px;  --tab-size-generic-desktop-h: 768px;
+  --tab-size-laptop-w: 800px;            --tab-size-laptop-h: 600px;
+  --tab-size-powerpoint-w: 1600px;       --tab-size-powerpoint-h: 900px;
+
+  --tab-pad-outer: 4px;           /* object outer padding default    */
+  --tab-pad-inner: 4px;           /* object inner padding default    */
+  --tab-pad-sheet: 8px;
+}
+
+/* ---------- Base primitives (opt-in via class) ---------- */
+.tab-root {
+  font-family: var(--tab-font-book);
+  font-size: var(--tab-size-body);
+  color: var(--tab-ink-body);
+  background: var(--tab-bg-dashboard);
+  -webkit-font-smoothing: antialiased;
+}
+.tab-dash-title  { font: var(--tab-w-semibold) var(--tab-size-dash-title)/1.2 var(--tab-font-semibold); color: var(--tab-ink-title); margin: 0; }
+.tab-sheet-title { font: var(--tab-w-book) var(--tab-size-sheet-title)/1.25 var(--tab-font-book); color: var(--tab-ink-title); margin: 0; }
+.tab-caption     { font: var(--tab-w-book) var(--tab-size-caption)/1.35 var(--tab-font-book); color: var(--tab-ink-muted); }
+.tab-header      { font: var(--tab-w-book) var(--tab-size-header)/1.3 var(--tab-font-book); color: var(--tab-ink-title); }
+.tab-bold        { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); }
+
+</style>
+<style>
+/* Tableau look-alike components: worksheet frame, legends, tooltip,
+   quick filters, parameter controls, and the Tableau Cloud viewer chrome.
+   Requires tokens.css. Everything here maps to an object Tableau really
+   has — see the "Builds as" notes in the gallery. */
+
+/* ---------- Worksheet (a sheet placed on a dashboard) ---------- */
+.tab-sheet {
+  background: var(--tab-bg-sheet);
+  padding: var(--tab-pad-sheet);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tab-sheet > .tab-sheet-title { font-size: 15px; margin-bottom: 6px; } /* sheet titles on dashboards are usually set to ~11pt */
+.tab-sheet .tab-viz { flex: 1; min-height: 0; position: relative; }
+.tab-sheet .tab-viz svg { display: block; overflow: visible; }
+
+/* SVG text inside vizzes */
+.tab-viz text           { font-family: var(--tab-font-book); fill: var(--tab-ink-body); }
+.tab-viz .ax-tick       { font-size: var(--tab-size-axis); fill: var(--tab-ink-axis); }
+.tab-viz .ax-title      { font-size: var(--tab-size-axis-title); fill: var(--tab-ink-axis); }
+.tab-viz .hdr           { font-size: var(--tab-size-header); fill: var(--tab-ink-title); }
+.tab-viz .hdr-col       { font-size: var(--tab-size-header); fill: var(--tab-ink-title); }
+.tab-viz .lbl           { font-size: var(--tab-size-axis); fill: var(--tab-ink-body); }
+.tab-viz .lbl-in        { font-size: var(--tab-size-axis); fill: #fff; }
+.tab-viz .grid          { stroke: var(--tab-grid); stroke-width: 1; shape-rendering: crispEdges; }
+.tab-viz .zero          { stroke: var(--tab-zero-line); stroke-width: 1; shape-rendering: crispEdges; }
+.tab-viz .div           { stroke: var(--tab-divider); stroke-width: 1; shape-rendering: crispEdges; }
+.tab-viz .ref           { stroke: var(--tab-ref-line); stroke-width: 1; stroke-dasharray: 4 3; }
+.tab-viz .ref-band      { fill: var(--tab-ref-band); }
+.tab-viz .mark          { cursor: pointer; transition: opacity .12s; }
+.tab-viz .mark.faded    { opacity: var(--tab-mark-faded); }
+.tab-viz rect.mark      { shape-rendering: crispEdges; }
+
+/* ---------- Text tables (crosstab / highlight table) ---------- */
+.tab-xtab { border-collapse: collapse; font-size: var(--tab-size-body); color: var(--tab-ink-body); width: 100%; }
+.tab-xtab th, .tab-xtab td { padding: 3px 8px; text-align: right; white-space: nowrap; font-weight: normal; }
+.tab-xtab thead th { border-bottom: 1px solid var(--tab-divider); text-align: right; vertical-align: bottom; }
+.tab-xtab thead th.corner { text-align: left; color: var(--tab-ink-axis); }
+.tab-xtab tbody th { text-align: left; border-right: 1px solid var(--tab-divider); }
+.tab-xtab tbody tr:nth-child(even) td, .tab-xtab tbody tr:nth-child(even) th { background: var(--tab-bg-band); }
+.tab-xtab tbody tr.tot th, .tab-xtab tbody tr.tot td { border-top: 1px solid var(--tab-divider); font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); }
+.tab-xtab.hl tbody td { border: 1px solid #fff; }
+.tab-xtab td.mark { cursor: pointer; }
+.tab-xtab td.mark.faded { opacity: var(--tab-mark-faded); }
+
+/* ---------- Big number (BAN) — a Text-mark sheet, not a special object ---------- */
+.tab-ban { display: flex; flex-direction: column; gap: 2px; }
+.tab-ban .ban-label { font-size: var(--tab-size-header); color: var(--tab-ink-axis); }
+.tab-ban .ban-value { font: var(--tab-w-semibold) var(--tab-size-ban)/1.1 var(--tab-font-semibold); color: var(--tab-ink-title); }
+.tab-ban .ban-delta { font-size: var(--tab-size-header); color: var(--tab-ink-axis); }
+.tab-ban .ban-delta .up   { color: #59A14F; }
+.tab-ban .ban-delta .down { color: #E15759; }
+
+/* ---------- Legends (color / size / shape) ---------- */
+.tab-legend { font-size: var(--tab-size-header); color: var(--tab-ink-body); min-width: 120px; }
+.tab-legend .lg-title { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); margin-bottom: 4px; }
+.tab-legend .lg-item  { display: flex; align-items: center; gap: 6px; padding: 1px 0; cursor: pointer; }
+.tab-legend .lg-item:hover { background: var(--tab-ctl-hover); }
+.tab-legend .lg-sw    { width: 10px; height: 10px; flex: none; }
+.tab-legend .lg-ramp  { height: 10px; width: 140px; }
+.tab-legend .lg-ends  { display: flex; justify-content: space-between; width: 140px; font-size: var(--tab-size-axis); color: var(--tab-ink-axis); }
+.tab-legend.inline    { display: flex; flex-wrap: wrap; gap: 2px 14px; align-items: center; }
+.tab-legend.inline .lg-title { margin: 0 4px 0 0; }
+
+/* ---------- Tooltip ---------- */
+.tab-tooltip {
+  position: fixed; z-index: 1000; pointer-events: none;
+  background: var(--tab-tip-bg); border: 1px solid var(--tab-tip-border); box-shadow: var(--tab-tip-shadow);
+  padding: 6px 8px; font: var(--tab-size-body)/1.45 var(--tab-font-book); color: var(--tab-tip-value);
+  max-width: 280px; display: none;
+}
+.tab-tooltip .tt-row   { white-space: nowrap; }
+.tab-tooltip .tt-k     { color: var(--tab-tip-label); }
+.tab-tooltip .tt-v     { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); color: var(--tab-tip-value); }
+.tab-tooltip .tt-actions { margin-top: 6px; padding-top: 4px; border-top: 1px solid var(--tab-f3); color: var(--tab-ink-axis); font-size: var(--tab-size-caption); }
+
+/* ---------- Quick filters & parameter controls ---------- */
+.tab-filter { font-size: var(--tab-size-header); color: var(--tab-ink-body); min-width: 160px; }
+.tab-filter .f-title { font-family: var(--tab-font-bold); font-weight: var(--tab-w-bold); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+.tab-filter .f-title .f-menu { color: var(--tab-ink-axis); font-family: var(--tab-font-book); font-weight: normal; cursor: pointer; padding: 0 2px; }
+.tab-filter label { display: flex; align-items: center; gap: 6px; padding: 1px 0; cursor: pointer; }
+.tab-filter input[type=checkbox], .tab-filter input[type=radio] { accent-color: var(--tab-ctl-accent); margin: 0; width: 12px; height: 12px; }
+.tab-filter select, .tab-filter .f-input {
+  width: 100%; height: 24px; border: 1px solid var(--tab-ctl-border); border-radius: var(--tab-ctl-radius);
+  background: var(--tab-ctl-bg); font: inherit; color: inherit; padding: 0 6px;
+}
+.tab-filter .f-search { margin-bottom: 4px; }
+.tab-filter .f-slider { width: 100%; accent-color: var(--tab-ctl-accent); margin: 4px 0 0; }
+.tab-filter .f-range-vals { display: flex; justify-content: space-between; color: var(--tab-ink-body); }
+.tab-filter .f-pills { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--tab-ctl-border); border-radius: var(--tab-ctl-radius); overflow: hidden; width: max-content; }
+.tab-filter .f-pills button { border: 0; border-right: 1px solid var(--tab-ctl-border); background: #fff; font: inherit; color: inherit; padding: 3px 10px; cursor: pointer; }
+.tab-filter .f-pills button:last-child { border-right: 0; }
+.tab-filter .f-pills button[aria-pressed=true] { background: #E6EEF6; color: #1F4E79; }
+.tab-filter .f-reldate { border: 1px solid var(--tab-ctl-border); padding: 6px; }
+.tab-filter .f-reldate .units { display: flex; gap: 10px; border-bottom: 1px solid var(--tab-f3); padding-bottom: 4px; margin-bottom: 4px; }
+.tab-filter .f-reldate .units span[aria-selected=true] { text-decoration: underline; color: var(--tab-ctl-accent); }
+
+/* ---------- Tableau Cloud viewer chrome ---------- */
+.tab-chrome { background: var(--tab-chrome-bg); border-bottom: 1px solid var(--tab-chrome-border); font: 13px/1 var(--tab-font-book); color: var(--tab-chrome-ink); }
+.tab-chrome .crumbs { display: flex; align-items: center; gap: 8px; padding: 10px 16px 6px; font-size: 12px; color: var(--tab-ink-axis); }
+.tab-chrome .crumbs b { color: var(--tab-chrome-ink); font-family: var(--tab-font-semibold); font-weight: var(--tab-w-semibold); }
+.tab-chrome .toolbar { display: flex; align-items: center; gap: 2px; padding: 4px 10px; border-top: 1px solid var(--tab-chrome-border); flex-wrap: wrap; }
+.tab-chrome .tb-btn { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 8px; border: 0; background: none; font: inherit; color: var(--tab-chrome-ink); cursor: pointer; border-radius: 2px; }
+.tab-chrome .tb-btn:hover { background: var(--tab-chrome-hover); }
+.tab-chrome .tb-btn svg { width: 16px; height: 16px; stroke: var(--tab-chrome-icon); fill: none; stroke-width: 1.5; }
+.tab-chrome .tb-sep { width: 1px; height: 18px; background: var(--tab-chrome-border); margin: 0 6px; }
+.tab-chrome .tb-spacer { flex: 1; }
+.tab-tabs { display: flex; gap: 0; background: var(--tab-chrome-tab); border-bottom: 1px solid var(--tab-chrome-border); padding: 0 10px; overflow-x: auto; }
+.tab-tabs button { border: 0; border-right: 1px solid var(--tab-chrome-border); background: transparent; font: 12px var(--tab-font-book); color: var(--tab-ink-axis); padding: 8px 14px; cursor: pointer; white-space: nowrap; }
+.tab-tabs button[aria-selected=true] { background: var(--tab-chrome-tab-active); color: var(--tab-chrome-ink); box-shadow: inset 0 2px 0 var(--tab-ctl-accent); }
+
+/* ---------- Dashboard canvas ---------- */
+.tab-dashboard { background: var(--tab-bg-dashboard); margin: 0 auto; box-shadow: 0 0 0 1px var(--tab-chrome-border); }
+.tab-dashboard.fixed-desktop-browser { width: var(--tab-size-desktop-browser-w); min-height: var(--tab-size-desktop-browser-h); }
+.tab-dashboard.fixed-generic-desktop { width: var(--tab-size-generic-desktop-w); min-height: var(--tab-size-generic-desktop-h); }
+.tab-hc { display: flex; }                 /* Horizontal container */
+.tab-vc { display: flex; flex-direction: column; } /* Vertical container */
+.tab-hc > *, .tab-vc > * { padding: var(--tab-pad-outer); }
+.tab-text-obj { padding: var(--tab-pad-sheet); font-size: var(--tab-size-body); color: var(--tab-ink-body); line-height: 1.4; }
+.tab-nav-btn { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border: 1px solid var(--tab-ctl-border); background: #fff; font: 12px var(--tab-font-book); color: var(--tab-ink-body); cursor: pointer; }
+.tab-nav-btn:hover { background: var(--tab-ctl-hover); }
+
+</style>
+<style>
+  body { margin: 0; background: #F5F5F5; }
+  .page { padding: 16px; }
+  .note { max-width: 1366px; margin: 0 auto 12px; font-size: 12px; color: #666; line-height: 1.5; }
+  .note b { color: #333; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 12px; max-width: 1366px; margin: 0 auto; }
+  .card { min-width: 0; background: #fff; border: 1px solid #E6E6E6; display: flex; flex-direction: column; }
+  .card .tab-sheet { flex: 1; }
+  .card .tab-viz { min-height: 120px; }
+  .meta { border-top: 1px solid #EBEBEB; padding: 8px; font-size: 11px; color: #666; line-height: 1.5; background: #FAFAFA; }
+  .meta .showme { font-family: var(--tab-font-bold); font-weight: 700; color: #333; }
+  .shelf { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; margin: 3px 0; }
+  .shelf .k { width: 54px; color: #898989; }
+  .pill { display: inline-block; border-radius: 10px; padding: 1px 8px; font-size: 11px; color: #fff; white-space: nowrap; }
+  .pill.d { background: var(--tab-ui-blue); }
+  .pill.m { background: var(--tab-ui-green); }
+  .pill.c { background: #fff; color: #333; border: 1px solid #CBCBCB; }
+  .use { margin-top: 4px; color: #333; }
+  .row { display: flex; gap: 12px; align-items: flex-start; }
+  .row > .tab-viz { flex: 1; min-width: 0; }
+  .row > .tab-legend { flex: none; }
+  section[hidden] { display: none; }
+  h2.group { max-width: 1366px; margin: 18px auto 8px; font: 600 13px var(--tab-font-semibold); color: #333; text-transform: uppercase; letter-spacing: .04em; }
+  .swatches { display: flex; flex-wrap: wrap; }
+  .swatches span { width: 30px; height: 22px; }
+  .palrow { display: grid; grid-template-columns: 190px 1fr; align-items: center; gap: 8px; padding: 3px 0; font-size: 12px; }
+  .palrow .ramp { height: 18px; }
+  .typespec td { padding: 6px 10px; border-bottom: 1px solid #EBEBEB; font-size: 12px; vertical-align: middle; }
+  .typespec td:first-child { color: #666; width: 220px; }
+  .ctl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; padding: 8px; }
+  .ctl-grid .cap { font-size: 11px; color: #898989; margin-top: 6px; line-height: 1.4; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .kpis > div { padding: 10px 12px; border-right: 1px solid #EBEBEB; }
+  .kpis > div:last-child { border-right: 0; }
+  .ban-spark { width: 100%; height: 32px; margin-top: 4px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: minmax(0, 1fr) !important; } .kpis { grid-template-columns: 1fr 1fr; } .tab-chrome .tb-btn span { display: none; } }
+</style>
+</head>
+<body class="tab-root">
+
+<header class="tab-chrome">
+  <div class="crumbs">Explore › Onboarding Reimagined › <b>Measurement Mockup — Design Package</b></div>
+  <div class="toolbar" aria-label="View toolbar (mock — mirrors Tableau Cloud)">
+    <button class="tb-btn" title="Undo"><svg viewBox="0 0 16 16"><path d="M5 4 2 7l3 3M2 7h8a4 4 0 0 1 0 8H7"/></svg><span>Undo</span></button>
+    <button class="tb-btn" title="Redo"><svg viewBox="0 0 16 16"><path d="m11 4 3 3-3 3M14 7H6a4 4 0 0 0 0 8h3"/></svg><span>Redo</span></button>
+    <button class="tb-btn" title="Revert"><svg viewBox="0 0 16 16"><path d="M3 3v4h4M3.5 7A5 5 0 1 1 4 11"/></svg><span>Revert</span></button>
+    <button class="tb-btn" title="Refresh"><svg viewBox="0 0 16 16"><path d="M13 3v4H9M12.5 7A5 5 0 1 0 12 11"/></svg><span>Refresh</span></button>
+    <button class="tb-btn" title="Pause"><svg viewBox="0 0 16 16"><path d="M5 3v10M11 3v10"/></svg><span>Pause</span></button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" title="Custom views"><svg viewBox="0 0 16 16"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5Z"/><circle cx="8" cy="8" r="2"/></svg><span>View: Original</span></button>
+    <div class="tb-spacer"></div>
+    <button class="tb-btn" title="Alerts"><svg viewBox="0 0 16 16"><path d="M4 11V7a4 4 0 0 1 8 0v4l1 1H3ZM7 14h2"/></svg><span>Alert</span></button>
+    <button class="tb-btn" title="Subscribe"><svg viewBox="0 0 16 16"><path d="M2 4h12v8H2zM2 4l6 5 6-5"/></svg><span>Subscribe</span></button>
+    <button class="tb-btn" title="Edit"><svg viewBox="0 0 16 16"><path d="m3 13 1-3 7-7 2 2-7 7Z"/></svg><span>Edit</span></button>
+    <button class="tb-btn" title="Share"><svg viewBox="0 0 16 16"><circle cx="4" cy="8" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="12" cy="12" r="2"/><path d="m6 7 4-2M6 9l4 2"/></svg><span>Share</span></button>
+    <button class="tb-btn" title="Download"><svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M3 13h10"/></svg><span>Download</span></button>
+    <button class="tb-btn" title="Comments"><svg viewBox="0 0 16 16"><path d="M2 3h12v8H6l-3 3v-3H2z"/></svg><span>Comments</span></button>
+    <button class="tb-btn" title="Full screen"><svg viewBox="0 0 16 16"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg></button>
+  </div>
+</header>
+<nav class="tab-tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="catalogue">Show Me catalogue</button>
+  <button role="tab" aria-selected="false" data-tab="controls">Filters, legends &amp; objects</button>
+  <button role="tab" aria-selected="false" data-tab="style">Palettes &amp; type</button>
+</nav>
+
+<main class="page">
+
+<!-- ============================================================ -->
+<section id="catalogue">
+  <p class="note"><b>Every chart below is one Tableau can build</b>, drawn the way Tableau draws it — square bars, gray value-axis gridlines only, headers left of the pane, Tableau 10 colors in fixed order. The gray strip under each shows the Show Me name and the shelf recipe (<span class="pill d">blue</span> = dimension, <span class="pill m">green</span> = measure). Hover a mark for the tooltip; click to highlight, click empty space to clear. <b>All numbers are placeholder sample data.</b></p>
+
+  <h2 class="group">Big numbers (BANs)</h2>
+  <div class="grid" style="grid-template-columns:1fr">
+    <div class="card"><div class="kpis">
+      <div id="ban1"></div><div id="ban2"></div><div id="ban3"></div><div id="ban4"></div>
+    </div>
+    <div class="meta"><span class="showme">Text table (BAN pattern)</span> — each tile is its own sheet: Marks = Text · Text = <span class="pill m">AGG(Measure)</span> + a delta calc; sparkline is a separate line sheet with headers hidden, floated or tiled beside it.<div class="use">Use for the 4–6 headline efficiency/effectiveness KPIs across the top of the dashboard.</div></div></div>
+  </div>
+
+  <h2 class="group">Comparison</h2>
+  <div class="grid">
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Avg days offer-accept → Day-1 ready, by region</h3><div class="tab-viz" id="c-hbar"></div></div>
+      <div class="meta"><span class="showme">Horizontal bars</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Region</span></div>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">AVG(Days to Ready)</span></div>
+        <div class="shelf"><span class="k">Marks</span><span class="pill c">Bar</span><span class="pill c">Label</span> + constant reference line (target)</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">New hires by start month</h3><div class="tab-viz" id="c-vbar"></div></div>
+      <div class="meta"><span class="showme">Vertical bars (discrete months)</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill d">MONTH(Start Date)</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">CNTD(Hire ID)</span></div>
+        <div class="use">Volume context for every rate metric.</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Pre-Day-1 task status, by task</h3><div id="lg-stack"></div><div class="tab-viz" id="c-stack"></div></div>
+      <div class="meta"><span class="showme">Stacked bars (100%)</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Task</span></div>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">CNT(Task Instance)</span> Δ Percent of Total</div>
+        <div class="shelf"><span class="k">Color</span><span class="pill d">Status</span></div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Satisfaction by touchpoint: current vs reimagined</h3><div id="lg-sbs"></div><div class="tab-viz" id="c-sbs"></div></div>
+      <div class="meta"><span class="showme">Side-by-side bars</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill d">Touchpoint</span><span class="pill d">Process</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">AVG(CSAT)</span></div>
+        <div class="shelf"><span class="k">Color</span><span class="pill d">Process</span></div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Before → after, per metric</h3><div id="lg-dots"></div><div class="tab-viz" id="c-dots"></div></div>
+      <div class="meta"><span class="showme">Circle view (dumbbell build)</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Metric</span></div>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">AVG(Value)</span> ×2 dual axis (Line w/ Path = Period, Circle)</div>
+        <div class="shelf"><span class="k">Color</span><span class="pill d">Period</span></div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">KPIs vs target</h3><div class="tab-viz" id="c-bullet"></div></div>
+      <div class="meta"><span class="showme">Bullet graphs</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">KPI</span></div>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">SUM(Actual)</span></div>
+        <div class="shelf"><span class="k">Detail</span><span class="pill m">SUM(Target)</span> → reference line + 60/80% distribution bands</div>
+        <div class="use">The truest "efficiency vs target" view — one row per KPI, shared scale.</div></div></div>
+  </div>
+
+  <h2 class="group">Change over time</h2>
+  <div class="grid">
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Avg days to productivity, pilot vs BAU</h3><div class="tab-viz" id="c-line"></div></div>
+      <div class="meta"><span class="showme">Lines (continuous)</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m" style="background:#00B180">MONTH(Start Date)</span> continuous</div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">AVG(Days to Productivity)</span></div>
+        <div class="shelf"><span class="k">Color</span><span class="pill d">Cohort</span> · Label: line ends · reference band = target range</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Onboarding support tickets by type</h3><div id="lg-area"></div><div class="tab-viz" id="c-area"></div></div>
+      <div class="meta"><span class="showme">Area charts (continuous)</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">WEEK(Created)</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">CNT(Ticket)</span></div>
+        <div class="shelf"><span class="k">Color</span><span class="pill d">Ticket Type</span></div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Hires vs % equipment ready on Day 1</h3><div class="tab-viz" id="c-combo"></div></div>
+      <div class="meta"><span class="showme">Dual combination</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill d">MONTH(Start Date)</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">CNTD(Hire)</span><span class="pill m">AVG(Equip Ready)</span> dual axis · Bar + Line</div>
+        <div class="use">⚠ Two scales — easy to misread. Prefer two aligned sheets unless the relationship is the point.</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Onboarding journey — cohort Nov '26</h3><div id="lg-gantt"></div><div class="tab-viz" id="c-gantt"></div></div>
+      <div class="meta"><span class="showme">Gantt chart</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">DAY(Planned Start)</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Phase</span><span class="pill d">Step</span></div>
+        <div class="shelf"><span class="k">Size</span><span class="pill m">SUM(Duration)</span> · Color: <span class="pill d">Status</span> · ref line TODAY()</div></div></div>
+  </div>
+
+  <h2 class="group">Distribution &amp; relationship</h2>
+  <div class="grid">
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Days offer-accept → all tasks complete</h3><div class="tab-viz" id="c-hist"></div></div>
+      <div class="meta"><span class="showme">Histogram</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill d">Days to Complete (bin)</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">CNT(Days to Complete)</span> · reference line = median</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Days to laptop delivered, by region</h3><div class="tab-viz" id="c-box"></div></div>
+      <div class="meta"><span class="showme">Box-and-whisker plot</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill d">Region</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">Days to Laptop</span> (disaggregated / Detail = Hire ID)</div>
+        <div class="shelf"><span class="k">Analytics</span><span class="pill c">Box Plot</span> whiskers 1.5×IQR</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Manager prep vs new-hire 90-day score</h3><div id="lg-scatter"></div><div class="tab-viz" id="c-scatter"></div></div>
+      <div class="meta"><span class="showme">Scatter plot</span>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">AVG(HM Tasks Done %)</span></div>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">AVG(90-day Score)</span></div>
+        <div class="shelf"><span class="k">Detail</span><span class="pill d">Hiring Manager</span> · Color <span class="pill d">Process</span> · Trend line + quadrant ref lines</div></div></div>
+  </div>
+
+  <h2 class="group">Part-to-whole &amp; flow</h2>
+  <div class="grid">
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Pipeline: offer → 30-day check-in</h3><div class="tab-viz" id="c-funnel"></div></div>
+      <div class="meta"><span class="showme">Funnel (not in Show Me — standard build)</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Stage</span> (sorted)</div>
+        <div class="shelf"><span class="k">Columns</span><span class="pill m">-CNTD(Hire)</span><span class="pill m">CNTD(Hire)</span> dual axis, mirrored · label = step conversion calc</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Day-1 readiness</h3><div class="row"><div class="tab-viz" id="c-pie"></div><div id="lg-pie"></div></div></div>
+      <div class="meta"><span class="showme">Pie → donut (dual-axis trick)</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill m">MIN(0)</span><span class="pill m">MIN(0)</span> dual axis</div>
+        <div class="shelf"><span class="k">Marks</span>Pie · Angle <span class="pill m">CNTD(Hire)</span> · Color <span class="pill d">Readiness</span>; 2nd pie white + Label</div>
+        <div class="use">≤ 4 slices only. A 100% stacked bar usually reads better.</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Support tickets by category</h3><div class="tab-viz" id="c-tree"></div></div>
+      <div class="meta"><span class="showme">Treemap</span>
+        <div class="shelf"><span class="k">Marks</span>Square · Size <span class="pill m">CNT(Ticket)</span> · Color <span class="pill m">AVG(Hours to Resolve)</span> · Label <span class="pill d">Category</span></div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Assistant questions by topic</h3><div class="tab-viz" id="c-bubbles"></div></div>
+      <div class="meta"><span class="showme">Packed bubbles</span>
+        <div class="shelf"><span class="k">Marks</span>Circle · Size <span class="pill m">CNT(Question)</span> · Color <span class="pill d">Topic</span> · Label <span class="pill d">Topic</span></div>
+        <div class="use">Decorative more than precise — use for "what are people asking", not for comparing.</div></div></div>
+  </div>
+
+  <h2 class="group">Tables &amp; grids</h2>
+  <div class="grid">
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Task completion by region × phase</h3><div class="tab-viz" id="c-text"></div></div>
+      <div class="meta"><span class="showme">Text tables (crosstab)</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Region</span></div>
+        <div class="shelf"><span class="k">Columns</span><span class="pill d">Phase</span></div>
+        <div class="shelf"><span class="k">Text</span><span class="pill m">AVG(Completion %)</span> · Analysis › Totals › Column grand totals</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Pulse score by function × week</h3><div class="tab-viz" id="c-hl"></div></div>
+      <div class="meta"><span class="showme">Highlight table</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Function</span> · Columns <span class="pill d">Week Since Start</span></div>
+        <div class="shelf"><span class="k">Marks</span>Square · Color + Text <span class="pill m">AVG(Pulse Score)</span> (Orange-Blue Diverging)</div></div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Overdue tasks: owner × days past due</h3><div class="tab-viz" id="c-heat"></div></div>
+      <div class="meta"><span class="showme">Heat map</span>
+        <div class="shelf"><span class="k">Rows</span><span class="pill d">Task Owner</span> · Columns <span class="pill d">Days Overdue (bin)</span></div>
+        <div class="shelf"><span class="k">Marks</span>Square · Size + Color <span class="pill m">CNT(Task)</span></div></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="controls" hidden>
+  <p class="note"><b>Interactive controls Tableau provides out of the box.</b> Filters ("quick filters") are bound to one field; parameters are free-standing values a calc reads. Their look is fixed-ish: Tableau only lets you change font, title, background and border — not shape. Mock only these.</p>
+  <div class="card" style="max-width:1366px;margin:0 auto 12px"><div class="ctl-grid">
+    <div class="tab-filter"><div class="f-title">Region <span class="f-menu">▾</span></div>
+      <label><input type="checkbox" checked>(All)</label><label><input type="checkbox" checked>Americas</label><label><input type="checkbox" checked>EMEA</label><label><input type="checkbox" checked>APAC</label>
+      <div class="cap">Multiple values (list). Also: Single value (list) = radio buttons.</div></div>
+    <div class="tab-filter"><div class="f-title">Hire Type <span class="f-menu">▾</span></div>
+      <select><option>(All)</option><option>Professional</option><option>Intern</option><option>Contractor conversion</option></select>
+      <div class="cap">Single value (dropdown). Multiple values (dropdown) shows checkboxes inside the dropdown.</div></div>
+    <div class="tab-filter"><div class="f-title">Hiring Manager <span class="f-menu">▾</span></div>
+      <input class="f-input f-search" placeholder="Search">
+      <label><input type="checkbox">Chen, L.</label><label><input type="checkbox" checked>Okafor, A.</label><label><input type="checkbox">Patel, R.</label>
+      <div class="cap">Multiple values (custom list / search) — best for long lists.</div></div>
+    <div class="tab-filter"><div class="f-title">Days to Ready <span class="f-menu">▾</span></div>
+      <div class="f-range-vals"><span>3</span><span>41</span></div>
+      <input type="range" class="f-slider" min="3" max="41" value="41">
+      <div class="cap">Range of values (slider). Variants: At least / At most / Range of dates.</div></div>
+    <div class="tab-filter"><div class="f-title">Start Date <span class="f-menu">▾</span></div>
+      <div class="f-reldate"><div class="units"><span>Days</span><span>Weeks</span><span aria-selected="true">Months</span><span>Quarters</span><span>Years</span></div>
+      <label><input type="radio" name="rd">Previous month</label><label><input type="radio" name="rd">This month</label><label><input type="radio" name="rd" checked>Last 6 months</label></div>
+      <div class="cap">Relative date filter.</div></div>
+    <div class="tab-filter"><div class="f-title">Process</div>
+      <div class="f-pills"><button aria-pressed="true">All</button><button aria-pressed="false">Current</button><button aria-pressed="false">Reimagined</button></div>
+      <div class="cap">Single value (list) set to horizontal — the closest thing to segmented buttons.</div></div>
+    <div class="tab-filter"><div class="f-title">Metric (parameter) <span class="f-menu">▾</span></div>
+      <select><option>Days to Day-1 ready</option><option>Days to productivity</option><option>% tasks on time</option></select>
+      <div class="cap">Parameter control — drives a CASE calc to swap the measure on a sheet ("metric swapper").</div></div>
+    <div class="tab-filter"><div class="f-title">Target (parameter)</div>
+      <input class="f-input" value="14">
+      <div class="cap">Type-in parameter. Also: slider parameter, and parameter actions (set by clicking a mark).</div></div>
+  </div></div>
+
+  <div class="grid">
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Legends</h3>
+      <div class="row" style="gap:28px;flex-wrap:wrap">
+        <div id="lg-a"></div><div id="lg-b"></div><div id="lg-c"></div>
+      </div></div>
+      <div class="meta">Color legends float or tile on the dashboard; clicking an item highlights (if the highlight button is on). Size and shape legends look the same with a size ramp or the shape glyphs.</div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Tooltip</h3>
+      <div style="position:relative;height:120px">
+        <div class="tab-tooltip" style="display:block;position:absolute;left:8px;top:8px">
+          <div class="tt-row"><span class="tt-k">Region:</span> <span class="tt-v">EMEA</span></div>
+          <div class="tt-row"><span class="tt-k">AVG(Days to Ready):</span> <span class="tt-v">18.4</span></div>
+          <div class="tt-row"><span class="tt-k">Hires:</span> <span class="tt-v">212</span></div>
+          <div class="tt-actions">✓ Keep Only &nbsp; ✕ Exclude &nbsp; ▦ View Data</div>
+        </div></div></div>
+      <div class="meta">Default tooltip: field names regular, values bold. Editable rich text; can embed another sheet ("Viz in Tooltip"). Command buttons can be turned off per sheet.</div></div>
+
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Dashboard objects</h3>
+      <div class="tab-text-obj"><b>Text object</b> — titles, notes, definitions. Rich text; hyperlinks live on web only.</div>
+      <div style="padding:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="tab-nav-btn">◀ Back to Summary</button><button class="tab-nav-btn">Download ▾</button></div>
+      </div>
+      <div class="meta"><b>Layout:</b> Horizontal / Vertical container, Blank (spacer), Tiled vs Floating. <b>Content:</b> Worksheet, Text, Image, Web Page, Navigation button, Download button (PDF / PPT / PNG / Crosstab), Extension, Pulse metric, Data Story, Ask Data (retired). Device layouts: Desktop / Tablet / Phone.</div></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="style" hidden>
+  <div class="grid" style="grid-template-columns:1fr">
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Type — Tableau family (Default theme)</h3>
+      <table class="typespec" style="border-collapse:collapse;width:100%">
+        <tr><td>Dashboard title · 18pt Semibold</td><td><span class="tab-dash-title">Onboarding Reimagined — Efficiency</span></td></tr>
+        <tr><td>Worksheet title · 15pt Book</td><td><span class="tab-sheet-title">Days to Day-1 ready, by region</span></td></tr>
+        <tr><td>Big number · 24pt Semibold (custom)</td><td><span class="tab-ban"><span class="ban-value">12.4 days</span></span></td></tr>
+        <tr><td>Headers / legend / tooltip · 9pt Book #333</td><td class="tab-header">Americas · EMEA · APAC</td></tr>
+        <tr><td>Axis ticks · 8pt Book #666</td><td style="font-size:11px;color:#666">0 &nbsp; 5 &nbsp; 10 &nbsp; 15 &nbsp; 20</td></tr>
+        <tr><td>Caption · 8pt Book #898989</td><td class="tab-caption">Source: ServiceNow HR case data, refreshed daily 06:00 UTC. Sample data.</td></tr>
+        <tr><td>Font in use on this machine</td><td id="fontcheck" class="tab-caption"></td></tr>
+      </table></div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Categorical palettes (Format › Edit Colors)</h3><div id="pal-cat"></div></div>
+      <div class="meta"><b>Default = Tableau 10, assigned in fixed order.</b> Keep a series' color constant across every sheet (Tableau does this per field automatically once assigned). "Color Blind" (Tableau, 10) is the accessible alternative. Validator check on Tableau 10: red/green slots 3 & 5 collapse for deuteranopes, and orange, teal, yellow, pink and gray are below 3:1 on white — so always direct-label or pair with a legend, and keep categories ≤ 6.</div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Sequential palettes</h3><div id="pal-seq"></div></div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Diverging palettes</h3><div id="pal-div"></div></div></div>
+    <div class="card"><div class="tab-sheet"><h3 class="tab-sheet-title">Shape palettes</h3><div id="pal-shape"></div></div></div>
+  </div>
+</section>
+</main>
+
+<script>
+/* Generated from palettes.json — Tableau Desktop's built-in palettes. Do not hand-edit. */
+window.TAB_PALETTES = {
+ "source": "jrnold/ggthemes data-raw/theme-data/tableau.yml (mirrors Tableau Desktop built-in palettes)",
+ "categorical": {
+  "Tableau 10": [
+   "#4E79A7",
+   "#F28E2B",
+   "#E15759",
+   "#76B7B2",
+   "#59A14F",
+   "#EDC948",
+   "#B07AA1",
+   "#FF9DA7",
+   "#9C755F",
+   "#BAB0AC"
+  ],
+  "Tableau 20": [
+   "#4E79A7",
+   "#A0CBE8",
+   "#F28E2B",
+   "#FFBE7D",
+   "#59A14F",
+   "#8CD17D",
+   "#B6992D",
+   "#F1CE63",
+   "#499894",
+   "#86BCB6",
+   "#E15759",
+   "#FF9D9A",
+   "#79706E",
+   "#BAB0AC",
+   "#D37295",
+   "#FABFD2",
+   "#B07AA1",
+   "#D4A6C8",
+   "#9D7660",
+   "#D7B5A6"
+  ],
+  "Color Blind": [
+   "#1170AA",
+   "#FC7D0B",
+   "#A3ACB9",
+   "#57606C",
+   "#5FA2CE",
+   "#C85200",
+   "#7B848F",
+   "#A3CCE9",
+   "#FFBC79",
+   "#C8D0D9"
+  ],
+  "Seattle Grays": [
+   "#767F8B",
+   "#B3B7B8",
+   "#5C6068",
+   "#D3D3D3",
+   "#989CA3"
+  ],
+  "Traffic": [
+   "#B60A1C",
+   "#E39802",
+   "#309143",
+   "#E03531",
+   "#F0BD27",
+   "#51B364",
+   "#FF684C",
+   "#FFDA66",
+   "#8ACE7E"
+  ],
+  "Miller Stone": [
+   "#4F6980",
+   "#849DB1",
+   "#A2CEAA",
+   "#638B66",
+   "#BFBB60",
+   "#F47942",
+   "#FBB04E",
+   "#B66353",
+   "#D7CE9F",
+   "#B9AA97",
+   "#7E756D"
+  ],
+  "Superfishel Stone": [
+   "#6388B4",
+   "#FFAE34",
+   "#EF6F6A",
+   "#8CC2CA",
+   "#55AD89",
+   "#C3BC3F",
+   "#BB7693",
+   "#BAA094",
+   "#A9B5AE",
+   "#767676"
+  ],
+  "Nuriel Stone": [
+   "#8175AA",
+   "#6FB899",
+   "#31A1B3",
+   "#CCB22B",
+   "#A39FC9",
+   "#94D0C0",
+   "#959C9E",
+   "#027B8E",
+   "#9F8F12"
+  ],
+  "Jewel Bright": [
+   "#EB1E2C",
+   "#FD6F30",
+   "#F9A729",
+   "#F9D23C",
+   "#5FBB68",
+   "#64CDCC",
+   "#91DCEA",
+   "#A4A4D5",
+   "#BBC9E5"
+  ],
+  "Summer": [
+   "#BFB202",
+   "#B9CA5D",
+   "#CF3E53",
+   "#F1788D",
+   "#00A2B3",
+   "#97CFD0",
+   "#F3A546",
+   "#F7C480"
+  ],
+  "Winter": [
+   "#90728F",
+   "#B9A0B4",
+   "#9D983D",
+   "#CECB76",
+   "#E15759",
+   "#FF9888",
+   "#6B6B6B",
+   "#BAB2AE",
+   "#AA8780",
+   "#DAB6AF"
+  ],
+  "Green-Orange-Teal": [
+   "#4E9F50",
+   "#87D180",
+   "#EF8A0C",
+   "#FCC66D",
+   "#3CA8BC",
+   "#98D9E4",
+   "#94A323",
+   "#C3CE3D",
+   "#A08400",
+   "#F7D42A",
+   "#26897E",
+   "#8DBFA8"
+  ],
+  "Blue-Red-Brown": [
+   "#466F9D",
+   "#91B3D7",
+   "#ED444A",
+   "#FEB5A2",
+   "#9D7660",
+   "#D7B5A6",
+   "#3896C4",
+   "#A0D4EE",
+   "#BA7E45",
+   "#39B87F",
+   "#C8133B",
+   "#EA8783"
+  ],
+  "Purple-Pink-Gray": [
+   "#8074A8",
+   "#C6C1F0",
+   "#C46487",
+   "#FFBED1",
+   "#9C9290",
+   "#C5BFBE",
+   "#9B93C9",
+   "#DDB5D5",
+   "#7C7270",
+   "#F498B6",
+   "#B173A0",
+   "#C799BC"
+  ],
+  "Hue Circle": [
+   "#1BA3C6",
+   "#2CB5C0",
+   "#30BCAD",
+   "#21B087",
+   "#33A65C",
+   "#57A337",
+   "#A2B627",
+   "#D5BB21",
+   "#F8B620",
+   "#F89217",
+   "#F06719",
+   "#E03426",
+   "#F64971",
+   "#FC719E",
+   "#EB73B3",
+   "#CE69BE",
+   "#A26DC2",
+   "#7873C0",
+   "#4F7CBA"
+  ]
+ },
+ "diverging": {
+  "Orange-Blue Diverging": [
+   "#9E3D22",
+   "#D45B21",
+   "#F69035",
+   "#D9D5C9",
+   "#77ACD3",
+   "#4F81AF",
+   "#2B5C8A"
+  ],
+  "Red-Green Diverging": [
+   "#A3123A",
+   "#E33F43",
+   "#F8816B",
+   "#CED7C3",
+   "#73BA67",
+   "#44914E",
+   "#24693D"
+  ],
+  "Green-Blue Diverging": [
+   "#24693D",
+   "#45934D",
+   "#75BC69",
+   "#C9DAD2",
+   "#77A9CF",
+   "#4E7FAB",
+   "#2A5783"
+  ],
+  "Red-Blue Diverging": [
+   "#A90C38",
+   "#E03B42",
+   "#F87F69",
+   "#DFD4D1",
+   "#7EAED3",
+   "#5383AF",
+   "#2E5A87"
+  ],
+  "Red-Black Diverging": [
+   "#AE123A",
+   "#E33E43",
+   "#F8816B",
+   "#D9D9D9",
+   "#A0A7A8",
+   "#707C83",
+   "#49525E"
+  ],
+  "Gold-Purple Diverging": [
+   "#AD9024",
+   "#C1A33B",
+   "#D4B95E",
+   "#E3D8CF",
+   "#D4A3C3",
+   "#C189B0",
+   "#AC7299"
+  ],
+  "Red-Green-Gold Diverging": [
+   "#BE2A3E",
+   "#E25F48",
+   "#F88F4D",
+   "#F4D166",
+   "#90B960",
+   "#4B9B5F",
+   "#22763F"
+  ],
+  "Sunset-Sunrise Diverging": [
+   "#33608C",
+   "#9768A5",
+   "#E7718A",
+   "#F6BA57",
+   "#ED7846",
+   "#D54C45",
+   "#B81840"
+  ],
+  "Orange-Blue-White Diverging": [
+   "#9E3D22",
+   "#E36621",
+   "#FCAD52",
+   "#FFFFFF",
+   "#95C5E1",
+   "#5B8FBC",
+   "#2B5C8A"
+  ],
+  "Red-Green-White Diverging": [
+   "#AE123A",
+   "#EE574D",
+   "#FDAC9E",
+   "#FFFFFF",
+   "#91D183",
+   "#539E52",
+   "#24693D"
+  ],
+  "Green-Blue-White Diverging": [
+   "#24693D",
+   "#529C51",
+   "#8FD180",
+   "#FFFFFF",
+   "#95C1DD",
+   "#598AB5",
+   "#2A5783"
+  ],
+  "Red-Blue-White Diverging": [
+   "#A90C38",
+   "#EC534B",
+   "#FEAA9A",
+   "#FFFFFF",
+   "#9AC4E1",
+   "#5C8DB8",
+   "#2E5A87"
+  ],
+  "Red-Black-White Diverging": [
+   "#AE123A",
+   "#EE574D",
+   "#FDAC9D",
+   "#FFFFFF",
+   "#BDC0BF",
+   "#7D888D",
+   "#49525E"
+  ],
+  "Orange-Blue Light Diverging": [
+   "#FFCC9E",
+   "#F9D4B6",
+   "#F0DCCD",
+   "#E5E5E5",
+   "#DAE1EA",
+   "#CFDCEF",
+   "#C4D8F3"
+  ],
+  "Temperature Diverging": [
+   "#529985",
+   "#6C9E6E",
+   "#99B059",
+   "#DBCF47",
+   "#EBC24B",
+   "#E3A14F",
+   "#C26B51"
+  ]
+ },
+ "sequential": {
+  "Blue-Green Sequential": [
+   "#FEFFD9",
+   "#F2FABF",
+   "#DFF3B2",
+   "#C4EAB1",
+   "#94D6B7",
+   "#69C5BE",
+   "#41B7C4"
+  ],
+  "Blue Light": [
+   "#E5E5E5",
+   "#E0E3E8",
+   "#DBE1EA",
+   "#D5DFEC",
+   "#D0DCEF",
+   "#CADAF1",
+   "#C4D8F3"
+  ],
+  "Orange Light": [
+   "#E5E5E5",
+   "#EBE1D9",
+   "#F0DDCD",
+   "#F5D9C2",
+   "#F9D4B6",
+   "#FDD0AA",
+   "#FFCC9E"
+  ],
+  "Blue": [
+   "#B9DDF1",
+   "#AFD6ED",
+   "#A5CFE9",
+   "#9BC7E4",
+   "#92C0DF",
+   "#89B8DA",
+   "#80B0D5",
+   "#79AACF",
+   "#72A3C9",
+   "#6A9BC3",
+   "#6394BE",
+   "#5B8CB8",
+   "#5485B2",
+   "#4E7FAC",
+   "#4878A6",
+   "#437A9F",
+   "#3D6A98",
+   "#376491",
+   "#305D8A",
+   "#2A5783"
+  ],
+  "Orange": [
+   "#FFC685",
+   "#FCBE75",
+   "#F9B665",
+   "#F7AE54",
+   "#F5A645",
+   "#F59C3C",
+   "#F49234",
+   "#F2882D",
+   "#F07E27",
+   "#EE7422",
+   "#E96B20",
+   "#E36420",
+   "#DB5E20",
+   "#D25921",
+   "#CA5422",
+   "#C14F22",
+   "#B84B23",
+   "#AF4623",
+   "#A64122",
+   "#9E3D22"
+  ],
+  "Green": [
+   "#B3E0A6",
+   "#A5DB96",
+   "#98D687",
+   "#8ED07F",
+   "#85CA77",
+   "#7DC370",
+   "#75BC69",
+   "#6EB663",
+   "#67AF5C",
+   "#61A956",
+   "#59A253",
+   "#519C51",
+   "#49964F",
+   "#428F4D",
+   "#398949",
+   "#308344",
+   "#2B7C40",
+   "#27763D",
+   "#256F3D",
+   "#24693D"
+  ],
+  "Red": [
+   "#FFBEB2",
+   "#FEB4A6",
+   "#FDAB9B",
+   "#FCA290",
+   "#FB9984",
+   "#FA8F79",
+   "#F9856E",
+   "#F77B66",
+   "#F5715D",
+   "#F36754",
+   "#F05C4D",
+   "#EC5049",
+   "#E74545",
+   "#E13B42",
+   "#DA323F",
+   "#D3293D",
+   "#CA223C",
+   "#C11A3B",
+   "#B8163A",
+   "#AE123A"
+  ],
+  "Purple": [
+   "#EEC9E5",
+   "#EAC1DF",
+   "#E6B9D9",
+   "#E0B2D2",
+   "#DAABCB",
+   "#D5A4C4",
+   "#CF9DBE",
+   "#CA96B8",
+   "#C48FB2",
+   "#BE89AC",
+   "#B882A6",
+   "#B27BA1",
+   "#AA759D",
+   "#A27099",
+   "#9A6A96",
+   "#926591",
+   "#8C5F86",
+   "#865986",
+   "#81537F",
+   "#7C4D79"
+  ],
+  "Brown": [
+   "#EEDBBD",
+   "#ECD2AD",
+   "#EBC994",
+   "#EAC085",
+   "#E8B777",
+   "#E5AE6C",
+   "#E2A562",
+   "#DE9D5A",
+   "#D99455",
+   "#D38C54",
+   "#CE8451",
+   "#C9784D",
+   "#C47247",
+   "#C16941",
+   "#BD6036",
+   "#B85636",
+   "#B34D34",
+   "#AD4433",
+   "#A63D32",
+   "#9F3632"
+  ],
+  "Gray": [
+   "#D5D5D5",
+   "#CDCECD",
+   "#C5C7C6",
+   "#BCBFBE",
+   "#B4B7B7",
+   "#ACB0B1",
+   "#A4A9AB",
+   "#9CA3A4",
+   "#939C9E",
+   "#8B9598",
+   "#848E93",
+   "#7C878D",
+   "#758087",
+   "#6E7A81",
+   "#67737C",
+   "#616C77",
+   "#5B6570",
+   "#555F6A",
+   "#4F5864",
+   "#49525E"
+  ],
+  "Gray Warm": [
+   "#DCD4D0",
+   "#D4CCC8",
+   "#CDC4C0",
+   "#C5BDB9",
+   "#BEB6B2",
+   "#B7AFAB",
+   "#B0A8A4",
+   "#A9A09D",
+   "#A29996",
+   "#9B938F",
+   "#948C88",
+   "#8D8481",
+   "#867E7B",
+   "#807774",
+   "#79706E",
+   "#736967",
+   "#6C6260",
+   "#665C5A",
+   "#5F5654",
+   "#59504E"
+  ],
+  "Blue-Teal": [
+   "#BCE4D8",
+   "#AEDCD5",
+   "#A1D5D2",
+   "#95CECF",
+   "#89C8CC",
+   "#7EC1CA",
+   "#72BAC6",
+   "#66B2C2",
+   "#59ACBE",
+   "#4BA5BA",
+   "#419EB6",
+   "#3B96B2",
+   "#358EAD",
+   "#3586A7",
+   "#347EA1",
+   "#32779B",
+   "#316F96",
+   "#2F6790",
+   "#2D608A",
+   "#2C5985"
+  ],
+  "Orange-Gold": [
+   "#F4D166",
+   "#F6C760",
+   "#F8BC58",
+   "#F8B252",
+   "#F7A84A",
+   "#F69E41",
+   "#F49538",
+   "#F38B2F",
+   "#F28026",
+   "#F0751E",
+   "#EB6C1C",
+   "#E4641E",
+   "#DE5D1F",
+   "#D75521",
+   "#CF4F22",
+   "#C64A22",
+   "#BC4623",
+   "#B24223",
+   "#A83E24",
+   "#9E3A26"
+  ],
+  "Green-Gold": [
+   "#F4D166",
+   "#E3CD62",
+   "#D3C95F",
+   "#C3C55D",
+   "#B2C25B",
+   "#A3BD5A",
+   "#93B958",
+   "#84B457",
+   "#76AF56",
+   "#67A956",
+   "#5AA355",
+   "#4F9E53",
+   "#479751",
+   "#40914F",
+   "#3A8A4D",
+   "#34844A",
+   "#2D7D45",
+   "#257740",
+   "#1C713B",
+   "#146C36"
+  ],
+  "Red-Gold": [
+   "#F4D166",
+   "#F5C75F",
+   "#F6BC58",
+   "#F7B254",
+   "#F9A750",
+   "#FA9D4F",
+   "#FB934D",
+   "#F7894B",
+   "#F47F4A",
+   "#F0774A",
+   "#EB6349",
+   "#E66549",
+   "#E15C48",
+   "#DC5447",
+   "#D64C45",
+   "#D04344",
+   "#CA3A42",
+   "#C43141",
+   "#BD273F",
+   "#B71D3E"
+  ]
+ },
+ "shapes": {
+  "proportions": [
+   "○",
+   "◔",
+   "◑",
+   "◕",
+   "●"
+  ],
+  "default": [
+   "○",
+   "□",
+   "＋",
+   "✕",
+   "∗",
+   "◇",
+   "△",
+   "▽",
+   "◁",
+   "▷"
+  ],
+  "filled": [
+   "●",
+   "■",
+   "➕",
+   "✖",
+   "★",
+   "◆",
+   "▲",
+   "▼",
+   "◀",
+   "▶"
+  ],
+  "Bug Tracking": [
+   "🐞",
+   "⏰",
+   "💡",
+   "✉️"
+  ],
+  "Gender": [
+   "🚹",
+   "🚺",
+   "🚻",
+   "♂",
+   "♀",
+   "⚪",
+   "⚥",
+   "⚨",
+   "⚧"
+  ],
+  "kpi": [
+   "✔︎",
+   "✖︎",
+   "!",
+   "●",
+   "▲",
+   "◆"
+  ],
+  "weather": [
+   "☀",
+   "☁",
+   "🌧",
+   "☂",
+   "☔",
+   "☃"
+  ],
+  "Arrows": [
+   "⬆",
+   "⬈",
+   "➡",
+   "⬊",
+   "⬇",
+   "⬋",
+   "⬅",
+   "⬉"
+  ],
+  "Thin Arrows": [
+   "↑",
+   "↗",
+   "→",
+   "↘",
+   "↓",
+   "↙",
+   "←",
+   "↖"
+  ]
+ }
+};
+
+</script>
+<script>
+/* TabViz — a small SVG kit that draws the way Tableau draws.
+   ------------------------------------------------------------------
+   Purpose: mock up worksheets for the onboarding efficiency /
+   effectiveness dashboard so that every chart in the mock is one
+   Tableau can actually build, and looks like it will in Tableau.
+
+   Each renderer maps to a Show Me chart type or a standard Tableau
+   build pattern. The `build` note on each documents the Tableau
+   recipe (Columns / Rows / Marks card), so the mock doubles as a
+   build sheet.
+
+   Behaviour mirrored from Tableau:
+     - hover        → tooltip ("Field: **Value**" rows)
+     - click a mark → highlight it, fade the rest; click empty → clear
+     - square mark ends, no rounding, no strokes between stacked bars
+     - gridlines on the value axis only, no tick marks, gray tick labels
+     - row headers to the left of the pane, column headers on top
+
+   Usage:  TabViz.hbar(element, { data:[{label,value}], ... })
+   Requires palettes.js (window.TAB_PALETTES) and components.css.
+   ------------------------------------------------------------------ */
+(function () {
+  'use strict';
+  const PAL = window.TAB_PALETTES || { categorical: { 'Tableau 10': ['#4E79A7','#F28E2B','#E15759','#76B7B2','#59A14F','#EDC948','#B07AA1','#FF9DA7','#9C755F','#BAB0AC'] }, sequential: {}, diverging: {} };
+  const T10 = PAL.categorical['Tableau 10'];
+  const NS = 'http://www.w3.org/2000/svg';
+
+  /* ---------------- helpers ---------------- */
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const nf = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+  const fmt = {
+    num: v => nf.format(v),
+    dec1: v => v.toFixed(1),
+    int: v => Math.round(v).toLocaleString('en-US'),
+    pct: v => (v * 100).toFixed(v < 0.1 && v > 0 ? 1 : 0) + '%',
+    pct1: v => (v * 100).toFixed(1) + '%',
+    days: v => nf.format(v) + 'd',
+    k: v => Math.abs(v) >= 1000 ? nf.format(v / 1000) + 'K' : nf.format(v),
+  };
+  const getFmt = f => typeof f === 'function' ? f : (fmt[f] || fmt.num);
+
+  function niceTicks(min, max, count = 5) {
+    if (min === max) { max = min + 1; }
+    const span = max - min, step0 = span / count;
+    const mag = Math.pow(10, Math.floor(Math.log10(step0)));
+    const err = step0 / mag;
+    const step = (err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1) * mag;
+    const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
+    const t = []; for (let v = lo; v <= hi + step / 2; v += step) t.push(+v.toFixed(10));
+    return t;
+  }
+  const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / ((d1 - d0) || 1) * (r1 - r0);
+
+  /* Text width estimate for layout (Tableau Book ≈ Arial metrics). */
+  let _ctx;
+  function tw(s, px = 12) {
+    _ctx = _ctx || document.createElement('canvas').getContext('2d');
+    _ctx.font = px + 'px "Tableau Book", Arial, sans-serif';
+    return _ctx.measureText(String(s)).width;
+  }
+
+  /* Sequential / diverging ramps from the Tableau palettes. */
+  function ramp(name, t) {
+    const stops = (PAL.sequential && PAL.sequential[name]) || (PAL.diverging && PAL.diverging[name]) || ['#B9DDF1', '#2A5783'];
+    t = Math.max(0, Math.min(1, t));
+    const i = t * (stops.length - 1), a = Math.floor(i), b = Math.min(stops.length - 1, a + 1), f = i - a;
+    const h = x => parseInt(x.slice(1), 16), A = h(stops[a]), B = h(stops[b]);
+    const ch = s => Math.round(((A >> s) & 255) * (1 - f) + ((B >> s) & 255) * f);
+    return '#' + [16, 8, 0].map(s => ch(s).toString(16).padStart(2, '0')).join('');
+  }
+  const ink = hex => { const n = parseInt(hex.slice(1), 16); const L = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)); return L > 150 ? '#333333' : '#FFFFFF'; };
+  const colorOf = (opts, i) => (opts.palette ? PAL.categorical[opts.palette] || T10 : T10)[i % 10];
+
+  /* tooltip payload: array of [field, value] */
+  const tip = rows => ` data-tip="${esc(JSON.stringify(rows))}"`;
+
+  function svgOpen(w, h) { return `<svg xmlns="${NS}" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img">`; }
+
+  /* ---------------- tooltip + highlight (one per page) ---------------- */
+  let tipEl;
+  function ensureTip() {
+    if (tipEl) return tipEl;
+    tipEl = document.createElement('div'); tipEl.className = 'tab-tooltip'; document.body.appendChild(tipEl);
+    document.addEventListener('mousemove', e => {
+      const m = e.target.closest && e.target.closest('[data-tip]');
+      if (!m) { tipEl.style.display = 'none'; return; }
+      const rows = JSON.parse(m.getAttribute('data-tip'));
+      tipEl.innerHTML = rows.map(([k, v]) => v === undefined
+        ? `<div class="tt-row">${esc(k)}</div>`
+        : `<div class="tt-row"><span class="tt-k">${esc(k)}:</span> <span class="tt-v">${esc(v)}</span></div>`).join('')
+        + `<div class="tt-actions">✓ Keep Only &nbsp; ✕ Exclude &nbsp; ▦ View Data</div>`;
+      tipEl.style.display = 'block';
+      const r = tipEl.getBoundingClientRect();
+      let x = e.clientX + 14, y = e.clientY + 14;
+      if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+      if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+      tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
+    });
+    document.addEventListener('click', e => {
+      const viz = e.target.closest && e.target.closest('.tab-viz');
+      if (!viz) return;
+      const m = e.target.closest('.mark');
+      const marks = viz.querySelectorAll('.mark');
+      if (!m) { marks.forEach(x => x.classList.remove('faded')); return; }
+      const key = m.getAttribute('data-key');
+      const already = !m.classList.contains('faded') && [...marks].some(x => x.classList.contains('faded'));
+      if (already) { marks.forEach(x => x.classList.remove('faded')); return; }
+      marks.forEach(x => x.classList.toggle('faded', x.getAttribute('data-key') !== key));
+    });
+    return tipEl;
+  }
+
+  /* Mount: renders now, re-renders on resize. */
+  function mount(el, fn, opts) {
+    if (typeof el === 'string') el = document.querySelector(el);
+    ensureTip();
+    el.classList.add('tab-viz');
+    const draw = () => { el.innerHTML = fn(Math.max(40, el.clientWidth || 400), opts); };
+    draw();
+    if (window.ResizeObserver) {
+      let lastW = el.clientWidth;
+      new ResizeObserver(() => { if (Math.abs(el.clientWidth - lastW) > 4) { lastW = el.clientWidth; draw(); } }).observe(el);
+    }
+    return el;
+  }
+
+  /* Value axis (horizontal, at bottom) + vertical gridlines */
+  function xAxis(x, ticks, y0, y1, f, title, cx) {
+    let s = '';
+    ticks.forEach(t => { s += `<line class="${t === 0 ? 'zero' : 'grid'}" x1="${x(t)}" x2="${x(t)}" y1="${y0}" y2="${y1}"/>`; });
+    ticks.forEach(t => { s += `<text class="ax-tick" x="${x(t)}" y="${y1 + 14}" text-anchor="middle">${esc(f(t))}</text>`; });
+    if (title) s += `<text class="ax-title" x="${cx}" y="${y1 + 30}" text-anchor="middle">${esc(title)}</text>`;
+    return s;
+  }
+  /* Value axis (vertical, at left) + horizontal gridlines */
+  function yAxis(y, ticks, x0, x1, f, title, cy) {
+    let s = '';
+    ticks.forEach(t => { s += `<line class="${t === 0 ? 'zero' : 'grid'}" x1="${x0}" x2="${x1}" y1="${y(t)}" y2="${y(t)}"/>`; });
+    ticks.forEach(t => { s += `<text class="ax-tick" x="${x0 - 6}" y="${y(t) + 4}" text-anchor="end">${esc(f(t))}</text>`; });
+    if (title) s += `<text class="ax-title" transform="translate(${x0 - 40},${cy}) rotate(-90)" text-anchor="middle">${esc(title)}</text>`;
+    return s;
+  }
+
+  /* ================================================================
+     RENDERERS
+     ================================================================ */
+
+  /* Horizontal bars — Show Me "horizontal bars".
+     build: Rows = Dimension · Columns = SUM(Measure) · Marks = Bar */
+  function hbar(w, o) {
+    const f = getFmt(o.format), data = o.sort === false ? o.data : [...o.data].sort((a, b) => b.value - a.value);
+    const rowH = o.rowHeight || 24, hdrW = Math.min(w * 0.4, Math.max(...data.map(d => tw(d.label))) + 16);
+    const top = 4, plotH = data.length * rowH, h = top + plotH + (o.axisTitle ? 40 : 24);
+    const max = o.max ?? Math.max(...data.map(d => Math.max(d.value, d.target || 0)));
+    const ticks = niceTicks(Math.min(0, ...data.map(d => d.value)), max, Math.max(2, Math.floor((w - hdrW) / 80)));
+    const x = lin(ticks[0], ticks[ticks.length - 1], hdrW, w - 10);
+    let s = svgOpen(w, h) + xAxis(x, ticks, top, top + plotH, f, o.axisTitle, (hdrW + w) / 2);
+    s += `<line class="div" x1="${hdrW}" x2="${hdrW}" y1="${top}" y2="${top + plotH}"/>`;
+    data.forEach((d, i) => {
+      const y = top + i * rowH, bh = rowH * (o.barSize || 0.62), by = y + (rowH - bh) / 2;
+      const c = d.color || (o.colorBy === 'index' ? colorOf(o, i) : (o.color || T10[0]));
+      s += `<text class="hdr" x="8" y="${y + rowH / 2 + 4}">${esc(d.label)}</text>`;
+      const x0 = x(Math.min(0, d.value)), x1 = x(Math.max(0, d.value));
+      s += `<rect class="mark" data-key="${esc(d.label)}" x="${x0}" y="${by}" width="${Math.max(1, x1 - x0)}" height="${bh}" fill="${c}"${tip([[o.dim || 'Category', d.label], [o.measure || 'Value', f(d.value)], ...(d.extra || [])])}/>`;
+      if (d.target != null) s += `<line class="ref" x1="${x(d.target)}" x2="${x(d.target)}" y1="${y + 2}" y2="${y + rowH - 2}" style="stroke-dasharray:none;stroke:#333;stroke-width:2"/>`;
+      if (o.labels !== false) s += `<text class="lbl" x="${x1 + 4}" y="${y + rowH / 2 + 4}">${esc(f(d.value))}</text>`;
+    });
+    if (o.refLine != null) s += `<line class="ref" x1="${x(o.refLine)}" x2="${x(o.refLine)}" y1="${top}" y2="${top + plotH}"/><text class="ax-tick" x="${x(o.refLine) + 4}" y="${top + 10}">${esc(o.refLabel || f(o.refLine))}</text>`;
+    return s + '</svg>';
+  }
+
+  /* Vertical bars over discrete categories (also: "discrete" bars over months).
+     build: Columns = Dimension · Rows = SUM(Measure) · Marks = Bar */
+  function vbar(w, o) {
+    const f = getFmt(o.format), data = o.data, h = o.height || 220;
+    const L = 44, B = 34, top = 8, pw = w - L - 6, ph = h - top - B;
+    const max = Math.max(...data.map(d => d.value)), ticks = niceTicks(Math.min(0, ...data.map(d => d.value)), max, 4);
+    const y = lin(ticks[0], ticks[ticks.length - 1], top + ph, top), bw = pw / data.length;
+    let s = svgOpen(w, h) + yAxis(y, ticks, L, w - 6, f, o.axisTitle, top + ph / 2);
+    data.forEach((d, i) => {
+      const x = L + i * bw, inner = bw * (o.barSize || 0.68), bx = x + (bw - inner) / 2, c = d.color || o.color || T10[0];
+      s += `<rect class="mark" data-key="${esc(d.label)}" x="${bx}" y="${y(Math.max(0, d.value))}" width="${inner}" height="${Math.abs(y(d.value) - y(0))}" fill="${c}"${tip([[o.dim || 'Category', d.label], [o.measure || 'Value', f(d.value)]])}/>`;
+      s += `<text class="hdr-col" x="${x + bw / 2}" y="${top + ph + 16}" text-anchor="middle">${esc(d.label)}</text>`;
+      if (o.labels) s += `<text class="lbl" x="${x + bw / 2}" y="${y(d.value) - 4}" text-anchor="middle">${esc(f(d.value))}</text>`;
+    });
+    if (o.refLine != null) s += `<line class="ref" x1="${L}" x2="${w - 6}" y1="${y(o.refLine)}" y2="${y(o.refLine)}"/><text class="ax-tick" x="${w - 8}" y="${y(o.refLine) - 4}" text-anchor="end">${esc(o.refLabel || f(o.refLine))}</text>`;
+    return s + '</svg>';
+  }
+
+  /* Stacked bars — Show Me "stacked bars". Horizontal.
+     build: Rows = Dim A · Columns = SUM(Measure) · Color = Dim B · Marks = Bar
+     o.percent → quick table calc "Percent of Total" computed along Dim B. */
+  function stackedBar(w, o) {
+    const f = getFmt(o.percent ? 'pct' : o.format), rows = o.rows, series = o.series;
+    const rowH = o.rowHeight || 26, hdrW = Math.min(w * 0.35, Math.max(...rows.map(r => tw(r.label))) + 16), top = 4;
+    const plotH = rows.length * rowH, h = top + plotH + (o.axisTitle ? 40 : 24);
+    const totals = rows.map(r => r.values.reduce((a, b) => a + b, 0));
+    const max = o.percent ? 1 : Math.max(...totals), ticks = o.percent ? [0, .25, .5, .75, 1] : niceTicks(0, max, Math.max(2, Math.floor((w - hdrW) / 80)));
+    const x = lin(0, ticks[ticks.length - 1], hdrW, w - 10);
+    let s = svgOpen(w, h) + xAxis(x, ticks, top, top + plotH, f, o.axisTitle, (hdrW + w) / 2);
+    s += `<line class="div" x1="${hdrW}" x2="${hdrW}" y1="${top}" y2="${top + plotH}"/>`;
+    rows.forEach((r, i) => {
+      const y = top + i * rowH, bh = rowH * 0.62, by = y + (rowH - bh) / 2; let acc = 0;
+      s += `<text class="hdr" x="8" y="${y + rowH / 2 + 4}">${esc(r.label)}</text>`;
+      r.values.forEach((v, j) => {
+        const val = o.percent ? v / totals[i] : v, x0 = x(acc), x1 = x(acc + val); acc += val;
+        const c = colorOf(o, j);
+        s += `<rect class="mark" data-key="${esc(series[j])}" x="${x0}" y="${by}" width="${Math.max(0, x1 - x0)}" height="${bh}" fill="${c}"${tip([[o.dimA || 'Row', r.label], [o.dimB || 'Series', series[j]], [o.measure || 'Value', getFmt(o.format)(v)], ...(o.percent ? [['% of Total', fmt.pct1(val)]] : [])])}/>`;
+        if (o.labels && x1 - x0 > tw(f(val), 11) + 6) s += `<text class="${ink(c) === '#FFFFFF' ? 'lbl-in' : 'lbl'}" x="${(x0 + x1) / 2}" y="${y + rowH / 2 + 4}" text-anchor="middle">${esc(f(val))}</text>`;
+      });
+    });
+    return s + '</svg>';
+  }
+
+  /* Side-by-side bars — Show Me "side-by-side bars".
+     build: Columns = Dim A, Dim B · Rows = SUM(Measure) · Color = Dim B
+     Dim A becomes a column header row, panes separated by dividers. */
+  function sideBySide(w, o) {
+    const f = getFmt(o.format), groups = o.groups, series = o.series, h = o.height || 230;
+    const L = 44, top = 22, B = 10, pw = w - L - 6, ph = h - top - B;
+    const all = groups.flatMap(g => g.values), ticks = niceTicks(0, Math.max(...all), 4);
+    const y = lin(0, ticks[ticks.length - 1], top + ph, top), gw = pw / groups.length;
+    let s = svgOpen(w, h) + yAxis(y, ticks, L, w - 6, f, o.axisTitle, top + ph / 2);
+    groups.forEach((g, i) => {
+      const gx = L + i * gw;
+      s += `<text class="hdr-col" x="${gx + gw / 2}" y="14" text-anchor="middle">${esc(g.label)}</text>`;
+      if (i) s += `<line class="div" x1="${gx}" x2="${gx}" y1="0" y2="${top + ph}"/>`;
+      const bw = (gw - 10) / series.length;
+      g.values.forEach((v, j) => {
+        const bx = gx + 5 + j * bw + bw * 0.08, c = colorOf(o, j);
+        s += `<rect class="mark" data-key="${esc(series[j])}" x="${bx}" y="${y(v)}" width="${bw * 0.84}" height="${y(0) - y(v)}" fill="${c}"${tip([[o.dimA || 'Group', g.label], [o.dimB || 'Series', series[j]], [o.measure || 'Value', f(v)]])}/>`;
+      });
+    });
+    s += `<line class="div" x1="${L}" x2="${w - 6}" y1="${top}" y2="${top}"/>`;
+    return s + '</svg>';
+  }
+
+  /* Lines (continuous) — Show Me "lines (continuous)" / "dual lines" when two series.
+     build: Columns = MONTH(Date) continuous (green pill) · Rows = Measure · Color = Dim · Marks = Line
+     o.markers → Marks card > Color > Markers: All. o.endLabels → Label: Line Ends. */
+  function line(w, o) {
+    const f = getFmt(o.format), xs = o.x, ser = o.series, h = o.height || 220;
+    const L = 44, R = o.endLabels ? Math.max(...ser.map(s => tw(s.name, 11))) + 14 : 10, top = 10, B = 28;
+    const vals = ser.flatMap(s => s.values.filter(v => v != null));
+    const ticks = niceTicks(o.zero === false ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), Math.max(1, Math.min(4, Math.floor((h - top - B) / 30))));
+    const y = lin(ticks[0], ticks[ticks.length - 1], h - B, top), x = lin(0, xs.length - 1, L + 6, w - R);
+    let s = svgOpen(w, h) + yAxis(y, ticks, L, w - R + 4, f, o.axisTitle, (h - B + top) / 2);
+    const every = Math.ceil(xs.length / Math.max(2, Math.floor((w - L - R) / 56)));
+    xs.forEach((d, i) => { if (i % every === 0) s += `<text class="ax-tick" x="${x(i)}" y="${h - B + 16}" text-anchor="middle">${esc(d)}</text>`; });
+    if (o.band) s += `<rect class="ref-band" x="${L}" y="${y(o.band[1])}" width="${w - R - L}" height="${y(o.band[0]) - y(o.band[1])}"/>`;
+    if (o.refLine != null) s += `<line class="ref" x1="${L}" x2="${w - R}" y1="${y(o.refLine)}" y2="${y(o.refLine)}"/><text class="ax-tick" x="${L + 4}" y="${y(o.refLine) - 4}">${esc(o.refLabel || f(o.refLine))}</text>`;
+    ser.forEach((sr, j) => {
+      const c = sr.color || colorOf(o, j);
+      const pts = sr.values.map((v, i) => v == null ? null : [x(i), y(v)]);
+      let d = '', pen = false; pts.forEach(p => { if (!p) { pen = false; return; } d += (pen ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1); pen = true; });
+      s += `<path class="mark" data-key="${esc(sr.name)}" d="${d}" fill="none" stroke="${c}" stroke-width="${o.lineWidth || 2}" stroke-linejoin="round" ${sr.dashed ? 'stroke-dasharray="4 3"' : ''}/>`;
+      pts.forEach((p, i) => {
+        if (!p) return;
+        const t = tip([[o.xField || 'Period', xs[i]], ...(ser.length > 1 ? [[o.dim || 'Series', sr.name]] : []), [o.measure || 'Value', f(sr.values[i])]]);
+        s += `<circle class="mark" data-key="${esc(sr.name)}" cx="${p[0]}" cy="${p[1]}" r="${o.markers ? 3 : 7}" fill="${o.markers ? c : 'transparent'}"${t}/>`;
+      });
+      if (o.endLabels) { const li = sr.values.length - 1; s += `<text class="lbl" x="${x(li) + 6}" y="${y(sr.values[li]) + 4}">${esc(sr.name)}</text>`; }
+    });
+    return s + '</svg>';
+  }
+
+  /* Area (continuous, stacked) — Show Me "area charts (continuous)".
+     build: Columns = continuous date · Rows = Measure · Color = Dim · Marks = Area (Stack Marks on) */
+  function area(w, o) {
+    const f = getFmt(o.format), xs = o.x, ser = o.series, h = o.height || 220, L = 44, top = 10, B = 28, R = 10;
+    const tot = xs.map((_, i) => ser.reduce((a, s) => a + s.values[i], 0));
+    const ticks = niceTicks(0, Math.max(...tot), 4), y = lin(0, ticks[ticks.length - 1], h - B, top), x = lin(0, xs.length - 1, L + 1, w - R);
+    let s = svgOpen(w, h) + yAxis(y, ticks, L, w - R, f, o.axisTitle, (h - B + top) / 2);
+    const every = Math.ceil(xs.length / Math.max(2, Math.floor((w - L) / 56)));
+    xs.forEach((d, i) => { if (i % every === 0) s += `<text class="ax-tick" x="${x(i)}" y="${h - B + 16}" text-anchor="middle">${esc(d)}</text>`; });
+    const base = xs.map(() => 0);
+    ser.forEach((sr, j) => {
+      const lo = base.slice(), hi = base.map((b, i) => b + sr.values[i]);
+      const d = 'M' + hi.map((v, i) => x(i) + ',' + y(v)).join('L') + 'L' + lo.map((v, i) => x(i) + ',' + y(v)).reverse().join('L') + 'Z';
+      s += `<path class="mark" data-key="${esc(sr.name)}" d="${d}" fill="${colorOf(o, j)}"${tip([[o.dim || 'Series', sr.name]])}/>`;
+      hi.forEach((v, i) => base[i] = v);
+    });
+    return s + '</svg>';
+  }
+
+  /* Dual combination — Show Me "dual combination": bars + line on a dual axis.
+     build: Columns = date · Rows = Measure A, Measure B → Dual Axis, mark types Bar + Line.
+     Caution: two y-scales. Synchronize axes when units match, or prefer two stacked sheets. */
+  function combo(w, o) {
+    const fa = getFmt(o.formatA), fb = getFmt(o.formatB), xs = o.x, h = o.height || 220, L = 44, R = 44, top = 10, B = 28;
+    const ta = niceTicks(0, Math.max(...o.bars), 4), tb = niceTicks(0, Math.max(...o.line), 4);
+    const ya = lin(0, ta[ta.length - 1], h - B, top), yb = lin(0, tb[tb.length - 1], h - B, top);
+    const bw = (w - L - R) / xs.length, xc = i => L + bw * (i + .5);
+    let s = svgOpen(w, h) + yAxis(ya, ta, L, w - R, fa, o.titleA, (h - B + top) / 2);
+    tb.forEach(t => { s += `<text class="ax-tick" x="${w - R + 6}" y="${yb(t) + 4}">${esc(fb(t))}</text>`; });
+    xs.forEach((d, i) => { s += `<text class="ax-tick" x="${xc(i)}" y="${h - B + 16}" text-anchor="middle">${esc(d)}</text>`; });
+    o.bars.forEach((v, i) => { s += `<rect class="mark" data-key="b${i}" x="${xc(i) - bw * .32}" y="${ya(v)}" width="${bw * .64}" height="${ya(0) - ya(v)}" fill="${o.colorA || '#A0CBE8'}"${tip([[o.xField || 'Period', xs[i]], [o.measureA, fa(v)], [o.measureB, fb(o.line[i])]])}/>`; });
+    s += `<path d="M${o.line.map((v, i) => xc(i) + ',' + yb(v)).join('L')}" fill="none" stroke="${o.colorB || T10[1]}" stroke-width="2"/>`;
+    o.line.forEach((v, i) => { s += `<circle class="mark" data-key="b${i}" cx="${xc(i)}" cy="${yb(v)}" r="3" fill="${o.colorB || T10[1]}"${tip([[o.xField || 'Period', xs[i]], [o.measureA, fa(o.bars[i])], [o.measureB, fb(v)]])}/>`; });
+    return s + '</svg>';
+  }
+
+  /* Pie (and donut via the dual-axis "MIN(0)" trick).
+     build: Marks = Pie · Angle = SUM(Measure) · Color = Dim. Donut: Rows = MIN(0), MIN(0) dual axis, second pie white + label. */
+  function pie(w, o) {
+    const f = getFmt(o.format), data = o.data, h = o.height || 200, r = Math.min(w, h) / 2 - 6, cx = w / 2, cy = h / 2;
+    const tot = data.reduce((a, d) => a + d.value, 0); let a0 = -Math.PI / 2;
+    let s = svgOpen(w, h);
+    data.forEach((d, i) => {
+      const a1 = a0 + d.value / tot * Math.PI * 2, large = a1 - a0 > Math.PI ? 1 : 0;
+      const p = (a, rr) => [cx + rr * Math.cos(a), cy + rr * Math.sin(a)];
+      const [x0, y0] = p(a0, r), [x1, y1] = p(a1, r);
+      s += `<path class="mark" data-key="${esc(d.label)}" d="M${cx},${cy}L${x0},${y0}A${r},${r} 0 ${large} 1 ${x1},${y1}Z" fill="${d.color || colorOf(o, i)}" stroke="#fff" stroke-width="1"${tip([[o.dim || 'Category', d.label], [o.measure || 'Value', f(d.value)], ['% of Total', fmt.pct1(d.value / tot)]])}/>`;
+      a0 = a1;
+    });
+    if (o.donut) {
+      s += `<circle cx="${cx}" cy="${cy}" r="${r * (o.donut === true ? .6 : o.donut)}" fill="#fff" pointer-events="none"/>`;
+      if (o.center) s += `<text x="${cx}" y="${cy + 2}" text-anchor="middle" style="font-size:22px;font-family:var(--tab-font-semibold);font-weight:600">${esc(o.center)}</text><text class="ax-tick" x="${cx}" y="${cy + 18}" text-anchor="middle">${esc(o.centerSub || '')}</text>`;
+    }
+    return s + '</svg>';
+  }
+
+  /* Treemap — Show Me "treemap". build: Marks = Square · Size = SUM(Measure) · Color = Dim or measure · Label = Dim */
+  function treemap(w, o) {
+    const f = getFmt(o.format), h = o.height || 220, data = [...o.data].sort((a, b) => b.value - a.value);
+    const tot = data.reduce((a, d) => a + d.value, 0), area = w * h;
+    const items = data.map((d, i) => ({ ...d, i, a: d.value / tot * area }));
+    const rects = [];
+    (function squarify(list, x, y, W, H) {
+      if (!list.length) return;
+      if (list.length === 1) { rects.push({ ...list[0], x, y, w: W, h: H }); return; }
+      const short = Math.min(W, H); let row = [], best = Infinity, k = 0;
+      const worst = r => { const s = r.reduce((a, b) => a + b.a, 0), mx = Math.max(...r.map(z => z.a)), mn = Math.min(...r.map(z => z.a)); return Math.max(short * short * mx / (s * s), (s * s) / (short * short * mn)); };
+      while (k < list.length) { const cand = [...row, list[k]], wv = worst(cand); if (wv > best) break; row = cand; best = wv; k++; }
+      const s = row.reduce((a, b) => a + b.a, 0), thick = s / short; let off = 0;
+      row.forEach(r => { const len = r.a / thick; if (W >= H) rects.push({ ...r, x, y: y + off, w: thick, h: len }); else rects.push({ ...r, x: x + off, y, w: len, h: thick }); off += len; });
+      if (W >= H) squarify(list.slice(k), x + thick, y, W - thick, H); else squarify(list.slice(k), x, y + thick, W, H - thick);
+    })(items, 0, 0, w, h);
+    const vmax = data[0].value, vmin = data[data.length - 1].value;
+    let s = svgOpen(w, h);
+    rects.forEach(r => {
+      const c = r.color || (o.colorBy === 'value' ? ramp(o.ramp || 'Blue', (r.value - vmin) / ((vmax - vmin) || 1) * .85 + .15) : colorOf(o, r.i));
+      s += `<rect class="mark" data-key="${esc(r.label)}" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${c}" stroke="#fff" stroke-width="1"${tip([[o.dim || 'Category', r.label], [o.measure || 'Value', f(r.value)]])}/>`;
+      if (r.w > 50 && r.h > 30) s += `<text class="${ink(c) === '#FFFFFF' ? 'lbl-in' : 'lbl'}" x="${r.x + 5}" y="${r.y + 14}">${esc(r.label)}</text><text class="${ink(c) === '#FFFFFF' ? 'lbl-in' : 'lbl'}" x="${r.x + 5}" y="${r.y + 28}">${esc(f(r.value))}</text>`;
+    });
+    return s + '</svg>';
+  }
+
+  /* Circle view / dot plot — Show Me "circle views" & "side-by-side circles".
+     build: Rows = Dim A · Columns = Measure · Color = Dim B · Marks = Circle. Add a gray bar on dual axis for a dumbbell. */
+  function dots(w, o) {
+    const f = getFmt(o.format), rows = o.rows, series = o.series, rowH = 24, top = 4;
+    const hdrW = Math.min(w * .35, Math.max(...rows.map(r => tw(r.label))) + 16), plotH = rows.length * rowH, h = top + plotH + (o.axisTitle ? 40 : 24);
+    const vals = rows.flatMap(r => r.values), ticks = niceTicks(o.zero === false ? Math.min(...vals) : 0, Math.max(...vals), Math.max(2, Math.floor((w - hdrW) / 80)));
+    const x = lin(ticks[0], ticks[ticks.length - 1], hdrW + 6, w - 10);
+    let s = svgOpen(w, h) + xAxis(x, ticks, top, top + plotH, f, o.axisTitle, (hdrW + w) / 2);
+    s += `<line class="div" x1="${hdrW}" x2="${hdrW}" y1="${top}" y2="${top + plotH}"/>`;
+    rows.forEach((r, i) => {
+      const cy = top + i * rowH + rowH / 2;
+      s += `<text class="hdr" x="8" y="${cy + 4}">${esc(r.label)}</text>`;
+      if (o.dumbbell) s += `<line x1="${x(Math.min(...r.values))}" x2="${x(Math.max(...r.values))}" y1="${cy}" y2="${cy}" stroke="#CBCBCB" stroke-width="3"/>`;
+      r.values.forEach((v, j) => { s += `<circle class="mark" data-key="${esc(series[j])}" cx="${x(v)}" cy="${cy}" r="6" fill="${colorOf(o, j)}"${tip([[o.dimA || 'Row', r.label], [o.dimB || 'Series', series[j]], [o.measure || 'Value', f(v)]])}/>`; });
+    });
+    return s + '</svg>';
+  }
+
+  /* Scatter plot — Show Me "scatter plot". build: Columns = Measure X · Rows = Measure Y · Detail = Dim · Marks = Circle
+     o.trend → Analytics pane > Trend Line (linear). o.quadrants → constant reference lines at medians/targets. */
+  function scatter(w, o) {
+    const fx = getFmt(o.formatX), fy = getFmt(o.formatY), pts = o.data, h = o.height || 240, L = 46, B = 40, top = 8, R = 10;
+    const tx = niceTicks(Math.min(0, ...pts.map(p => p.x)), Math.max(...pts.map(p => p.x)), 5), ty = niceTicks(Math.min(0, ...pts.map(p => p.y)), Math.max(...pts.map(p => p.y)), 4);
+    const x = lin(tx[0], tx[tx.length - 1], L, w - R), y = lin(ty[0], ty[ty.length - 1], h - B, top);
+    let s = svgOpen(w, h) + yAxis(y, ty, L, w - R, fy, o.titleY, (h - B + top) / 2) + xAxis(x, tx, top, h - B, fx, o.titleX, (L + w - R) / 2).replace(/class="grid"/g, 'class="grid" style="stroke:none"');
+    if (o.quadrants) s += `<line class="ref" x1="${x(o.quadrants[0])}" x2="${x(o.quadrants[0])}" y1="${top}" y2="${h - B}"/><line class="ref" x1="${L}" x2="${w - R}" y1="${y(o.quadrants[1])}" y2="${y(o.quadrants[1])}"/>`;
+    if (o.trend) {
+      const n = pts.length, mx = pts.reduce((a, p) => a + p.x, 0) / n, my = pts.reduce((a, p) => a + p.y, 0) / n;
+      const b = pts.reduce((a, p) => a + (p.x - mx) * (p.y - my), 0) / pts.reduce((a, p) => a + (p.x - mx) ** 2, 0), a = my - b * mx;
+      const x0 = tx[0], x1 = tx[tx.length - 1];
+      s += `<line x1="${x(x0)}" y1="${y(a + b * x0)}" x2="${x(x1)}" y2="${y(a + b * x1)}" stroke="#666" stroke-width="1.2"${tip([['Trend line (linear)'], ['Slope', b.toFixed(3)]])}/>`;
+    }
+    const groups = [...new Set(pts.map(p => p.group).filter(Boolean))];
+    pts.forEach(p => {
+      const c = p.group ? colorOf(o, groups.indexOf(p.group)) : T10[0];
+      s += `<circle class="mark" data-key="${esc(p.group || p.label)}" cx="${x(p.x)}" cy="${y(p.y)}" r="${p.r || 5}" fill="${c}" fill-opacity=".75" stroke="${c}"${tip([[o.dim || 'Item', p.label], ...(p.group ? [[o.groupField || 'Group', p.group]] : []), [o.measureX || 'X', fx(p.x)], [o.measureY || 'Y', fy(p.y)]])}/>`;
+    });
+    return s + '</svg>';
+  }
+
+  /* Histogram — Show Me "histogram". build: Create Bins on Measure → Columns = Measure (bin) · Rows = CNT(Measure) · Marks = Bar (no gaps) */
+  function histogram(w, o) {
+    const vals = o.values, size = o.binSize, h = o.height || 200, L = 40, B = 34, top = 8, R = 6;
+    const lo = Math.floor(Math.min(...vals) / size) * size, nb = Math.ceil((Math.max(...vals) - lo + 1e-9) / size);
+    const bins = Array.from({ length: nb }, (_, i) => ({ x0: lo + i * size, n: 0 })); vals.forEach(v => bins[Math.min(nb - 1, Math.floor((v - lo) / size))].n++);
+    const ticks = niceTicks(0, Math.max(...bins.map(b => b.n)), 4), y = lin(0, ticks[ticks.length - 1], h - B, top), bw = (w - L - R) / nb;
+    let s = svgOpen(w, h) + yAxis(y, ticks, L, w - R, fmt.int, 'Count', (h - B + top) / 2);
+    bins.forEach((b, i) => {
+      s += `<rect class="mark" data-key="bin${i}" x="${L + i * bw + .5}" y="${y(b.n)}" width="${bw - 1}" height="${y(0) - y(b.n)}" fill="${o.color || T10[0]}"${tip([[o.measure + ' (bin)', `${b.x0}–${b.x0 + size}`], ['Count', b.n]])}/>`;
+      if (nb <= 16 || i % 2 === 0) s += `<text class="ax-tick" x="${L + i * bw}" y="${h - B + 14}" text-anchor="middle">${b.x0}</text>`;
+    });
+    if (o.refLine != null) { const xr = L + (o.refLine - lo) / size * bw; s += `<line class="ref" x1="${xr}" x2="${xr}" y1="${top}" y2="${h - B}"/><text class="ax-tick" x="${xr + 4}" y="${top + 10}">${esc(o.refLabel || o.refLine)}</text>`; }
+    s += `<text class="ax-title" x="${(L + w) / 2}" y="${h - 4}" text-anchor="middle">${esc(o.measure)} (bin)</text>`;
+    return s + '</svg>';
+  }
+
+  /* Box-and-whisker — Show Me "box-and-whisker plot". build: Columns = Dim · Rows = Measure · Detail = row-level ID · Marks = Circle · Analytics > Box Plot */
+  function boxplot(w, o) {
+    const f = getFmt(o.format), groups = o.groups, h = o.height || 230, L = 44, B = 28, top = 8, R = 6;
+    const all = groups.flatMap(g => g.values), ticks = niceTicks(0, Math.max(...all), 4);
+    const y = lin(0, ticks[ticks.length - 1], h - B, top), gw = (w - L - R) / groups.length;
+    const q = (a, p) => { const s = [...a].sort((m, n) => m - n), i = (s.length - 1) * p, lo = Math.floor(i); return s[lo] + (s[Math.ceil(i)] - s[lo]) * (i - lo); };
+    let s = svgOpen(w, h) + yAxis(y, ticks, L, w - R, f, o.axisTitle, (h - B + top) / 2);
+    groups.forEach((g, i) => {
+      const cx = L + gw * (i + .5), q1 = q(g.values, .25), q2 = q(g.values, .5), q3 = q(g.values, .75), iqr = q3 - q1;
+      const wl = Math.min(...g.values.filter(v => v >= q1 - 1.5 * iqr)), wh = Math.max(...g.values.filter(v => v <= q3 + 1.5 * iqr)), bw = Math.min(46, gw * .45);
+      s += `<line x1="${cx}" x2="${cx}" y1="${y(wh)}" y2="${y(q3)}" stroke="#898989"/><line x1="${cx}" x2="${cx}" y1="${y(q1)}" y2="${y(wl)}" stroke="#898989"/>`;
+      s += `<line x1="${cx - bw / 4}" x2="${cx + bw / 4}" y1="${y(wh)}" y2="${y(wh)}" stroke="#898989"/><line x1="${cx - bw / 4}" x2="${cx + bw / 4}" y1="${y(wl)}" y2="${y(wl)}" stroke="#898989"/>`;
+      s += `<rect x="${cx - bw / 2}" y="${y(q3)}" width="${bw}" height="${y(q2) - y(q3)}" fill="#D4D4D4" stroke="#898989"${tip([[o.dim || 'Group', g.label], ['Upper Hinge', f(q3)], ['Median', f(q2)]])}/><rect x="${cx - bw / 2}" y="${y(q2)}" width="${bw}" height="${y(q1) - y(q2)}" fill="#E6E6E6" stroke="#898989"${tip([[o.dim || 'Group', g.label], ['Median', f(q2)], ['Lower Hinge', f(q1)]])}/>`;
+      g.values.forEach((v, k) => { const jx = cx + ((k * 7919) % 100 / 100 - .5) * bw * .7; s += `<circle class="mark" data-key="${esc(g.label)}" cx="${jx}" cy="${y(v)}" r="3" fill="${colorOf(o, i)}" fill-opacity=".7"${tip([[o.dim || 'Group', g.label], [o.measure || 'Value', f(v)]])}/>`; });
+      s += `<text class="hdr-col" x="${cx}" y="${h - B + 16}" text-anchor="middle">${esc(g.label)}</text>`;
+    });
+    return s + '</svg>';
+  }
+
+  /* Gantt — Show Me "Gantt chart". build: Columns = Start date (continuous) · Rows = Task · Size = Duration · Color = Status · Marks = Gantt Bar
+     o.today → reference line at TODAY(). */
+  function gantt(w, o) {
+    const tasks = o.tasks, rowH = 22, top = 20, hdrW = Math.min(w * .38, Math.max(...tasks.map(t => tw(t.label))) + 16);
+    const plotH = tasks.length * rowH, h = top + plotH + 8, d0 = o.min ?? Math.min(...tasks.map(t => t.start)), d1 = o.max ?? Math.max(...tasks.map(t => t.start + t.dur));
+    const x = lin(d0, d1, hdrW + 4, w - 8), statuses = o.statuses || [...new Set(tasks.map(t => t.status))];
+    let s = svgOpen(w, h);
+    const step = o.tickStep || Math.ceil((d1 - d0) / Math.max(2, Math.floor((w - hdrW) / 60)));
+    for (let t = d0; t <= d1; t += step) { s += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${top + plotH}"/><text class="ax-tick" x="${x(t)}" y="${top - 6}" text-anchor="middle">${esc(o.tickFormat ? o.tickFormat(t) : t)}</text>`; }
+    s += `<line class="div" x1="${hdrW}" x2="${hdrW}" y1="${top}" y2="${top + plotH}"/>`;
+    tasks.forEach((t, i) => {
+      const y = top + i * rowH, c = t.color || (o.statusColors && o.statusColors[t.status]) || colorOf(o, statuses.indexOf(t.status));
+      if (t.group && (i === 0 || tasks[i - 1].group !== t.group)) s += `<line class="div" x1="0" x2="${w}" y1="${y}" y2="${y}"/>`;
+      s += `<text class="hdr" x="8" y="${y + rowH / 2 + 4}">${esc(t.label)}</text>`;
+      s += `<rect class="mark" data-key="${esc(t.status)}" x="${x(t.start)}" y="${y + 5}" width="${Math.max(2, x(t.start + t.dur) - x(t.start))}" height="${rowH - 10}" fill="${c}"${tip([[o.dim || 'Task', t.label], ['Start', o.tickFormat ? o.tickFormat(t.start) : t.start], ['Duration', t.dur + (o.unit || 'd')], [o.colorField || 'Status', t.status]])}/>`;
+    });
+    if (o.today != null) s += `<line x1="${x(o.today)}" x2="${x(o.today)}" y1="${top - 2}" y2="${top + plotH}" stroke="#E15759" stroke-width="1.5"/><text class="ax-tick" x="${x(o.today) + 3}" y="${top + plotH - 2}" style="fill:#E15759">${esc(o.todayLabel || 'Today')}</text>`;
+    return s + '</svg>';
+  }
+
+  /* Bullet graph — Show Me "bullet graphs". build: Rows = Dim · Columns = Actual · Detail = Target → Reference line (target) + distribution bands at 60%/80% of target */
+  function bullet(w, o) {
+    const f = getFmt(o.format), rows = o.rows, rowH = 30, top = 4, hdrW = Math.min(w * .38, Math.max(...rows.map(r => tw(r.label))) + 16);
+    const plotH = rows.length * rowH, h = top + plotH + 24, max = Math.max(...rows.map(r => Math.max(r.actual, r.target, ...(r.bands || [])))) * 1.05;
+    const ticks = niceTicks(0, max, Math.max(2, Math.floor((w - hdrW) / 80))), x = lin(0, ticks[ticks.length - 1], hdrW, w - 10);
+    let s = svgOpen(w, h) + xAxis(x, ticks, top, top + plotH, f, null, 0);
+    rows.forEach((r, i) => {
+      const y = top + i * rowH, bands = r.bands || [r.target * .6, r.target * .8, ticks[ticks.length - 1]], shades = ['#BDBDBD', '#D4D4D4', '#EBEBEB'];
+      s += `<text class="hdr" x="8" y="${y + rowH / 2 + 4}">${esc(r.label)}</text>`;
+      [...bands].reverse().forEach((b, k) => { s += `<rect x="${hdrW}" y="${y + 4}" width="${x(b) - hdrW}" height="${rowH - 8}" fill="${shades[2 - k]}"/>`; });
+      const ok = o.lowerIsBetter ? r.actual <= r.target : r.actual >= r.target;
+      s += `<rect class="mark" data-key="${esc(r.label)}" x="${hdrW}" y="${y + rowH / 2 - 4}" width="${x(r.actual) - hdrW}" height="8" fill="${o.colorByTarget ? (ok ? '#59A14F' : '#E15759') : '#333'}"${tip([[o.dim || 'Measure', r.label], ['Actual', f(r.actual)], ['Target', f(r.target)]])}/>`;
+      s += `<line x1="${x(r.target)}" x2="${x(r.target)}" y1="${y + 7}" y2="${y + rowH - 7}" stroke="#000" stroke-width="2"/>`;
+    });
+    return s + '</svg>';
+  }
+
+  /* Packed bubbles — Show Me "packed bubbles". build: Marks = Circle · Size = Measure · Color = Dim · Label = Dim */
+  function bubbles(w, o) {
+    const f = getFmt(o.format), h = o.height || 220, data = [...o.data].sort((a, b) => b.value - a.value);
+    const maxR = Math.min(w, h) / 4.2, rs = data.map(d => Math.sqrt(d.value / data[0].value) * maxR), placed = [];
+    data.forEach((d, i) => {
+      const r = rs[i]; let best = null;
+      if (!placed.length) best = { x: 0, y: 0 };
+      else for (let a = 0, rad = 0; !best; a += .3, rad += .6) {
+        const cx = Math.cos(a) * rad * 1.3, cy = Math.sin(a) * rad;
+        if (placed.every(p => Math.hypot(p.x - cx, p.y - cy) >= p.r + r + 1.5)) best = { x: cx, y: cy };
+      }
+      placed.push({ ...best, r, d, i });
+    });
+    const minX = Math.min(...placed.map(p => p.x - p.r)), maxX = Math.max(...placed.map(p => p.x + p.r)), minY = Math.min(...placed.map(p => p.y - p.r)), maxY = Math.max(...placed.map(p => p.y + p.r));
+    const k = Math.min((w - 4) / (maxX - minX), (h - 4) / (maxY - minY), 1.4), ox = w / 2 - (minX + maxX) / 2 * k, oy = h / 2 - (minY + maxY) / 2 * k;
+    let s = svgOpen(w, h);
+    placed.forEach(p => {
+      const c = p.d.color || colorOf(o, p.i), cx = ox + p.x * k, cy = oy + p.y * k, r = p.r * k;
+      s += `<circle class="mark" data-key="${esc(p.d.label)}" cx="${cx}" cy="${cy}" r="${r}" fill="${c}"${tip([[o.dim || 'Category', p.d.label], [o.measure || 'Value', f(p.d.value)]])}/>`;
+      if (r > 22) s += `<text class="${ink(c) === '#FFFFFF' ? 'lbl-in' : 'lbl'}" x="${cx}" y="${cy + 4}" text-anchor="middle">${esc(p.d.label.length * 6 > r * 2 ? p.d.label.slice(0, Math.floor(r / 3.2)) + '…' : p.d.label)}</text>`;
+    });
+    return s + '</svg>';
+  }
+
+  /* Heat map — Show Me "heat map" (square marks sized + colored by a measure)
+     and the full-cell variant used for cohort grids.
+     build: Columns = Dim B · Rows = Dim A · Color = Measure · (Size = Measure) · Marks = Square */
+  function heatmap(w, o) {
+    const f = getFmt(o.format), rows = o.rows, cols = o.cols, cellH = o.cellHeight || 24, top = 20;
+    const hdrW = Math.min(w * .3, Math.max(...rows.map(r => tw(r.label))) + 14), cw = (w - hdrW - 2) / cols.length, h = top + rows.length * cellH + 4;
+    const all = rows.flatMap(r => r.values).filter(v => v != null), mn = o.min ?? Math.min(...all), mx = o.max ?? Math.max(...all);
+    let s = svgOpen(w, h);
+    cols.forEach((c, j) => { s += `<text class="hdr-col" x="${hdrW + cw * (j + .5)}" y="14" text-anchor="middle">${esc(c)}</text>`; });
+    rows.forEach((r, i) => {
+      const y = top + i * cellH;
+      s += `<text class="hdr" x="6" y="${y + cellH / 2 + 4}">${esc(r.label)}</text>`;
+      r.values.forEach((v, j) => {
+        if (v == null) return;
+        const t = (v - mn) / ((mx - mn) || 1), tt = o.reverse ? 1 - t : t;
+        const c = o.diverging ? ramp(o.diverging, tt) : ramp(o.ramp || 'Blue', tt * .9 + .05);
+        const sz = o.sized ? Math.max(.25, Math.sqrt(Math.max(0, t))) : 1, cwv = (cw - 2) * sz, chv = (cellH - 2) * sz;
+        const x = hdrW + j * cw + (cw - cwv) / 2, yy = y + (cellH - chv) / 2;
+        s += `<rect class="mark" data-key="${esc(r.label)}|${j}" x="${x}" y="${yy}" width="${cwv}" height="${chv}" fill="${c}"${tip([[o.rowField || 'Row', r.label], [o.colField || 'Column', cols[j]], [o.measure || 'Value', f(v)]])}/>`;
+        if (o.labels && !o.sized) s += `<text x="${hdrW + cw * (j + .5)}" y="${y + cellH / 2 + 4}" text-anchor="middle" style="font-size:11px;fill:${ink(c)}" pointer-events="none">${esc(f(v))}</text>`;
+      });
+    });
+    return s + '</svg>';
+  }
+
+  /* Funnel — not in Show Me; standard build: centered bars via Rows = Stage · Columns = -SUM(N) and SUM(N) on dual axis, or one bar with a hidden offset. */
+  function funnel(w, o) {
+    const f = getFmt(o.format), st = o.stages, rowH = 30, hdrW = Math.min(w * .32, Math.max(...st.map(s => tw(s.label))) + 16), h = st.length * rowH + 6;
+    const max = st[0].value, pw = w - hdrW - 70, cx = hdrW + pw / 2;
+    let s = svgOpen(w, h);
+    st.forEach((d, i) => {
+      const y = 3 + i * rowH, bw = d.value / max * pw, conv = i ? d.value / st[i - 1].value : 1;
+      s += `<text class="hdr" x="8" y="${y + rowH / 2 + 4}">${esc(d.label)}</text>`;
+      s += `<rect class="mark" data-key="${esc(d.label)}" x="${cx - bw / 2}" y="${y + 3}" width="${bw}" height="${rowH - 6}" fill="${o.color || T10[0]}"${tip([[o.dim || 'Stage', d.label], [o.measure || 'Count', f(d.value)], ['% of first stage', fmt.pct1(d.value / max)], ...(i ? [['Step conversion', fmt.pct1(conv)]] : [])])}/>`;
+      s += `<text class="lbl-in" x="${cx}" y="${y + rowH / 2 + 4}" text-anchor="middle">${esc(f(d.value))}</text>`;
+      if (i) s += `<text class="ax-tick" x="${w - 4}" y="${y + rowH / 2 + 4}" text-anchor="end">${esc(fmt.pct(conv))} ↓</text>`;
+    });
+    return s + '</svg>';
+  }
+
+  /* Sparkline — a line sheet with axes/headers hidden; used inside KPI tiles. */
+  function sparkline(w, o) {
+    const v = o.values, h = o.height || 32, mn = Math.min(...v), mx = Math.max(...v), x = lin(0, v.length - 1, 2, w - 4), y = lin(mn, mx, h - 3, 3);
+    const c = o.color || T10[0];
+    return svgOpen(w, h) + `<path d="M${v.map((d, i) => x(i) + ',' + y(d)).join('L')}" fill="none" stroke="${c}" stroke-width="1.5"/><circle cx="${x(v.length - 1)}" cy="${y(v[v.length - 1])}" r="2.5" fill="${c}"/></svg>`;
+  }
+
+  /* ---------------- HTML-based sheets ---------------- */
+
+  /* Text table / crosstab — Show Me "text tables". build: Rows = Dim A · Columns = Dim B · Text = Measure · Marks = Text */
+  function textTable(el, o) {
+    const f = getFmt(o.format), hl = !!o.highlight;
+    const all = o.rows.flatMap(r => r.values), mn = Math.min(...all), mx = Math.max(...all);
+    let s = `<table class="tab-xtab${hl ? ' hl' : ''}"><thead><tr><th class="corner">${esc(o.corner || '')}</th>${o.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>`;
+    o.rows.forEach(r => {
+      s += `<tr><th>${esc(r.label)}</th>` + r.values.map((v, j) => {
+        let st = '';
+        if (hl) { const t = (v - mn) / ((mx - mn) || 1), c = o.diverging ? ramp(o.diverging, o.reverse ? 1 - t : t) : ramp(o.ramp || 'Blue', (o.reverse ? 1 - t : t) * .85 + .05); st = ` style="background:${c};color:${ink(c)}"`; }
+        return `<td class="mark" data-key="${esc(r.label)}|${j}"${st}${tip([[o.rowField || 'Row', r.label], [o.colField || 'Column', o.cols[j]], [o.measure || 'Value', f(v)]])}>${esc(f(v))}</td>`;
+      }).join('') + '</tr>';
+    });
+    if (o.totals) { const t = o.cols.map((_, j) => o.rows.reduce((a, r) => a + r.values[j], 0)); s += `<tr class="tot"><th>Grand Total</th>${t.map(v => `<td>${esc(f(o.totalsFormat ? o.totalsFormat(v, o.rows.length) : v))}</td>`).join('')}</tr>`; }
+    s += '</tbody></table>';
+    return s;
+  }
+
+  /* BAN — big-ass number. A Text-mark sheet: Text = AGG(Measure), plus a delta calc and an optional sparkline sheet beside it. */
+  function ban(el, o) {
+    const better = o.delta == null ? null : (o.lowerIsBetter ? o.delta < 0 : o.delta > 0);
+    const arrow = o.delta == null ? '' : (o.delta > 0 ? '▲' : o.delta < 0 ? '▼' : '■');
+    return `<div class="tab-ban"><div class="ban-label">${esc(o.label)}</div><div class="ban-value">${esc(o.value)}</div>` +
+      (o.delta != null ? `<div class="ban-delta"><span class="${better ? 'up' : 'down'}">${arrow} ${esc(o.deltaText)}</span> ${esc(o.compare || '')}</div>` : '') +
+      (o.spark ? `<div class="ban-spark" data-spark></div>` : '') + `</div>`;
+  }
+
+  /* Legends */
+  function legend(o) {
+    if (o.type === 'ramp') {
+      const stops = (PAL.sequential[o.ramp] || PAL.diverging[o.ramp] || []);
+      return `<div class="tab-legend"><div class="lg-title">${esc(o.title)}</div><div class="lg-ramp" style="background:linear-gradient(90deg,${stops.join(',')})"></div><div class="lg-ends"><span>${esc(o.min)}</span><span>${esc(o.max)}</span></div></div>`;
+    }
+    const cols = o.colors || o.items.map((_, i) => colorOf(o, i));
+    return `<div class="tab-legend${o.inline ? ' inline' : ''}"><div class="lg-title">${esc(o.title)}</div>${o.items.map((it, i) => `<div class="lg-item"><span class="lg-sw" style="background:${cols[i]}"></span>${esc(it)}</div>`).join('')}</div>`;
+  }
+
+  /* ---------------- public API ---------------- */
+  const svgR = { hbar, vbar, stackedBar, sideBySide, line, area, combo, pie, treemap, dots, scatter, histogram, boxplot, gantt, bullet, bubbles, heatmap, funnel, sparkline };
+  const api = { palettes: PAL, ramp, fmt, legend, mount };
+  Object.entries(svgR).forEach(([k, fn]) => { api[k] = (el, o) => mount(el, fn, o); });
+  api.textTable = (el, o) => { if (typeof el === 'string') el = document.querySelector(el); ensureTip(); el.classList.add('tab-viz'); el.innerHTML = textTable(el, o); return el; };
+  api.highlightTable = (el, o) => api.textTable(el, { ...o, highlight: true });
+  api.ban = (el, o) => {
+    if (typeof el === 'string') el = document.querySelector(el);
+    ensureTip(); el.innerHTML = ban(el, o);
+    if (o.spark) mount(el.querySelector('[data-spark]'), sparkline, { values: o.spark, color: o.sparkColor });
+    return el;
+  };
+  window.TabViz = api;
+})();
+
+</script>
+<script>
+(function () {
+  const V = TabViz, T10 = V.palettes.categorical['Tableau 10'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  /* ---- tabs ---- */
+  document.querySelectorAll('.tab-tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tab-tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    document.querySelectorAll('main > section').forEach(s => s.hidden = s.id !== b.dataset.tab);
+    window.dispatchEvent(new Event('resize'));
+  }));
+  document.querySelectorAll('.f-pills button').forEach(b => b.addEventListener('click', () => b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b))));
+
+  /* ---- BANs ---- */
+  V.ban('#ban1', { label: 'Avg days offer-accept → Day-1 ready', value: '12.4', delta: -3.1, deltaText: '3.1 days', compare: 'vs prior quarter', lowerIsBetter: true, spark: [17, 16.2, 15.8, 15.1, 14, 13.2, 12.4] });
+  V.ban('#ban2', { label: '% pre-Day-1 tasks done on time', value: '87%', delta: 9, deltaText: '9 pts', compare: 'vs prior quarter', spark: [70, 72, 75, 78, 80, 84, 87] });
+  V.ban('#ban3', { label: 'Equipment ready on Day 1', value: '93%', delta: 4, deltaText: '4 pts', compare: 'vs prior quarter', spark: [84, 86, 85, 89, 90, 92, 93] });
+  V.ban('#ban4', { label: 'New-hire 30-day eNPS', value: '+41', delta: -2, deltaText: '2 pts', compare: 'vs prior quarter', spark: [36, 39, 44, 43, 45, 43, 41] });
+
+  /* ---- comparison ---- */
+  V.hbar('#c-hbar', { dim: 'Region', measure: 'AVG(Days to Ready)', format: 'num', axisTitle: 'Avg. Days to Ready', refLine: 14, refLabel: 'Target 14',
+    data: [{ label: 'Americas', value: 11.2 }, { label: 'EMEA', value: 18.4 }, { label: 'APAC', value: 15.1 }, { label: 'Greater China', value: 9.8 }, { label: 'India', value: 13.6 }] });
+  V.vbar('#c-vbar', { dim: 'Start Month', measure: 'New Hires', format: 'int', labels: true,
+    data: months.slice(0, 10).map((m, i) => ({ label: m, value: [84, 72, 96, 110, 102, 131, 148, 120, 97, 88][i] })) });
+
+  const statuses = ['Complete', 'In progress', 'Not started', 'Overdue'];
+  const statusColors = ['#4E79A7', '#A0CBE8', '#BAB0AC', '#E15759'];
+  document.getElementById('lg-stack').innerHTML = V.legend({ title: 'Status', items: statuses, colors: statusColors, inline: true });
+  V.palettes.categorical._status = statusColors.concat(T10.slice(4));
+  V.stackedBar('#c-stack', { percent: true, labels: true, dimA: 'Task', dimB: 'Status', measure: 'Tasks', format: 'int', series: statuses, palette: '_status',
+    rows: [{ label: 'Personal details', values: [820, 60, 20, 40] }, { label: 'Right to work', values: [700, 120, 30, 90] }, { label: 'Bank details', values: [760, 50, 80, 50] }, { label: 'Policies acknowledged', values: [610, 90, 210, 30] }, { label: 'Equipment confirmed', values: [880, 20, 30, 10] }] });
+
+  document.getElementById('lg-sbs').innerHTML = V.legend({ title: 'Process', items: ['Current', 'Reimagined'], colors: ['#BAB0AC', '#4E79A7'], inline: true });
+  V.palettes.categorical._cmp = ['#BAB0AC', '#4E79A7', ...T10.slice(2)];
+  V.sideBySide('#c-sbs', { palette: '_cmp', dimA: 'Touchpoint', dimB: 'Process', measure: 'AVG(CSAT)', format: 'num', series: ['Current', 'Reimagined'],
+    groups: [{ label: 'Offer', values: [3.9, 4.2] }, { label: 'Pre-Day 1', values: [3.1, 4.3] }, { label: 'Day 1', values: [3.4, 4.4] }, { label: 'Week 1', values: [3.6, 4.1] }, { label: '30 days', values: [3.8, 4.0] }] });
+
+  document.getElementById('lg-dots').innerHTML = V.legend({ title: 'Period', items: ['Before (FY26 H1)', 'After (pilot)'], colors: ['#BAB0AC', '#4E79A7'], inline: true });
+  V.dots('#c-dots', { palette: '_cmp', dumbbell: true, dimA: 'Metric', dimB: 'Period', measure: 'Days', series: ['Before', 'After'], axisTitle: 'Days',
+    rows: [{ label: 'Offer → portal login', values: [6.2, 1.4] }, { label: 'Login → tasks complete', values: [11.5, 6.8] }, { label: 'Laptop ordered → delivered', values: [9.1, 5.2] }, { label: 'Day 1 → system access', values: [3.4, 0.6] }, { label: 'Day 1 → first 1:1', values: [7.8, 4.1] }] });
+
+  V.bullet('#c-bullet', { dim: 'KPI', format: 'num', lowerIsBetter: true, colorByTarget: false,
+    rows: [{ label: 'Days to Day-1 ready', actual: 12.4, target: 14 }, { label: 'Days to system access', actual: 0.6, target: 1 }, { label: 'Days to first 1:1', actual: 4.1, target: 5 }, { label: 'Days to productivity', actual: 47, target: 45 }] });
+
+  /* ---- time ---- */
+  V.line('#c-line', { x: months, xField: 'Start Month', dim: 'Cohort', measure: 'AVG(Days to Productivity)', format: 'num', endLabels: true, markers: false, band: [40, 45], zero: false,
+    series: [{ name: 'BAU', values: [62, 61, 63, 60, 59, 60, 61, 58, 59, 60, 58, 59], color: '#BAB0AC' }, { name: 'Pilot', values: [null, null, null, 58, 55, 52, 50, 49, 47, 46, 45, 44], color: '#4E79A7' }] });
+
+  const ttypes = ['Access', 'Equipment', 'Payroll', 'Other'];
+  document.getElementById('lg-area').innerHTML = V.legend({ title: 'Ticket Type', items: ttypes, inline: true });
+  V.area('#c-area', { x: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12'], dim: 'Ticket Type', format: 'int',
+    series: [{ name: 'Access', values: [40, 38, 35, 30, 28, 22, 20, 18, 15, 14, 12, 11] }, { name: 'Equipment', values: [25, 27, 22, 20, 16, 15, 12, 11, 10, 9, 8, 8] }, { name: 'Payroll', values: [10, 11, 12, 10, 9, 11, 10, 9, 9, 8, 8, 7] }, { name: 'Other', values: [8, 9, 7, 8, 7, 6, 7, 6, 5, 6, 5, 5] }] });
+
+  V.combo('#c-combo', { x: months.slice(0, 10), xField: 'Start Month', bars: [84, 72, 96, 110, 102, 131, 148, 120, 97, 88], line: [.81, .84, .82, .86, .88, .85, .83, .9, .92, .93], measureA: 'New Hires', measureB: '% Equipment Ready', formatA: 'int', formatB: 'pct', titleA: 'New Hires' });
+
+  const gs = ['Done', 'In progress', 'Planned', 'Late'];
+  V.palettes.categorical._gantt = ['#4E79A7', '#A0CBE8', '#D4D4D4', '#E15759', ...T10.slice(4)];
+  document.getElementById('lg-gantt').innerHTML = V.legend({ title: 'Status', items: gs, colors: V.palettes.categorical._gantt.slice(0, 4), inline: true });
+  V.gantt('#c-gantt', { palette: '_gantt', statuses: gs, dim: 'Step', colorField: 'Status', min: -28, max: 30, tickStep: 7, today: 2, todayLabel: 'Today',
+    tickFormat: t => (t === 0 ? 'Day 1' : (t > 0 ? '+' : '') + t),
+    tasks: [
+      { group: 'Pre-boarding', label: 'Offer accepted', start: -28, dur: 1, status: 'Done' }, { group: 'Pre-boarding', label: 'Portal invite & login', start: -27, dur: 3, status: 'Done' },
+      { group: 'Pre-boarding', label: 'Personal & bank details', start: -25, dur: 8, status: 'Done' }, { group: 'Pre-boarding', label: 'Right-to-work check', start: -22, dur: 10, status: 'Late' },
+      { group: 'Pre-boarding', label: 'Equipment ordered → shipped', start: -20, dur: 14, status: 'Done' }, { group: 'Day 1', label: 'System access live', start: -1, dur: 2, status: 'In progress' },
+      { group: 'Day 1', label: 'Welcome session', start: 0, dur: 1, status: 'In progress' }, { group: 'First 30', label: 'First 1:1 with manager', start: 3, dur: 2, status: 'Planned' },
+      { group: 'First 30', label: 'Mandatory training', start: 1, dur: 20, status: 'Planned' }, { group: 'First 30', label: '30-day check-in', start: 28, dur: 2, status: 'Planned' }] });
+
+  /* ---- distribution ---- */
+  const rnd = (seed => () => (seed = (seed * 16807) % 2147483647) / 2147483647)(7);
+  const norm = (m, s) => m + s * Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const daysDone = Array.from({ length: 400 }, () => Math.max(1, Math.round(norm(13, 5) + (rnd() < .12 ? norm(14, 5) : 0))));
+  V.histogram('#c-hist', { values: daysDone, binSize: 2, measure: 'Days to Complete', refLine: 13, refLabel: 'Median 13' });
+
+  V.boxplot('#c-box', { dim: 'Region', measure: 'Days to Laptop', format: 'num', axisTitle: 'Days',
+    groups: [['Americas', 6, 2], ['EMEA', 9, 3.5], ['APAC', 8, 3], ['Greater China', 5, 1.5], ['India', 7, 2.5]].map(([l, m, s]) => ({ label: l, values: Array.from({ length: 40 }, () => Math.max(1, +norm(m, s).toFixed(1))) })) });
+
+  document.getElementById('lg-scatter').innerHTML = V.legend({ title: 'Process', items: ['Current', 'Reimagined'], colors: ['#BAB0AC', '#4E79A7'], inline: true });
+  V.scatter('#c-scatter', { palette: '_cmp', trend: true, quadrants: [.7, 70], dim: 'Hiring Manager', groupField: 'Process', measureX: 'HM Tasks Done %', measureY: '90-day Score', formatX: 'pct', formatY: 'int', titleX: 'HM prep tasks done on time', titleY: '90-day score',
+    data: Array.from({ length: 60 }, (_, i) => { const g = i % 2 ? 'Reimagined' : 'Current', x = Math.min(1, Math.max(.2, norm(g === 'Current' ? .58 : .82, .14))); return { label: 'Manager ' + (i + 1), group: g, x, y: Math.round(Math.min(100, Math.max(30, 35 + x * 50 + norm(0, 8)))) }; }) });
+
+  /* ---- part to whole ---- */
+  V.funnel('#c-funnel', { dim: 'Stage', measure: 'Hires', format: 'int', stages: [{ label: 'Offer accepted', value: 1000 }, { label: 'Logged into portal', value: 962 }, { label: 'All pre-Day-1 tasks done', value: 871 }, { label: 'Day-1 ready', value: 840 }, { label: 'Started', value: 826 }, { label: '30-day check-in done', value: 774 }] });
+
+  const rd = [{ label: 'Fully ready', value: 640 }, { label: 'Ready, no equipment', value: 92 }, { label: 'Missing access', value: 58 }, { label: 'Not ready', value: 36 }];
+  V.palettes.categorical._ready = ['#4E79A7', '#A0CBE8', '#F28E2B', '#E15759', ...T10.slice(4)];
+  V.pie('#c-pie', { data: rd, palette: '_ready', donut: true, center: '77%', centerSub: 'fully ready', dim: 'Readiness', measure: 'Hires', format: 'int', height: 190 });
+  document.getElementById('lg-pie').innerHTML = V.legend({ title: 'Readiness', items: rd.map(d => d.label), colors: V.palettes.categorical._ready.slice(0, 4) });
+
+  V.treemap('#c-tree', { colorBy: 'value', ramp: 'Orange', dim: 'Category', measure: 'Tickets', format: 'int', height: 210,
+    data: [{ label: 'Login / SSO', value: 340 }, { label: 'Laptop delivery', value: 210 }, { label: 'Payroll setup', value: 150 }, { label: 'Badge / site access', value: 120 }, { label: 'Benefits', value: 90 }, { label: 'Training access', value: 70 }, { label: 'Policies', value: 40 }, { label: 'Other', value: 30 }] });
+
+  V.bubbles('#c-bubbles', { dim: 'Topic', measure: 'Questions', format: 'int', height: 220,
+    data: [{ label: 'First day', value: 420 }, { label: 'Laptop', value: 300 }, { label: 'Pay', value: 260 }, { label: 'Dress code', value: 120 }, { label: 'Parking', value: 110 }, { label: 'Benefits', value: 180 }, { label: 'Manager', value: 90 }, { label: 'Badge', value: 70 }, { label: 'Training', value: 60 }] });
+
+  /* ---- tables ---- */
+  V.textTable('#c-text', { corner: 'Region', rowField: 'Region', colField: 'Phase', measure: 'AVG(Completion %)', format: 'pct', totals: true, totalsFormat: (v, n) => v / n,
+    cols: ['Pre-boarding', 'Day 1', 'First 30'], rows: [{ label: 'Americas', values: [.92, .97, .81] }, { label: 'EMEA', values: [.84, .95, .77] }, { label: 'APAC', values: [.88, .96, .8] }, { label: 'Greater China', values: [.94, .98, .86] }, { label: 'India', values: [.9, .97, .83] }] });
+
+  V.highlightTable('#c-hl', { corner: 'Function', rowField: 'Function', colField: 'Week', measure: 'AVG(Pulse Score)', format: 'dec1', diverging: 'Orange-Blue Diverging',
+    cols: ['W1', 'W2', 'W4', 'W8', 'W12'], rows: [{ label: 'Engineering', values: [4.1, 3.9, 3.6, 3.8, 4.0] }, { label: 'Operations', values: [3.8, 3.5, 3.2, 3.4, 3.6] }, { label: 'Sales', values: [4.4, 4.2, 4.0, 3.9, 4.1] }, { label: 'Finance', values: [4.0, 4.0, 3.9, 4.1, 4.2] }, { label: 'G&A', values: [3.9, 3.7, 3.5, 3.7, 3.8] }] });
+
+  V.heatmap('#c-heat', { sized: true, ramp: 'Red', rowField: 'Task Owner', colField: 'Days Overdue', measure: 'Tasks', format: 'int',
+    cols: ['1–2', '3–5', '6–10', '11–20', '20+'], rows: [{ label: 'New hire', values: [40, 22, 9, 4, 1] }, { label: 'Hiring manager', values: [28, 30, 18, 9, 5] }, { label: 'IT', values: [12, 15, 10, 6, 2] }, { label: 'HR ops', values: [20, 8, 3, 1, 0] }, { label: 'Facilities', values: [6, 9, 7, 5, 4] }] });
+
+  /* ---- controls tab ---- */
+  document.getElementById('lg-a').innerHTML = V.legend({ title: 'Region', items: ['Americas', 'EMEA', 'APAC', 'Greater China', 'India'] });
+  document.getElementById('lg-b').innerHTML = V.legend({ type: 'ramp', title: 'AVG(Hours to Resolve)', ramp: 'Orange', min: '2.1', max: '38.6' });
+  document.getElementById('lg-c').innerHTML = V.legend({ type: 'ramp', title: 'AVG(Pulse Score)', ramp: 'Orange-Blue Diverging', min: '3.2', max: '4.4' });
+
+  /* ---- style tab ---- */
+  const P = V.palettes;
+  document.getElementById('pal-cat').innerHTML = Object.entries(P.categorical).filter(([k]) => !k.startsWith('_')).map(([k, v]) => `<div class="palrow"><span>${k} <span class="tab-caption">(${v.length})</span></span><div class="swatches">${v.map(c => `<span title="${c}" style="background:${c}"></span>`).join('')}</div></div>`).join('');
+  const rampRow = (k, v) => `<div class="palrow"><span>${k}</span><div class="ramp" style="background:linear-gradient(90deg,${v.join(',')})"></div></div>`;
+  document.getElementById('pal-seq').innerHTML = Object.entries(P.sequential).map(([k, v]) => rampRow(k, v)).join('');
+  document.getElementById('pal-div').innerHTML = Object.entries(P.diverging).map(([k, v]) => rampRow(k, v)).join('');
+  document.getElementById('pal-shape').innerHTML = Object.entries(P.shapes).map(([k, v]) => `<div class="palrow"><span>${k}</span><div style="font-size:18px;letter-spacing:8px;color:#4E79A7">${v.join(' ')}</div></div>`).join('');
+
+  const fc = document.getElementById('fontcheck');
+  const has = f => document.fonts && document.fonts.check('12px "' + f + '"', 'a') && (function () { const c = document.createElement('canvas').getContext('2d'); c.font = '40px monospace'; const a = c.measureText('mmmmlllii').width; c.font = '40px "' + f + '", monospace'; return c.measureText('mmmmlllii').width !== a; })();
+  fc.textContent = has('Tableau Book') ? 'Tableau Book is installed — you are seeing the real Tableau typeface.' : has('Benton Sans') ? 'Benton Sans (pre-2018 Tableau UI font) — close match.' : 'Tableau fonts not installed — falling back to Arial. Install Tableau Desktop (or its fonts) for exact type.';
+})();
+</script>
+</body>
+</html>

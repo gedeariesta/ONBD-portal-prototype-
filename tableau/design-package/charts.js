@@ -115,7 +115,7 @@
     if (typeof el === 'string') el = document.querySelector(el);
     ensureTip();
     el.classList.add('tab-viz');
-    const draw = () => { el.innerHTML = fn(Math.max(160, el.clientWidth || 400), opts); };
+    const draw = () => { el.innerHTML = fn(Math.max(40, el.clientWidth || 400), opts); };
     draw();
     if (window.ResizeObserver) {
       let lastW = el.clientWidth;
@@ -242,7 +242,7 @@
     const f = getFmt(o.format), xs = o.x, ser = o.series, h = o.height || 220;
     const L = 44, R = o.endLabels ? Math.max(...ser.map(s => tw(s.name, 11))) + 14 : 10, top = 10, B = 28;
     const vals = ser.flatMap(s => s.values.filter(v => v != null));
-    const ticks = niceTicks(o.zero === false ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), 4);
+    const ticks = niceTicks(o.zero === false ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), Math.max(1, Math.min(4, Math.floor((h - top - B) / 30))));
     const y = lin(ticks[0], ticks[ticks.length - 1], h - B, top), x = lin(0, xs.length - 1, L + 6, w - R);
     let s = svgOpen(w, h) + yAxis(y, ticks, L, w - R + 4, f, o.axisTitle, (h - B + top) / 2);
     const every = Math.ceil(xs.length / Math.max(2, Math.floor((w - L - R) / 56)));
