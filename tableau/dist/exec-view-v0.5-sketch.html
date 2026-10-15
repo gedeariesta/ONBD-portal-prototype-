@@ -76,6 +76,19 @@
   /* Dashboard sketch: smooth, straight lines (rest of the page keeps the hand-drawn boxes) */
   .frame::before, .frame .bx::before, .frame .chip::before { filter: none; border-radius: 5px; }
 
+  /* PEX ideation bits */
+  .tag.comb { color: #5B2A86; }
+  .tile .nm .tag { font-size: 11px; padding: 0 5px; margin-left: 6px; vertical-align: 2px; }
+  .click { font-size: 15px; color: var(--blue); margin-top: 6px; }
+  .key { font-size: 15px; color: var(--pencil); margin: 2px 0 0; }
+  .bars { display: grid; grid-template-columns: auto 1fr auto; gap: 7px 10px; align-items: center; position: relative; font-size: 16px; }
+  .bars .bar { height: 16px; background: #B9CCE4; border: 1.5px solid #555; border-radius: 3px; }
+  .bars .pct { color: var(--blue); }
+  .track { position: relative; }
+  .track::after { content: ""; position: absolute; left: 90%; top: -5px; bottom: -5px; border-left: 2px dashed var(--red); }
+  .track.first::before { content: "goal 90%"; position: absolute; left: calc(90% - 26px); top: -24px; font-size: 13px; color: var(--red); white-space: nowrap; }
+  .sub-lbl { font-size: 15px; color: var(--pencil); }
+
   /* ---------- Tables ---------- */
   table.t { width: 100%; border-collapse: collapse; font-size: 17px; background: rgba(255,255,255,.75); }
   table.t th, table.t td { border-bottom: 1.5px solid #BDBDBD; padding: 6px 8px; text-align: left; vertical-align: top; font-weight: normal; }
@@ -93,6 +106,7 @@
   @media (max-width: 900px) {
     .two { grid-template-columns: 1fr; }
     .r5, .r4, .r3 { grid-template-columns: 1fr 1fr !important; }
+    .bars { font-size: 14px; }
     .wide { overflow-x: auto; }
     .note { position: static; display: block; margin-top: 4px; }
   }
@@ -106,11 +120,12 @@
 <div class="page">
   <h1>Executive View, v0.5 sketch</h1>
   <div class="sub">Onboarding Reimagined | work in progress, for discussion with Martina and Wayne | Oct 2026</div>
-  <p style="margin-top:12px">What changed after the last check-in with Janine:</p>
+  <p style="margin-top:12px">What changed since v1:</p>
   <ul class="rules" style="margin-top:2px">
     <li>Sentiment tiles are now <b>bucket scores</b>, each built from 2 to 5 survey questions, for new hires and hiring managers.</li>
     <li>"HM Success" is now <b>HM Sentiment</b>, tied to the hiring-manager survey.</li>
-    <li>Anything that needs manual upkeep is off the page. PEX Success stays as a <b>gray box</b> until its data has a feed.</li>
+    <li>Anything that needs manual upkeep is off the page.</li>
+    <li><b>PEX Success</b> is built from PEX's own SLAs (on time, QA, CSAT, HR-raised %) plus one combined measure, onboarding cases per new hire. A detail sheet holds the rest.</li>
     <li>Quality of Hire and 1st-year attrition already exist in Tableau. Time to productivity becomes <b>Productive by Day 90</b>, a hiring-manager rating.</li>
     <li>Orientation is out of scope until a consistent session is deployed.</li>
   </ul>
@@ -140,50 +155,46 @@
       </div>
     </div>
 
-    <!-- Row 2: HM sentiment + Equipment + Outcomes -->
-    <div class="row r3" style="grid-template-columns: 0.9fr 0.9fr 1.2fr">
+    <!-- Row 2: HM sentiment + Equipment + PEX + Outcomes -->
+    <div class="row r4" style="grid-template-columns: 1fr 1fr 1fr 1.1fr">
       <div>
         <div class="grp-title"><span>HM Sentiment</span><small>Glint HM survey</small></div>
         <div class="tiles" style="grid-template-columns: 1fr">
-          <div class="bx thin tile a" style="min-height:70px"><span class="nm">HM Readiness</span><span class="v">__%</span></div>
-          <div class="bx thin tile a" style="min-height:70px"><span class="nm">HM Enablement</span><span class="v">__%</span></div>
-          <div class="bx thin tile a" style="min-height:70px"><span class="nm">HM Overall / CSAT</span><span class="v">__%</span><span class="meta">keeps the existing Manager NPS as a drill-down</span></div>
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">HM Readiness</span><span class="v">__%</span></div>
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">HM Enablement</span><span class="v">__%</span></div>
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">HM Overall / CSAT</span><span class="v">__%</span><span class="meta">existing Manager NPS as a drill-down</span></div>
         </div>
       </div>
       <div>
         <div class="grp-title"><span>Equipment Success</span><small>Power BI</small></div>
         <div class="tiles" style="grid-template-columns: 1fr">
-          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Laptop by Day 1</span><span class="v">__% <small>vs 98%</small></span></div>
-          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Loaner Reliance</span><span class="v">__%</span></div>
-          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Late Notice (&lt;14 days)</span><span class="v">__%</span><span class="meta">+ survey item "had my equipment on Day 1"</span></div>
+          <div class="bx thin tile g" style="min-height:84px"><span class="nm">Laptop by Day 1</span><span class="v">__% <small>vs 98%</small></span></div>
+          <div class="bx thin tile g" style="min-height:84px"><span class="nm">Loaner Reliance</span><span class="v">__%</span></div>
+          <div class="bx thin tile g" style="min-height:84px"><span class="nm">Late Notice (&lt;14 days)</span><span class="v">__%</span><span class="meta">+ survey item "had my equipment on Day 1"</span></div>
         </div>
+      </div>
+      <div>
+        <div class="grp-title"><span>PEX Success</span><small>__ of 3 at goal</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr">
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">On-Time Start<span class="tag std">take</span></span><span class="v">__% <small>vs 90% goal</small></span><span class="meta">hire date on or before the proposed date</span></div>
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">Onboarding QA<span class="tag std">take</span></span><span class="v">__% <small>no critical error</small></span><span class="meta">goal 98%. Overall QA in the detail sheet</span></div>
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">Cases per New Hire<span class="tag comb">combine</span></span><span class="v">__ <small>per hire</small></span><span class="meta">onboarding tickets / new hires. Lower is better</span></div>
+        </div>
+        <div class="click">click the header for the PEX detail sheet (below)</div>
       </div>
       <div>
         <div class="grp-title"><span>Program Outcomes</span><small>lagging</small></div>
         <div class="tiles" style="grid-template-columns: 1fr 1fr">
-          <div class="bx thin tile a" style="grid-column: span 2; min-height:70px"><span class="nm">Productive by Day 90</span><span class="v">__% <small>of new hires rated productive by their manager</small></span><span class="meta red">needs a new HM question + scale decision</span></div>
-          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Quality of Hire</span><span class="v">__</span><span class="meta">already in Tableau</span></div>
-          <div class="bx thin tile g" style="min-height:70px"><span class="nm">1st-Year Attrition</span><span class="v">__%</span><span class="meta">Workday / Tableau</span></div>
-          <div class="bx thin tile dash" style="grid-column: span 2; min-height:52px; color:#6B6B6B"><span class="nm">Exit Survey (future)</span><span class="meta">when the off-boarding team aligns. Glint has a standard exit survey</span></div>
+          <div class="bx thin tile a" style="grid-column: span 2; min-height:84px"><span class="nm">Productive by Day 90</span><span class="v">__% <small>rated productive by their manager</small></span><span class="meta red">needs a new HM question + scale decision</span></div>
+          <div class="bx thin tile g" style="min-height:84px"><span class="nm">Quality of Hire</span><span class="v">__</span><span class="meta">in Tableau</span></div>
+          <div class="bx thin tile g" style="min-height:84px"><span class="nm">1st-Year Attrition</span><span class="v">__%</span><span class="meta">Workday / Tableau</span></div>
+          <div class="bx thin tile dash" style="grid-column: span 2; min-height:52px; color:#6B6B6B"><span class="nm">Exit Survey (future)</span><span class="meta">when the off-boarding team aligns</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Row 3: PEX gray + grid + volume -->
-    <div class="row r3" style="grid-template-columns: 0.9fr 1.5fr 0.9fr">
-      <div>
-        <div class="grp-title"><span>PEX Success</span><small>pending integration</small></div>
-        <div class="bx gray" style="min-height:150px">
-          <div style="font-size:18px">Not shown until there's a feed</div>
-          <ul class="pending-list">
-            <li>Started on original date (Excel today)</li>
-            <li>QA pass rate (Excel today)</li>
-            <li>NHO attendance (no capture yet)</li>
-            <li>Task completion % (ServiceNow, portal build)</li>
-          </ul>
-          <div style="font-size:15px;margin-top:4px">Jira: see backlog below</div>
-        </div>
-      </div>
+    <!-- Row 3: sentiment grid + volume -->
+    <div class="row r3" style="grid-template-columns: 1.5fr 1fr">
       <div>
         <div class="grp-title"><span>Where does sentiment dip?</span><small>highlight table, % favorable</small></div>
         <table class="grid-sketch">
@@ -198,10 +209,68 @@
       </div>
       <div>
         <div class="grp-title"><span>Volume</span><small>Workday</small></div>
-        <div class="bx thin" style="min-height:150px">
+        <div class="bx thin" style="min-height:100px">
           <div>New hires by region (map) <span class="muted">+ monthly trend</span></div>
-          <svg viewBox="0 0 200 60" style="width:100%;height:60px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#1F4E99" stroke-width="2"/></svg>
-          <div class="muted" style="font-size:15px">Smaller than v1. NHO chart moved to PEX box.</div>
+          <svg viewBox="0 0 200 60" style="width:100%;height:56px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#1F4E99" stroke-width="2"/></svg>
+        </div>
+        <div class="bx thin tile dash" style="margin-top:8px; min-height:56px; color:#6B6B6B"><span class="nm">NHO Attendance: Live vs Virtual (future)</span><span class="meta">no way to record attendance yet</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================== PEX DETAIL SHEET =========================== -->
+  <p style="margin-top:22px">Sheet 2: <b>PEX Success detail</b>, opened from the PEX header. Same filters, split by Regular / NTC / Exec like PEX reports today.</p>
+  <p class="key"><span class="tag std">take</span> PEX's SLA as it is &nbsp; <span class="tag comb">combine</span> PEX data joined with another source &nbsp; <span class="tag cust">new</span> doesn't exist yet</p>
+  <div class="bx frame wide">
+    <div class="wf-hdr"><b>PEX Success | Detail</b><span class="r">PEX's I Join lifecycle (job requisition to start date)<br>ServiceNow + Workday</span></div>
+    <div class="filters">
+      <span class="chip">Region</span><span class="chip">Country</span><span class="chip">Persona</span><span class="chip">Start Date</span>
+      <span class="legend"><span class="chip" style="padding-right:10px">&lt; Back to Executive View</span></span>
+    </div>
+
+    <div class="row r3" style="grid-template-columns: 1.4fr 1fr 1fr">
+      <div>
+        <div class="grp-title"><span>Where delays happen</span><small>on time % by step</small></div>
+        <div class="bx thin" style="padding-top:26px">
+          <div class="bars">
+            <span>Job Requisition Review <span class="tag std">take</span></span><div class="track first"><div class="bar" style="width:82%"></div></div><span class="pct">__%</span>
+            <span>Offer Letter Release <span class="tag std">take</span></span><div class="track"><div class="bar" style="width:72%"></div></div><span class="pct">__%</span>
+            <span>Background Check <span class="tag std">take</span></span><div class="track"><div class="bar" style="width:88%"></div></div><span class="pct">__%</span>
+            <span>Onboarding (start date held) <span class="tag std">take</span></span><div class="track"><div class="bar" style="width:78%"></div></div><span class="pct">__%</span>
+          </div>
+          <div class="sub-lbl" style="margin-top:8px">Each bar is a PEX SLA. Hover a bar for the HR services behind the misses.</div>
+        </div>
+      </div>
+      <div>
+        <div class="grp-title"><span>Self-service</span><small>is the portal doing the work?</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr">
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">HR-Raised %<span class="tag std">take</span></span><span class="v">__% <small>goal 2% or less</small></span><span class="meta">onboarding cases HR opened on someone's behalf</span></div>
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">Chat-to-Case Conversion<span class="tag std">take</span></span><span class="v">__%</span><span class="meta">onboarding chats that had to become a case</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="grp-title"><span>Satisfaction</span><small>case surveys</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr">
+          <div class="bx thin tile a" style="min-height:84px"><span class="nm">Onboarding Case CSAT<span class="tag std">take</span></span><span class="v">__% <small>satisfied</small></span><span class="meta">__% responded. Goals 85% and 5%</span></div>
+          <div class="bx thin" style="min-height:84px"><div class="sub-lbl">Off the main page: few people answer case surveys, and new-hire sentiment already comes from Glint.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row r3" style="grid-template-columns: 1.4fr 2fr">
+      <div>
+        <div class="grp-title"><span>Workload</span><small>onboarding cases</small></div>
+        <div class="bx thin" style="min-height:120px">
+          <div><span class="blue">received</span> vs <span class="muted">closed</span> <span class="tag std">take</span></div>
+          <svg viewBox="0 0 220 60" style="width:100%;height:60px"><path d="M5 40 L45 34 L85 38 L125 26 L165 30 L215 22" fill="none" stroke="#1F4E99" stroke-width="2"/><path d="M5 46 L45 42 L85 40 L125 34 L165 33 L215 28" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="5 4"/></svg>
+          <div class="sub-lbl">Two different pools, so both lines show.</div>
+        </div>
+      </div>
+      <div>
+        <div class="grp-title"><span>Future measures</span><small>once the new process is live</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr 1fr">
+          <div class="bx thin tile dash" style="min-height:120px"><span class="nm">Clean Start Rate<span class="tag comb">combine</span></span><span class="v">__%</span><span class="meta">of new hires where the start date held, onboarding passed QA with no critical error, and the laptop arrived by Day 1</span></div>
+          <div class="bx thin tile dash" style="min-height:120px"><span class="nm">Pre-Day 1 Tasks On Time<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">portal tasks done by their due date, for new hires, managers and PEX</span></div>
         </div>
       </div>
     </div>
@@ -253,8 +322,33 @@
   </table>
   </div>
 
+  <!-- =========================== PEX MEASURES =========================== -->
+  <h2><span>4. PEX Success: what we take, combine and add</span></h2>
+  <p>PEX already runs its own SLAs on volume, total elapsed time (on time or not), QA, CSAT and HR-raised %, each with a minimum and a goal. Its "I Join" lifecycle covers the onboarding steps from job requisition to start date. Most of this bucket reuses those measures as they are. A few join PEX data with Workday, Equipment or the new portal.</p>
+  <div class="wide">
+  <table class="t">
+    <tr><th style="width:19%">Measure</th><th class="w">How</th><th>Built from</th><th style="width:15%">PEX target today</th><th class="w">Where</th></tr>
+    <tr><td>On-Time Start</td><td><span class="tag std">take</span></td><td>PEX's onboarding SLA: actual hire date on or before the proposed hire date (Workday)</td><td>80% min, 90% goal</td><td>Tile</td></tr>
+    <tr><td>Onboarding QA</td><td><span class="tag std">take</span></td><td>PEX's QA audits of onboarding transactions. Critical = an error that needs immediate correction; overall covers the rest of the QA form</td><td>85% min, 98% goal</td><td>Tile (critical), detail (overall)</td></tr>
+    <tr><td>Cases per New Hire</td><td><span class="tag comb">combine</span></td><td>Onboarding cases from new hires and their managers (ServiceNow), divided by new hires that month (Workday)</td><td>None yet. Lower is better</td><td>Tile</td></tr>
+    <tr><td>On Time by Step</td><td><span class="tag std">take</span></td><td>Total elapsed time for each I Join step: job requisition review, offer letter release, background check, onboarding</td><td>80% min, 90% goal</td><td>Detail</td></tr>
+    <tr><td>HR-Raised %</td><td><span class="tag std">take</span></td><td>Share of onboarding cases HR opened on someone's behalf. High means people aren't self-serving</td><td>5% max, 2% goal</td><td>Detail</td></tr>
+    <tr><td>Chat-to-Case Conversion</td><td><span class="tag std">take</span></td><td>Onboarding chats that had to become a case</td><td>None set</td><td>Detail</td></tr>
+    <tr><td>Onboarding Case CSAT</td><td><span class="tag std">take</span></td><td>% satisfied out of responses, with the response rate beside it</td><td>50% min, 85% goal; 5% response</td><td>Detail</td></tr>
+    <tr><td>Cases Received vs Closed</td><td><span class="tag std">take</span></td><td>Incoming and completed onboarding cases. Two different pools</td><td>n/a</td><td>Detail</td></tr>
+    <tr><td>Clean Start Rate</td><td><span class="tag comb">combine</span></td><td>Per new hire: start date held, onboarding passed QA with no critical error, laptop by Day 1 (Equipment)</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
+    <tr><td>Pre-Day 1 Tasks On Time</td><td><span class="tag cust">new</span></td><td>Portal tasks done by their due date, once the new portal is live</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
+  </table>
+  </div>
+  <ul class="rules">
+    <li><b>Two questions, three tiles.</b> On-Time Start and Onboarding QA ask whether PEX is delivering onboarding well. Cases per New Hire asks whether the new experience makes PEX's job easier: if the portal works, people need fewer tickets.</li>
+    <li><b>No blended PEX score.</b> These use different units, and some go the other way (lower is better), so a blend would hide which one slipped. The header shows how many tiles are at goal.</li>
+    <li><b>PEX's own targets carry over</b>, so PEX and this dashboard agree on what good looks like.</li>
+    <li><b>Start the before picture early.</b> Cases per new hire and HR-raised % exist today, so the comparison after the portal launches has a baseline.</li>
+  </ul>
+
   <!-- =========================== SCORING =========================== -->
-  <h2><span>4. How the scores work</span></h2>
+  <h2><span>5. How the survey scores work</span></h2>
   <div class="two">
     <div>
       <ul class="rules">
@@ -278,14 +372,14 @@
   </div>
 
   <!-- =========================== BACKLOG =========================== -->
-  <h2><span>5. Integration backlog (Jira candidates)</span></h2>
+  <h2><span>6. Integration backlog (Jira candidates)</span></h2>
   <div class="wide">
   <table class="t">
     <tr><th style="width:24%">Item</th><th>Today</th><th>Ask</th><th style="width:14%">Who</th></tr>
     <tr><td>Glint new-hire survey to Tableau</td><td>Unknown</td><td>Is there a feed? If not, what would one take?</td><td>Kelly</td></tr>
     <tr><td>Net-new survey questions</td><td>Not in any survey yet</td><td>What it takes to add custom items to the Glint onboarding program and get them in the feed</td><td>Kelly</td></tr>
     <tr><td>Glint HM survey to Tableau</td><td>HM surveys exist, no link to dashboard</td><td>Same as above, for the HM survey</td><td>Kelly</td></tr>
-    <tr><td>PEX on-start and QA rates</td><td>Copied from Workday into Excel by hand</td><td>Pull straight from Workday and ServiceNow</td><td>PEX + WFI</td></tr>
+    <tr><td>PEX measures</td><td>Weekly Excel today. PEX's own automated Tableau dashboard is in progress</td><td>Use it as the source for the PEX tiles, and add the onboarding measures in section 4 to its requirements</td><td>Linda + Kwabena</td></tr>
     <tr><td>NHO attendance</td><td>No capture method</td><td>Decide how attendance is recorded per cohort</td><td>NHO program + WFI</td></tr>
     <tr><td>Productive by Day 90</td><td>No question exists</td><td>Add the HM item, agree the scale</td><td>Janine + Kelly</td></tr>
     <tr><td>Exit survey</td><td>Not available</td><td>Align with off-boarding team</td><td>Off-boarding + Janine</td></tr>
@@ -293,11 +387,12 @@
   </table>
   </div>
 
-  <h2><span>6. Next asks</span></h2>
+  <h2><span>7. Next asks</span></h2>
   <ul class="rules">
     <li><b>Kelly:</b> the three Glint questions in the backlog. CC Janine.</li>
     <li><b>Janine:</b> the email with the draft survey sections, so section 2 can use our real questions. Also a call on the productivity scale.</li>
     <li><b>Martina:</b> where Quality of Hire and attrition live, and who would own manual updates if anything has to stay manual.</li>
+    <li><b>Linda:</b> walk through the PEX tiles in section 4, and log them as metric requests so they land in PEX's automated dashboard.</li>
     <li><b>Fernanda:</b> equipment process access (portal prototype). CC Janine.</li>
   </ul>
 
@@ -307,6 +402,7 @@
     <p>Microsoft Learn, <a href="https://learn.microsoft.com/en-us/viva/glint/setup/manage-confidentiality-thresholds">Manage Viva Glint confidentiality thresholds</a>: scores need 5 responses by default (minimum 3), comments need 10.</p>
     <p>Microsoft Viva Glint community and the <a href="https://cran.r-project.org/web/packages/vivaglint/vignettes/vivaglint-intro.html">vivaglint R package</a>: favorable = 4 and 5 on a 5-point scale; Glint score = (mean - 1) / 4 x 100.</p>
     <p><a href="https://statisticsbyjim.com/basics/cronbachs-alpha/">Statistics by Jim, Cronbach's alpha</a>: 0.70 as the usual reliability floor; short scales tend to score low.</p>
+    <p>People Experience 2026 Dashboard workbook and the August 2026 monthly performance deck, shared by Adrian San Juan (PEX Quality &amp; Metrics): PEX's SLAs, the I Join lifecycle, and the minimum and goal targets in section 4.</p>
     <p>Hiring-manager timing: <a href="https://hr.ucdavis.edu/node/11811">UC Davis Health</a> (manager survey at 30 days, new hires at 30, 60, 90) and <a href="https://www.mangoapps.com/templates/surveys/new-hire-30-day-quality-of-hire-survey-hiring-manager">MangoApps Day 30 HM template</a>.</p>
   </div>
 </div>

@@ -93,19 +93,7 @@
   $('#nhoRate').textContent = Math.round((live + virt) / tot * 100) + '%';
   $('#nhoLive').textContent = Math.round(live / (live + virt) * 100) + '%';
 
-  /* ---------------- Persona filter: drives the real PEX persona figures ---------------- */
-  const srcOnstart = $('#s-onstart').innerHTML, srcQa = $('#s-qa').innerHTML;
-  $('#fPersona').addEventListener('change', e => {
-    const k = e.target.value, p = D.persona[k];
-    $('#v-onstart').textContent = p.onstart;
-    $('#v-qa').textContent = p.qa;
-    $('#s-onstart').innerHTML = k === 'All' ? srcOnstart : `${k} only<br>${srcOnstart}`;
-    $('#s-qa').innerHTML = p.qa === 'n/a' ? 'NTC audits not tagged in source' : (k === 'All' ? srcQa : `${k} only<br>${srcQa}`);
-    document.querySelectorAll('.t-spark').forEach(s => s.style.visibility = k === 'All' ? '' : 'hidden');
-    $('#hiresTot').textContent = fmtInt(p.hires);
-    $('#hiresPersona').textContent = k === 'All' ? 'All personas' : `${k} persona (map not filtered)`;
-  });
-  $('#revert').addEventListener('click', () => { $('#fPersona').value = 'All'; $('#fPersona').dispatchEvent(new Event('change')); highlightRegion(null); });
+  $('#revert').addEventListener('click', () => { $('#fPersona').value = 'All'; highlightRegion(null); });
 
   /* ---------------- Fit / 100% ---------------- */
   let zoom = 'fit';
@@ -136,8 +124,8 @@
   const measures = [];
   D.clusters.forEach(c => c.tiles.forEach(t => measures.push([esc(c.label), esc(t.name), sw(t.status), KIND[t.kind], esc(t.src), esc(t.note)])));
   D.outcomes.forEach(o => measures.push(['Program Outcomes &amp; ROI', esc(o.name), sw(o.status), KIND.none, esc(o.src), esc(o.note)]));
-  measures.push(['Volume', 'New Hires by Region', sw('g'), 'Actual total, sample split', 'Workday', 'Region, country and work location are PRD filters.']);
-  measures.push(['Volume', 'New Hires by Month', sw('g'), KIND.real, 'Workday (PEX report)', 'Jan-Sep 2026.']);
+  measures.push(['Volume', 'New Hires by Region', sw('g'), KIND.sample, 'Workday', 'Region, country and work location are PRD filters.']);
+  measures.push(['Volume', 'New Hires by Month', sw('g'), KIND.sample, 'Workday', '']);
   measures.push(['NHO', 'NHO Attendance: Live vs Virtual', sw('a'), KIND.sample, 'NHO Blueprint / ServiceNow', 'Capture method not defined. Two cohorts a month.']);
 
   $('#defsBody').innerHTML = `
@@ -147,20 +135,20 @@ ${sheet('Changes From the Brief', table(['Change', 'Reason'], [
   ['Filters at the top as dropdowns', 'Tableau filters can\'t be styled as chips. Filters sit above the sheets they affect.'],
   ['Data status shown as a colored bar on each tile', 'Dots next to numbers read as performance. A bar plus a legend reads as data status.'],
   ['Data status set per measure, not per cluster', 'Clusters are mixed. HM Readiness Score is captured today. 1st-year attrition is partial.'],
-  ['Sample values in gray; source and period under actual values', 'Equipment covers Jan-May 2026 and PEX covers Jan-Sep 2026.'],
+  ['Sample values in gray; source and period under actual values', 'Only the Equipment figures are actual (HAM Pro Report, Jan-May 2026).'],
   ['Program Outcomes &amp; ROI as five rows', 'The brief caps clusters at three tiles but lists five outcomes. None has a value yet.'],
   ['Recruiter Time Saved under Outcomes &amp; ROI', 'The workbook lists it under PEX Success. Kept here so PEX stays at three tiles.'],
   ['Region colors from Tableau 10', 'Red and green already mean data status. Only countries with hires are filled.'],
   ['Did Not Attend segment in NHO bars', 'Shows the attendance rate in the chart.'],
-  ['Onboarding case CSAT left off', '131 responses YTD. Better suited to the PEX Ops view.'],
+  ['Onboarding case CSAT kept off the tiles', 'Few people answer case surveys, and new-hire sentiment comes from the Glint survey. It sits in the PEX detail sheet.'],
+  ['PEX tiles use PEX\'s own SLAs and goals', 'On-time start and QA are measures PEX already runs, so PEX and this dashboard agree on what good looks like.'],
   ['Fixed size 1600 x 900', '16:9, the same as Tableau\'s PowerPoint size.'],
 ], ['32%', '']))}
 ${sheet('Open Questions', table(['Item', 'Detail'], [
   ['Laptop by Day 1 denominator', '586 of 601 with a delivery date = 97.5%. 586 of 604 requests = 97.0%.'],
   ['Region names', 'HAM uses NA, EU, AP, LATAM. PEX CSAT uses AMER, EMEA, APAC. Needs one region, country, work location hierarchy across sources.'],
-  ['Aug start-date rate', 'Deck 87.3%, recompute 86.1%. The trend uses 86.1%.'],
   ['Loaner counts', '144, 143 or 159 depending on the cut.'],
-  ['Targets', 'Set: Laptop by Day 1 (98%), Recruiter Time Saved (+20%). All others TBC.'],
+  ['Targets', 'Set: Laptop by Day 1 (98%), Recruiter Time Saved (+20%), and PEX\'s own goals for On-Time Start (90%) and Onboarding QA (98%). All others TBC.'],
 ], ['32%', '']))}
 ${sheet('Build Notes', table(['Sheet', 'Build'], [
   ['KPI tiles', 'One Text sheet per tile in a horizontal container per group. Status bar: a narrow bar sheet colored by ' + dim('Data Status') + '.'],

@@ -1,6 +1,7 @@
 /* Executive View data and field spec.
    Sources: Onboarding_Dashboard_Planning_UPDATED_v3.1.xlsx (Dashboard Fields, HAM Equipment
-   Insight, PEX Operations Insight) and the v4 design brief.
+   Insight) and the v4 design brief. PEX tiles follow PEX's own SLAs and targets (People
+   Experience 2026 Dashboard and the Aug 2026 monthly performance deck); their values are samples.
 
    kind:   'real' = figure from a named report, 'sample' = placeholder, 'none' = no data source yet
    status: data status, not performance. 'g' available, 'a' partial (needs integration or build),
@@ -35,14 +36,12 @@ window.ONBD = {
         src: 'HAM Pro Report', type: 'Measure %, KPI + trend', note: 'ROI proxy for process delay. Top reason for late laptops.' },
     ] },
     { key: 'pex', label: 'PEX Success', tiles: [
-      { id: 'onstart', name: 'Started on Original Date', value: '87.8%', target: 'Target TBC', kind: 'real', status: 'g',
-        period: 'PEX 2026 dashboard, Jan-Sep 2026', spark: [.899, .821, .894, .924, .845, .883, .883, .861, .885],
-        src: 'Workday / PEX report', type: 'Measure %, KPI + trend', note: 'Outcome proxy, not a task SLA. Aug is 87.3% in the deck, 86.1% recomputed.' },
-      { id: 'qa', name: 'QA Pass Rate', value: '74.3%', target: 'Target TBC', kind: 'real', status: 'g',
-        period: 'PEX 2026 dashboard, Jan-Sep 2026', spark: [.673, .745, .869, .721, .743, .68, .741, .82, .81],
-        src: 'ServiceNow QA audits', type: 'Measure %, KPI + trend', note: 'Overall result (any fail counts). Stricter than QA Critical. Sep has 42 audits.' },
-      { name: 'Task Completion % (Pre-Day 1)', value: '82%', target: 'Target TBC', kind: 'sample', status: 'g',
-        src: 'ServiceNow', type: 'Measure %, progress', note: 'Task status is captured. Per-task SLAs wait on the portal build.' },
+      { name: 'On-Time Start', value: '86%', target: 'Goal 90%', kind: 'sample', status: 'a',
+        src: 'Workday (PEX onboarding SLA)', type: 'Measure %, KPI vs goal', note: "PEX's onboarding SLA: actual hire date on or before the proposed hire date. PEX's own minimum is 80%." },
+      { name: 'Onboarding QA', value: '94%', target: 'Goal 98%', kind: 'sample', status: 'a',
+        src: 'PEX QA audits', type: 'Measure %, KPI vs goal', note: 'Audited onboarding transactions with no critical error. Overall QA score sits in the PEX detail sheet.' },
+      { name: 'Onboarding Cases per New Hire', value: '1.3', target: 'Lower is better', kind: 'sample', status: 'a',
+        src: 'ServiceNow + Workday', type: 'Ratio, KPI + trend', note: 'Onboarding cases from new hires and their managers, divided by new hires that month. Fewer cases means the portal is answering more questions.' },
     ] },
   ],
 
@@ -54,24 +53,16 @@ window.ONBD = {
     { name: 'Recruiter Time Saved Post-Offer', target: 'Target +20%', status: 'r', src: 'TBD / manual', note: 'No baseline yet.' },
   ],
 
-  /* PEX persona split, Jan-Sep 2026 (real). NTC audits are not tagged separately. */
-  persona: {
-    All:     { hires: 1728, onstart: '87.8%', qa: '74.3%' },
-    Regular: { hires: 1338, onstart: '87.6%', qa: '76.2%' },
-    NTC:     { hires: 284,  onstart: '88.0%', qa: 'n/a' },
-    Exec:    { hires: 106,  onstart: '90.6%', qa: '67.0%' },
-  },
-
-  /* New hires per month, Workday via PEX report (real). */
+  /* New hires per month: sample data. */
   months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-  hiresByMonth: [169, 134, 180, 184, 226, 256, 188, 173, 218],
+  hiresByMonth: [150, 140, 170, 190, 210, 240, 200, 180, 205],
 
-  /* Regional split: sample data that adds up to the real 1,728. */
+  /* Regional split: sample data, adds up to the sample monthly total (1,685). */
   regions: [
-    { key: 'NA', label: 'North America', hires: 640, color: '#4E79A7', lon: -100, lat: 46 },
-    { key: 'LATAM', label: 'Latin America', hires: 120, color: '#F28E2B', lon: -58, lat: -14 },
-    { key: 'EMEA', label: 'EMEA', hires: 560, color: '#76B7B2', lon: 14, lat: 51 },
-    { key: 'APAC', label: 'Asia Pacific', hires: 408, color: '#B07AA1', lon: 120, lat: 4 },
+    { key: 'NA', label: 'North America', hires: 620, color: '#4E79A7', lon: -100, lat: 46 },
+    { key: 'LATAM', label: 'Latin America', hires: 115, color: '#F28E2B', lon: -58, lat: -14 },
+    { key: 'EMEA', label: 'EMEA', hires: 550, color: '#76B7B2', lon: 14, lat: 51 },
+    { key: 'APAC', label: 'Asia Pacific', hires: 400, color: '#B07AA1', lon: 120, lat: 4 },
   ],
   /* ISO 3166 numeric -> [region, weight]. Sample: countries with hires only. */
   countries: {
