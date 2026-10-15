@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Executive View Sketch</title>
+<link rel="stylesheet" href="sketch-font.css">
+<style>
+  :root {
+    --paper: #FBFAF5; --ink: #2B2B2B; --pencil: #6B6B6B; --faint: #A9A9A9;
+    --blue: #1F4E99; --red: #C0392B; --hl: #FFF3A6; --gray-fill: #ECECEC;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); background: var(--paper);
+    background-image: linear-gradient(#E9EEF5 1px, transparent 1px), linear-gradient(90deg, #E9EEF5 1px, transparent 1px);
+    background-size: 24px 24px;
+    font: 18px/1.35 "Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 34px; margin: 0; font-weight: normal; }
+  h2 { font-size: 26px; font-weight: normal; margin: 40px 0 10px; }
+  h2 span { background: var(--hl); padding: 0 6px; }
+  .sub { color: var(--pencil); margin-top: 2px; }
+  p { margin: 6px 0; max-width: 900px; }
+  .red { color: var(--red); } .blue { color: var(--blue); } .muted { color: var(--pencil); }
+
+  /* Hand-drawn box: wobbly border on a pseudo layer so the text stays crisp */
+  .bx { position: relative; padding: 10px 12px; }
+  .bx::before { content: ""; position: absolute; inset: 0; border: 2px solid var(--ink); border-radius: 6px 9px 7px 10px / 9px 6px 10px 7px; filter: url(#rough); pointer-events: none; }
+  .bx.thin::before { border-width: 1.5px; border-color: #555; }
+  .bx.dash::before { border-style: dashed; border-color: var(--pencil); }
+  .bx.gray { background: repeating-linear-gradient(135deg, var(--gray-fill) 0 6px, #F6F6F6 6px 12px); color: var(--pencil); }
+  .bx.red::before { border-color: var(--red); }
+
+  /* ---------- Wireframe ---------- */
+  .frame { margin-top: 16px; padding: 14px; background: #fff; }
+  .wf-hdr { display: flex; justify-content: space-between; align-items: center; background: #2B2B3A; color: #fff; padding: 8px 14px; border-radius: 4px; }
+  .wf-hdr b { font-weight: normal; font-size: 24px; }
+  .wf-hdr .r { font-size: 15px; color: #D8D8E8; text-align: right; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; align-items: center; }
+  .chip { position: relative; padding: 2px 26px 2px 10px; font-size: 16px; }
+  .chip::before { content: ""; position: absolute; inset: 0; border: 1.5px solid #555; border-radius: 4px; filter: url(#rough); }
+  .chip::after { content: "v"; position: absolute; right: 8px; top: 2px; color: var(--pencil); }
+  .chip.new { color: var(--blue); }
+  .chip.new::before { border-color: var(--blue); }
+  .legend { margin-left: auto; font-size: 15px; display: flex; gap: 12px; align-items: center; }
+  .sw { display: inline-block; width: 12px; height: 12px; border: 1.5px solid var(--ink); margin-right: 4px; vertical-align: -1px; }
+
+  .row { display: grid; gap: 12px; margin-top: 12px; }
+  .grp-title { font-size: 20px; color: #5B2A86; border-bottom: 2px solid #5B2A86; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: baseline; }
+  .grp-title small { font-size: 14px; color: var(--pencil); }
+  .tiles { display: grid; gap: 8px; }
+  .tile { min-height: 96px; display: flex; flex-direction: column; border-left: 6px solid var(--st, #999); }
+  .tile .nm { font-size: 17px; line-height: 1.15; }
+  .tile .v { font-size: 30px; line-height: 1.1; color: var(--blue); }
+  .tile .v small { font-size: 15px; color: var(--pencil); }
+  .tile .meta { font-size: 14px; color: var(--pencil); margin-top: auto; }
+  .tile svg { width: 80px; height: 26px; }
+  .g { --st: #4CAF50; } .a { --st: #FFC107; } .r { --st: #F44336; }
+  .note { position: absolute; font-size: 15px; color: var(--red); line-height: 1.15; max-width: 220px; }
+  .note.l::before { content: "\2190 "; } /* arrow drawn as text */
+  .pending-list { font-size: 15px; margin: 6px 0 0 0; padding-left: 18px; }
+
+  .grid-sketch { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .grid-sketch td, .grid-sketch th { border: 1.5px solid #888; padding: 3px 6px; text-align: center; font-weight: normal; }
+  .grid-sketch th:first-child, .grid-sketch td:first-child { text-align: left; }
+  .grid-sketch .h1 { background: #DCE6F2; } .grid-sketch .h2 { background: #B9CCE4; } .grid-sketch .h3 { background: #F6D5C4; }
+  .grid-sketch .na { color: var(--faint); }
+
+  /* ---------- Tables ---------- */
+  table.t { width: 100%; border-collapse: collapse; font-size: 17px; background: rgba(255,255,255,.75); }
+  table.t th, table.t td { border-bottom: 1.5px solid #BDBDBD; padding: 6px 8px; text-align: left; vertical-align: top; font-weight: normal; }
+  table.t th { border-bottom: 2px solid var(--ink); color: var(--pencil); }
+  table.t td.w { white-space: nowrap; }
+  .tag { display: inline-block; font-size: 13px; padding: 0 6px; border: 1.5px solid currentColor; border-radius: 10px; margin-left: 4px; white-space: nowrap; }
+  .tag.std { color: var(--blue); } .tag.cust { color: var(--red); } .tag.open { color: var(--pencil); }
+  .x { color: var(--blue); }
+  ul.rules { padding-left: 22px; max-width: 980px; }
+  ul.rules li { margin: 4px 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .src { font-size: 15px; color: var(--pencil); }
+  .src a { color: var(--blue); }
+
+  @media (max-width: 900px) {
+    .two { grid-template-columns: 1fr; }
+    .r5, .r4, .r3 { grid-template-columns: 1fr 1fr !important; }
+    .wide { overflow-x: auto; }
+    .note { position: static; display: block; margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+</svg>
+
+<div class="page">
+  <h1>Executive View, v2 sketch</h1>
+  <div class="sub">Onboarding Reimagined | for the conversation with Martina and Wayne | Oct 2026</div>
+  <p style="margin-top:12px">What changed after the last check-in with Janine:</p>
+  <ul class="rules" style="margin-top:2px">
+    <li>Sentiment tiles are now <b>bucket scores</b>, each built from 2 to 5 survey questions, for new hires and hiring managers.</li>
+    <li>"HM Success" is now <b>HM Sentiment</b>, tied to the hiring-manager survey.</li>
+    <li>Anything that needs manual upkeep is off the page. PEX Success stays as a <b>gray box</b> until its data has a feed.</li>
+    <li>Quality of Hire and 1st-year attrition already exist in Tableau. Time to productivity becomes <b>Productive by Day 90</b>, a hiring-manager rating.</li>
+    <li>Orientation is out of scope until a consistent session is deployed.</li>
+  </ul>
+
+  <!-- =========================== WIREFRAME =========================== -->
+  <h2><span>1. The page</span></h2>
+  <div class="bx frame wide">
+    <div class="wf-hdr"><b>Onboarding Dashboard | Executive View</b><span class="r">Glint surveys, Power BI, Tableau, Workday<br>refreshed monthly</span></div>
+    <div class="filters">
+      <span class="chip">Region</span><span class="chip">Country</span><span class="chip">Work Location</span><span class="chip">Persona</span><span class="chip">Start Date</span><span class="chip">Remote / On-Site</span>
+      <span class="chip new">Survey Wave: Week 1 | Day 30 | Day 90</span>
+      <span class="legend"><span><span class="sw" style="background:#4CAF50"></span>data flows</span><span><span class="sw" style="background:#FFC107"></span>partial</span><span><span class="sw" style="background:#F44336"></span>no source</span></span>
+    </div>
+
+    <!-- Row 1: NH sentiment -->
+    <div class="row" style="grid-template-columns: 1fr">
+      <div>
+        <div class="grp-title"><span>New Hire Sentiment</span><small>Glint new-hire survey | % favorable | n and response rate on every tile</small></div>
+        <div class="tiles r5" style="grid-template-columns: 1.15fr 1fr 1fr 1fr 1fr; position: relative">
+          <div class="bx thin tile a"><span class="nm">Overall Onboarding Score</span><span class="v">__% <small>fav</small></span><svg viewBox="0 0 80 26"><path d="M4 18 L40 10 L76 13" fill="none" stroke="#1F4E99" stroke-width="2"/><circle cx="4" cy="18" r="2.5" fill="#1F4E99"/><circle cx="40" cy="10" r="2.5" fill="#1F4E99"/><circle cx="76" cy="13" r="2.5" fill="#1F4E99"/></svg><span class="meta">W1 / D30 / D90 trend. n = __</span></div>
+          <div class="bx thin tile a"><span class="nm">Early Readiness &amp; Navigation</span><span class="v">__%</span><span class="meta">3 Qs per wave. Feeds Equipment too</span></div>
+          <div class="bx thin tile a"><span class="nm">Support &amp; Connection</span><span class="v">__%</span><span class="meta">manager, team, buddy, belonging</span></div>
+          <div class="bx thin tile a"><span class="nm">Role Clarity &amp; Ramp-Up</span><span class="v">__%</span><span class="meta">Week 1 has 1 Q, so shown as an item</span></div>
+          <div class="bx thin tile a"><span class="nm">Overall Experience &amp; Barriers</span><span class="v">__%</span><span class="meta">barriers = comments, stay in Glint</span></div>
+        </div>
+        <div class="red" style="font-size:16px;margin-top:4px">all yellow until Kelly confirms a Glint to Tableau feed, and how net-new questions get in</div>
+      </div>
+    </div>
+
+    <!-- Row 2: HM sentiment + Equipment + Outcomes -->
+    <div class="row r3" style="grid-template-columns: 0.9fr 0.9fr 1.2fr">
+      <div>
+        <div class="grp-title"><span>HM Sentiment</span><small>Glint HM survey</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr">
+          <div class="bx thin tile a" style="min-height:70px"><span class="nm">HM Readiness</span><span class="v">__%</span></div>
+          <div class="bx thin tile a" style="min-height:70px"><span class="nm">HM Enablement</span><span class="v">__%</span></div>
+          <div class="bx thin tile a" style="min-height:70px"><span class="nm">HM Overall / CSAT</span><span class="v">__%</span><span class="meta">keeps the existing Manager NPS as a drill-down</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="grp-title"><span>Equipment Success</span><small>Power BI</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr">
+          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Laptop by Day 1</span><span class="v">__% <small>vs 98%</small></span></div>
+          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Loaner Reliance</span><span class="v">__%</span></div>
+          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Late Notice (&lt;14 days)</span><span class="v">__%</span><span class="meta">+ survey item "had my equipment on Day 1"</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="grp-title"><span>Program Outcomes</span><small>lagging</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr 1fr">
+          <div class="bx thin tile a" style="grid-column: span 2; min-height:70px"><span class="nm">Productive by Day 90</span><span class="v">__% <small>of new hires rated productive by their manager</small></span><span class="meta red">needs a new HM question + scale decision</span></div>
+          <div class="bx thin tile g" style="min-height:70px"><span class="nm">Quality of Hire</span><span class="v">__</span><span class="meta">already in Tableau</span></div>
+          <div class="bx thin tile g" style="min-height:70px"><span class="nm">1st-Year Attrition</span><span class="v">__%</span><span class="meta">Workday / Tableau</span></div>
+          <div class="bx thin tile dash" style="grid-column: span 2; min-height:52px; color:#6B6B6B"><span class="nm">Exit Survey (future)</span><span class="meta">when the off-boarding team aligns. Glint has a standard exit survey</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: PEX gray + grid + volume -->
+    <div class="row r3" style="grid-template-columns: 0.9fr 1.5fr 0.9fr">
+      <div>
+        <div class="grp-title"><span>PEX Success</span><small>pending integration</small></div>
+        <div class="bx gray" style="min-height:150px">
+          <div style="font-size:18px">Not shown until there's a feed</div>
+          <ul class="pending-list">
+            <li>Started on original date (Excel today)</li>
+            <li>QA pass rate (Excel today)</li>
+            <li>NHO attendance (no capture yet)</li>
+            <li>Task completion % (ServiceNow, portal build)</li>
+          </ul>
+          <div style="font-size:15px;margin-top:4px">Jira: see backlog below</div>
+        </div>
+      </div>
+      <div>
+        <div class="grp-title"><span>Where does sentiment dip?</span><small>highlight table, % favorable</small></div>
+        <table class="grid-sketch">
+          <tr><th>Bucket</th><th>Week 1</th><th>Day 30</th><th>Day 90</th></tr>
+          <tr><td>Readiness &amp; Navigation</td><td class="h2">__</td><td class="h1">__</td><td class="h1">__</td></tr>
+          <tr><td>Support &amp; Connection</td><td class="h2">__</td><td class="h2">__</td><td class="h3">__</td></tr>
+          <tr><td>Role Clarity &amp; Ramp-Up</td><td class="h1">__</td><td class="h2">__</td><td class="h2">__</td></tr>
+          <tr><td>Overall Experience</td><td class="h2">__</td><td class="h1">__</td><td class="h2">__</td></tr>
+          <tr><td>HM Readiness / Enablement</td><td class="h1">__</td><td class="h2">__</td><td class="na">-</td></tr>
+        </table>
+        <div class="muted" style="font-size:15px;margin-top:4px">Each column is one survey wave. Cells with fewer than 5 responses stay blank.</div>
+      </div>
+      <div>
+        <div class="grp-title"><span>Volume</span><small>Workday</small></div>
+        <div class="bx thin" style="min-height:150px">
+          <div>New hires by region (map) <span class="muted">+ monthly trend</span></div>
+          <svg viewBox="0 0 200 60" style="width:100%;height:60px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#1F4E99" stroke-width="2"/></svg>
+          <div class="muted" style="font-size:15px">Smaller than v1. NHO chart moved to PEX box.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================== BUCKET MAP =========================== -->
+  <h2><span>2. New-hire buckets and their questions</span></h2>
+  <p>Built on Microsoft's own Viva Glint onboarding items, which already line up with the buckets Janine shared. <span class="tag std">Glint std</span> = Glint's standard wording. <span class="tag cust">custom</span> = we write it (net-new, needs Kelly). Rated items use the 5-point agree scale.</p>
+  <div class="wide">
+  <table class="t">
+    <tr><th style="width:17%">Bucket</th><th>Question</th><th class="w">Week 1</th><th class="w">Day 30</th><th class="w">Day 90</th><th style="width:16%">Also feeds</th></tr>
+    <tr><td rowspan="5">Early Readiness &amp; Navigation</td><td>My pre-Day 1 tasks were clear and easy to complete. <span class="tag cust">custom</span></td><td class="x">x</td><td></td><td></td><td>Preboarding (portal)</td></tr>
+    <tr><td>I had the equipment and system access I needed on my first day. <span class="tag cust">custom</span></td><td class="x">x</td><td></td><td></td><td>Equipment Success</td></tr>
+    <tr><td>I know where to find information or get help. <span class="tag cust">custom</span></td><td class="x">x</td><td class="x">x</td><td></td><td></td></tr>
+    <tr><td>I have the resources I need to do my job well. <span class="tag std">Glint std</span></td><td></td><td class="x">x</td><td class="x">x</td><td></td></tr>
+    <tr><td>I have the information I need to do my job well. <span class="tag std">Glint std</span></td><td></td><td class="x">x</td><td class="x">x</td><td></td></tr>
+    <tr><td rowspan="5">Support &amp; Connection</td><td>My manager cares about me as a person. <span class="tag std">Glint std</span></td><td class="x">x</td><td class="x">x</td><td class="x">x</td><td>HM Sentiment (as context)</td></tr>
+    <tr><td>I can get the help I need from my teammates and colleagues. <span class="tag std">Glint std</span></td><td class="x">x</td><td class="x">x</td><td class="x">x</td><td></td></tr>
+    <tr><td>I feel a sense of belonging at Equinix. <span class="tag std">Glint std</span></td><td class="x">x</td><td class="x">x</td><td class="x">x</td><td></td></tr>
+    <tr><td>My onboarding buddy helped me settle in. <span class="tag cust">custom</span></td><td class="x">x</td><td class="x">x</td><td></td><td>Buddy program</td></tr>
+    <tr><td>I have built connections outside my immediate team. <span class="tag cust">custom</span></td><td></td><td></td><td class="x">x</td><td></td></tr>
+    <tr><td rowspan="5">Role Clarity &amp; Ramp-Up</td><td>My experience so far matches the way the role was described. <span class="tag std">Glint std</span></td><td class="x">x</td><td class="x">x</td><td class="x">x</td><td>Talent Acquisition</td></tr>
+    <tr><td>I clearly understand what is expected of me in my role. <span class="tag std">Glint std</span></td><td></td><td class="x">x</td><td class="x">x</td><td></td></tr>
+    <tr><td>I receive the support (coaching, training, etc.) I need to perform my new role well. <span class="tag std">Glint std</span></td><td></td><td class="x">x</td><td class="x">x</td><td></td></tr>
+    <tr><td>I know what the different parts of Equinix do. <span class="tag std">Glint std</span></td><td></td><td></td><td class="x">x</td><td></td></tr>
+    <tr><td>My onboarding has given me the confidence to be successful in my role. <span class="tag std">Glint std</span></td><td></td><td></td><td class="x">x</td><td>Productive by Day 90 (self view)</td></tr>
+    <tr><td rowspan="3">Overall Experience &amp; Barriers</td><td>Overall, I have had a good onboarding experience. <span class="tag std">Glint std</span></td><td class="x">x</td><td class="x">x</td><td class="x">x</td><td>Overall Onboarding Score</td></tr>
+    <tr><td>How happy are you working at Equinix? <span class="tag std">Glint std</span></td><td class="x">x</td><td class="x">x</td><td class="x">x</td><td></td></tr>
+    <tr><td>What barriers (if any) are slowing you down right now? <span class="tag open">open text, not scored</span></td><td class="x">x</td><td class="x">x</td><td class="x">x</td><td>Read in Glint</td></tr>
+    <tr class="muted"><td>Out of scope for now</td><td>Orientation questions (wait for deployment). Glint's Recruitment and Reasons for Joining items belong to Talent Acquisition.</td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  </div>
+  <p class="muted" style="font-size:16px">Gaps to note: Week 1 Role Clarity has one question, so it shows as an item, not a bucket score. Glint also has Openness and Authenticity items that could join Support &amp; Connection if we want a fuller belonging read.</p>
+
+  <!-- =========================== HM BUCKETS =========================== -->
+  <h2><span>3. Hiring-manager buckets</span></h2>
+  <p>Glint's documentation doesn't include a standard hiring-manager onboarding template, so these are drafts for Janine to react to. Common practice is a manager pulse around Day 30 and a productivity check at Day 90.</p>
+  <div class="wide">
+  <table class="t">
+    <tr><th style="width:17%">Bucket</th><th>Draft question</th><th class="w">Pre-Day 1 / Week 1</th><th class="w">Day 30</th><th class="w">Day 90</th></tr>
+    <tr><td rowspan="3">HM Readiness</td><td>I knew which onboarding tasks were mine and when they were due.</td><td class="x">x</td><td></td><td></td></tr>
+    <tr><td>My new hire's equipment and access were ready on their first day.</td><td class="x">x</td><td></td><td></td></tr>
+    <tr><td>I had what I needed to prepare for my new hire's first day.</td><td class="x">x</td><td></td><td></td></tr>
+    <tr><td rowspan="3">HM Enablement</td><td>The onboarding portal made it easy to track my new hire's progress.</td><td></td><td class="x">x</td><td></td></tr>
+    <tr><td>I got timely help from People Experience when I needed it.</td><td></td><td class="x">x</td><td></td></tr>
+    <tr><td>I had the guidance I needed to set clear expectations for my new hire.</td><td></td><td class="x">x</td><td></td></tr>
+    <tr><td>HM Overall / CSAT</td><td>Overall, I am satisfied with how my new hire was onboarded.</td><td></td><td class="x">x</td><td class="x">x</td></tr>
+    <tr><td>Productive by Day 90 <span class="muted">(Outcomes)</span></td><td>My new hire is fully productive in their role. <span class="muted">(D30 version: "is ramping up at the pace I expected.")</span></td><td></td><td class="x">x</td><td class="x">x</td></tr>
+  </table>
+  </div>
+
+  <!-- =========================== SCORING =========================== -->
+  <h2><span>4. How the scores work</span></h2>
+  <div class="two">
+    <div>
+      <ul class="rules">
+        <li><b>5-point agree scale</b> for every rated question. Strongly disagree to strongly agree.</li>
+        <li><b>Favorable = 4 or 5.</b> That's Glint's standard, so our numbers match what Glint shows.</li>
+        <li><b>Bucket score = average of its questions' % favorable</b>, each question weighted equally. Keep Glint's 0 to 100 score in the tooltip for anyone comparing to Glint reports.</li>
+        <li><b>One wave at a time.</b> Week 1, Day 30 and Day 90 are scored separately. Averaging them hides the dip we care about.</li>
+        <li><b>Hide small groups.</b> No score under 5 responses, the Glint default (the floor is 3). Comments need 10.</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="rules">
+        <li><b>3 or more questions per bucket</b> where we can. One or two questions read as an item, not an index. Once real data exists, check the questions hang together (Cronbach's alpha 0.70 or higher).</li>
+        <li><b>Use Glint's wording</b> where it fits. Standard items keep results comparable over time and with other companies.</li>
+        <li><b>Show n and response rate</b> on every tile. A 90% from 6 people isn't a 90% from 600.</li>
+        <li><b>Comments aren't scored.</b> Barriers stay in Glint's comment reports.</li>
+        <li><b>Targets after a baseline.</b> Run two quarters, then set targets per bucket.</li>
+        <li class="red"><b>Decide:</b> Janine said "5 or more" for productive. That suggests a 7- or 10-point item. If we keep the 5-point scale, "productive" means a 4 or 5.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- =========================== BACKLOG =========================== -->
+  <h2><span>5. Integration backlog (Jira candidates)</span></h2>
+  <div class="wide">
+  <table class="t">
+    <tr><th style="width:24%">Item</th><th>Today</th><th>Ask</th><th style="width:14%">Who</th></tr>
+    <tr><td>Glint new-hire survey to Tableau</td><td>Unknown</td><td>Is there a feed? If not, what would one take?</td><td>Kelly</td></tr>
+    <tr><td>Net-new survey questions</td><td>Not in any survey yet</td><td>What it takes to add custom items to the Glint onboarding program and get them in the feed</td><td>Kelly</td></tr>
+    <tr><td>Glint HM survey to Tableau</td><td>HM surveys exist, no link to dashboard</td><td>Same as above, for the HM survey</td><td>Kelly</td></tr>
+    <tr><td>PEX on-start and QA rates</td><td>Copied from Workday into Excel by hand</td><td>Pull straight from Workday and ServiceNow</td><td>PEX + WFI</td></tr>
+    <tr><td>NHO attendance</td><td>No capture method</td><td>Decide how attendance is recorded per cohort</td><td>NHO program + WFI</td></tr>
+    <tr><td>Productive by Day 90</td><td>No question exists</td><td>Add the HM item, agree the scale</td><td>Janine + Kelly</td></tr>
+    <tr><td>Exit survey</td><td>Not available</td><td>Align with off-boarding team</td><td>Off-boarding + Janine</td></tr>
+    <tr><td>Quality of Hire, 1st-year attrition</td><td>In Tableau / Workday</td><td>Confirm where they live, connect to this workbook</td><td>Martina</td></tr>
+  </table>
+  </div>
+
+  <h2><span>6. Next asks</span></h2>
+  <ul class="rules">
+    <li><b>Kelly:</b> the three Glint questions in the backlog. CC Janine.</li>
+    <li><b>Janine:</b> the email with the draft survey sections, so section 2 can use our real questions. Also a call on the productivity scale.</li>
+    <li><b>Martina:</b> where Quality of Hire and attrition live, and who would own manual updates if anything has to stay manual.</li>
+    <li><b>Fernanda:</b> equipment process access (portal prototype). CC Janine.</li>
+  </ul>
+
+  <h2><span>Sources</span></h2>
+  <div class="src">
+    <p>Microsoft, <a href="https://adoption.microsoft.com/files/viva/glint/ask-the-experts/Viva-Glint-Ask-the-Experts-series-Dec2024.pdf">Viva Glint Ask the Experts, Dec 2024</a>: onboarding survey timing (end of Week 1, 30 to 45 days, 90 days) and the suggested onboarding items used in section 2.</p>
+    <p>Microsoft Learn, <a href="https://learn.microsoft.com/en-us/viva/glint/setup/manage-confidentiality-thresholds">Manage Viva Glint confidentiality thresholds</a>: scores need 5 responses by default (minimum 3), comments need 10.</p>
+    <p>Microsoft Viva Glint community and the <a href="https://cran.r-project.org/web/packages/vivaglint/vignettes/vivaglint-intro.html">vivaglint R package</a>: favorable = 4 and 5 on a 5-point scale; Glint score = (mean - 1) / 4 x 100.</p>
+    <p><a href="https://statisticsbyjim.com/basics/cronbachs-alpha/">Statistics by Jim, Cronbach's alpha</a>: 0.70 as the usual reliability floor; short scales tend to score low.</p>
+    <p>Hiring-manager timing: <a href="https://hr.ucdavis.edu/node/11811">UC Davis Health</a> (manager survey at 30 days, new hires at 30, 60, 90) and <a href="https://www.mangoapps.com/templates/surveys/new-hire-30-day-quality-of-hire-survey-hiring-manager">MangoApps Day 30 HM template</a>.</p>
+  </div>
+</div>
+</body>
+</html>

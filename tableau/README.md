@@ -8,9 +8,10 @@ This is separate from the portal prototypes (`v1` to `v3`) at the repo root.
 
 | Path | What it is |
 |---|---|
+| `wireframe/index.html` | **Executive View v2 sketch.** Low-fi wireframe after the check-in with Janine: survey bucket scores for new hires and hiring managers, the question map built on Viva Glint's standard onboarding items, scoring rules, and the integration backlog. |
 | `exec-view/index.html` | **Executive / Program View**, built from the v4 design prompt and the v3.1 planning workbook. Fixed 1600×900. A second tab has the build notes: where it departs from the prompt and why, numbers to confirm, the field spec, the Tableau recipe, and the two views not drawn yet. |
 | `exec-view/data.js` | Every tile, value, source and readiness flag in one place. Each value is marked `real`, `illustrative` or `none`. |
-| `dist/` | One-file builds of both pages for sending around. Rebuild with `node tableau/tools/build_standalone.js`. |
+| `dist/` | One-file builds of each page for sending around. Rebuild with `node tableau/tools/build_standalone.js`. |
 | `tools/build_geo.py` | Regenerates `exec-view/geo.js` (Natural Earth 110m, Web Mercator). |
 | `RESEARCH.md` | Tableau's look (fonts, grays, default colors), every mark type, the 24 Show Me charts, common builds, viz extensions, and the **limits on what to mock**. Sources included. |
 | `design-package/fonts.css` | News Cycle (open font, OFL) embedded as the stand-in for Tableau's font when Tableau Desktop isn't installed. |
