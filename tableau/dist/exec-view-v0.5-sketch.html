@@ -10,123 +10,98 @@
 
 </style>
 <style>
-  /* v0.5 sketch: low fidelity, grayscale, work in progress */
-  :root { --ink: #222; --mid: #666; --light: #999; --line: #BDBDBD; --fill: #F2F2F2; --fill2: #E4E4E4; }
+  :root {
+    --paper: #FBFAF5; --ink: #2B2B2B; --pencil: #6B6B6B; --faint: #A9A9A9;
+    --blue: #1F4E99; --red: #C0392B; --hl: #FFF3A6; --gray-fill: #ECECEC;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; color: var(--ink); background: #FAFAFA; font: 14px/1.45 Arial, Helvetica, sans-serif; }
-  .page { max-width: 1240px; margin: 0 auto; padding: 24px 16px 48px; }
-  .draft { display: inline-block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); border: 1px solid var(--line); padding: 2px 8px; margin-bottom: 10px; background: #fff; }
-  h1 { font-size: 24px; margin: 0; font-weight: 600; }
-  h2 { font-size: 17px; font-weight: 600; margin: 36px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
-  .sub { color: var(--mid); margin-top: 2px; }
-  p { margin: 6px 0; max-width: 920px; }
-  .red, .blue { color: var(--ink); } .muted { color: var(--mid); }
-  b { font-weight: 600; }
+  body {
+    margin: 0; color: var(--ink); background: var(--paper);
+    background-image: linear-gradient(#E9EEF5 1px, transparent 1px), linear-gradient(90deg, #E9EEF5 1px, transparent 1px);
+    background-size: 24px 24px;
+    font: 18px/1.35 "Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 34px; margin: 0; font-weight: normal; }
+  h2 { font-size: 26px; font-weight: normal; margin: 40px 0 10px; }
+  h2 span { background: var(--hl); padding: 0 6px; }
+  .sub { color: var(--pencil); margin-top: 2px; }
+  p { margin: 6px 0; max-width: 900px; }
+  .red { color: var(--red); } .blue { color: var(--blue); } .muted { color: var(--pencil); }
 
-  .bx { position: relative; padding: 10px 12px; border: 1px solid var(--line); background: #fff; }
-  .bx.dash { border-style: dashed; background: transparent; }
-  .bx.gray { background: repeating-linear-gradient(135deg, var(--fill) 0 6px, #fff 6px 12px); color: var(--mid); }
+  /* Hand-drawn box: wobbly border on a pseudo layer so the text stays crisp */
+  .bx { position: relative; padding: 10px 12px; }
+  .bx::before { content: ""; position: absolute; inset: 0; border: 2px solid var(--ink); border-radius: 6px 9px 7px 10px / 9px 6px 10px 7px; filter: url(#rough); pointer-events: none; }
+  .bx.thin::before { border-width: 1.5px; border-color: #555; }
+  .bx.dash::before { border-style: dashed; border-color: var(--pencil); }
+  .bx.gray { background: repeating-linear-gradient(135deg, var(--gray-fill) 0 6px, #F6F6F6 6px 12px); color: var(--pencil); }
+  .bx.red::before { border-color: var(--red); }
 
-  /* Wireframe */
-  .frame { margin-top: 12px; padding: 14px; }
-  .wf-hdr { display: flex; justify-content: space-between; align-items: center; background: var(--fill2); padding: 8px 12px; }
-  .wf-hdr b { font-size: 16px; }
-  .wf-hdr .r { font-size: 12px; color: var(--mid); text-align: right; }
-  .filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; align-items: center; }
-  .chip { border: 1px solid var(--line); background: #fff; padding: 2px 22px 2px 8px; font-size: 12px; position: relative; }
-  .chip::after { content: "\25BE"; position: absolute; right: 7px; top: 2px; color: var(--light); }
-  .chip.new { border-style: dashed; }
-  .legend { margin-left: auto; font-size: 12px; color: var(--mid); display: flex; gap: 12px; align-items: center; }
-  .sw { display: inline-block; width: 12px; height: 12px; margin-right: 4px; vertical-align: -2px; border: 1px solid var(--mid); }
-  .sw.g { background: var(--mid); } .sw.a { background: repeating-linear-gradient(135deg, var(--mid) 0 2px, #fff 2px 4px); } .sw.r { background: #fff; }
+  /* ---------- Wireframe ---------- */
+  .frame { margin-top: 16px; padding: 14px; background: #fff; }
+  .wf-hdr { display: flex; justify-content: space-between; align-items: center; background: #2B2B3A; color: #fff; padding: 8px 14px; border-radius: 4px; }
+  .wf-hdr b { font-weight: normal; font-size: 24px; }
+  .wf-hdr .r { font-size: 15px; color: #D8D8E8; text-align: right; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; align-items: center; }
+  .chip { position: relative; padding: 2px 26px 2px 10px; font-size: 16px; }
+  .chip::before { content: ""; position: absolute; inset: 0; border: 1.5px solid #555; border-radius: 4px; filter: url(#rough); }
+  .chip::after { content: "v"; position: absolute; right: 8px; top: 2px; color: var(--pencil); }
+  .chip.new { color: var(--blue); }
+  .chip.new::before { border-color: var(--blue); }
+  .legend { margin-left: auto; font-size: 15px; display: flex; gap: 12px; align-items: center; }
+  .sw { display: inline-block; width: 12px; height: 12px; border: 1.5px solid var(--ink); margin-right: 4px; vertical-align: -1px; }
 
-  .row { display: grid; gap: 12px; margin-top: 14px; }
-  .grp-title { font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--ink); margin-bottom: 6px; padding-bottom: 2px; display: flex; justify-content: space-between; align-items: baseline; }
-  .grp-title small { font-size: 11px; color: var(--mid); font-weight: normal; }
-  .tiles { display: grid; gap: 6px; }
-  .tile { min-height: 84px; display: flex; flex-direction: column; padding-left: 16px; }
-  .tile::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
-  .tile.g::after { background: var(--mid); }
-  .tile.a::after { background: repeating-linear-gradient(135deg, var(--mid) 0 2px, #fff 2px 4px); }
-  .tile.r::after { border-right: 1px solid var(--line); }
-  .tile .nm { font-size: 13px; }
-  .tile .v { font-size: 22px; color: var(--light); line-height: 1.2; }
-  .tile .v small { font-size: 12px; }
-  .tile .meta { font-size: 11px; color: var(--mid); margin-top: auto; }
-  .tile svg { width: 80px; height: 22px; }
-  .pending-list { font-size: 12px; margin: 6px 0 0; padding-left: 18px; }
-  .wf-note { font-size: 12px; color: var(--mid); font-style: italic; margin-top: 4px; }
+  .row { display: grid; gap: 12px; margin-top: 12px; }
+  .grp-title { font-size: 20px; color: #5B2A86; border-bottom: 2px solid #5B2A86; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: baseline; }
+  .grp-title small { font-size: 14px; color: var(--pencil); }
+  .tiles { display: grid; gap: 8px; }
+  .tile { min-height: 96px; display: flex; flex-direction: column; border-left: 6px solid var(--st, #999); }
+  .tile .nm { font-size: 17px; line-height: 1.15; }
+  .tile .v { font-size: 30px; line-height: 1.1; color: var(--blue); }
+  .tile .v small { font-size: 15px; color: var(--pencil); }
+  .tile .meta { font-size: 14px; color: var(--pencil); margin-top: auto; }
+  .tile svg { width: 80px; height: 26px; }
+  .g { --st: #4CAF50; } .a { --st: #FFC107; } .r { --st: #F44336; }
+  .note { position: absolute; font-size: 15px; color: var(--red); line-height: 1.15; max-width: 220px; }
+  .note.l::before { content: "\2190 "; } /* arrow drawn as text */
+  .pending-list { font-size: 15px; margin: 6px 0 0 0; padding-left: 18px; }
 
-  .grid-sketch { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
-  .grid-sketch td, .grid-sketch th { border: 1px solid var(--line); padding: 3px 6px; text-align: center; font-weight: normal; }
-  .grid-sketch th { color: var(--mid); }
+  .grid-sketch { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .grid-sketch td, .grid-sketch th { border: 1.5px solid #888; padding: 3px 6px; text-align: center; font-weight: normal; }
   .grid-sketch th:first-child, .grid-sketch td:first-child { text-align: left; }
-  .grid-sketch .h1 { background: #EEE; } .grid-sketch .h2 { background: #DADADA; } .grid-sketch .h3 { background: #BDBDBD; }
-  .grid-sketch .na { color: var(--light); }
+  .grid-sketch .h1 { background: #DCE6F2; } .grid-sketch .h2 { background: #B9CCE4; } .grid-sketch .h3 { background: #F6D5C4; }
+  .grid-sketch .na { color: var(--faint); }
 
-
-  /* ---------- Dashboard sketch only: hand-drawn feel, plain straight boxes ---------- */
-  .frame { --hb: #2B2B2B; --hblue: #1F4E99; --hred: #C0392B; --hpurple: #5B2A86;
-    font-family: "Patrick Hand", "Comic Sans MS", "Segoe Print", cursive; font-size: 17px; color: var(--hb);
-    background-color: #FBFAF5; border: 2px solid var(--hb); border-radius: 6px;
-    background-image: linear-gradient(#E9EEF5 1px, transparent 1px), linear-gradient(90deg, #E9EEF5 1px, transparent 1px); background-size: 24px 24px; }
-  .frame .bx { border: 1.5px solid #555; border-radius: 5px; background: #fff; }
-  .frame .bx.dash { border-style: dashed; border-color: #888; background: transparent; }
-  .frame .bx.gray { background: repeating-linear-gradient(135deg, #ECECEC 0 6px, #F6F6F6 6px 12px); color: #6B6B6B; }
-  .frame .wf-hdr { background: #2B2B3A; color: #fff; border-radius: 4px; }
-  .frame .wf-hdr b { font-size: 24px; font-weight: normal; }
-  .frame .wf-hdr .r { font-size: 15px; color: #D8D8E8; }
-  .frame .chip { font-size: 16px; border: 1.5px solid #555; border-radius: 4px; background: #fff; }
-  .frame .chip::after { content: "v"; color: #6B6B6B; }
-  .frame .chip.new { color: var(--hblue); border: 1.5px solid var(--hblue); }
-  .frame .legend { font-size: 15px; color: var(--hb); }
-  .frame .sw { border: 1.5px solid var(--hb); }
-  .frame .sw.g { background: #4CAF50; } .frame .sw.a { background: #FFC107; } .frame .sw.r { background: #F44336; }
-  .frame .grp-title { font-size: 20px; font-weight: normal; color: var(--hpurple); border-bottom: 2px solid var(--hpurple); }
-  .frame .grp-title small { font-size: 14px; color: #6B6B6B; }
-  .frame .tile { padding-left: 18px; }
-  .frame .tile::after { width: 6px; border-radius: 4px 0 0 4px; border-right: 0; }
-  .frame .tile.g::after { background: #4CAF50; } .frame .tile.a::after { background: #FFC107; } .frame .tile.r::after { background: #F44336; }
-  .frame .tile .nm { font-size: 17px; line-height: 1.15; }
-  .frame .tile .v { font-size: 30px; color: var(--hblue); line-height: 1.1; }
-  .frame .tile .v small { font-size: 15px; color: #6B6B6B; }
-  .frame .tile .meta { font-size: 14px; color: #6B6B6B; }
-  .frame .tile svg path { stroke: var(--hblue); } .frame .tile svg circle { fill: var(--hblue); }
-  .frame .wf-note { font-size: 15px; font-style: normal; color: #6B6B6B; }
-  .frame .wf-note.hot { color: var(--hred); }
-  .frame .pending-list { font-size: 15px; }
-  .frame .grid-sketch { font-size: 16px; }
-  .frame .grid-sketch td, .frame .grid-sketch th { border: 1.5px solid #888; color: var(--hb); }
-  .frame .grid-sketch .h1 { background: #DCE6F2; } .frame .grid-sketch .h2 { background: #B9CCE4; } .frame .grid-sketch .h3 { background: #F6D5C4; }
-  .frame svg path { stroke: var(--hblue); }
-
-  /* Tables */
-  table.t { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
-  table.t th, table.t td { border-bottom: 1px solid #E0E0E0; padding: 5px 8px; text-align: left; vertical-align: top; font-weight: normal; }
-  table.t th { border-bottom: 1px solid var(--ink); color: var(--mid); font-size: 12px; }
+  /* ---------- Tables ---------- */
+  table.t { width: 100%; border-collapse: collapse; font-size: 17px; background: rgba(255,255,255,.75); }
+  table.t th, table.t td { border-bottom: 1.5px solid #BDBDBD; padding: 6px 8px; text-align: left; vertical-align: top; font-weight: normal; }
+  table.t th { border-bottom: 2px solid var(--ink); color: var(--pencil); }
   table.t td.w { white-space: nowrap; }
-  .tag { display: inline-block; font-size: 10px; padding: 0 5px; border: 1px solid var(--line); margin-left: 4px; white-space: nowrap; color: var(--mid); text-transform: uppercase; letter-spacing: .04em; }
-  .tag.cust { border-style: dashed; color: var(--ink); }
-  .x { color: var(--ink); text-align: center; }
-  ul.rules { padding-left: 20px; max-width: 960px; }
-  ul.rules li { margin: 3px 0; }
+  .tag { display: inline-block; font-size: 13px; padding: 0 6px; border: 1.5px solid currentColor; border-radius: 10px; margin-left: 4px; white-space: nowrap; }
+  .tag.std { color: var(--blue); } .tag.cust { color: var(--red); } .tag.open { color: var(--pencil); }
+  .x { color: var(--blue); }
+  ul.rules { padding-left: 22px; max-width: 980px; }
+  ul.rules li { margin: 4px 0; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .src { font-size: 12px; color: var(--mid); }
-  .src a { color: var(--ink); }
+  .src { font-size: 15px; color: var(--pencil); }
+  .src a { color: var(--blue); }
 
   @media (max-width: 900px) {
     .two { grid-template-columns: 1fr; }
     .r5, .r4, .r3 { grid-template-columns: 1fr 1fr !important; }
     .wide { overflow-x: auto; }
+    .note { position: static; display: block; margin-top: 4px; }
   }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+</svg>
 
 <div class="page">
-  <div class="draft">Work in progress · not for distribution</div>
-  <h1>Executive View v0.5 sketch</h1>
-  <div class="sub">Onboarding Reimagined | draft for discussion with Martina and Wayne | Oct 2026</div>
+  <h1>Executive View, v0.5 sketch</h1>
+  <div class="sub">Onboarding Reimagined | work in progress, for discussion with Martina and Wayne | Oct 2026</div>
   <p style="margin-top:12px">What changed after the last check-in with Janine:</p>
   <ul class="rules" style="margin-top:2px">
     <li>Sentiment tiles are now <b>bucket scores</b>, each built from 2 to 5 survey questions, for new hires and hiring managers.</li>
@@ -143,7 +118,7 @@
     <div class="filters">
       <span class="chip">Region</span><span class="chip">Country</span><span class="chip">Work Location</span><span class="chip">Persona</span><span class="chip">Start Date</span><span class="chip">Remote / On-Site</span>
       <span class="chip new">Survey Wave: Week 1 | Day 30 | Day 90</span>
-      <span class="legend"><span><span class="sw g"></span>data flows</span><span><span class="sw a"></span>partial</span><span><span class="sw r"></span>no source</span></span>
+      <span class="legend"><span><span class="sw" style="background:#4CAF50"></span>data flows</span><span><span class="sw" style="background:#FFC107"></span>partial</span><span><span class="sw" style="background:#F44336"></span>no source</span></span>
     </div>
 
     <!-- Row 1: NH sentiment -->
@@ -151,13 +126,13 @@
       <div>
         <div class="grp-title"><span>New Hire Sentiment</span><small>Glint new-hire survey | % favorable | n and response rate on every tile</small></div>
         <div class="tiles r5" style="grid-template-columns: 1.15fr 1fr 1fr 1fr 1fr; position: relative">
-          <div class="bx thin tile a"><span class="nm">Overall Onboarding Score</span><span class="v">__% <small>fav</small></span><svg viewBox="0 0 80 26"><path d="M4 18 L40 10 L76 13" fill="none" stroke="#888" stroke-width="2"/><circle cx="4" cy="18" r="2.5" fill="#888"/><circle cx="40" cy="10" r="2.5" fill="#888"/><circle cx="76" cy="13" r="2.5" fill="#888"/></svg><span class="meta">W1 / D30 / D90 trend. n = __</span></div>
+          <div class="bx thin tile a"><span class="nm">Overall Onboarding Score</span><span class="v">__% <small>fav</small></span><svg viewBox="0 0 80 26"><path d="M4 18 L40 10 L76 13" fill="none" stroke="#1F4E99" stroke-width="2"/><circle cx="4" cy="18" r="2.5" fill="#1F4E99"/><circle cx="40" cy="10" r="2.5" fill="#1F4E99"/><circle cx="76" cy="13" r="2.5" fill="#1F4E99"/></svg><span class="meta">W1 / D30 / D90 trend. n = __</span></div>
           <div class="bx thin tile a"><span class="nm">Early Readiness &amp; Navigation</span><span class="v">__%</span><span class="meta">3 Qs per wave. Feeds Equipment too</span></div>
           <div class="bx thin tile a"><span class="nm">Support &amp; Connection</span><span class="v">__%</span><span class="meta">manager, team, buddy, belonging</span></div>
           <div class="bx thin tile a"><span class="nm">Role Clarity &amp; Ramp-Up</span><span class="v">__%</span><span class="meta">Week 1 has 1 Q, so shown as an item</span></div>
           <div class="bx thin tile a"><span class="nm">Overall Experience &amp; Barriers</span><span class="v">__%</span><span class="meta">barriers = comments, stay in Glint</span></div>
         </div>
-        <div class="wf-note hot">Note: all marked partial until Kelly confirms a Glint to Tableau feed, and how net-new questions get in</div>
+        <div class="red" style="font-size:16px;margin-top:4px">all yellow until Kelly confirms a Glint to Tableau feed, and how net-new questions get in</div>
       </div>
     </div>
 
@@ -182,10 +157,10 @@
       <div>
         <div class="grp-title"><span>Program Outcomes</span><small>lagging</small></div>
         <div class="tiles" style="grid-template-columns: 1fr 1fr">
-          <div class="bx thin tile a" style="grid-column: span 2; min-height:70px"><span class="nm">Productive by Day 90</span><span class="v">__% <small>of new hires rated productive by their manager</small></span><span class="meta">Note: needs a new HM question + scale decision</span></div>
+          <div class="bx thin tile a" style="grid-column: span 2; min-height:70px"><span class="nm">Productive by Day 90</span><span class="v">__% <small>of new hires rated productive by their manager</small></span><span class="meta red">needs a new HM question + scale decision</span></div>
           <div class="bx thin tile g" style="min-height:70px"><span class="nm">Quality of Hire</span><span class="v">__</span><span class="meta">already in Tableau</span></div>
           <div class="bx thin tile g" style="min-height:70px"><span class="nm">1st-Year Attrition</span><span class="v">__%</span><span class="meta">Workday / Tableau</span></div>
-          <div class="bx thin tile dash" style="grid-column: span 2; min-height:48px; color:#666"><span class="nm">Exit Survey (future)</span><span class="meta">when the off-boarding team aligns. Glint has a standard exit survey</span></div>
+          <div class="bx thin tile dash" style="grid-column: span 2; min-height:52px; color:#6B6B6B"><span class="nm">Exit Survey (future)</span><span class="meta">when the off-boarding team aligns. Glint has a standard exit survey</span></div>
         </div>
       </div>
     </div>
@@ -215,14 +190,14 @@
           <tr><td>Overall Experience</td><td class="h2">__</td><td class="h1">__</td><td class="h2">__</td></tr>
           <tr><td>HM Readiness / Enablement</td><td class="h1">__</td><td class="h2">__</td><td class="na">-</td></tr>
         </table>
-        <div class="wf-note">Each column is one survey wave. Cells with fewer than 5 responses stay blank.</div>
+        <div class="muted" style="font-size:15px;margin-top:4px">Each column is one survey wave. Cells with fewer than 5 responses stay blank.</div>
       </div>
       <div>
         <div class="grp-title"><span>Volume</span><small>Workday</small></div>
         <div class="bx thin" style="min-height:150px">
           <div>New hires by region (map) <span class="muted">+ monthly trend</span></div>
-          <svg viewBox="0 0 200 60" style="width:100%;height:60px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#888" stroke-width="2"/></svg>
-          <div class="wf-note">Smaller than v1. NHO chart moved to PEX box.</div>
+          <svg viewBox="0 0 200 60" style="width:100%;height:60px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#1F4E99" stroke-width="2"/></svg>
+          <div class="muted" style="font-size:15px">Smaller than v1. NHO chart moved to PEX box.</div>
         </div>
       </div>
     </div>
@@ -255,7 +230,7 @@
     <tr class="muted"><td>Out of scope for now</td><td>Orientation questions (wait for deployment). Glint's Recruitment and Reasons for Joining items belong to Talent Acquisition.</td><td></td><td></td><td></td><td></td></tr>
   </table>
   </div>
-  <p class="muted">Gaps to note: Week 1 Role Clarity has one question, so it shows as an item, not a bucket score. Glint also has Openness and Authenticity items that could join Support &amp; Connection if we want a fuller belonging read.</p>
+  <p class="muted" style="font-size:16px">Gaps to note: Week 1 Role Clarity has one question, so it shows as an item, not a bucket score. Glint also has Openness and Authenticity items that could join Support &amp; Connection if we want a fuller belonging read.</p>
 
   <!-- =========================== HM BUCKETS =========================== -->
   <h2><span>3. Hiring-manager buckets</span></h2>
@@ -293,7 +268,7 @@
         <li><b>Show n and response rate</b> on every tile. A 90% from 6 people isn't a 90% from 600.</li>
         <li><b>Comments aren't scored.</b> Barriers stay in Glint's comment reports.</li>
         <li><b>Targets after a baseline.</b> Run two quarters, then set targets per bucket.</li>
-        <li><b>To decide:</b> Janine said "5 or more" for productive. That suggests a 7- or 10-point item. If we keep the 5-point scale, "productive" means a 4 or 5.</li>
+        <li class="red"><b>Decide:</b> Janine said "5 or more" for productive. That suggests a 7- or 10-point item. If we keep the 5-point scale, "productive" means a 4 or 5.</li>
       </ul>
     </div>
   </div>
