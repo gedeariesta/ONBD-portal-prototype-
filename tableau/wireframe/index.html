@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Executive View v0.5 Sketch</title>
+<link rel="stylesheet" href="sketch-font.css">
 <style>
   /* v0.5 sketch: low fidelity, grayscale, work in progress */
   :root { --ink: #222; --mid: #666; --light: #999; --line: #BDBDBD; --fill: #F2F2F2; --fill2: #E4E4E4; }
@@ -58,6 +59,42 @@
   .grid-sketch th:first-child, .grid-sketch td:first-child { text-align: left; }
   .grid-sketch .h1 { background: #EEE; } .grid-sketch .h2 { background: #DADADA; } .grid-sketch .h3 { background: #BDBDBD; }
   .grid-sketch .na { color: var(--light); }
+
+
+  /* ---------- Dashboard sketch only: hand-drawn feel, plain straight boxes ---------- */
+  .frame { --hb: #2B2B2B; --hblue: #1F4E99; --hred: #C0392B; --hpurple: #5B2A86;
+    font-family: "Patrick Hand", "Comic Sans MS", "Segoe Print", cursive; font-size: 17px; color: var(--hb);
+    background-color: #FBFAF5; border: 2px solid var(--hb); border-radius: 6px;
+    background-image: linear-gradient(#E9EEF5 1px, transparent 1px), linear-gradient(90deg, #E9EEF5 1px, transparent 1px); background-size: 24px 24px; }
+  .frame .bx { border: 1.5px solid #555; border-radius: 5px; background: #fff; }
+  .frame .bx.dash { border-style: dashed; border-color: #888; background: transparent; }
+  .frame .bx.gray { background: repeating-linear-gradient(135deg, #ECECEC 0 6px, #F6F6F6 6px 12px); color: #6B6B6B; }
+  .frame .wf-hdr { background: #2B2B3A; color: #fff; border-radius: 4px; }
+  .frame .wf-hdr b { font-size: 24px; font-weight: normal; }
+  .frame .wf-hdr .r { font-size: 15px; color: #D8D8E8; }
+  .frame .chip { font-size: 16px; border: 1.5px solid #555; border-radius: 4px; background: #fff; }
+  .frame .chip::after { content: "v"; color: #6B6B6B; }
+  .frame .chip.new { color: var(--hblue); border: 1.5px solid var(--hblue); }
+  .frame .legend { font-size: 15px; color: var(--hb); }
+  .frame .sw { border: 1.5px solid var(--hb); }
+  .frame .sw.g { background: #4CAF50; } .frame .sw.a { background: #FFC107; } .frame .sw.r { background: #F44336; }
+  .frame .grp-title { font-size: 20px; font-weight: normal; color: var(--hpurple); border-bottom: 2px solid var(--hpurple); }
+  .frame .grp-title small { font-size: 14px; color: #6B6B6B; }
+  .frame .tile { padding-left: 18px; }
+  .frame .tile::after { width: 6px; border-radius: 4px 0 0 4px; border-right: 0; }
+  .frame .tile.g::after { background: #4CAF50; } .frame .tile.a::after { background: #FFC107; } .frame .tile.r::after { background: #F44336; }
+  .frame .tile .nm { font-size: 17px; line-height: 1.15; }
+  .frame .tile .v { font-size: 30px; color: var(--hblue); line-height: 1.1; }
+  .frame .tile .v small { font-size: 15px; color: #6B6B6B; }
+  .frame .tile .meta { font-size: 14px; color: #6B6B6B; }
+  .frame .tile svg path { stroke: var(--hblue); } .frame .tile svg circle { fill: var(--hblue); }
+  .frame .wf-note { font-size: 15px; font-style: normal; color: #6B6B6B; }
+  .frame .wf-note.hot { color: var(--hred); }
+  .frame .pending-list { font-size: 15px; }
+  .frame .grid-sketch { font-size: 16px; }
+  .frame .grid-sketch td, .frame .grid-sketch th { border: 1.5px solid #888; color: var(--hb); }
+  .frame .grid-sketch .h1 { background: #DCE6F2; } .frame .grid-sketch .h2 { background: #B9CCE4; } .frame .grid-sketch .h3 { background: #F6D5C4; }
+  .frame svg path { stroke: var(--hblue); }
 
   /* Tables */
   table.t { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
@@ -116,7 +153,7 @@
           <div class="bx thin tile a"><span class="nm">Role Clarity &amp; Ramp-Up</span><span class="v">__%</span><span class="meta">Week 1 has 1 Q, so shown as an item</span></div>
           <div class="bx thin tile a"><span class="nm">Overall Experience &amp; Barriers</span><span class="v">__%</span><span class="meta">barriers = comments, stay in Glint</span></div>
         </div>
-        <div class="wf-note">Note: all marked partial until Kelly confirms a Glint to Tableau feed, and how net-new questions get in</div>
+        <div class="wf-note hot">Note: all marked partial until Kelly confirms a Glint to Tableau feed, and how net-new questions get in</div>
       </div>
     </div>
 
@@ -154,14 +191,14 @@
       <div>
         <div class="grp-title"><span>PEX Success</span><small>pending integration</small></div>
         <div class="bx gray" style="min-height:150px">
-          <div style="font-size:13px;font-weight:600">Not shown until there's a feed</div>
+          <div style="font-size:18px">Not shown until there's a feed</div>
           <ul class="pending-list">
             <li>Started on original date (Excel today)</li>
             <li>QA pass rate (Excel today)</li>
             <li>NHO attendance (no capture yet)</li>
             <li>Task completion % (ServiceNow, portal build)</li>
           </ul>
-          <div style="font-size:12px;margin-top:4px">Jira: see backlog below</div>
+          <div style="font-size:15px;margin-top:4px">Jira: see backlog below</div>
         </div>
       </div>
       <div>

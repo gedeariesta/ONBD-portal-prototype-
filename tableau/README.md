@@ -8,12 +8,13 @@ This is separate from the portal prototypes (`v1` to `v3`) at the repo root.
 
 | Path | What it is |
 |---|---|
-| `wireframe/index.html` | **Executive View v0.5 sketch.** Low-fidelity grayscale wireframe after the check-in with Janine: survey bucket scores for new hires and hiring managers, the question map built on Viva Glint's standard onboarding items, scoring rules, and the integration backlog. |
+| `wireframe/index.html` | **Executive View v0.5 sketch.** Low-fidelity wireframe (hand-drawn style on the dashboard, plain grayscale for the notes) after the check-in with Janine: survey bucket scores for new hires and hiring managers, the question map built on Viva Glint's standard onboarding items, scoring rules, and the integration backlog. |
 | `exec-view/index.html` | **Executive / Program View**, built from the v4 design prompt and the v3.1 planning workbook. Fixed 1600×900. A second tab has the build notes: where it departs from the prompt and why, numbers to confirm, the field spec, the Tableau recipe, and the two views not drawn yet. |
 | `exec-view/data.js` | Every tile, value, source and readiness flag in one place. Each value is marked `real`, `illustrative` or `none`. |
 | `dist/` | One-file builds of each page for sending around. Rebuild with `node tableau/tools/build_standalone.js`. |
 | `tools/build_geo.py` | Regenerates `exec-view/geo.js` (Natural Earth 110m, Web Mercator). |
 | `RESEARCH.md` | Tableau's look (fonts, grays, default colors), every mark type, the 24 Show Me charts, common builds, viz extensions, and the **limits on what to mock**. Sources included. |
+| `wireframe/sketch-font.css` | Patrick Hand (open font, OFL) for the sketch dashboard. |
 | `design-package/fonts.css` | News Cycle (open font, OFL) embedded as the stand-in for Tableau's font when Tableau Desktop isn't installed. |
 | `design-package/index.html` | The design package gallery, rendered inside Tableau Cloud viewer chrome. Three tabs: Show Me catalogue, Filters / legends / objects, Palettes & type. |
 | `design-package/tokens.css` | Design tokens: Tableau font stack, sizes (pt converted to px), F1 to F9 grays, Tableau 10, tooltip / control / chrome colors, dashboard size presets. |
