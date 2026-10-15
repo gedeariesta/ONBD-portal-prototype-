@@ -72,6 +72,10 @@
   .grid-sketch .h1 { background: #DCE6F2; } .grid-sketch .h2 { background: #B9CCE4; } .grid-sketch .h3 { background: #F6D5C4; }
   .grid-sketch .na { color: var(--faint); }
 
+
+  /* Dashboard sketch: smooth, straight lines (rest of the page keeps the hand-drawn boxes) */
+  .frame::before, .frame .bx::before, .frame .chip::before { filter: none; border-radius: 5px; }
+
   /* ---------- Tables ---------- */
   table.t { width: 100%; border-collapse: collapse; font-size: 17px; background: rgba(255,255,255,.75); }
   table.t th, table.t td { border-bottom: 1.5px solid #BDBDBD; padding: 6px 8px; text-align: left; vertical-align: top; font-weight: normal; }
