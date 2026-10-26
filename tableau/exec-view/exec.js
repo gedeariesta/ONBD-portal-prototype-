@@ -32,12 +32,10 @@
       ${t.spark ? `<div class="t-spark" data-spark="${t.id}"></div>` : ''}
       <div class="t-src" ${t.id ? `id="s-${t.id}"` : ''}>${src}</div></div>`;
   }
-  let html = D.clusters.map(c => `<div class="cluster"><div class="c-head">${esc(c.label)}</div>${c.tiles.map(tileHtml).join('')}</div>`).join('');
-  html += `<div class="cluster outcomes"><div class="c-head">Program Outcomes &amp; ROI</div>` +
-    D.outcomes.map(o => `<div class="o-row" style="--st:${ST[o.status].color}" ${tip([['Measure', o.name], ['Value', 'Not measured'], ['Data Status', ST_LONG[o.status]], ['Source', o.src], ['Note', o.note]])}><span class="o-name">${esc(o.name)}</span><span class="o-val">Not measured${o.target ? `<br>${esc(o.target)}` : ''}</span></div>`).join('') +
-    `<div class="roi"><b>ROI (proxy): not measured.</b> To be estimated from cost of early attrition, time to productivity and recruiter hours saved. Assumptions TBD. Equipment shows two live proxies: loaner reliance and late notice.</div></div>`;
-  $('#kpis').innerHTML = html;
-  D.clusters.forEach(c => c.tiles.forEach(t => {
+  const row = sec => `<div class="kgrp"><div class="c-head"><span>${esc(sec.label)}</span><small>${esc(sec.sub || '')}</small></div><div class="ktiles" style="grid-template-columns:repeat(${sec.cols},1fr)">${sec.tiles.map(tileHtml).join('')}</div></div>`;
+  const [out, nh, hm, pex] = D.sections;
+  $('#kpis').innerHTML = `<div class="krow">${row(out)}</div><div class="krow">${row(nh)}</div><div class="krow" style="grid-template-columns:1fr 1fr">${row(hm)}${row(pex)}</div>`;
+  D.sections.forEach(c => c.tiles.forEach(t => {
     if (t.spark) V.sparkline(document.querySelector(`[data-spark="${t.id}"]`), { values: t.spark, height: 26, color: '#4E79A7' });
   }));
 
@@ -82,16 +80,10 @@
   V.line('#trend', { x: D.months, xField: 'Month', measure: 'New Hires', format: 'int', height: 92, markers: true, zero: false,
     series: [{ name: 'New Hires', values: D.hiresByMonth, color: '#4E79A7' }] });
 
-  /* ---------------- NHO attendance (sample) ---------------- */
-  const nhoColors = ['#4E79A7', '#A0CBE8', '#D4D4D4'];
-  V.palettes.categorical._nho = nhoColors.concat(V.palettes.categorical['Tableau 10'].slice(3));
-  $('#nhoLegend').innerHTML = V.legend({ title: 'Attendance', items: D.nho.series, colors: nhoColors, inline: true });
-  V.stackedBar('#nho', { rows: D.nho.cohorts, series: D.nho.series, palette: '_nho', labels: true, format: 'int', rowHeight: 30,
-    dimA: 'Cohort', dimB: 'Attendance', measure: 'New Hires (sample)', axisTitle: 'New Hires' });
-  const sum = i => D.nho.cohorts.reduce((a, c) => a + c.values[i], 0);
-  const live = sum(0), virt = sum(1), tot = live + virt + sum(2);
-  $('#nhoRate').textContent = Math.round((live + virt) / tot * 100) + '%';
-  $('#nhoLive').textContent = Math.round(live / (live + virt) * 100) + '%';
+  /* ---------------- First 90 Days (sample) ---------------- */
+  $('#f90Legend').innerHTML = V.legend({ title: 'Bucket', items: D.first90.map(x => x.name), colors: D.first90.map(x => x.color), inline: true });
+  V.line('#f90', { x: D.waves, xField: 'Survey Wave', dim: 'Bucket', measure: '% Favorable (sample)', format: v => v + '%', height: 250, markers: true, zero: false,
+    series: D.first90 });
 
   $('#revert').addEventListener('click', () => { $('#fPersona').value = 'All'; highlightRegion(null); });
 
@@ -122,41 +114,38 @@
   const sheet = (title, body) => `<div class="sheet"><div class="tab-sheet-title">${title}</div>${body}</div>`;
 
   const measures = [];
-  D.clusters.forEach(c => c.tiles.forEach(t => measures.push([esc(c.label), esc(t.name), sw(t.status), KIND[t.kind], esc(t.src), esc(t.note)])));
-  D.outcomes.forEach(o => measures.push(['Program Outcomes &amp; ROI', esc(o.name), sw(o.status), KIND.none, esc(o.src), esc(o.note)]));
+  D.sections.forEach(c => c.tiles.forEach(t => measures.push([esc(c.label), esc(t.name), sw(t.status), KIND[t.kind], esc(t.src), esc(t.note)])));
+  measures.push(['Trend', 'First 90 Days', sw('a'), KIND.sample, 'Glint surveys', '% favorable per bucket at Week 1, Day 30 and Day 90.']);
   measures.push(['Volume', 'New Hires by Region', sw('g'), KIND.sample, 'Workday', 'Region, country and work location are PRD filters.']);
   measures.push(['Volume', 'New Hires by Month', sw('g'), KIND.sample, 'Workday', '']);
-  measures.push(['NHO', 'NHO Attendance: Live vs Virtual', sw('a'), KIND.sample, 'NHO Blueprint / ServiceNow', 'Capture method not defined. Two cohorts a month.']);
+  measures.push(['Volume', 'NHO Attendance (future)', sw('r'), KIND.none, 'TBD', 'No way to record attendance yet.']);
 
   $('#defsBody').innerHTML = `
 <div class="hdr"><div><h1>Definitions</h1><div class="sub">Onboarding Dashboard | Executive View</div></div></div>
 ${sheet('Measures', table(['Group', 'Measure', 'Data Status', 'Value Shown', 'Source', 'Notes'], measures, ['13%', '19%', '10%', '9%', '15%', '']))}
-${sheet('Changes From the Brief', table(['Change', 'Reason'], [
-  ['Filters at the top as dropdowns', 'Tableau filters can\'t be styled as chips. Filters sit above the sheets they affect.'],
-  ['Data status shown as a colored bar on each tile', 'Dots next to numbers read as performance. A bar plus a legend reads as data status.'],
-  ['Data status set per measure, not per cluster', 'Clusters are mixed. HM Readiness Score is captured today. 1st-year attrition is partial.'],
-  ['Sample values in gray; source and period under actual values', 'Only the Equipment figures are actual (HAM Pro Report, Jan-May 2026).'],
-  ['Program Outcomes &amp; ROI as five rows', 'The brief caps clusters at three tiles but lists five outcomes. None has a value yet.'],
-  ['Recruiter Time Saved under Outcomes &amp; ROI', 'The workbook lists it under PEX Success. Kept here so PEX stays at three tiles.'],
-  ['Region colors from Tableau 10', 'Red and green already mean data status. Only countries with hires are filled.'],
-  ['Did Not Attend segment in NHO bars', 'Shows the attendance rate in the chart.'],
-  ['Onboarding case CSAT kept off the tiles', 'Few people answer case surveys, and new-hire sentiment comes from the Glint survey. It sits in the PEX detail sheet.'],
-  ['PEX tiles use PEX\'s own SLAs and goals', 'On-time start and QA are measures PEX already runs, so PEX and this dashboard agree on what good looks like.'],
-  ['Fixed size 1600 x 900', '16:9, the same as Tableau\'s PowerPoint size.'],
+${sheet('Design Choices (v0.6)', table(['Choice', 'Why'], [
+  ['Reads top-down: outcomes, new hire, then managers and PEX', 'The 35,000 ft view first, then detail.'],
+  ['Equipment sits in New Hire Success', 'Getting a laptop on Day 1 is part of the new hire\'s experience, alongside the survey buckets.'],
+  ['One Overall Onboarding Score', 'Built from the new-hire survey buckets, so there is one headline number instead of two overlapping ones.'],
+  ['No exit survey', 'Offboarding is outside what this program controls.'],
+  ['First 90 Days trend', 'Shows whether sentiment tracks up or down across Week 1, Day 30 and Day 90, without assuming a dip.'],
+  ['PEX measures start at offer accepted', 'Earlier steps (job requisition, offer letter) are outside the program.'],
+  ['Data status shown as a colored bar on each tile', 'A bar plus a legend reads as data status, not performance.'],
+  ['Everything filters by region and function', 'Same filters on every sheet.'],
 ], ['32%', '']))}
 ${sheet('Open Questions', table(['Item', 'Detail'], [
   ['Laptop by Day 1 denominator', '586 of 601 with a delivery date = 97.5%. 586 of 604 requests = 97.0%.'],
   ['Region names', 'HAM uses NA, EU, AP, LATAM. PEX CSAT uses AMER, EMEA, APAC. Needs one region, country, work location hierarchy across sources.'],
-  ['Loaner counts', '144, 143 or 159 depending on the cut.'],
-  ['Targets', 'Set: Laptop by Day 1 (98%), Recruiter Time Saved (+20%), and PEX\'s own goals for On-Time Start (90%) and Onboarding QA (98%). All others TBC.'],
+  ['Targets', 'Set: Laptop by Day 1 (98%) and PEX\'s standard goals for On-Time Start (90%) and Onboarding QA (98%). All others open.'],
+  ['Overall Onboarding Score', 'Survey buckets only, or should it include equipment and PEX measures too?'],
 ], ['32%', '']))}
 ${sheet('Build Notes', table(['Sheet', 'Build'], [
   ['KPI tiles', 'One Text sheet per tile in a horizontal container per group. Status bar: a narrow bar sheet colored by ' + dim('Data Status') + '.'],
-  ['Sparklines', 'Line sheets with axes and headers hidden.'],
+  ['Sparkline', 'Line sheet with axes and headers hidden, on the Overall Onboarding Score tile.'],
   ['Map', 'Filled map: Detail ' + dim('Country') + ', Color ' + dim('Region') + '. Region labels from a second map layer (dual axis) at region centroids.'],
   ['New Hires by Month', 'Line: ' + dim('MONTH(Start Date)') + ' x ' + mea('CNTD(Hire ID)') + '.'],
-  ['NHO Attendance', 'Stacked bar: Rows ' + dim('Cohort') + ', Columns ' + mea('CNTD(Hire ID)') + ', Color ' + dim('Attendance Mode') + '.'],
-  ['Filters', 'Apply to all sheets on the shared data source. Persona: Regular, NTC, Exec. Interns and apprentices are out of MVP.'],
+  ['First 90 Days', 'Line: Columns ' + dim('Survey Wave') + ', Rows ' + mea('% Favorable') + ', Color ' + dim('Bucket') + '.'],
+  ['Filters', 'Region, country, function, work location, persona, start date, remote / on-site. Apply to all sheets. Persona: Regular, NTC, Exec. Interns and apprentices are out of MVP.'],
 ], ['32%', '']))}
 ${sheet('Other Views (Defined, Not Built)', table(['View', 'Audience', 'Refresh', 'Contents'], [
   ['PEX Operational', 'PEX coordinators', 'Daily', 'New-hire list with status; task funnel; SLA timers and stuck items; escalations (Day 1-90); nudge status (Day -7, -72 hr); case CSAT.'],

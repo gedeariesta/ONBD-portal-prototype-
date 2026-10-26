@@ -1537,7 +1537,7 @@ window.TAB_PALETTES = {
      o.markers → Marks card > Color > Markers: All. o.endLabels → Label: Line Ends. */
   function line(w, o) {
     const f = getFmt(o.format), xs = o.x, ser = o.series, h = o.height || 220;
-    const L = 44, R = o.endLabels ? Math.max(...ser.map(s => tw(s.name, 11))) + 14 : 10, top = 10, B = 28;
+    const L = 44, R = o.endLabels ? Math.max(...ser.map(s => tw(s.name, 11))) + 14 : 24, top = 10, B = 28;
     const vals = ser.flatMap(s => s.values.filter(v => v != null));
     const ticks = niceTicks(o.zero === false ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), Math.max(1, Math.min(4, Math.floor((h - top - B) / 30))));
     const y = lin(ticks[0], ticks[ticks.length - 1], h - B, top), x = lin(0, xs.length - 1, L + 6, w - R);

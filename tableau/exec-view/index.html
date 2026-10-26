@@ -33,7 +33,13 @@
   .fbar .tab-legend .lg-sw { width: 10px; height: 10px; }
 
   /* KPI strip */
-  .kpis { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.18fr; padding: 8px 12px 4px; flex: none; }
+  .kpis { padding: 4px 12px 0; flex: none; display: flex; flex-direction: column; gap: 6px; }
+  .krow { display: grid; gap: 14px; }
+  .kgrp { min-width: 0; }
+  .kgrp .c-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .kgrp .c-head small { font: 11px var(--tab-font-book); color: #898989; }
+  .ktiles { display: grid; gap: 6px; }
+  .ktiles .tile { margin-bottom: 0; height: 84px; }
   .cluster { display: flex; flex-direction: column; padding: 0 6px; min-width: 0; }
   .cluster.outcomes { border-left: 1px solid #D4D4D4; margin-left: 6px; padding-left: 12px; }
   .c-head { font: var(--tab-w-bold) 14px var(--tab-font-bold); color: var(--purple); border-bottom: 1px solid var(--purple); padding: 0 0 3px; margin-bottom: 6px; }
@@ -61,7 +67,7 @@
   .roi b { color: #555; font-weight: var(--tab-w-bold); }
 
   /* Middle row */
-  .mid { display: grid; grid-template-columns: 1.22fr 1fr; padding: 6px 12px 0; flex: 1; min-height: 0; }
+  .mid { display: grid; grid-template-columns: 1fr 1.25fr; padding: 6px 12px 0; flex: 1; min-height: 0; }
   .panel { padding: 4px 8px 0; min-width: 0; display: flex; flex-direction: column; }
   .panel + .panel { border-left: 1px solid #EBEBEB; }
   .panel .tab-sheet-title { font-size: 16px; }
@@ -142,6 +148,7 @@
     <div class="fbar">
       <div class="tab-filter"><div class="f-title">Region</div><select id="fRegion"><option>(All)</option><option value="NA">North America</option><option value="LATAM">Latin America</option><option value="EMEA">EMEA</option><option value="APAC">Asia Pacific</option></select></div>
       <div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div>
+      <div class="tab-filter"><div class="f-title">Function</div><select><option>(All)</option><option>Engineering</option><option>Operations</option><option>Sales</option><option>G&amp;A</option></select></div>
       <div class="tab-filter"><div class="f-title">Work Location</div><select><option>(All)</option></select></div>
       <div class="tab-filter"><div class="f-title">Persona Type</div><select id="fPersona"><option value="All">(All)</option><option>Regular</option><option value="NTC">NTC</option><option>Exec</option></select></div>
       <div class="tab-filter"><div class="f-title">Start Date</div><select><option>Jan-Sep 2026</option><option>Last 3 months</option><option>Last quarter</option></select></div>
@@ -152,6 +159,13 @@
     <div class="kpis" id="kpis"></div>
 
     <div class="mid">
+      <div class="panel">
+        <div class="tab-sheet-title">First 90 Days</div>
+        <div class="cap">% favorable at each survey wave. Sample data.</div>
+        <div id="f90Legend" style="margin:0 0 4px"></div>
+        <div id="f90" style="flex:1;min-height:0"></div>
+        <div style="border:1px dashed #CBCBCB;padding:6px 9px;margin:6px 0 4px;font-size:11px;color:#898989"><b style="color:#555">NHO Attendance (future):</b> live vs virtual, once attendance is recorded.</div>
+      </div>
       <div class="panel">
         <div class="tab-sheet-title">New Hires by Region</div>
         <div class="cap">Sample data.</div>
@@ -165,22 +179,9 @@
         <div class="sub-title">New Hires by Month, 2026</div>
         <div id="trend"></div>
       </div>
-      <div class="panel">
-        <div class="tab-sheet-title">NHO Attendance: Live vs Virtual</div>
-        <div class="cap">Sample data. Attendance capture method not yet defined.</div>
-        <div id="nhoLegend" style="margin:0 0 4px"></div>
-        <div class="nho-wrap">
-          <div id="nho"></div>
-          <div class="nho-kpi">
-            <div class="k"><b id="nhoRate"></b><span>Attendance rate, last 6 cohorts</span></div>
-            <div class="k"><b id="nhoLive"></b><span>Attended live</span></div>
-            <div class="n">Two cohorts a month (NHO Blueprint).</div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <div class="foot">Mock-up for design review. Only Equipment Success uses actual figures (HAM Pro Report, Jan-May 2026). Values in gray are samples. PEX tiles use PEX's own SLA goals. Program outcomes have no data source yet. TBC targets are pending sign-off.</div>
+    <div class="foot">Mock-up for discussion (v0.6). Only the Equipment figures are actual (HAM Pro Report, Jan-May 2026). Values in gray are samples. PEX goals are PEX's own standard goals. Targets marked TBC are open.</div>
   </div>
   </div></div>
 </section>

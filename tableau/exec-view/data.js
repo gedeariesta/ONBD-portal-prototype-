@@ -7,24 +7,25 @@
    status: data status, not performance. 'g' available, 'a' partial (needs integration or build),
            'r' no data source yet */
 window.ONBD = {
-  clusters: [
-    { key: 'nh', label: 'NH Sentiment', tiles: [
-      { name: 'New Hire Experience NPS', value: '+42', target: 'Target TBC', kind: 'sample', status: 'a',
-        src: 'Survey platform (Glint)', type: 'Measure, KPI vs target', note: '30- and 90-day surveys exist. Not yet joined to the dashboard.' },
-      { name: 'Day One Check-Out Sentiment', value: '4.3 / 5', target: 'Target TBC', kind: 'sample', status: 'a',
-        src: 'Qualtrics / Sidekick', type: 'Measure, trend', note: 'Platform join needed. Survey platform to be set by Task #38.' },
-      { name: 'Pulse Survey', pulse: [['Day 30', '4.1'], ['Day 60', null], ['Day 90', '3.9']], target: 'Target TBC', kind: 'sample', status: 'a',
-        src: 'Qualtrics / Glint (TBC)', type: 'Measure, trend', note: 'Waiting on Task #38 for timing and questions. Day 60 is optional.' },
+  /* Sections, top-down: the 35,000 ft view first, then the new hire, then the people around them. */
+  sections: [
+    { key: 'out', label: 'Program Outcomes', sub: 'Is onboarding working?', cols: 4, tiles: [
+      { id: 'overall', name: 'Overall Onboarding Score', value: '76%', target: 'Target TBC', kind: 'sample', status: 'a', spark: [.72, .75, .76],
+        src: 'Glint new-hire survey', type: 'Measure %, KPI + trend', note: 'Built from the new-hire survey buckets. Trend shows Week 1, Day 30 and Day 90.' },
+      { name: 'Productive by Day 90', value: '81%', target: 'Target TBC', kind: 'sample', status: 'a',
+        src: 'Hiring-manager survey (new question)', type: 'Measure %, KPI', note: 'Share of new hires their manager rates fully productive at Day 90. The question and scale are still open.' },
+      { name: 'Quality of Hire', value: '72', target: 'Index', kind: 'sample', status: 'g',
+        src: 'Tableau (existing)', type: 'Measure, KPI', note: 'Already exists in Tableau.' },
+      { name: '1st-Year Attrition', value: '11%', target: 'Lower is better', kind: 'sample', status: 'g',
+        src: 'Workday / Tableau', type: 'Measure %, KPI + trend', note: 'New hires who leave within their first year.' },
     ] },
-    { key: 'hm', label: 'HM Success', tiles: [
-      { name: 'Manager Experience NPS', value: '+31', target: 'Target TBC', kind: 'sample', status: 'a',
-        src: 'Glint / ServiceNow (Helix)', type: 'Measure, KPI vs target', note: 'HM surveys exist. Not yet joined to the dashboard.' },
-      { name: 'HM Readiness Score', value: '78 / 100', target: 'Target TBC', kind: 'sample', status: 'g',
-        src: 'ServiceNow', type: 'Measure, gauge', note: 'Captured today (HM readiness view, S2-US13). Value shown is a placeholder.' },
-      { name: 'Manager Day-1 Meet Rate', value: '86%', target: 'Target TBC', kind: 'sample', status: 'a',
-        src: 'Outlook (proposed)', type: 'Measure %, KPI', note: 'Outlook tracking (S4-US08) not built. Interim option: a Day 1 survey question (Task #38).' },
-    ] },
-    { key: 'eq', label: 'Equipment Success', tiles: [
+    { key: 'nh', label: 'New Hire Success', sub: 'What the new hire experiences: survey buckets and equipment', cols: 6, tiles: [
+      { name: 'Early Readiness & Navigation', value: '78%', target: 'Target TBC', kind: 'sample', status: 'a',
+        src: 'Glint new-hire survey', type: 'Survey bucket, % favorable', note: 'Tasks, equipment and access, knowing where to get help.' },
+      { name: 'Support & Connection', value: '81%', target: 'Target TBC', kind: 'sample', status: 'a',
+        src: 'Glint new-hire survey', type: 'Survey bucket, % favorable', note: 'Manager, team and buddy support; belonging.' },
+      { name: 'Role Clarity & Ramp-Up', value: '73%', target: 'Target TBC', kind: 'sample', status: 'a',
+        src: 'Glint new-hire survey', type: 'Survey bucket, % favorable', note: 'Expectations, resources to contribute, role matches what was described.' },
       { name: 'Laptop Delivered by Day 1', value: '97.5%', target: 'Target 98%', gap: '▼ 0.5 pts', kind: 'real', status: 'g',
         period: 'HAM Pro Report, Jan-May 2026', foot: 'May: 90.9% (NA, LATAM misses)',
         src: 'HAM Pro Report', type: 'Measure %, KPI + status', note: '586 of 601 delivered on or before Day 1. Delivery SLA not yet signed off (PRD P-07).' },
@@ -35,7 +36,15 @@ window.ONBD = {
         period: 'HAM Pro Report, Jan-May 2026', foot: '253 of 604 requests',
         src: 'HAM Pro Report', type: 'Measure %, KPI + trend', note: 'ROI proxy for process delay. Top reason for late laptops.' },
     ] },
-    { key: 'pex', label: 'PEX Success', tiles: [
+    { key: 'hm', label: 'Hiring Managers', sub: 'Manager survey', cols: 3, tiles: [
+      { name: 'HM Readiness', value: '74%', target: 'Target TBC', kind: 'sample', status: 'a',
+        src: 'Glint hiring-manager survey', type: 'Survey bucket, % favorable', note: 'Did the manager know their tasks and have what they needed before Day 1?' },
+      { name: 'HM Enablement', value: '70%', target: 'Target TBC', kind: 'sample', status: 'a',
+        src: 'Glint hiring-manager survey', type: 'Survey bucket, % favorable', note: 'Portal, PEX support and guidance for setting expectations.' },
+      { name: 'HM Overall / CSAT', value: '82%', target: 'Target TBC', kind: 'sample', status: 'a',
+        src: 'Glint hiring-manager survey', type: 'Survey item, % favorable', note: 'Overall satisfaction with how the new hire was onboarded.' },
+    ] },
+    { key: 'pex', label: 'PEX', sub: 'From offer accepted', cols: 3, tiles: [
       { name: 'On-Time Start', value: '86%', target: 'Goal 90%', kind: 'sample', status: 'a',
         src: 'Workday (PEX onboarding SLA)', type: 'Measure %, KPI vs goal', note: "PEX's onboarding SLA: actual hire date on or before the proposed hire date. PEX's own minimum is 80%." },
       { name: 'Onboarding QA', value: '94%', target: 'Goal 98%', kind: 'sample', status: 'a',
@@ -45,12 +54,13 @@ window.ONBD = {
     ] },
   ],
 
-  outcomes: [
-    { name: 'Quality of Hire Index', status: 'r', src: 'Survey / Workday', note: 'Formula not defined (performance, retention, HM satisfaction).' },
-    { name: 'Time to Productivity (30/60/90)', status: 'r', src: 'TBD', note: 'No data source. Needs a per-role definition of productive.' },
-    { name: '% Meeting First Performance Expectations (3x3+)', status: 'r', src: 'Workday Performance', note: 'Needs performance reviews joined to onboarding cohorts. Goal: 95%.' },
-    { name: '1st-Year Attrition & Exit Survey', status: 'a', src: 'Workday', note: 'Can be calculated from Workday terminations. Join not built.' },
-    { name: 'Recruiter Time Saved Post-Offer', target: 'Target +20%', status: 'r', src: 'TBD / manual', note: 'No baseline yet.' },
+  /* First 90 Days: % favorable per bucket at each survey wave (sample). */
+  waves: ['Week 1', 'Day 30', 'Day 90'],
+  first90: [
+    { name: 'Early Readiness & Navigation', values: [76, 79, 80], color: '#4E79A7' },
+    { name: 'Support & Connection', values: [83, 81, 79], color: '#59A14F' },
+    { name: 'Role Clarity & Ramp-Up', values: [69, 73, 77], color: '#F28E2B' },
+    { name: 'Hiring Managers', values: [74, 71, null], color: '#B07AA1', dashed: true },
   ],
 
   /* New hires per month: sample data. */
@@ -79,13 +89,4 @@ window.ONBD = {
     { name: 'Hong Kong', region: 'APAC', lon: 114.2, lat: 22.3, w: 10 },
   ],
 
-  /* NHO cohorts, two per month. Sample data: attendance capture not defined yet. */
-  nho: {
-    series: ['Live', 'Virtual', 'Did Not Attend'],
-    cohorts: [
-      { label: 'Jul 7', values: [52, 34, 8] }, { label: 'Jul 21', values: [47, 38, 9] },
-      { label: 'Aug 4', values: [44, 36, 7] }, { label: 'Aug 18', values: [41, 40, 5] },
-      { label: 'Sep 1', values: [58, 42, 9] }, { label: 'Sep 15', values: [55, 47, 7] },
-    ],
-  },
 };
