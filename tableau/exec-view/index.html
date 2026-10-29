@@ -26,7 +26,7 @@
   .hdr .asof { margin-left: auto; text-align: right; font-size: 12px; color: #C4C4D4; line-height: 1.45; }
 
   .fbar { display: flex; align-items: flex-end; gap: 10px; padding: 6px 16px; border-bottom: 1px solid #EBEBEB; flex: none; }
-  .fbar .tab-filter { min-width: 0; width: 134px; }
+  .fbar .tab-filter { min-width: 0; width: 118px; }
   .fbar .tab-filter .f-title { font-size: 12px; margin-bottom: 2px; }
   .fbar .tab-filter select { height: 22px; font-size: 12px; }
   .fbar .tab-legend { margin-left: auto; padding-bottom: 4px; }
@@ -40,6 +40,8 @@
   .kgrp .c-head small { font: 11px var(--tab-font-book); color: #898989; }
   .ktiles { display: grid; gap: 6px; }
   .ktiles .tile { margin-bottom: 0; height: 84px; }
+  .t-ph { float: right; font-size: 10px; line-height: 14px; padding: 0 5px; border: 1px solid currentColor; border-radius: 8px; margin-top: 1px; }
+  .t-ph.p1 { color: #2E7D32; } .t-ph.tbc { color: #9A6B00; } .t-ph.ns { color: #898989; border-style: dashed; }
   .cluster { display: flex; flex-direction: column; padding: 0 6px; min-width: 0; }
   .cluster.outcomes { border-left: 1px solid #D4D4D4; margin-left: 6px; padding-left: 12px; }
   .c-head { font: var(--tab-w-bold) 14px var(--tab-font-bold); color: var(--purple); border-bottom: 1px solid var(--purple); padding: 0 0 3px; margin-bottom: 6px; }
@@ -142,7 +144,7 @@
 
     <div class="hdr">
       <div><h1>Onboarding Dashboard | Executive View</h1><div class="sub">Global Onboarding Reimagined | Monthly and Quarterly Refresh</div></div>
-      <div class="asof">Equipment: HAM Pro Report, Jan-May 2026<br>All other values: sample data</div>
+      <div class="asof">Sources: Glint (via Helix), Workday, Power BI<br>Equipment actuals Jan-May 2026; all else sample</div>
     </div>
 
     <div class="fbar">
@@ -150,8 +152,9 @@
       <div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div>
       <div class="tab-filter"><div class="f-title">Function</div><select><option>(All)</option><option>Engineering</option><option>Operations</option><option>Sales</option><option>G&amp;A</option></select></div>
       <div class="tab-filter"><div class="f-title">Work Location</div><select><option>(All)</option></select></div>
-      <div class="tab-filter"><div class="f-title">Persona Type</div><select id="fPersona"><option value="All">(All)</option><option>Regular</option><option value="NTC">NTC</option><option>Exec</option></select></div>
-      <div class="tab-filter"><div class="f-title">Start Date</div><select><option>Jan-Sep 2026</option><option>Last 3 months</option><option>Last quarter</option></select></div>
+      <div class="tab-filter"><div class="f-title">Talent Type</div><select id="fPersona"><option value="All">(All)</option><option>Executive</option><option>Emerging talent</option><option>Professional</option></select></div>
+      <div class="tab-filter"><div class="f-title">Start Cohort</div><select><option>(All)</option><option>2026-Q3</option><option>2026-09</option><option>2026-08</option></select></div>
+      <div class="tab-filter"><div class="f-title">Period</div><select><option>Jan-Sep 2026</option><option>Last 3 months</option><option>Last quarter</option></select></div>
       <div class="tab-filter"><div class="f-title">Remote / On-Site</div><select><option>(All)</option><option>Remote</option><option>On-Site</option><option>Hybrid</option></select></div>
       <div id="statusLegend"></div>
     </div>
@@ -181,7 +184,7 @@
       </div>
     </div>
 
-    <div class="foot">Mock-up for discussion (v0.6). Only the Equipment figures are actual (HAM Pro Report, Jan-May 2026). Values in gray are samples. PEX goals are PEX's own standard goals. Targets marked TBC are open.</div>
+    <div class="foot">Mock-up for discussion (v0.7). Phase 1 = possible by March; Later = needs data not captured yet. Only the Equipment figures are actual (HAM Pro Report, Jan-May 2026). Values in gray are samples. PEX goals are PEX's own standard goals. Targets marked TBC are open.</div>
   </div>
   </div></div>
 </section>

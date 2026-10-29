@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Executive View v0.6 Sketch</title>
+<title>Executive View v0.7 Sketch</title>
 <link rel="stylesheet" href="sketch-font.css">
 <style>
   :root {
@@ -85,6 +85,10 @@
   .track.first::before { content: "goal 90%"; position: absolute; left: calc(90% - 26px); top: -24px; font-size: 13px; color: var(--red); white-space: nowrap; }
   .sub-lbl { font-size: 15px; color: var(--pencil); }
 
+  /* phase tags */
+  .ph { display: inline-block; font-size: 11px; line-height: 15px; padding: 0 6px; border: 1.5px solid currentColor; border-radius: 9px; margin-left: 6px; vertical-align: 2px; white-space: nowrap; }
+  .ph.p1 { color: #2E7D32; } .ph.tbc { color: #9A6B00; } .ph.ns { color: #6B6B6B; border-style: dashed; }
+
   /* ---------- Tables ---------- */
   table.t { width: 100%; border-collapse: collapse; font-size: 17px; background: rgba(255,255,255,.75); }
   table.t th, table.t td { border-bottom: 1.5px solid #BDBDBD; padding: 6px 8px; text-align: left; vertical-align: top; font-weight: normal; }
@@ -114,34 +118,36 @@
 </svg>
 
 <div class="page">
-  <h1>Executive View, v0.6 sketch</h1>
+  <h1>Executive View, v0.7 sketch</h1>
   <div class="sub">Onboarding Reimagined | work in progress, a starting point for discussion | Oct 2026</div>
-  <p style="margin-top:12px">This is a draft of what an onboarding dashboard could show. Nothing here is final: the measures, the layout and the sources are all open to change. The questions at the end are the main reason for the conversation.</p>
-  <p style="margin-top:10px">What changed since v0.5:</p>
+  <p style="margin-top:12px">A draft of what an onboarding dashboard could show. The measures and layout don't depend on a particular tool: Tableau, Looker or Power BI could all build it. Dashboard work starts March 4, once the new survey questions are live.</p>
+  <p class="key" style="margin-top:6px"><span class="ph p1">Phase 1</span> possible by March, data exists or flows through Helix &nbsp; <span class="ph tbc">TBC</span> data exists, path into Helix unclear &nbsp; <span class="ph ns">Later</span> needs data that isn't captured yet (around 2028)</p>
+  <p style="margin-top:10px">What changed since v0.6:</p>
   <ul class="rules" style="margin-top:2px">
-    <li>The page now reads top-down: <b>program outcomes</b> first, then the <b>new hire</b>, then <b>hiring managers and PEX</b>.</li>
-    <li>Equipment joins the new-hire section, now called <b>New Hire Success</b>, since it's about the new hire's experience as much as the survey is.</li>
-    <li>One <b>Overall Onboarding Score</b> replaces the two overlapping "overall" tiles.</li>
-    <li>The exit survey is out of scope for an onboarding view. The sentiment grid became a <b>First 90 Days</b> trend, without assuming a dip.</li>
-    <li>Every view filters by region and <b>function</b>. PEX measures start at <b>offer accepted</b>.</li>
+    <li>Every tile shows its <b>phase</b>: what's possible by March and what waits for later.</li>
+    <li>Survey results already flow from Glint into <b>Helix</b>, so survey-based tiles are Phase 1.</li>
+    <li>Filters use a <b>Start Cohort</b> (month or quarter) and <b>Talent Type</b> (job level 2: executive or emerging talent).</li>
+    <li>The first survey wave is <b>Week 2</b>. Productivity is a 5-point manager rating at Day 90, shown on a 0 to 100 scale.</li>
+    <li>On-time start becomes <b>Start Date Held</b> plus the <b>days shifted</b> when a date changes. Hiring managers gain a <b>Day 1 Manager Meeting</b> tile.</li>
+    <li>Equipment moves to <b>TBC</b> until its Power BI source and owner are confirmed. A new section lists where each measure comes from.</li>
   </ul>
 
   <!-- =========================== WIREFRAME =========================== -->
   <h2><span>1. The page</span></h2>
   <div class="bx frame wide">
-    <div class="wf-hdr"><b>Onboarding Dashboard | Executive View</b><span class="r">Glint surveys, Power BI, Tableau, Workday, ServiceNow<br>refreshed monthly</span></div>
+    <div class="wf-hdr"><b>Onboarding Dashboard | Executive View</b><span class="r">Glint (via Helix), Workday, Power BI, ServiceNow<br>refreshed monthly</span></div>
     <div class="filters">
-      <span class="chip">Region</span><span class="chip">Country</span><span class="chip new">Function</span><span class="chip">Work Location</span><span class="chip">Persona</span><span class="chip">Start Date</span><span class="chip">Remote / On-Site</span>
+      <span class="chip">Region</span><span class="chip">Country</span><span class="chip new">Function</span><span class="chip">Work Location</span><span class="chip new">Talent Type</span><span class="chip new">Start Cohort</span><span class="chip">Period</span><span class="chip">Remote / On-Site</span>
       <span class="legend"><span><span class="sw" style="background:#4CAF50"></span>data flows</span><span><span class="sw" style="background:#FFC107"></span>partial</span><span><span class="sw" style="background:#F44336"></span>no source</span></span>
     </div>
 
     <!-- Row 1: the 35,000 ft view -->
     <div class="row r4" style="grid-template-columns: 1.2fr 1fr 1fr 1fr">
       <div style="grid-column: 1 / -1"><div class="grp-title" style="margin-bottom:0"><span>Program Outcomes</span><small>the 35,000 ft view: is onboarding working?</small></div></div>
-      <div class="bx thin tile a"><span class="nm">Overall Onboarding Score</span><span class="v">__% <small>fav</small></span><svg viewBox="0 0 80 26"><path d="M4 18 L40 10 L76 13" fill="none" stroke="#1F4E99" stroke-width="2"/><circle cx="4" cy="18" r="2.5" fill="#1F4E99"/><circle cx="40" cy="10" r="2.5" fill="#1F4E99"/><circle cx="76" cy="13" r="2.5" fill="#1F4E99"/></svg><span class="meta">built from the new-hire survey buckets below</span></div>
-      <div class="bx thin tile a"><span class="nm">Productive by Day 90</span><span class="v">__%</span><span class="meta">rated productive by their manager</span></div>
-      <div class="bx thin tile g"><span class="nm">Quality of Hire</span><span class="v">__</span><span class="meta">already in Tableau</span></div>
-      <div class="bx thin tile g"><span class="nm">1st-Year Attrition</span><span class="v">__%</span><span class="meta">Workday / Tableau</span></div>
+      <div class="bx thin tile a"><span class="nm">Overall Onboarding Score<span class="ph p1">Phase 1</span></span><span class="v">__% <small>fav</small></span><svg viewBox="0 0 80 26"><path d="M4 18 L40 10 L76 13" fill="none" stroke="#1F4E99" stroke-width="2"/><circle cx="4" cy="18" r="2.5" fill="#1F4E99"/><circle cx="40" cy="10" r="2.5" fill="#1F4E99"/><circle cx="76" cy="13" r="2.5" fill="#1F4E99"/></svg><span class="meta">weighted average of 8 or 9 survey questions</span></div>
+      <div class="bx thin tile a"><span class="nm">Productive by Day 90<span class="ph p1">Phase 1</span></span><span class="v">__ <small>/ 100</small></span><span class="meta">manager rating, shown as change since Day 30</span></div>
+      <div class="bx thin tile g"><span class="nm">Quality of Hire<span class="ph p1">Phase 1</span></span><span class="v">__</span><span class="meta">already exists</span></div>
+      <div class="bx thin tile g"><span class="nm">1st-Year Attrition<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">Workday</span></div>
     </div>
 
     <!-- Row 2: new hire -->
@@ -149,32 +155,33 @@
       <div>
         <div class="grp-title"><span>New Hire Success</span><small>what the new hire experiences: survey buckets + equipment</small></div>
         <div class="tiles r5" style="grid-template-columns: repeat(6, 1fr)">
-          <div class="bx thin tile a"><span class="nm">Early Readiness &amp; Navigation</span><span class="v">__%</span><span class="meta">survey bucket</span></div>
-          <div class="bx thin tile a"><span class="nm">Support &amp; Connection</span><span class="v">__%</span><span class="meta">survey bucket</span></div>
-          <div class="bx thin tile a"><span class="nm">Role Clarity &amp; Ramp-Up</span><span class="v">__%</span><span class="meta">survey bucket</span></div>
-          <div class="bx thin tile g"><span class="nm">Laptop by Day 1</span><span class="v">__% <small>vs 98%</small></span><span class="meta">Power BI</span></div>
-          <div class="bx thin tile g"><span class="nm">Loaner Reliance</span><span class="v">__%</span><span class="meta">Power BI</span></div>
-          <div class="bx thin tile g"><span class="nm">Late Notice (&lt;14 days)</span><span class="v">__%</span><span class="meta">Power BI</span></div>
+          <div class="bx thin tile a"><span class="nm">Early Readiness &amp; Navigation<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
+          <div class="bx thin tile a"><span class="nm">Support &amp; Connection<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
+          <div class="bx thin tile a"><span class="nm">Role Clarity &amp; Ramp-Up<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
+          <div class="bx thin tile a"><span class="nm">Laptop by Day 1<span class="ph tbc">TBC</span></span><span class="v">__% <small>vs 98%</small></span><span class="meta">Power BI</span></div>
+          <div class="bx thin tile a"><span class="nm">Loaner Reliance<span class="ph tbc">TBC</span></span><span class="v">__%</span><span class="meta">Power BI</span></div>
+          <div class="bx thin tile a"><span class="nm">Late Notice (&lt;14 days)<span class="ph tbc">TBC</span></span><span class="v">__%</span><span class="meta">Power BI</span></div>
         </div>
       </div>
     </div>
 
     <!-- Row 3: the people around the new hire -->
-    <div class="row r3" style="grid-template-columns: 1fr 1fr">
+    <div class="row r3" style="grid-template-columns: 4fr 3fr">
       <div>
         <div class="grp-title"><span>Hiring Managers</span><small>manager survey</small></div>
-        <div class="tiles r3" style="grid-template-columns: 1fr 1fr 1fr">
-          <div class="bx thin tile a"><span class="nm">HM Readiness</span><span class="v">__%</span></div>
-          <div class="bx thin tile a"><span class="nm">HM Enablement</span><span class="v">__%</span></div>
-          <div class="bx thin tile a"><span class="nm">HM Overall / CSAT</span><span class="v">__%</span></div>
+        <div class="tiles r4" style="grid-template-columns: repeat(4, 1fr)">
+          <div class="bx thin tile a"><span class="nm">HM Readiness<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
+          <div class="bx thin tile a"><span class="nm">HM Enablement<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
+          <div class="bx thin tile a"><span class="nm">HM Overall / CSAT<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
+          <div class="bx thin tile a"><span class="nm">Day 1 Manager Meeting<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">new survey question</span></div>
         </div>
       </div>
       <div>
         <div class="grp-title"><span>PEX</span><small>__ of 3 at goal</small></div>
         <div class="tiles r3" style="grid-template-columns: 1fr 1fr 1fr">
-          <div class="bx thin tile a"><span class="nm">On-Time Start</span><span class="v">__% <small>vs 90%</small></span></div>
-          <div class="bx thin tile a"><span class="nm">Onboarding QA</span><span class="v">__% <small>vs 98%</small></span></div>
-          <div class="bx thin tile a"><span class="nm">Cases per New Hire</span><span class="v">__</span><span class="meta">lower is better</span></div>
+          <div class="bx thin tile r"><span class="nm">Start Date Held<span class="ph ns">Later</span></span><span class="v">__% <small>vs 90%</small></span><span class="meta">+ avg days shifted when it changed</span></div>
+          <div class="bx thin tile r"><span class="nm">Onboarding QA<span class="ph ns">Later</span></span><span class="v">__%</span><span class="meta">to define: whose questions count</span></div>
+          <div class="bx thin tile a"><span class="nm">Cases per New Hire<span class="ph ns">Later</span></span><span class="v">__</span><span class="meta">lower is better</span></div>
         </div>
         <div class="click">click the header for the PEX detail sheet (below)</div>
       </div>
@@ -183,11 +190,11 @@
     <!-- Row 4: trend + volume -->
     <div class="row r3" style="grid-template-columns: 1.5fr 1fr">
       <div>
-        <div class="grp-title"><span>First 90 Days</span><small>% favorable at each survey wave</small></div>
+        <div class="grp-title"><span>First 90 Days<span class="ph p1">Phase 1</span></span><small>% favorable at each survey wave</small></div>
         <div class="bx thin" style="min-height:150px">
           <svg viewBox="0 0 320 110" style="width:100%;height:130px">
             <line x1="40" y1="95" x2="300" y2="95" stroke="#888"/>
-            <text x="50" y="108" font-size="11" fill="#6B6B6B">Week 1</text><text x="160" y="108" font-size="11" fill="#6B6B6B">Day 30</text><text x="270" y="108" font-size="11" fill="#6B6B6B">Day 90</text>
+            <text x="50" y="108" font-size="11" fill="#6B6B6B">Week 2</text><text x="160" y="108" font-size="11" fill="#6B6B6B">Day 30</text><text x="270" y="108" font-size="11" fill="#6B6B6B">Day 90</text>
             <path d="M65 30 L175 38 L285 34" fill="none" stroke="#1F4E99" stroke-width="2"/><path d="M65 50 L175 46 L285 40" fill="none" stroke="#4CAF50" stroke-width="2"/><path d="M65 62 L175 58 L285 60" fill="none" stroke="#F28E2B" stroke-width="2"/><path d="M65 44 L175 52 L285 48" fill="none" stroke="#B07AA1" stroke-width="2" stroke-dasharray="5 4"/>
           </svg>
           <div class="sub-lbl">One line per bucket (dashed = hiring managers). Shows whether we're tracking up or down, by region or function.</div>
@@ -196,7 +203,7 @@
       <div>
         <div class="grp-title"><span>Volume</span><small>Workday</small></div>
         <div class="bx thin" style="min-height:90px">
-          <div>New hires by region (map) <span class="muted">+ monthly trend</span></div>
+          <div>New hires by region (map) <span class="muted">+ trend by start cohort</span><span class="ph p1">Phase 1</span></div>
           <svg viewBox="0 0 200 60" style="width:100%;height:50px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#1F4E99" stroke-width="2"/></svg>
         </div>
         <div class="bx thin tile dash" style="margin-top:8px; min-height:52px; color:#6B6B6B"><span class="nm">NHO Attendance (future)</span><span class="meta">live vs virtual, once attendance is recorded</span></div>
@@ -205,12 +212,12 @@
   </div>
 
   <!-- =========================== PEX DETAIL SHEET =========================== -->
-  <p style="margin-top:22px">Sheet 2: <b>PEX Success detail</b>, opened from the PEX header. Same filters, split by Regular / NTC / Exec like PEX reports today.</p>
+  <p style="margin-top:22px">Sheet 2: <b>PEX Success detail</b>, opened from the PEX header. Same filters, split by talent type.</p>
   <p class="key"><span class="tag std">take</span> PEX's SLA as it is &nbsp; <span class="tag comb">combine</span> PEX data joined with another source &nbsp; <span class="tag cust">new</span> doesn't exist yet</p>
   <div class="bx frame wide">
     <div class="wf-hdr"><b>PEX Success | Detail</b><span class="r">from offer accepted to start date<br>ServiceNow + Workday</span></div>
     <div class="filters">
-      <span class="chip">Region</span><span class="chip">Country</span><span class="chip">Persona</span><span class="chip">Start Date</span>
+      <span class="chip">Region</span><span class="chip">Country</span><span class="chip">Talent Type</span><span class="chip">Start Cohort</span>
       <span class="legend"><span class="chip" style="padding-right:10px">&lt; Back to Executive View</span></span>
     </div>
 
@@ -220,7 +227,7 @@
         <div class="bx thin" style="padding-top:26px">
           <div class="bars">
             <span>Background Check <span class="tag std">take</span></span><div class="track first"><div class="bar" style="width:88%"></div></div><span class="pct">__%</span>
-            <span>Onboarding (start date held) <span class="tag std">take</span></span><div class="track"><div class="bar" style="width:78%"></div></div><span class="pct">__%</span>
+            <span>Start date held <span class="tag std">take</span></span><div class="track"><div class="bar" style="width:78%"></div></div><span class="pct">__%</span>
           </div>
           <div class="sub-lbl" style="margin-top:8px">Each bar is a PEX SLA. Hover a bar for the HR services behind the misses.</div>
         </div>
@@ -251,11 +258,12 @@
         </div>
       </div>
       <div>
-        <div class="grp-title"><span>Future measures</span><small>once the new process is live</small></div>
-        <div class="tiles" style="grid-template-columns: 1fr 1fr 1fr">
-          <div class="bx thin tile dash" style="min-height:120px"><span class="nm">Clean Start Rate<span class="tag comb">combine</span></span><span class="v">__%</span><span class="meta">of new hires where the start date held, onboarding passed QA with no critical error, and the laptop arrived by Day 1</span></div>
-          <div class="bx thin tile dash" style="min-height:120px"><span class="nm">Pre-Day 1 Tasks On Time<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">portal tasks done by their due date, for new hires, managers and PEX</span></div>
-          <div class="bx thin tile dash" style="min-height:120px"><span class="nm">Self-Service Resolution<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">onboarding questions answered in myHR / Sidekick without a case</span></div>
+        <div class="grp-title"><span>Future measures</span><small>support model and process, once live</small></div>
+        <div class="tiles" style="grid-template-columns: 1fr 1fr">
+          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Tier 0: Self-Service<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">questions answered in myHR (pre-hire sign-in, knowledge articles) without a case</span></div>
+          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Tier 1: Resolved by PEX<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">cases the PEX team resolves in the system, and how fast</span></div>
+          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Escalated to Tier 2<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">share of cases that need the next level</span></div>
+          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Clean Start Rate<span class="tag comb">combine</span></span><span class="v">__%</span><span class="meta">start date held, no critical QA error, laptop by Day 1</span></div>
         </div>
       </div>
     </div>
@@ -266,7 +274,7 @@
   <p>Built on Microsoft's own Viva Glint onboarding items, which already line up with the buckets Janine shared. <span class="tag std">Glint std</span> = Glint's standard wording. <span class="tag cust">custom</span> = we write it (net-new, needs Kelly). Rated items use the 5-point agree scale.</p>
   <div class="wide">
   <table class="t">
-    <tr><th style="width:17%">Bucket</th><th>Question</th><th class="w">Week 1</th><th class="w">Day 30</th><th class="w">Day 90</th><th style="width:16%">Also feeds</th></tr>
+    <tr><th style="width:17%">Bucket</th><th>Question</th><th class="w">Week 2</th><th class="w">Day 30</th><th class="w">Day 90</th><th style="width:16%">Also feeds</th></tr>
     <tr><td rowspan="5">Early Readiness &amp; Navigation</td><td>My pre-Day 1 tasks were clear and easy to complete. <span class="tag cust">custom</span></td><td class="x">x</td><td></td><td></td><td>Preboarding (portal)</td></tr>
     <tr><td>I had the equipment and system access I needed on my first day. <span class="tag cust">custom</span></td><td class="x">x</td><td></td><td></td><td>Equipment Success</td></tr>
     <tr><td>I know where to find information or get help. <span class="tag cust">custom</span></td><td class="x">x</td><td class="x">x</td><td></td><td></td></tr>
@@ -288,14 +296,14 @@
     <tr class="muted"><td>Out of scope for now</td><td>Orientation questions (wait for deployment). Glint's Recruitment and Reasons for Joining items belong to Talent Acquisition.</td><td></td><td></td><td></td><td></td></tr>
   </table>
   </div>
-  <p class="muted" style="font-size:16px">Gaps to note: Week 1 Role Clarity has one question, so it shows as an item, not a bucket score. Glint also has Openness and Authenticity items that could join Support &amp; Connection if we want a fuller belonging read.</p>
+  <p class="muted" style="font-size:16px">Gaps to note: Week 2 Role Clarity has one question, so it shows as an item, not a bucket score. Glint also has Openness and Authenticity items that could join Support &amp; Connection if we want a fuller belonging read.</p>
 
   <!-- =========================== HM BUCKETS =========================== -->
   <h2><span>3. Hiring-manager buckets</span></h2>
   <p>Glint's documentation doesn't include a standard hiring-manager onboarding template, so these are drafts for Janine to react to. Common practice is a manager pulse around Day 30 and a productivity check at Day 90.</p>
   <div class="wide">
   <table class="t">
-    <tr><th style="width:17%">Bucket</th><th>Draft question</th><th class="w">Pre-Day 1 / Week 1</th><th class="w">Day 30</th><th class="w">Day 90</th></tr>
+    <tr><th style="width:17%">Bucket</th><th>Draft question</th><th class="w">Week 2</th><th class="w">Day 30</th><th class="w">Day 90</th></tr>
     <tr><td rowspan="3">HM Readiness</td><td>I knew which onboarding tasks were mine and when they were due.</td><td class="x">x</td><td></td><td></td></tr>
     <tr><td>My new hire's equipment and access were ready on their first day.</td><td class="x">x</td><td></td><td></td></tr>
     <tr><td>I had what I needed to prepare for my new hire's first day.</td><td class="x">x</td><td></td><td></td></tr>
@@ -303,7 +311,8 @@
     <tr><td>I got timely help from People Experience when I needed it.</td><td></td><td class="x">x</td><td></td></tr>
     <tr><td>I had the guidance I needed to set clear expectations for my new hire.</td><td></td><td class="x">x</td><td></td></tr>
     <tr><td>HM Overall / CSAT</td><td>Overall, I am satisfied with how my new hire was onboarded.</td><td></td><td class="x">x</td><td class="x">x</td></tr>
-    <tr><td>Productive by Day 90 <span class="muted">(Outcomes)</span></td><td>My new hire is fully productive in their role. <span class="muted">(D30 version: "is ramping up at the pace I expected.")</span></td><td></td><td class="x">x</td><td class="x">x</td></tr>
+    <tr><td>Day 1 Manager Meeting</td><td>I met with my new hire on their first day. <span class="muted">(being added to the survey)</span></td><td class="x">x</td><td></td><td></td></tr>
+    <tr><td>Productive by Day 90 <span class="muted">(Outcomes)</span></td><td>My new hire is fully productive in their role. <span class="muted">(5-point scale, shown as 0 to 100. Overlaps with "what would have better equipped you"; one may go.)</span></td><td></td><td class="x">x</td><td class="x">x</td></tr>
   </table>
   </div>
 
@@ -313,8 +322,8 @@
   <div class="wide">
   <table class="t">
     <tr><th style="width:19%">Measure</th><th class="w">How</th><th>Built from</th><th style="width:15%">PEX target today</th><th class="w">Where</th></tr>
-    <tr><td>On-Time Start</td><td><span class="tag std">take</span></td><td>PEX's onboarding SLA: actual hire date on or before the proposed hire date (Workday)</td><td>80% min, 90% goal</td><td>Tile</td></tr>
-    <tr><td>Onboarding QA</td><td><span class="tag std">take</span></td><td>PEX's QA audits of onboarding transactions. Critical = an error that needs immediate correction; overall covers the rest of the QA form</td><td>85% min, 98% goal</td><td>Tile (critical), detail (overall)</td></tr>
+    <tr><td>Start Date Held, Days Shifted</td><td><span class="tag std">take</span></td><td>PEX's onboarding SLA: hire date on or before the original date. Adds a changed / not changed flag and the days shifted. Where the original date lives (offer letter or requisition) is open</td><td>80% min, 90% goal</td><td>Tile</td></tr>
+    <tr><td>Onboarding QA</td><td><span class="tag std">take</span></td><td>PEX's QA audits of onboarding transactions. Still to define: whether the questions behind it come from recruiters or new hires</td><td>85% min, 98% goal</td><td>Tile (critical), detail (overall)</td></tr>
     <tr><td>Cases per New Hire</td><td><span class="tag comb">combine</span></td><td>Onboarding cases from new hires and their managers (ServiceNow), divided by new hires that month (Workday)</td><td>None yet. Lower is better</td><td>Tile</td></tr>
     <tr><td>On Time by Step</td><td><span class="tag std">take</span></td><td>On-time % for the steps after offer accepted: background check and start date</td><td>80% min, 90% goal</td><td>Detail</td></tr>
     <tr><td>HR-Raised %</td><td><span class="tag std">take</span></td><td>Share of onboarding cases HR opened on someone's behalf. High means people aren't self-serving</td><td>5% max, 2% goal</td><td>Detail</td></tr>
@@ -323,11 +332,11 @@
     <tr><td>Cases Received vs Closed</td><td><span class="tag std">take</span></td><td>Incoming and completed onboarding cases. Two different pools</td><td>n/a</td><td>Detail</td></tr>
     <tr><td>Clean Start Rate</td><td><span class="tag comb">combine</span></td><td>Per new hire: start date held, onboarding passed QA with no critical error, laptop by Day 1 (Equipment)</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
     <tr><td>Pre-Day 1 Tasks On Time</td><td><span class="tag cust">new</span></td><td>Portal tasks done by their due date, once the new portal is live</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
-    <tr><td>Self-Service Resolution</td><td><span class="tag cust">new</span></td><td>Onboarding questions answered in myHR / Sidekick knowledge articles without opening a case</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
+    <tr><td>Tier 0, 1 and 2 support</td><td><span class="tag cust">new</span></td><td>Share answered by self-service in myHR, resolved by PEX in the system, and escalated to tier 2</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
   </table>
   </div>
   <ul class="rules">
-    <li><b>Possible framing: two questions, three tiles.</b> On-Time Start and Onboarding QA ask whether PEX is delivering onboarding well. Cases per New Hire asks whether the new experience makes PEX's job easier: if the portal works, people need fewer tickets.</li>
+    <li><b>Possible framing: two questions, three tiles.</b> Start Date Held and Onboarding QA ask whether PEX is delivering onboarding well. Cases per New Hire asks whether the new experience makes PEX's job easier: if the portal works, people need fewer tickets.</li>
     <li><b>No blended PEX score.</b> These use different units, and some go the other way (lower is better), so a blend would hide which one slipped. The header shows how many tiles are at goal.</li>
     <li><b>PEX's own targets carry over</b>, so PEX and this dashboard agree on what good looks like.</li>
     <li><b>Start the before picture early.</b> Cases per new hire and HR-raised % exist today, so the comparison after the portal launches has a baseline.</li>
@@ -341,7 +350,7 @@
         <li><b>5-point agree scale</b> for every rated question. Strongly disagree to strongly agree.</li>
         <li><b>Favorable = 4 or 5.</b> That's Glint's standard, so our numbers match what Glint shows.</li>
         <li><b>Bucket score = average of its questions' % favorable</b>, each question weighted equally. Keep Glint's 0 to 100 score in the tooltip for anyone comparing to Glint reports.</li>
-        <li><b>One wave at a time.</b> Week 1, Day 30 and Day 90 are scored separately. Averaging them would hide the trend across the first 90 days.</li>
+        <li><b>One wave at a time.</b> Week 2, Day 30 and Day 90 are scored separately. Averaging them would hide the trend across the first 90 days.</li>
         <li><b>Hide small groups.</b> No score under 5 responses, the Glint default (the floor is 3). Comments need 10.</li>
       </ul>
     </div>
@@ -352,57 +361,57 @@
         <li><b>Show n and response rate</b> on every tile. A 90% from 6 people isn't a 90% from 600.</li>
         <li><b>Comments aren't scored.</b> Barriers stay in Glint's comment reports.</li>
         <li><b>Targets after a baseline.</b> Run two quarters, then set targets per bucket.</li>
-        <li class="red"><b>Open:</b> Janine mentioned "5 or more" for productive. That suggests a 7- or 10-point item. If we keep the 5-point scale, "productive" means a 4 or 5.</li>
+        <li><b>Overall Onboarding Score</b> is a weighted average of about 8 or 9 questions. The single "overall experience" question can also show on its own.</li>
+        <li><b>Productivity</b> is a 5-point manager rating at Day 90, converted to 0 to 100 like Glint scores. Watch the change from Day 30, not the Day 30 level.</li>
       </ul>
     </div>
   </div>
 
-  <!-- =========================== GAPS =========================== -->
-  <h2><span>6. Known gaps so far</span></h2>
-  <p>What we've found while sketching. Some may already be solved somewhere we haven't looked.</p>
+  <!-- =========================== SOURCES MAP =========================== -->
+  <h2><span>6. Where each measure comes from</span></h2>
+  <p>A starting list for the Helix roadmap. Owners and update methods are what we know so far.</p>
   <div class="wide">
   <table class="t">
-    <tr><th style="width:26%">Item</th><th>What we know today</th></tr>
-    <tr><td>Survey results (new hire and hiring manager) in Tableau</td><td>Not sure yet whether Glint feeds Tableau, or what net-new questions would need</td></tr>
-    <tr><td>PEX measures</td><td>Weekly Excel today. PEX's own automated Tableau dashboard is in progress</td></tr>
-    <tr><td>Productive by Day 90</td><td>No question exists yet; the rating scale is open</td></tr>
-    <tr><td>NHO attendance</td><td>No way to record it yet</td></tr>
-    <tr><td>Quality of Hire, 1st-year attrition</td><td>Already exist in Tableau / Workday</td></tr>
-    <tr><td>Equipment</td><td>Already tracked in a Power BI report</td></tr>
+    <tr><th style="width:24%">Measures</th><th>Source</th><th>Who to ask</th><th>How it's updated</th><th class="w">Phase</th></tr>
+    <tr><td>Survey buckets, Overall Onboarding Score, Productive by Day 90, HM buckets, Day 1 Manager Meeting</td><td>Glint, already flowing into Helix</td><td>Kelly (survey), Martina (Helix)</td><td>Automatic once the new questions are live</td><td><span class="ph p1">Phase 1</span></td></tr>
+    <tr><td>Quality of Hire</td><td>Existing Tableau content</td><td>Martina</td><td>Existing</td><td><span class="ph p1">Phase 1</span></td></tr>
+    <tr><td>1st-Year Attrition, new hires by region and cohort</td><td>Workday</td><td>Martina</td><td>Automatic</td><td><span class="ph p1">Phase 1</span></td></tr>
+    <tr><td>Laptop by Day 1, Loaner Reliance, Late Notice</td><td>Power BI report</td><td>Milad</td><td>Possibly a manual upload; source, cadence and backup owner to confirm</td><td><span class="ph tbc">TBC</span></td></tr>
+    <tr><td>Start Date Held, Days Shifted</td><td>Original date (offer letter or requisition) vs hire date</td><td>Kwabena</td><td>To confirm</td><td><span class="ph ns">Later</span></td></tr>
+    <tr><td>PEX measures: QA, cases per new hire, support tiers</td><td>ServiceNow PEX experience in future; Excel today</td><td>Kwabena</td><td>Weekly Excel today</td><td><span class="ph ns">Later</span></td></tr>
+    <tr><td>NHO attendance</td><td>Not captured yet</td><td>-</td><td>-</td><td><span class="ph ns">Later</span></td></tr>
   </table>
   </div>
 
   <!-- =========================== DISCUSSION =========================== -->
-  <h2><span>7. Questions for the conversation</span></h2>
-  <p>Not a checklist, just places to start.</p>
+  <h2><span>7. Open questions</span></h2>
+  <p>Not a checklist, just where the conversation could go next.</p>
   <div class="two">
     <div>
-      <p><b>What's possible</b></p>
+      <p><b>Phase 1 (by March)</b></p>
       <ul class="rules">
-        <li>Which of these sources already reach Tableau today, and which are furthest away?</li>
-        <li>Is one workbook the right shape, or should this connect to dashboards that already exist (PEX's, Quality of Hire)?</li>
-        <li>What would a sensible first version look like, compared with the end goal?</li>
-        <li>What usually slows a build like this down?</li>
+        <li>Which tool will this live in: Tableau, Looker or Power BI?</li>
+        <li>What can a phase-one mockup realistically include before survey data arrives?</li>
+        <li>Can the equipment data move off a manual upload and into Helix?</li>
       </ul>
-      <p><b>What's covered</b></p>
+      <p><b>Scoring</b></p>
       <ul class="rules">
-        <li>Is anything missing that leadership would expect to see on day one?</li>
-        <li>Is anything here unlikely to be measurable, or not worth the effort?</li>
-        <li>Does the top-down order (outcomes, new hire, managers and PEX) match how people would read it?</li>
+        <li>Which 8 or 9 questions feed the Overall Onboarding Score, and how are they weighted?</li>
+        <li>Which productivity question stays, given the overlap?</li>
+        <li>Who sets targets, and how long a baseline do we need first?</li>
       </ul>
     </div>
     <div>
-      <p><b>How it should work</b></p>
+      <p><b>Later (2028)</b></p>
       <ul class="rules">
-        <li>How should the Overall Onboarding Score be built, and should it include more than the survey?</li>
-        <li>Which region and function hierarchy is the standard to filter by?</li>
-        <li>Who would use this, and how often: monthly for leaders, or more often for operations?</li>
-        <li>Who sets targets, and how long a baseline do we need first?</li>
+        <li>Where does the original start date live, so days shifted can be measured?</li>
+        <li>What should PEX's ServiceNow setup capture so QA and the support tiers can be measured?</li>
+        <li>How should NHO attendance be recorded?</li>
       </ul>
-      <p><b>What's next</b></p>
+      <p><b>People</b></p>
       <ul class="rules">
         <li>Who else should see this before it goes further?</li>
-        <li>What would you need from us to take the next step?</li>
+        <li>What would the Helix team need from us for the roadmap?</li>
       </ul>
     </div>
   </div>

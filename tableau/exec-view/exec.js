@@ -11,6 +11,7 @@
   const ST = { g: { label: 'Available', color: '#4CAF50' }, a: { label: 'Partial', color: '#FFC107' }, r: { label: 'No Data Source', color: '#F44336' } };
   const ST_LONG = { g: 'Available', a: 'Partial (needs integration or build)', r: 'No data source yet' };
   const KIND = { real: 'Actual', sample: 'Sample', none: 'Not measured' };
+  const PH = { p1: 'Phase 1', tbc: 'TBC', ns: 'Later' };
   $('#statusLegend').innerHTML = V.legend({ title: 'Data Status', items: ['g', 'a', 'r'].map(k => ST[k].label), colors: ['g', 'a', 'r'].map(k => ST[k].color), inline: true });
   $('#statusLegend .tab-legend').style.marginLeft = 'auto';
   $('#statusLegend').style.marginLeft = 'auto';
@@ -22,13 +23,13 @@
 
   /* ---------------- KPI strip ---------------- */
   function tileHtml(t) {
-    const rows = [['Measure', t.name], ['Value', t.pulse ? 'See tile' : t.value + (t.kind === 'sample' ? ' (sample)' : '')], ['Data Status', ST_LONG[t.status]], ['Source', t.src], ['Field Type', t.type], ['Note', t.note]];
+    const rows = [['Measure', t.name], ['Phase', PH[t.phase] || '-'], ['Value', t.pulse ? 'See tile' : t.value + (t.kind === 'sample' ? ' (sample)' : '')], ['Data Status', ST_LONG[t.status]], ['Source', t.src], ['Field Type', t.type], ['Note', t.note]];
     const body = t.pulse
       ? `<div class="pulse">${t.pulse.map(([k, v]) => v == null ? `<div class="opt"><b>-</b><span>${k} (opt.)</span></div>` : `<div><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('')}<span class="t-tgt" style="padding-bottom:1px">${esc(t.target)}</span></div>`
       : `<div class="t-row"><span class="t-val" ${t.id ? `id="v-${t.id}"` : ''}>${esc(t.value)}</span><span class="t-tgt">${esc(t.target)}</span>${t.gap ? `<span class="t-gap">${esc(t.gap)}</span>` : ''}</div>`;
     const src = t.kind === 'real' ? (t.foot ? `${esc(t.foot)}<br>${esc(t.period)}` : esc(t.period)) : 'Sample value';
     return `<div class="tile ${t.kind}" style="--st:${ST[t.status].color}" ${tip(rows)}>
-      <div class="t-name">${esc(t.name)}</div>${body}
+      <div class="t-name">${esc(t.name)}${t.phase ? `<span class="t-ph ${t.phase}">${PH[t.phase]}</span>` : ''}</div>${body}
       ${t.spark ? `<div class="t-spark" data-spark="${t.id}"></div>` : ''}
       <div class="t-src" ${t.id ? `id="s-${t.id}"` : ''}>${src}</div></div>`;
   }
@@ -114,8 +115,8 @@
   const sheet = (title, body) => `<div class="sheet"><div class="tab-sheet-title">${title}</div>${body}</div>`;
 
   const measures = [];
-  D.sections.forEach(c => c.tiles.forEach(t => measures.push([esc(c.label), esc(t.name), sw(t.status), KIND[t.kind], esc(t.src), esc(t.note)])));
-  measures.push(['Trend', 'First 90 Days', sw('a'), KIND.sample, 'Glint surveys', '% favorable per bucket at Week 1, Day 30 and Day 90.']);
+  D.sections.forEach(c => c.tiles.forEach(t => measures.push([esc(c.label), esc(t.name) + (t.phase ? ' (' + PH[t.phase] + ')' : ''), sw(t.status), KIND[t.kind], esc(t.src), esc(t.note)])));
+  measures.push(['Trend', 'First 90 Days', sw('a'), KIND.sample, 'Glint surveys', '% favorable per bucket at Week 2, Day 30 and Day 90.']);
   measures.push(['Volume', 'New Hires by Region', sw('g'), KIND.sample, 'Workday', 'Region, country and work location are PRD filters.']);
   measures.push(['Volume', 'New Hires by Month', sw('g'), KIND.sample, 'Workday', '']);
   measures.push(['Volume', 'NHO Attendance (future)', sw('r'), KIND.none, 'TBD', 'No way to record attendance yet.']);
@@ -132,12 +133,17 @@ ${sheet('Design Choices (v0.6)', table(['Choice', 'Why'], [
   ['PEX measures start at offer accepted', 'Earlier steps (job requisition, offer letter) are outside the program.'],
   ['Data status shown as a colored bar on each tile', 'A bar plus a legend reads as data status, not performance.'],
   ['Everything filters by region and function', 'Same filters on every sheet.'],
+  ['Start Cohort and Talent Type filters', 'New hires grouped by start month or quarter; executive vs emerging talent from job level 2.'],
+  ['Phase on every tile', 'Phase 1 is possible by March (Glint via Helix, Workday, existing content). TBC needs a path into Helix. Later waits on data not captured yet.'],
+  ['Tool-agnostic', 'Drawn in Tableau style, but the measures and layout work in Tableau, Looker or Power BI.'],
 ], ['32%', '']))}
 ${sheet('Open Questions', table(['Item', 'Detail'], [
   ['Laptop by Day 1 denominator', '586 of 601 with a delivery date = 97.5%. 586 of 604 requests = 97.0%.'],
   ['Region names', 'HAM uses NA, EU, AP, LATAM. PEX CSAT uses AMER, EMEA, APAC. Needs one region, country, work location hierarchy across sources.'],
   ['Targets', 'Set: Laptop by Day 1 (98%) and PEX\'s standard goals for On-Time Start (90%) and Onboarding QA (98%). All others open.'],
-  ['Overall Onboarding Score', 'Survey buckets only, or should it include equipment and PEX measures too?'],
+  ['Overall Onboarding Score', 'Which 8 or 9 questions, and how are they weighted?'],
+  ['Start Date Held', 'Where the original start date lives: offer letter or requisition.'],
+  ['Equipment', 'Power BI source, update cadence and backup owner.'],
 ], ['32%', '']))}
 ${sheet('Build Notes', table(['Sheet', 'Build'], [
   ['KPI tiles', 'One Text sheet per tile in a horizontal container per group. Status bar: a narrow bar sheet colored by ' + dim('Data Status') + '.'],
@@ -145,7 +151,7 @@ ${sheet('Build Notes', table(['Sheet', 'Build'], [
   ['Map', 'Filled map: Detail ' + dim('Country') + ', Color ' + dim('Region') + '. Region labels from a second map layer (dual axis) at region centroids.'],
   ['New Hires by Month', 'Line: ' + dim('MONTH(Start Date)') + ' x ' + mea('CNTD(Hire ID)') + '.'],
   ['First 90 Days', 'Line: Columns ' + dim('Survey Wave') + ', Rows ' + mea('% Favorable') + ', Color ' + dim('Bucket') + '.'],
-  ['Filters', 'Region, country, function, work location, persona, start date, remote / on-site. Apply to all sheets. Persona: Regular, NTC, Exec. Interns and apprentices are out of MVP.'],
+  ['Filters', 'Region, country, function, work location, talent type (job level 2), start cohort, period, remote / on-site. Apply to all sheets. Persona: Regular, NTC, Exec. Interns and apprentices are out of MVP.'],
 ], ['32%', '']))}
 ${sheet('Other Views (Defined, Not Built)', table(['View', 'Audience', 'Refresh', 'Contents'], [
   ['PEX Operational', 'PEX coordinators', 'Daily', 'New-hire list with status; task funnel; SLA timers and stuck items; escalations (Day 1-90); nudge status (Day -7, -72 hr); case CSAT.'],
