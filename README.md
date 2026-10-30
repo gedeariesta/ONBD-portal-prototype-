@@ -1,18 +1,18 @@
 # Pre-Day 1 portals — interactive prototype
 ### New hire, hiring manager, and the handoffs between them
 
-**Four versions live side by side, deliberately.** Each earlier one is left
+**Five versions live side by side, deliberately.** Each earlier one is left
 untouched so they can be cross-compared screen by screen and register row by
 register row.
 
-| | v1 | v2 | v3 | v4 |
-|---|---|---|---|---|
-| What it is | Original first pass | Edit notes applied | Both portals, wired together | **AI-forward prototype**, a 2027 vision |
-| Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` |
-| Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` |
-| Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired |
-| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) |
+| | v1 | v2 | v3 | v4 | v5 |
+|---|---|---|---|---|---|
+| What it is | Original first pass | Edit notes applied | Both portals, wired together | **AI-forward prototype**, a 2027 vision | **Sidekick where people meet it**: Paradox and Teams |
+| Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` | `v5/` |
+| Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` | `dist/equinix-preday1-portals-v5-paradox-teams.html` |
+| Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick | Same as v4, with Sidekick for the coordinator too |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired |
+| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) | same as v4 |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
 (the real thing runs on ServiceNow Employee Center — this prototypes the
@@ -23,6 +23,35 @@ assumption inside it.** The build spec is `Pre_Day_1_Task_UI_Spec.xlsx`; this
 prototype exists to show flow and feel, surface knowledge and feature gaps,
 and let arguments happen before development instead of during it.
 
+
+## v5 — Sidekick where people meet it
+
+v5 is a copy of v4 with one change: where each person meets the assistant.
+v4 is untouched, so the two can be compared. Everything else, including
+the rule *Sidekick talks, the system decides* (A-70), is the same.
+
+**The new hire: Sidekick powered by Paradox** (A-82). A new hire has no
+Equinix account before Day 1, and the candidate journey already ran on
+Paradox, so the assistant stays there. It opens as Paradox's chat on
+paradox.ai: Paradox's gradient and bubbles, with Sidekick's answers, system
+cards and "Talk to a person" inside. It is labelled Sidekick, powered by
+Paradox, and says that from Day 1 the same help is Sidekick in Teams:
+training wheels for the full Sidekick.
+
+**The hiring manager and the coordinator: Sidekick as in Teams** (A-83,
+A-84). Sidekick lives in Microsoft Teams, so in the portal it opens as a
+Teams chat window: the app rail, the Chat tab, timestamped messages and
+cards with the action in them, marked as the same conversation as Teams.
+The launcher sits in the header like a Teams app button, and the greeting
+arrives as a Teams notification. The manager's Pre-Day 1 checklist is one
+card, every item actionable from it, including **Verify your contact phone
+number** with Verify or Change in Workday. The coordinator, who had no
+assistant in v4, gets one that answers from her queues with the list
+itself, and never offers to hand her to a person.
+
+Both frames are drawn by the prototype. Nothing calls Paradox, Teams or a
+model. v5 carries its own copy of the QA harness (`v5/tools`), pointed at
+`/v5/`.
 
 ## v4 — the AI-forward prototype
 
@@ -83,6 +112,7 @@ python3 -m http.server 8080
 # v2 → http://localhost:8080/v2/
 # v3 → http://localhost:8080/v3/
 # v4 → http://localhost:8080/v4/
+# v5 → http://localhost:8080/v5/
 ```
 
 (Don't open the multi-file `index.html` directly from Downloads or a zip

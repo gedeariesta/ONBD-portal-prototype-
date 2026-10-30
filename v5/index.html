@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Equinix Pre-Day 1 portals, AI-forward prototype (v5)</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Persistent prototype indicator (Stage 0, rule 5) -->
+<div class="proto-ribbon">
+  <span><b>AI-forward prototype</b> v5<span class="rb-long">, a 2027 vision</span>, not an approved design</span>
+  <span class="view-switch" id="viewSwitch">
+    <span class="vs-label">Viewing as</span>
+    <button class="vs on" data-view="nh">New hire</button>
+    <button class="vs" data-view="hm">Hiring manager</button>
+    <button class="vs" data-view="pex">People Experience</button>
+  </span>
+  <span class="rb-link" id="rbAssume">assumptions</span>
+  <span class="rb-link" id="rbFlow">Flow overview</span>
+  <span class="rb-link" data-goto="#/handoffs">How they connect</span>
+  <!-- Prototype controls live in the ribbon, with the other prototype devices.
+       As a floating button they sat over the left edge of every screen. -->
+  <button class="rb-proto" id="protoFab" aria-haspopup="true">
+    <span class="ic sm" style="-webkit-mask-image:url('assets/icons/exclamation-triangle.svg');mask-image:url('assets/icons/exclamation-triangle.svg')"></span>
+    Prototype controls
+  </button>
+</div>
+
+<!-- Header -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="brand" id="brandHome">
+      <img src="assets/logos/equinix-mark-red.png" alt="Equinix" width="44" height="29">
+      <span class="wordmark">EQUINIX</span>
+      <span class="sub" id="hdrSub">Your onboarding, before Day 1</span>
+    </div>
+    <div class="hdr-spacer"></div>
+    <div class="hdr-you" id="hdrYou"></div>
+  </div>
+</header>
+
+<!-- App -->
+<main id="app"></main>
+
+<!-- Overlay + slide-over panels -->
+<div class="overlay" id="overlay"></div>
+
+<aside class="panel" id="assumePanel" aria-label="Assumptions and gaps">
+  <div class="panel-h">
+    <h2>Assumptions &amp; gaps</h2>
+    <button class="x" aria-label="Close"><span class="ic" style="-webkit-mask-image:url('assets/icons/times.svg');mask-image:url('assets/icons/times.svg')"></span></button>
+  </div>
+  <div class="panel-b" id="assumeBody"></div>
+</aside>
+
+<!-- Sidekick (js/sidekick.js). Drawn per person: Paradox's chat for the new
+     hire, a Teams chat window for the manager and the coordinator. The ids
+     inside (chatInput, chatSendBtn, chatMsgs) exist in both frames. -->
+<aside class="panel sk-panel" id="chatPanel" aria-label="Sidekick"></aside>
+
+<!-- Sidekick's launcher. Drawn by skLauncher(): Paradox's chat bubble in the
+     page margin for the new hire, a Teams-style button in the header for the
+     manager and the coordinator. -->
+<button class="chat-fab" id="chatFab" aria-label="Ask Sidekick"></button>
+
+<!-- Prototype controls drawer (Stage 6, clearly a prototype device) -->
+<div class="proto-drawer" id="protoDrawer"></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/hm.js"></script>
+<script src="js/pex.js"></script>
+<script src="js/sidekick.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
