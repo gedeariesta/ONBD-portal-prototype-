@@ -8,6 +8,7 @@
      node build-standalone.js v2     # v2 → dist/equinix-preday1-prototype-v2.html
      node build-standalone.js v4     # v4 → dist/equinix-preday1-portals-v4-ai-forward.html
      node build-standalone.js v5     # v5 → dist/equinix-preday1-portals-v5-paradox-teams.html
+     node build-standalone.js v6     # v6 → dist/equinix-preday1-portals-v6-servicenow-rethought.html
      node build-standalone.js all    # every version
 */
 
@@ -20,6 +21,7 @@ const VERSIONS = {
   v3: { src: 'v3', out: 'equinix-preday1-portals-v3.html' },
   v4: { src: 'v4', out: 'equinix-preday1-portals-v4-ai-forward.html' },
   v5: { src: 'v5', out: 'equinix-preday1-portals-v5-paradox-teams.html' },
+  v6: { src: 'v6', out: 'equinix-preday1-portals-v6-servicenow-rethought.html' },
 };
 
 const arg = (process.argv[2] || 'v1').toLowerCase();

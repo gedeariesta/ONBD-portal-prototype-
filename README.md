@@ -1,18 +1,18 @@
 # Pre-Day 1 portals — interactive prototype
 ### New hire, hiring manager, and the handoffs between them
 
-**Five versions live side by side, deliberately.** Each earlier one is left
+**Six versions live side by side, deliberately.** Each earlier one is left
 untouched so they can be cross-compared screen by screen and register row by
 register row.
 
-| | v1 | v2 | v3 | v4 | v5 |
-|---|---|---|---|---|---|
-| What it is | Original first pass | Edit notes applied | Both portals, wired together | **AI-forward prototype**, a 2027 vision | **Sidekick where people meet it**: Paradox and Teams |
-| Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` | `v5/` |
-| Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` | `dist/equinix-preday1-portals-v5-paradox-teams.html` |
-| Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick | Same as v4, with Sidekick for the coordinator too |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired |
-| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) | same as v4 |
+| | v1 | v2 | v3 | v4 | v5 | v6 |
+|---|---|---|---|---|---|---|
+| What it is | Original first pass | Edit notes applied | Both portals, wired together | **AI-forward prototype**, a 2027 vision | **Sidekick where people meet it**: Paradox and Teams | **ServiceNow, rethought**: every current feature marked |
+| Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` | `v5/` | `v6/` |
+| Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` | `dist/equinix-preday1-portals-v5-paradox-teams.html` | `…-v6-servicenow-rethought.html` |
+| Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick | Same as v4, with Sidekick for the coordinator too | Same as v5, plus the buddy's ask |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 142 · 125 live · 17 retired, plus 52 ServiceNow features |
+| Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) | same as v4 | adds the ServiceNow walkthrough (January 2026) and the 30 Oct review |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
 (the real thing runs on ServiceNow Employee Center — this prototypes the
@@ -23,6 +23,46 @@ assumption inside it.** The build spec is `Pre_Day_1_Task_UI_Spec.xlsx`; this
 prototype exists to show flow and feel, surface knowledge and feature gaps,
 and let arguments happen before development instead of during it.
 
+
+## v6 — ServiceNow today, rethought
+
+v6 is a copy of v5. It takes every feature in the current ServiceNow
+onboarding walkthrough (Fernanda Casadio, January 2026, 87 slides) as a
+feature, not a procedure: what it lets someone do, not the steps ServiceNow
+puts them through. Janine's steer on 30 Oct was to put no weight on how
+ServiceNow works today. The prototype is the design.
+
+**The mark-up.** `#/servicenow` ("ServiceNow, rethought" in the ribbon)
+lists all 52 features by the stage ServiceNow opens them in. Each one gives
+what it does today, where it lives in the prototype now, and a verdict:
+
+| Verdict | Count |
+|---|---|
+| Rethought here | 28 |
+| Folded in | 6 |
+| Proposed to drop | 4 |
+| Open question (each names who decides) | 6 |
+| Not drawn here (after the first week, or one team's content) | 8 |
+
+44 of them are pinned to their screen by a green `SN-nn` marker. The
+markers have their own switch, separate from the design notes, so the
+ServiceNow mark-up can be shown without the assumption markers. "Show me"
+turns them on and goes to the screen. The markers are placed after each
+render by finding anchor text (`js/servicenow.js`), so the screens carry no
+ServiceNow bookkeeping, and `flows.js` fails if one loses its anchor.
+
+**What the 30 Oct review changed:**
+- **Shipping** (A-85): equipment goes to an Equinix location or the home
+  address on record, nothing else. Interns, and Senior Directors and above,
+  can name another address. A prototype control switches between the two.
+- **The buddy's ask** (M-34): the buddy gets a Sidekick message saying what
+  to do before Day 1, on Day 1 and in the first month, instead of a task
+  that only needs "complete".
+- **The hiring manager survey** (M-35): a Day 1 task, answered from
+  Sidekick, with the final survey set's nine questions and the recruiter
+  filled in.
+- **Manager equipment fallback** (M-36): the order comes to the manager
+  only if the new hire hasn't chosen 14 days before the start.
 
 ## v5 — Sidekick where people meet it
 
