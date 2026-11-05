@@ -2829,7 +2829,7 @@ body.snmarks .snm{display:inline-flex;}
 .sn-pop .sn-line{grid-template-columns:1fr; gap:2px; margin-bottom:12px;}
 
 /* Where equipment ships (A-85) */
-.ship-opts{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+.ship-opts{display:flex; flex-direction:column; gap:8px; margin:12px 0 18px;}
 .ship-opt{display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line-strong); border-radius:var(--radius); padding:12px 14px; cursor:pointer; background:var(--white);}
 .ship-opt.on{border-color:var(--eq-blue); box-shadow:inset 0 0 0 1px var(--eq-blue);}
 .ship-opt input{accent-color:var(--eq-blue); margin-top:3px;}
