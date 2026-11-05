@@ -1928,7 +1928,7 @@ window.ONBD = {
       { name: 'Start Date Held', phase: 'ns', value: '86%', target: 'Goal 90%', gap: '4.2 days shifted', kind: 'sample', status: 'r',
         src: 'Workday (PEX onboarding SLA)', type: 'Measure %, KPI vs goal', note: "PEX's onboarding SLA: hire date on or before the original date, plus average days shifted when it changed. Where the original date lives (offer letter or requisition) is open." },
       { name: 'Onboarding QA', phase: 'ns', value: '94%', target: 'Goal 98%', kind: 'sample', status: 'r',
-        src: 'PEX QA audits', type: 'Measure %, KPI vs goal', note: 'Audited onboarding transactions with no critical error. Still to define: whether the questions behind it come from recruiters or new hires.' },
+        src: 'PEX QA audits', type: 'Measure %, KPI vs goal', note: 'Audited onboarding transactions with no critical error. Still to define: audit quality, or how many questions come in to PEX (and from recruiters or new hires).' },
       { name: 'Onboarding Cases per New Hire', phase: 'ns', value: '1.3', target: 'Lower is better', kind: 'sample', status: 'a',
         src: 'ServiceNow + Workday', type: 'Ratio, KPI + trend', note: 'Onboarding cases from new hires and their managers, divided by new hires that month. Fewer cases means the portal is answering more questions.' },
     ] },
@@ -2125,6 +2125,8 @@ ${sheet('Open Questions', table(['Item', 'Detail'], [
   ['Targets', 'Set: Laptop by Day 1 (98%) and PEX\'s standard goals for On-Time Start (90%) and Onboarding QA (98%). All others open.'],
   ['Overall Onboarding Score', 'Which 8 or 9 questions, and how are they weighted?'],
   ['Start Date Held', 'Where the original start date lives: offer letter or requisition.'],
+  ['Onboarding QA', 'Audit quality, or how many questions come in to PEX (and from whom)?'],
+  ['Start Cohort', 'Default to month or quarter?'],
   ['Equipment', 'Power BI source, update cadence and backup owner.'],
 ], ['32%', '']))}
 ${sheet('Build Notes', table(['Sheet', 'Build'], [
@@ -2162,7 +2164,7 @@ ${sheet('Other Views (Drafted as Sheets in This Workbook)', table(['View', 'Audi
   tiles('#pexTiles', [
     T('Start Date Held', '86%', 'Goal 90%', 'r', "PEX's onboarding SLA: hire date on or before the original date. Source of the original date is open.", { type: 'Measure %, KPI vs goal' }),
     T('Days Shifted', '4.2', 'avg days, when changed', 'r', 'Average days a start date moved, for hires whose date changed (14% of hires). Flag: changed / not changed.', { type: 'Measure, days' }),
-    T('Onboarding QA (Critical)', '94%', 'Goal 98%', 'r', 'Audited onboarding transactions with no critical error. Still to define whose questions count.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
+    T('Onboarding QA (Critical)', '94%', 'Goal 98%', 'r', 'Audited onboarding transactions with no critical error. Still to define: audit quality, or how many questions come in to PEX.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
     T('Onboarding QA (Overall)', '89%', 'Goal 98%', 'r', 'Covers the rest of the QA form. Stricter than critical.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
     T('Cases per New Hire', '1.3', 'Lower is better', 'a', 'Onboarding cases from new hires and their managers, divided by new hires that month.', { type: 'Ratio, KPI + trend' }),
   ]);

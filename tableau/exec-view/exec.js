@@ -150,6 +150,8 @@ ${sheet('Open Questions', table(['Item', 'Detail'], [
   ['Targets', 'Set: Laptop by Day 1 (98%) and PEX\'s standard goals for On-Time Start (90%) and Onboarding QA (98%). All others open.'],
   ['Overall Onboarding Score', 'Which 8 or 9 questions, and how are they weighted?'],
   ['Start Date Held', 'Where the original start date lives: offer letter or requisition.'],
+  ['Onboarding QA', 'Audit quality, or how many questions come in to PEX (and from whom)?'],
+  ['Start Cohort', 'Default to month or quarter?'],
   ['Equipment', 'Power BI source, update cadence and backup owner.'],
 ], ['32%', '']))}
 ${sheet('Build Notes', table(['Sheet', 'Build'], [

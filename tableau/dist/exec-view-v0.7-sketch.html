@@ -184,7 +184,7 @@
         <div class="grp-title"><span>PEX</span><small>__ of 3 at goal</small></div>
         <div class="tiles r3" style="grid-template-columns: 1fr 1fr 1fr">
           <div class="bx thin tile r"><span class="nm">Start Date Held<span class="ph ns">Later</span></span><span class="v">__% <small>vs 90%</small></span><span class="meta">+ avg days shifted when it changed</span></div>
-          <div class="bx thin tile r"><span class="nm">Onboarding QA<span class="ph ns">Later</span></span><span class="v">__%</span><span class="meta">to define: whose questions count</span></div>
+          <div class="bx thin tile r"><span class="nm">Onboarding QA<span class="ph ns">Later</span></span><span class="v">__%</span><span class="meta">to define: audit quality, or questions coming in?</span></div>
           <div class="bx thin tile a"><span class="nm">Cases per New Hire<span class="ph ns">Later</span></span><span class="v">__</span><span class="meta">lower is better</span></div>
         </div>
         <div class="click">click the header for the PEX detail sheet (below)</div>
@@ -327,7 +327,7 @@
   <table class="t">
     <tr><th style="width:19%">Measure</th><th class="w">How</th><th>Built from</th><th style="width:15%">PEX target today</th><th class="w">Where</th></tr>
     <tr><td>Start Date Held, Days Shifted</td><td><span class="tag std">take</span></td><td>PEX's onboarding SLA: hire date on or before the original date. Adds a changed / not changed flag and the days shifted. Where the original date lives (offer letter or requisition) is open</td><td>80% min, 90% goal</td><td>Tile</td></tr>
-    <tr><td>Onboarding QA</td><td><span class="tag std">take</span></td><td>PEX's QA audits of onboarding transactions. Still to define: whether the questions behind it come from recruiters or new hires</td><td>85% min, 98% goal</td><td>Tile (critical), detail (overall)</td></tr>
+    <tr><td>Onboarding QA</td><td><span class="tag std">take</span></td><td>Two readings to settle: PEX's audit pass rate on onboarding transactions, or (as Janine described it) how many questions come in to PEX, and from whom: recruiters or new hires. The second overlaps with Cases per New Hire</td><td>85% min, 98% goal</td><td>Tile (critical), detail (overall)</td></tr>
     <tr><td>Cases per New Hire</td><td><span class="tag comb">combine</span></td><td>Onboarding cases from new hires and their managers (ServiceNow), divided by new hires that month (Workday)</td><td>None yet. Lower is better</td><td>Tile</td></tr>
     <tr><td>On Time by Step</td><td><span class="tag std">take</span></td><td>On-time % for the steps after offer accepted: background check and start date</td><td>80% min, 90% goal</td><td>Detail</td></tr>
     <tr><td>HR-Raised %</td><td><span class="tag std">take</span></td><td>Share of onboarding cases HR opened on someone's behalf. High means people aren't self-serving</td><td>5% max, 2% goal</td><td>Detail</td></tr>
@@ -345,6 +345,20 @@
     <li><b>PEX's own targets carry over</b>, so PEX and this dashboard agree on what good looks like.</li>
     <li><b>Start the before picture early.</b> Cases per new hire and HR-raised % exist today, so the comparison after the portal launches has a baseline.</li>
   </ul>
+
+  <h2><span>4b. What the ServiceNow PEX setup would need to capture</span></h2>
+  <p>So each PEX tile has a data point behind it, built into the configuration design rather than kept in Excel. A starting list for the conversation with Kwabena and, later, the build team.</p>
+  <div class="wide">
+  <table class="t">
+    <tr><th style="width:24%">Data point</th><th>Feeds</th><th>Notes</th></tr>
+    <tr><td>Original start date</td><td>Start Date Held, Days Shifted</td><td>From the offer letter or the requisition; PEX should know where it lives</td></tr>
+    <tr><td>Current start date and a "changed" flag</td><td>Start Date Held, Days Shifted</td><td>Only whether it changed and by how many days; the number of changes doesn't matter</td></tr>
+    <tr><td>Each onboarding question or case: who raised it, which channel, which tier resolved it</td><td>Cases per New Hire, support tiers, Onboarding QA (if volume)</td><td>Recruiter, new hire or manager; myHR self-service, PEX team, or tier 2</td></tr>
+    <tr><td>QA result per audited onboarding transaction</td><td>Onboarding QA (if audit quality)</td><td>Critical and overall</td></tr>
+    <tr><td>Each pre-Day 1 task: owner, due date, completed date</td><td>Pre-Day 1 Tasks On Time, PEX Operations, My New Hires</td><td>Comes with the new portal</td></tr>
+    <tr><td>Nudges sent and whether acted on</td><td>PEX Operations</td><td>Day -7 and 72-hour reminders</td></tr>
+  </table>
+  </div>
 
   <!-- =========================== SCORING =========================== -->
   <h2><span>5. Proposed survey scoring (open to change)</span></h2>
@@ -395,6 +409,7 @@
       <p><b>Phase 1 (by March)</b></p>
       <ul class="rules">
         <li>Which tool will this live in: Tableau, Looker or Power BI?</li>
+        <li>Should start cohorts default to month or quarter?</li>
         <li>What can a phase-one mockup realistically include before survey data arrives?</li>
         <li>Can the equipment data move off a manual upload and into Helix?</li>
       </ul>
@@ -409,6 +424,7 @@
       <p><b>Later (2028)</b></p>
       <ul class="rules">
         <li>Where does the original start date live, so days shifted can be measured?</li>
+        <li>Is Onboarding QA about audit quality, or about how many questions come in to PEX?</li>
         <li>What should PEX's ServiceNow setup capture so QA and the support tiers can be measured?</li>
         <li>How should NHO attendance be recorded?</li>
       </ul>

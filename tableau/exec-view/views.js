@@ -15,7 +15,7 @@
   tiles('#pexTiles', [
     T('Start Date Held', '86%', 'Goal 90%', 'r', "PEX's onboarding SLA: hire date on or before the original date. Source of the original date is open.", { type: 'Measure %, KPI vs goal' }),
     T('Days Shifted', '4.2', 'avg days, when changed', 'r', 'Average days a start date moved, for hires whose date changed (14% of hires). Flag: changed / not changed.', { type: 'Measure, days' }),
-    T('Onboarding QA (Critical)', '94%', 'Goal 98%', 'r', 'Audited onboarding transactions with no critical error. Still to define whose questions count.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
+    T('Onboarding QA (Critical)', '94%', 'Goal 98%', 'r', 'Audited onboarding transactions with no critical error. Still to define: audit quality, or how many questions come in to PEX.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
     T('Onboarding QA (Overall)', '89%', 'Goal 98%', 'r', 'Covers the rest of the QA form. Stricter than critical.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
     T('Cases per New Hire', '1.3', 'Lower is better', 'a', 'Onboarding cases from new hires and their managers, divided by new hires that month.', { type: 'Ratio, KPI + trend' }),
   ]);

@@ -50,7 +50,7 @@ window.ONBD = {
       { name: 'Start Date Held', phase: 'ns', value: '86%', target: 'Goal 90%', gap: '4.2 days shifted', kind: 'sample', status: 'r',
         src: 'Workday (PEX onboarding SLA)', type: 'Measure %, KPI vs goal', note: "PEX's onboarding SLA: hire date on or before the original date, plus average days shifted when it changed. Where the original date lives (offer letter or requisition) is open." },
       { name: 'Onboarding QA', phase: 'ns', value: '94%', target: 'Goal 98%', kind: 'sample', status: 'r',
-        src: 'PEX QA audits', type: 'Measure %, KPI vs goal', note: 'Audited onboarding transactions with no critical error. Still to define: whether the questions behind it come from recruiters or new hires.' },
+        src: 'PEX QA audits', type: 'Measure %, KPI vs goal', note: 'Audited onboarding transactions with no critical error. Still to define: audit quality, or how many questions come in to PEX (and from recruiters or new hires).' },
       { name: 'Onboarding Cases per New Hire', phase: 'ns', value: '1.3', target: 'Lower is better', kind: 'sample', status: 'a',
         src: 'ServiceNow + Workday', type: 'Ratio, KPI + trend', note: 'Onboarding cases from new hires and their managers, divided by new hires that month. Fewer cases means the portal is answering more questions.' },
     ] },
