@@ -109,6 +109,33 @@
   .defs .pill { display: inline-block; border-radius: 10px; padding: 0 7px; font-size: 11px; color: #fff; background: #4996B2; white-space: nowrap; }
   .defs .pill.m { background: #00B180; }
   section[hidden] { display: none !important; }
+
+  /* Extra sheets */
+  .vbody { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 8px 12px 6px; }
+  .vrow { display: grid; gap: 12px; min-height: 0; }
+  .vrow .panel { padding: 0 4px; border: 0; min-height: 0; overflow: hidden; }
+  .vrow .panel + .panel { border-left: 1px solid #EBEBEB; padding-left: 12px; }
+  .vrow > .tile { margin: 0; height: 84px; }
+  #pexSteps, #pexRegion, #opsFunnel, #opsNudges { margin-right: 18px; }
+  .futs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .fut { border: 1px dashed #CBCBCB; padding: 7px 9px; font-size: 11px; color: #898989; line-height: 1.35; }
+  .fut b { display: block; font-size: 12px; color: #555; font-weight: var(--tab-w-bold); margin-bottom: 2px; }
+  .st { display: inline-block; padding: 1px 7px; border-radius: 9px; font-size: 11px; line-height: 15px; white-space: nowrap; }
+  .st.ok { background: #DCEBD8; color: #2E6A27; } .st.risk { background: #FBE3CC; color: #8A4A07; } .st.stuck { background: #F8D7D7; color: #9B2C2C; }
+  .ops-t td, .ops-t th { padding: 4px 7px; font-size: 12px; white-space: nowrap; }
+  .ops-t td.l, .ops-t th.l { text-align: left; }
+  .ops-t tr.mark { cursor: pointer; }
+  .grid-t { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: 12px; }
+  .grid-t th { font-weight: normal; color: #666; font-size: 11px; text-align: center; padding: 0 2px 2px; vertical-align: bottom; line-height: 1.2; }
+  .grid-t th.l, .grid-t td.l { text-align: left; color: #333; font-size: 12px; white-space: nowrap; padding-right: 8px; }
+  .grid-t td.c { height: 58px; text-align: center; font-size: 11px; border-radius: 2px; cursor: default; }
+  .c-done { background: #59A14F; color: #fff; } .c-prog { background: #A0CBE8; color: #1F3B57; } .c-not { background: #EBEBEB; color: #777; } .c-late { background: #E15759; color: #fff; } .c-na { background: #fff; color: #B4B4B4; border: 1px dashed #D4D4D4; }
+  .todo { display: flex; flex-direction: column; gap: 6px; }
+  .todo-i { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; background: var(--panel); padding: 7px 9px; border-left: 4px solid #A0CBE8; font-size: 12px; color: #333; }
+  .todo-i.late { border-left-color: #E15759; }
+  .todo-i small { color: #898989; font-size: 11px; grid-column: 1; }
+  .todo-i .due { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: 11px; color: #666; text-align: right; }
+  .todo-i.late .due { color: #C0392B; }
 </style>
 </head>
 <body class="tab-root">
@@ -131,15 +158,20 @@
 </header>
 <nav class="tab-tabs" role="tablist">
   <button role="tab" aria-selected="true" data-tab="exec">Executive View</button>
+  <button role="tab" aria-selected="false" data-tab="pex">PEX Detail</button>
+  <button role="tab" aria-selected="false" data-tab="ops">PEX Operations</button>
+  <button role="tab" aria-selected="false" data-tab="hm">My New Hires (HM)</button>
   <button role="tab" aria-selected="false" data-tab="defs">Definitions</button>
 </nav>
 
-<section id="exec">
+<div id="sizebarWrap">
   <div class="sizebar">
     <span>Size: 1600 x 900 (fixed)</span>
     <div class="tab-filter" style="min-width:0"><div class="f-pills" id="zoom"><button aria-pressed="true" data-z="fit">Fit</button><button aria-pressed="false" data-z="1">100%</button></div></div>
   </div>
-  <div class="stage"><div id="stageInner">
+</div>
+<section id="exec">
+  <div class="stage"><div class="stage-inner">
   <div class="dash" id="dash">
 
     <div class="hdr">
@@ -189,6 +221,68 @@
   </div></div>
 </section>
 
+
+<section id="pex" hidden>
+  <div class="stage"><div class="stage-inner"><div class="dash">
+    <div class="hdr"><div><h1>Onboarding Dashboard | PEX Detail</h1><div class="sub">From offer accepted to start date | opened from the PEX header on the Executive View</div></div>
+      <div class="asof">Sources: Workday, ServiceNow (future PEX setup)<br>Phase: Later. All values are samples</div></div>
+    <div class="fbar"><div class="tab-filter"><div class="f-title">Region</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Function</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Talent Type</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Start Cohort</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Period</div><select><option>Jan-Sep 2026</option></select></div><button class="tab-nav-btn" style="margin-left:auto" data-goto="exec">&lt; Back to Executive View</button></div>
+    <div class="vbody">
+      <div class="vrow" style="grid-template-columns:repeat(5,1fr)" id="pexTiles"></div>
+      <div class="vrow" style="grid-template-columns:1.3fr 1fr 1fr">
+        <div class="panel"><div class="tab-sheet-title">Where Delays Happen</div><div class="cap">On-time % for each PEX step after offer accepted. Goal line at 90%.</div><div id="pexSteps"></div><div class="sub-title" style="margin-top:6px">Start Date Held by Region</div><div id="pexRegion"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Self-Service</div><div class="cap">Is the portal doing the work?</div><div class="ktiles" style="grid-template-columns:1fr" id="pexSelf"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Satisfaction</div><div class="cap">Onboarding case surveys</div><div class="ktiles" style="grid-template-columns:1fr" id="pexSat"></div></div>
+      </div>
+      <div class="vrow" style="grid-template-columns:1.1fr 1.4fr;flex:1">
+        <div class="panel"><div class="tab-sheet-title">Workload: Onboarding Cases</div><div id="pexLoadLegend"></div><div id="pexLoad"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Future Measures</div><div class="cap">Once the new support model and portal are live.</div><div class="futs" id="pexFuture"></div></div>
+      </div>
+    </div>
+    <div class="foot">Mock-up for discussion (v0.7). Sample values. PEX goals are PEX's own standard goals. Start date source (offer letter or requisition) and the Onboarding QA definition are still open.</div>
+  </div></div></div>
+</section>
+
+<section id="ops" hidden>
+  <div class="stage"><div class="stage-inner"><div class="dash">
+    <div class="hdr"><div><h1>Onboarding | PEX Operations</h1><div class="sub">Daily view for PEX coordinators: who needs action today</div></div>
+      <div class="asof">Refreshed daily from ServiceNow and Workday<br>Phase: Later. All values are samples</div></div>
+    <div class="fbar"><div class="tab-filter"><div class="f-title">Region</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Talent Type</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Coordinator</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Status</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Manager Co-located</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Start Week</div><select><option>Next 14 days</option></select></div></div>
+    <div class="vbody">
+      <div class="vrow" style="grid-template-columns:repeat(5,1fr)" id="opsTiles"></div>
+      <div class="vrow" style="grid-template-columns:1.55fr 1fr;flex:1;min-height:0">
+        <div class="panel"><div class="tab-sheet-title">New Hires Starting Soon</div><div class="cap">Sorted by start date. Click a row to open the case in ServiceNow.</div><div id="opsList" style="overflow:hidden"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Pre-Day 1 Task Status</div><div id="opsFunnelLegend"></div><div id="opsFunnel"></div></div>
+      </div>
+      <div class="vrow" style="grid-template-columns:1.1fr 1fr 1fr;height:205px">
+        <div class="panel"><div class="tab-sheet-title">Stuck Items by Owner</div><div class="cap">Open items by days without progress</div><div id="opsStuck"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Nudges</div><div class="cap">Reminders sent before start date</div><div id="opsNudgeLegend"></div><div id="opsNudges"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Open Escalations (Day 1 to 90)</div><div class="cap">New joiners flagged for follow-up</div><div id="opsEsc"></div></div>
+      </div>
+    </div>
+    <div class="foot">Mock-up for discussion (v0.7). Sample data with made-up IDs. Needs the future ServiceNow PEX setup, so it replaces today's weekly Excel tracking.</div>
+  </div></div></div>
+</section>
+
+<section id="hm" hidden>
+  <div class="stage"><div class="stage-inner"><div class="dash">
+    <div class="hdr"><div><h1>Onboarding | My New Hires</h1><div class="sub">Hiring manager view: is my new hire ready, and what do I still need to do?</div></div>
+      <div class="asof">Refreshed daily | Shows only the viewer's own hires<br>Phase: Later (needs the new portal). All values are samples</div></div>
+    <div class="fbar"><div class="tab-filter"><div class="f-title">My Hires</div><select><option>(All 4)</option></select></div><div class="tab-filter"><div class="f-title">Start Date</div><select><option>Next 60 days</option></select></div><div class="tab-filter"><div class="f-title">Status</div><select><option>(All)</option></select></div><div class="tab-text-obj" style="margin-left:auto;padding:0 0 4px;color:#898989">Sample manager with 4 upcoming hires</div></div>
+    <div class="vbody">
+      <div class="vrow" style="grid-template-columns:repeat(5,1fr)" id="hmTiles"></div>
+      <div class="vrow" style="grid-template-columns:1.75fr 1fr;flex:1;min-height:0">
+        <div class="panel"><div class="tab-sheet-title">Progress by New Hire</div><div class="cap">Each step's status. Hover a cell for the detail and who owns it.</div><div id="hmGrid"></div><div id="hmGridLegend" style="margin-top:6px"></div></div>
+        <div class="panel"><div class="tab-sheet-title">My To-Do</div><div class="cap">Tasks that are mine, soonest first</div><div id="hmTodo"></div></div>
+      </div>
+      <div class="vrow" style="grid-template-columns:1fr;height:200px">
+        <div class="panel" style="margin-right:20px"><div class="tab-sheet-title">Countdown to Day 1</div><div class="cap">Each bar runs from offer accepted to start date. Red line is today.</div><div id="hmGanttLegend"></div><div id="hmGantt"></div></div>
+      </div>
+    </div>
+    <div class="foot">Mock-up for discussion (v0.7). Sample hires shown by role, not name. Each manager sees only their own hires. Needs task data from the new onboarding portal.</div>
+  </div></div></div>
+</section>
+
 <section id="defs" hidden>
   <div class="stage"><div class="defs" id="defsBody"></div></div>
 </section>
@@ -198,5 +292,6 @@
 <script src="geo.js"></script>
 <script src="data.js"></script>
 <script src="exec.js"></script>
+<script src="views.js"></script>
 </body>
 </html>

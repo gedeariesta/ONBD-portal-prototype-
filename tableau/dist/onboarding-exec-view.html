@@ -385,6 +385,33 @@
   .defs .pill { display: inline-block; border-radius: 10px; padding: 0 7px; font-size: 11px; color: #fff; background: #4996B2; white-space: nowrap; }
   .defs .pill.m { background: #00B180; }
   section[hidden] { display: none !important; }
+
+  /* Extra sheets */
+  .vbody { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 8px 12px 6px; }
+  .vrow { display: grid; gap: 12px; min-height: 0; }
+  .vrow .panel { padding: 0 4px; border: 0; min-height: 0; overflow: hidden; }
+  .vrow .panel + .panel { border-left: 1px solid #EBEBEB; padding-left: 12px; }
+  .vrow > .tile { margin: 0; height: 84px; }
+  #pexSteps, #pexRegion, #opsFunnel, #opsNudges { margin-right: 18px; }
+  .futs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .fut { border: 1px dashed #CBCBCB; padding: 7px 9px; font-size: 11px; color: #898989; line-height: 1.35; }
+  .fut b { display: block; font-size: 12px; color: #555; font-weight: var(--tab-w-bold); margin-bottom: 2px; }
+  .st { display: inline-block; padding: 1px 7px; border-radius: 9px; font-size: 11px; line-height: 15px; white-space: nowrap; }
+  .st.ok { background: #DCEBD8; color: #2E6A27; } .st.risk { background: #FBE3CC; color: #8A4A07; } .st.stuck { background: #F8D7D7; color: #9B2C2C; }
+  .ops-t td, .ops-t th { padding: 4px 7px; font-size: 12px; white-space: nowrap; }
+  .ops-t td.l, .ops-t th.l { text-align: left; }
+  .ops-t tr.mark { cursor: pointer; }
+  .grid-t { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: 12px; }
+  .grid-t th { font-weight: normal; color: #666; font-size: 11px; text-align: center; padding: 0 2px 2px; vertical-align: bottom; line-height: 1.2; }
+  .grid-t th.l, .grid-t td.l { text-align: left; color: #333; font-size: 12px; white-space: nowrap; padding-right: 8px; }
+  .grid-t td.c { height: 58px; text-align: center; font-size: 11px; border-radius: 2px; cursor: default; }
+  .c-done { background: #59A14F; color: #fff; } .c-prog { background: #A0CBE8; color: #1F3B57; } .c-not { background: #EBEBEB; color: #777; } .c-late { background: #E15759; color: #fff; } .c-na { background: #fff; color: #B4B4B4; border: 1px dashed #D4D4D4; }
+  .todo { display: flex; flex-direction: column; gap: 6px; }
+  .todo-i { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; background: var(--panel); padding: 7px 9px; border-left: 4px solid #A0CBE8; font-size: 12px; color: #333; }
+  .todo-i.late { border-left-color: #E15759; }
+  .todo-i small { color: #898989; font-size: 11px; grid-column: 1; }
+  .todo-i .due { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: 11px; color: #666; text-align: right; }
+  .todo-i.late .due { color: #C0392B; }
 </style>
 </head>
 <body class="tab-root">
@@ -407,15 +434,20 @@
 </header>
 <nav class="tab-tabs" role="tablist">
   <button role="tab" aria-selected="true" data-tab="exec">Executive View</button>
+  <button role="tab" aria-selected="false" data-tab="pex">PEX Detail</button>
+  <button role="tab" aria-selected="false" data-tab="ops">PEX Operations</button>
+  <button role="tab" aria-selected="false" data-tab="hm">My New Hires (HM)</button>
   <button role="tab" aria-selected="false" data-tab="defs">Definitions</button>
 </nav>
 
-<section id="exec">
+<div id="sizebarWrap">
   <div class="sizebar">
     <span>Size: 1600 x 900 (fixed)</span>
     <div class="tab-filter" style="min-width:0"><div class="f-pills" id="zoom"><button aria-pressed="true" data-z="fit">Fit</button><button aria-pressed="false" data-z="1">100%</button></div></div>
   </div>
-  <div class="stage"><div id="stageInner">
+</div>
+<section id="exec">
+  <div class="stage"><div class="stage-inner">
   <div class="dash" id="dash">
 
     <div class="hdr">
@@ -463,6 +495,68 @@
     <div class="foot">Mock-up for discussion (v0.7). Phase 1 = possible by March; Later = needs data not captured yet. Only the Equipment figures are actual (HAM Pro Report, Jan-May 2026). Values in gray are samples. PEX goals are PEX's own standard goals. Targets marked TBC are open.</div>
   </div>
   </div></div>
+</section>
+
+
+<section id="pex" hidden>
+  <div class="stage"><div class="stage-inner"><div class="dash">
+    <div class="hdr"><div><h1>Onboarding Dashboard | PEX Detail</h1><div class="sub">From offer accepted to start date | opened from the PEX header on the Executive View</div></div>
+      <div class="asof">Sources: Workday, ServiceNow (future PEX setup)<br>Phase: Later. All values are samples</div></div>
+    <div class="fbar"><div class="tab-filter"><div class="f-title">Region</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Function</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Talent Type</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Start Cohort</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Period</div><select><option>Jan-Sep 2026</option></select></div><button class="tab-nav-btn" style="margin-left:auto" data-goto="exec">&lt; Back to Executive View</button></div>
+    <div class="vbody">
+      <div class="vrow" style="grid-template-columns:repeat(5,1fr)" id="pexTiles"></div>
+      <div class="vrow" style="grid-template-columns:1.3fr 1fr 1fr">
+        <div class="panel"><div class="tab-sheet-title">Where Delays Happen</div><div class="cap">On-time % for each PEX step after offer accepted. Goal line at 90%.</div><div id="pexSteps"></div><div class="sub-title" style="margin-top:6px">Start Date Held by Region</div><div id="pexRegion"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Self-Service</div><div class="cap">Is the portal doing the work?</div><div class="ktiles" style="grid-template-columns:1fr" id="pexSelf"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Satisfaction</div><div class="cap">Onboarding case surveys</div><div class="ktiles" style="grid-template-columns:1fr" id="pexSat"></div></div>
+      </div>
+      <div class="vrow" style="grid-template-columns:1.1fr 1.4fr;flex:1">
+        <div class="panel"><div class="tab-sheet-title">Workload: Onboarding Cases</div><div id="pexLoadLegend"></div><div id="pexLoad"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Future Measures</div><div class="cap">Once the new support model and portal are live.</div><div class="futs" id="pexFuture"></div></div>
+      </div>
+    </div>
+    <div class="foot">Mock-up for discussion (v0.7). Sample values. PEX goals are PEX's own standard goals. Start date source (offer letter or requisition) and the Onboarding QA definition are still open.</div>
+  </div></div></div>
+</section>
+
+<section id="ops" hidden>
+  <div class="stage"><div class="stage-inner"><div class="dash">
+    <div class="hdr"><div><h1>Onboarding | PEX Operations</h1><div class="sub">Daily view for PEX coordinators: who needs action today</div></div>
+      <div class="asof">Refreshed daily from ServiceNow and Workday<br>Phase: Later. All values are samples</div></div>
+    <div class="fbar"><div class="tab-filter"><div class="f-title">Region</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Talent Type</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Coordinator</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Status</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Manager Co-located</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Start Week</div><select><option>Next 14 days</option></select></div></div>
+    <div class="vbody">
+      <div class="vrow" style="grid-template-columns:repeat(5,1fr)" id="opsTiles"></div>
+      <div class="vrow" style="grid-template-columns:1.55fr 1fr;flex:1;min-height:0">
+        <div class="panel"><div class="tab-sheet-title">New Hires Starting Soon</div><div class="cap">Sorted by start date. Click a row to open the case in ServiceNow.</div><div id="opsList" style="overflow:hidden"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Pre-Day 1 Task Status</div><div id="opsFunnelLegend"></div><div id="opsFunnel"></div></div>
+      </div>
+      <div class="vrow" style="grid-template-columns:1.1fr 1fr 1fr;height:205px">
+        <div class="panel"><div class="tab-sheet-title">Stuck Items by Owner</div><div class="cap">Open items by days without progress</div><div id="opsStuck"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Nudges</div><div class="cap">Reminders sent before start date</div><div id="opsNudgeLegend"></div><div id="opsNudges"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Open Escalations (Day 1 to 90)</div><div class="cap">New joiners flagged for follow-up</div><div id="opsEsc"></div></div>
+      </div>
+    </div>
+    <div class="foot">Mock-up for discussion (v0.7). Sample data with made-up IDs. Needs the future ServiceNow PEX setup, so it replaces today's weekly Excel tracking.</div>
+  </div></div></div>
+</section>
+
+<section id="hm" hidden>
+  <div class="stage"><div class="stage-inner"><div class="dash">
+    <div class="hdr"><div><h1>Onboarding | My New Hires</h1><div class="sub">Hiring manager view: is my new hire ready, and what do I still need to do?</div></div>
+      <div class="asof">Refreshed daily | Shows only the viewer's own hires<br>Phase: Later (needs the new portal). All values are samples</div></div>
+    <div class="fbar"><div class="tab-filter"><div class="f-title">My Hires</div><select><option>(All 4)</option></select></div><div class="tab-filter"><div class="f-title">Start Date</div><select><option>Next 60 days</option></select></div><div class="tab-filter"><div class="f-title">Status</div><select><option>(All)</option></select></div><div class="tab-text-obj" style="margin-left:auto;padding:0 0 4px;color:#898989">Sample manager with 4 upcoming hires</div></div>
+    <div class="vbody">
+      <div class="vrow" style="grid-template-columns:repeat(5,1fr)" id="hmTiles"></div>
+      <div class="vrow" style="grid-template-columns:1.75fr 1fr;flex:1;min-height:0">
+        <div class="panel"><div class="tab-sheet-title">Progress by New Hire</div><div class="cap">Each step's status. Hover a cell for the detail and who owns it.</div><div id="hmGrid"></div><div id="hmGridLegend" style="margin-top:6px"></div></div>
+        <div class="panel"><div class="tab-sheet-title">My To-Do</div><div class="cap">Tasks that are mine, soonest first</div><div id="hmTodo"></div></div>
+      </div>
+      <div class="vrow" style="grid-template-columns:1fr;height:200px">
+        <div class="panel" style="margin-right:20px"><div class="tab-sheet-title">Countdown to Day 1</div><div class="cap">Each bar runs from offer accepted to start date. Red line is today.</div><div id="hmGanttLegend"></div><div id="hmGantt"></div></div>
+      </div>
+    </div>
+    <div class="foot">Mock-up for discussion (v0.7). Sample hires shown by role, not name. Each manager sees only their own hires. Needs task data from the new onboarding portal.</div>
+  </div></div></div>
 </section>
 
 <section id="defs" hidden>
@@ -1972,10 +2066,12 @@ window.ONBD = {
   /* ---------------- Fit / 100% ---------------- */
   let zoom = 'fit';
   function applyZoom() {
-    const stage = $('#exec .stage'), inner = $('#stageInner');
+    const stage = document.querySelector('section:not([hidden]) .stage') || $('#exec .stage');
     const s = zoom === 'fit' ? Math.min(1, (stage.clientWidth - 24) / 1600) : 1;
-    $('#dash').style.transform = `scale(${s})`;
-    inner.style.width = 1600 * s + 'px'; inner.style.height = 900 * s + 'px';
+    document.querySelectorAll('.stage-inner').forEach(inner => {
+      inner.firstElementChild.style.transform = `scale(${s})`;
+      inner.style.width = 1600 * s + 'px'; inner.style.height = 900 * s + 'px';
+    });
   }
   document.querySelectorAll('#zoom button').forEach(b => b.addEventListener('click', () => {
     zoom = b.dataset.z; document.querySelectorAll('#zoom button').forEach(x => x.setAttribute('aria-pressed', x === b)); applyZoom();
@@ -1986,8 +2082,13 @@ window.ONBD = {
   document.querySelectorAll('.tab-tabs button').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('.tab-tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
     document.querySelectorAll('body > section').forEach(s => s.hidden = s.id !== b.dataset.tab);
+    $('#sizebarWrap').hidden = b.dataset.tab === 'defs';
     applyZoom();
   }));
+  document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => document.querySelector(`.tab-tabs [data-tab="${b.dataset.goto}"]`).click()));
+  window.ONBD_UI = { tileHtml, ST, PH };
+  /* PEX header on the Executive View opens the PEX Detail sheet, like a Tableau navigation action */
+  document.querySelectorAll('.kgrp .c-head').forEach(h => { if (h.textContent.trim().startsWith('PEX')) { h.style.cursor = 'pointer'; h.title = 'Open PEX Detail'; h.querySelector('small').textContent += '  |  open detail >'; h.addEventListener('click', () => document.querySelector('.tab-tabs [data-tab="pex"]').click()); } });
 
   /* ---------------- Definitions tab ---------------- */
   const sw = k => `<span class="sw" style="background:${ST[k].color}"></span>${ST[k].label}`;
@@ -2034,11 +2135,144 @@ ${sheet('Build Notes', table(['Sheet', 'Build'], [
   ['First 90 Days', 'Line: Columns ' + dim('Survey Wave') + ', Rows ' + mea('% Favorable') + ', Color ' + dim('Bucket') + '.'],
   ['Filters', 'Region, country, function, work location, talent type (job level 2), start cohort, period, remote / on-site. Apply to all sheets. Persona: Regular, NTC, Exec. Interns and apprentices are out of MVP.'],
 ], ['32%', '']))}
-${sheet('Other Views (Defined, Not Built)', table(['View', 'Audience', 'Refresh', 'Contents'], [
-  ['PEX Operational', 'PEX coordinators', 'Daily', 'New-hire list with status; task funnel; SLA timers and stuck items; escalations (Day 1-90); nudge status (Day -7, -72 hr); case CSAT.'],
-  ['Hiring Manager', 'Hiring managers', 'Weekly or on demand', 'HM readiness score; equipment, software and badge status; multi-hire grid; outstanding tasks; Day 1 meet confirmation.'],
+${sheet('Other Views (Drafted as Sheets in This Workbook)', table(['View', 'Audience', 'Refresh', 'Contents'], [
+  ['PEX Detail', 'Leaders, PEX leads', 'Monthly', 'Drill-down from the Executive View: start date held and days shifted, QA, where delays happen, self-service, satisfaction, workload, future support-tier measures.'],
+  ['PEX Operations', 'PEX coordinators', 'Daily', 'New hires starting soon with status and flags; pre-Day 1 task status; stuck items by owner; nudges; open escalations (Day 1-90).'],
+  ['My New Hires (HM)', 'Hiring managers', 'Daily', 'Readiness score; progress grid per hire (equipment, access, badge, buddy, Day 1 meeting); my to-do list; countdown to Day 1.'],
 ], ['16%', '16%', '14%', '']))}
 <div style="height:14px"></div>`;
+})();
+
+</script>
+<script>
+/* Extra sheets: PEX Detail, PEX Operations, My New Hires (hiring manager).
+   All values are samples. Phase for all three: Later (needs the future ServiceNow PEX setup
+   and the new onboarding portal). Kit: ../design-package. */
+(function () {
+  'use strict';
+  const V = window.TabViz, UI = window.ONBD_UI;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const tip = rows => `data-tip="${esc(JSON.stringify(rows))}"`;
+  const T = (name, value, target, status, note, extra = {}) => Object.assign({ name, value, target, status, note, kind: 'sample', phase: 'ns', src: extra.src || 'ServiceNow / Workday', type: extra.type || 'Measure' }, extra);
+  const tiles = (sel, list) => { $(sel).innerHTML = list.map(UI.tileHtml).join(''); };
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+
+  /* ======================= PEX Detail ======================= */
+  tiles('#pexTiles', [
+    T('Start Date Held', '86%', 'Goal 90%', 'r', "PEX's onboarding SLA: hire date on or before the original date. Source of the original date is open.", { type: 'Measure %, KPI vs goal' }),
+    T('Days Shifted', '4.2', 'avg days, when changed', 'r', 'Average days a start date moved, for hires whose date changed (14% of hires). Flag: changed / not changed.', { type: 'Measure, days' }),
+    T('Onboarding QA (Critical)', '94%', 'Goal 98%', 'r', 'Audited onboarding transactions with no critical error. Still to define whose questions count.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
+    T('Onboarding QA (Overall)', '89%', 'Goal 98%', 'r', 'Covers the rest of the QA form. Stricter than critical.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
+    T('Cases per New Hire', '1.3', 'Lower is better', 'a', 'Onboarding cases from new hires and their managers, divided by new hires that month.', { type: 'Ratio, KPI + trend' }),
+  ]);
+  V.hbar('#pexSteps', { dim: 'Step', measure: 'On time %', format: 'pct', max: 1, refLine: .9, refLabel: ' ', rowHeight: 34,
+    data: [{ label: 'Background check', value: .93 }, { label: 'Start date held', value: .86 }], sort: false });
+  V.hbar('#pexRegion', { dim: 'Region', measure: 'Start date held', format: 'pct', max: 1, refLine: .9, refLabel: ' ', rowHeight: 28, colorBy: 'none', color: '#76B7B2',
+    data: [{ label: 'AMER', value: .84 }, { label: 'EMEA', value: .88 }, { label: 'APAC', value: .87 }], sort: false });
+  tiles('#pexSelf', [
+    T('HR-Raised %', '1.4%', 'Goal 2% or less', 'a', 'Onboarding cases HR opened on someone\'s behalf. High means people aren\'t self-serving.', { type: 'Measure %' }),
+    T('Chat-to-Case Conversion', '24%', 'Lower is better', 'a', 'Onboarding chats that had to become a case.', { type: 'Measure %' }),
+  ]);
+  tiles('#pexSat', [
+    T('Onboarding Case CSAT', '93%', 'Goal 85%', 'a', 'Share of responses rated satisfied or very satisfied.', { type: 'Measure %' }),
+    T('Survey Response Rate', '7%', 'Goal 5%', 'a', 'Few people answer case surveys, so new-hire sentiment comes from Glint on the Executive View.', { type: 'Measure %' }),
+  ]);
+  $('#pexLoadLegend').innerHTML = V.legend({ title: 'Cases', items: ['Received', 'Closed'], colors: ['#4E79A7', '#BAB0AC'], inline: true });
+  V.line('#pexLoad', { x: months, xField: 'Month', dim: 'Cases', measure: 'Onboarding cases (sample)', format: 'int', height: 270, markers: true, zero: false,
+    series: [{ name: 'Received', values: [210, 190, 240, 255, 280, 310, 260, 235, 270], color: '#4E79A7' }, { name: 'Closed', values: [195, 200, 225, 250, 265, 300, 270, 230, 255], color: '#BAB0AC', dashed: true }] });
+  $('#pexFuture').innerHTML = [
+    ['Tier 0: Self-Service', 'Questions answered in myHR (pre-hire sign-in, knowledge articles) without a case'],
+    ['Tier 1: Resolved by PEX', 'Cases the PEX team resolves in the system, and how fast'],
+    ['Escalated to Tier 2', 'Share of cases that need the next level of support'],
+    ['Clean Start Rate', 'Start date held, no critical QA error and laptop by Day 1, all for the same new hire'],
+    ['Pre-Day 1 Tasks On Time', 'Portal tasks done by their due date, for new hires, managers and PEX'],
+  ].map(([t, d]) => `<div class="fut"><b>${t}</b>${d}</div>`).join('');
+
+  /* ======================= PEX Operations ======================= */
+  tiles('#opsTiles', [
+    T('Starting in Next 14 Days', '46', 'new hires', 'a', 'New hires with a start date in the next 14 days.', { src: 'Workday' }),
+    T('On Track', '34', '74%', 'a', 'All tasks due so far are done.'),
+    T('At Risk', '8', 'need a nudge', 'a', 'A task is due within 3 days and not started.'),
+    T('Stuck Items', '5', 'no progress 3+ days', 'a', 'Items that haven\'t moved for 3 or more days.'),
+    T('Open Escalations', '3', 'Day 1 to 90', 'a', 'New joiners flagged for follow-up in their first 90 days.'),
+  ]);
+  const hires = [
+    ['NH-10482', 'Nov 10', 5, 'AMER', 'Professional', '11 / 12', 'ok', 'Sent', ''],
+    ['NH-10477', 'Nov 10', 5, 'EMEA', 'Emerging talent', '9 / 12', 'risk', 'Day -3', 'Not co-located'],
+    ['NH-10491', 'Nov 12', 7, 'APAC', 'Professional', '7 / 12', 'stuck', 'Day -3', 'Right to work pending'],
+    ['NH-10503', 'Nov 13', 8, 'AMER', 'Executive', '10 / 12', 'ok', 'Sent', 'Date changed (+7 days)'],
+    ['NH-10488', 'Nov 14', 9, 'EMEA', 'Professional', '8 / 12', 'risk', 'Day -7', ''],
+    ['NH-10512', 'Nov 17', 12, 'AMER', 'Professional', '6 / 12', 'ok', 'Day -7', ''],
+    ['NH-10509', 'Nov 17', 12, 'APAC', 'Emerging talent', '5 / 12', 'ok', 'Day -7', ''],
+    ['NH-10515', 'Nov 17', 12, 'EMEA', 'Professional', '3 / 12', 'stuck', 'Day -7', 'Equipment not ordered'],
+    ['NH-10521', 'Nov 18', 13, 'AMER', 'Professional', '5 / 12', 'ok', 'Day -7', 'Not co-located'],
+    ['NH-10524', 'Nov 19', 14, 'APAC', 'Professional', '4 / 12', 'ok', 'Day -7', ''],
+    ['NH-10527', 'Nov 19', 14, 'EMEA', 'Executive', '6 / 12', 'ok', 'Day -7', ''],
+    ['NH-10530', 'Nov 19', 14, 'AMER', 'Professional', '2 / 12', 'risk', 'Day -7', 'Date changed (+14 days)'],
+  ];
+  const stLabel = { ok: 'On track', risk: 'At risk', stuck: 'Stuck' };
+  $('#opsList').innerHTML = `<table class="tab-xtab ops-t"><thead><tr><th class="l">New Hire</th><th class="l">Start</th><th>Days to Start</th><th class="l">Region</th><th class="l">Talent Type</th><th>Tasks Done</th><th class="l">Status</th><th class="l">Next Nudge</th><th class="l">Flags</th></tr></thead><tbody>` +
+    hires.map(h => `<tr class="mark" ${tip([['New Hire', h[0]], ['Start', h[1]], ['Status', stLabel[h[6]]], ['Tasks done', h[5]], ['Flags', h[8] || 'None']])}><td class="l">${h[0]}</td><td class="l">${h[1]}</td><td>${h[2]}</td><td class="l">${h[3]}</td><td class="l">${h[4]}</td><td>${h[5]}</td><td class="l"><span class="st ${h[6]}">${stLabel[h[6]]}</span></td><td class="l">${h[7]}</td><td class="l" style="color:#9B2C2C">${esc(h[8])}</td></tr>`).join('') +
+    `</tbody></table>`;
+  const fSeries = ['Complete', 'In progress', 'Not started', 'Overdue'], fColors = ['#59A14F', '#A0CBE8', '#D4D4D4', '#E15759'];
+  V.palettes.categorical._ops = fColors.concat(V.palettes.categorical['Tableau 10'].slice(4));
+  $('#opsFunnelLegend').innerHTML = V.legend({ title: 'Status', items: fSeries, colors: fColors, inline: true });
+  V.stackedBar('#opsFunnel', { percent: true, labels: true, palette: '_ops', series: fSeries, dimA: 'Task', dimB: 'Status', measure: 'New hires', format: 'int', rowHeight: 34,
+    rows: [
+      { label: 'Personal details', values: [40, 3, 2, 1] }, { label: 'Right to work', values: [31, 8, 4, 3] }, { label: 'Bank details', values: [35, 5, 5, 1] },
+      { label: 'Background check', values: [33, 10, 2, 1] }, { label: 'Equipment confirmed', values: [36, 4, 4, 2] }, { label: 'Policy acknowledgements', values: [28, 6, 11, 1] },
+    ] });
+  V.heatmap('#opsStuck', { ramp: 'Red', labels: true, format: 'int', rowField: 'Owner', colField: 'Days without progress', measure: 'Open items', cellHeight: 26,
+    cols: ['3-5', '6-10', '10+'], rows: [{ label: 'New hire', values: [3, 1, 0] }, { label: 'Hiring manager', values: [2, 2, 1] }, { label: 'IT / equipment', values: [1, 1, 0] }, { label: 'PEX', values: [1, 0, 0] }, { label: 'Security / badge', values: [0, 1, 1] }] });
+  const nSeries = ['Acted on', 'Opened, no action', 'Not opened'], nColors = ['#4E79A7', '#A0CBE8', '#D4D4D4'];
+  V.palettes.categorical._nudge = nColors.concat(V.palettes.categorical['Tableau 10'].slice(3));
+  $('#opsNudgeLegend').innerHTML = V.legend({ title: '', items: nSeries, colors: nColors, inline: true });
+  V.stackedBar('#opsNudges', { percent: true, labels: true, palette: '_nudge', series: nSeries, dimA: 'Nudge', dimB: 'Result', measure: 'Nudges', format: 'int', rowHeight: 34,
+    rows: [{ label: 'Day -7', values: [52, 18, 10] }, { label: 'Day -3 (72 hr)', values: [31, 9, 6] }] });
+  $('#opsEsc').innerHTML = `<table class="tab-xtab ops-t"><thead><tr><th class="l">New Hire</th><th class="l">Day</th><th class="l">Reason</th><th class="l">Owner</th></tr></thead><tbody>` +
+    [['NH-10233', 'Day 12', 'No system access yet', 'IT'], ['NH-10198', 'Day 31', 'No manager 1:1 yet', 'Hiring manager'], ['NH-10251', 'Day 6', 'Payroll setup missing', 'PEX']]
+      .map(r => `<tr class="mark" ${tip([['New Hire', r[0]], ['Day', r[1]], ['Reason', r[2]], ['Owner', r[3]]])}><td class="l">${r[0]}</td><td class="l">${r[1]}</td><td class="l">${r[2]}</td><td class="l">${r[3]}</td></tr>`).join('') + `</tbody></table>`;
+
+  /* ======================= My New Hires (hiring manager) ======================= */
+  tiles('#hmTiles', [
+    T('My Hires Starting', '4', 'next 60 days', 'a', 'Hires where you are the hiring manager.', { src: 'Workday' }),
+    T('Readiness Score', '78', '/ 100', 'a', 'How ready your hires are for Day 1, from completed pre-Day 1 steps.', { type: 'Score 0-100' }),
+    T('My Tasks Due This Week', '3', 'tasks', 'a', 'Tasks assigned to you in the portal.'),
+    T('Overdue', '1', 'task', 'r', 'Past its due date.'),
+    T('Day 1 Meetings Booked', '3 of 4', '', 'a', 'Day 1 meeting with your new hire on the calendar.', { src: 'Portal / Outlook (proposed)' }),
+  ]);
+  const steps = ['Offer accepted', 'Background check', 'Equipment', 'Accounts & access', 'Badge', 'Buddy assigned', 'Day 1 meeting booked', 'Pre-Day 1 tasks'];
+  const lab = { done: 'Done', prog: 'In progress', not: 'Not started', late: 'Overdue', na: 'n/a' };
+  const owner = ['Recruiting', 'PEX', 'IT', 'IT', 'Security', 'You', 'You', 'New hire'];
+  const grid = [
+    ['Data Center Technician', 'Nov 17', ['done', 'done', 'done', 'prog', 'prog', 'done', 'done', 'prog']],
+    ['Network Engineer', 'Nov 24', ['done', 'done', 'prog', 'not', 'not', 'late', 'done', 'prog']],
+    ['Account Executive', 'Dec 1', ['done', 'prog', 'not', 'not', 'not', 'not', 'done', 'not']],
+    ['Analyst (remote)', 'Dec 8', ['done', 'prog', 'not', 'not', 'na', 'not', 'not', 'not']],
+  ];
+  $('#hmGrid').innerHTML = `<table class="grid-t"><thead><tr><th class="l">New hire (start)</th>${steps.map(s => `<th>${s}</th>`).join('')}</tr></thead><tbody>` +
+    grid.map(([role, start, cells]) => `<tr><td class="l">${role}<br><span style="color:#898989;font-size:11px">Starts ${start}</span></td>` +
+      cells.map((c, i) => `<td class="c c-${c} mark" ${tip([['New hire', role], ['Step', steps[i]], ['Status', lab[c]], ['Owner', owner[i]]])}>${lab[c]}</td>`).join('') + '</tr>').join('') + '</tbody></table>';
+  $('#hmGridLegend').innerHTML = V.legend({ title: 'Status', items: ['Done', 'In progress', 'Not started', 'Overdue'], colors: ['#59A14F', '#A0CBE8', '#EBEBEB', '#E15759'], inline: true });
+  $('#hmTodo').innerHTML = '<div class="todo">' + [
+    ['Assign a buddy', 'Network Engineer', 'Due Nov 3', true],
+    ['Confirm equipment request', 'Account Executive', 'Due Nov 14', false],
+    ['Share 30-60-90 plan', 'Data Center Technician', 'Due Nov 17', false],
+    ['Book Day 1 meeting', 'Analyst (remote)', 'Due Nov 28', false],
+    ['Introduce to the team', 'Data Center Technician', 'Day 1', false],
+  ].map(([t, who, due, late]) => `<div class="todo-i${late ? ' late' : ''}" ${tip([['Task', t], ['New hire', who], ['Due', due + (late ? ' (overdue)' : '')]])}><span>${t}</span><small>${who}</small><span class="due">${due}${late ? '<br>Overdue' : ''}</span></div>`).join('') + '</div>';
+  const gs = ['On track', 'At risk'];
+  V.palettes.categorical._hmg = ['#4E79A7', '#F28E2B'].concat(V.palettes.categorical['Tableau 10'].slice(2));
+  $('#hmGanttLegend').innerHTML = V.legend({ title: 'Readiness', items: gs, colors: ['#4E79A7', '#F28E2B'], inline: true });
+  V.gantt('#hmGantt', { palette: '_hmg', statuses: gs, dim: 'New hire', colorField: 'Readiness', min: -28, max: 35, tickStep: 7, today: 0, todayLabel: ' ',
+    tickFormat: t => t === 0 ? 'Today' : (t > 0 ? '+' : '') + t + 'd', unit: ' days',
+    tasks: [
+      { label: 'Data Center Technician', start: -20, dur: 32, status: 'On track' },
+      { label: 'Network Engineer', start: -15, dur: 34, status: 'At risk' },
+      { label: 'Account Executive', start: -6, dur: 32, status: 'On track' },
+      { label: 'Analyst (remote)', start: -2, dur: 35, status: 'At risk' },
+    ] });
 })();
 
 </script>

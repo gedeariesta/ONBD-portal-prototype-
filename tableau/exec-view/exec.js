@@ -91,10 +91,12 @@
   /* ---------------- Fit / 100% ---------------- */
   let zoom = 'fit';
   function applyZoom() {
-    const stage = $('#exec .stage'), inner = $('#stageInner');
+    const stage = document.querySelector('section:not([hidden]) .stage') || $('#exec .stage');
     const s = zoom === 'fit' ? Math.min(1, (stage.clientWidth - 24) / 1600) : 1;
-    $('#dash').style.transform = `scale(${s})`;
-    inner.style.width = 1600 * s + 'px'; inner.style.height = 900 * s + 'px';
+    document.querySelectorAll('.stage-inner').forEach(inner => {
+      inner.firstElementChild.style.transform = `scale(${s})`;
+      inner.style.width = 1600 * s + 'px'; inner.style.height = 900 * s + 'px';
+    });
   }
   document.querySelectorAll('#zoom button').forEach(b => b.addEventListener('click', () => {
     zoom = b.dataset.z; document.querySelectorAll('#zoom button').forEach(x => x.setAttribute('aria-pressed', x === b)); applyZoom();
@@ -105,8 +107,13 @@
   document.querySelectorAll('.tab-tabs button').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('.tab-tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
     document.querySelectorAll('body > section').forEach(s => s.hidden = s.id !== b.dataset.tab);
+    $('#sizebarWrap').hidden = b.dataset.tab === 'defs';
     applyZoom();
   }));
+  document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => document.querySelector(`.tab-tabs [data-tab="${b.dataset.goto}"]`).click()));
+  window.ONBD_UI = { tileHtml, ST, PH };
+  /* PEX header on the Executive View opens the PEX Detail sheet, like a Tableau navigation action */
+  document.querySelectorAll('.kgrp .c-head').forEach(h => { if (h.textContent.trim().startsWith('PEX')) { h.style.cursor = 'pointer'; h.title = 'Open PEX Detail'; h.querySelector('small').textContent += '  |  open detail >'; h.addEventListener('click', () => document.querySelector('.tab-tabs [data-tab="pex"]').click()); } });
 
   /* ---------------- Definitions tab ---------------- */
   const sw = k => `<span class="sw" style="background:${ST[k].color}"></span>${ST[k].label}`;
@@ -153,9 +160,10 @@ ${sheet('Build Notes', table(['Sheet', 'Build'], [
   ['First 90 Days', 'Line: Columns ' + dim('Survey Wave') + ', Rows ' + mea('% Favorable') + ', Color ' + dim('Bucket') + '.'],
   ['Filters', 'Region, country, function, work location, talent type (job level 2), start cohort, period, remote / on-site. Apply to all sheets. Persona: Regular, NTC, Exec. Interns and apprentices are out of MVP.'],
 ], ['32%', '']))}
-${sheet('Other Views (Defined, Not Built)', table(['View', 'Audience', 'Refresh', 'Contents'], [
-  ['PEX Operational', 'PEX coordinators', 'Daily', 'New-hire list with status; task funnel; SLA timers and stuck items; escalations (Day 1-90); nudge status (Day -7, -72 hr); case CSAT.'],
-  ['Hiring Manager', 'Hiring managers', 'Weekly or on demand', 'HM readiness score; equipment, software and badge status; multi-hire grid; outstanding tasks; Day 1 meet confirmation.'],
+${sheet('Other Views (Drafted as Sheets in This Workbook)', table(['View', 'Audience', 'Refresh', 'Contents'], [
+  ['PEX Detail', 'Leaders, PEX leads', 'Monthly', 'Drill-down from the Executive View: start date held and days shifted, QA, where delays happen, self-service, satisfaction, workload, future support-tier measures.'],
+  ['PEX Operations', 'PEX coordinators', 'Daily', 'New hires starting soon with status and flags; pre-Day 1 task status; stuck items by owner; nudges; open escalations (Day 1-90).'],
+  ['My New Hires (HM)', 'Hiring managers', 'Daily', 'Readiness score; progress grid per hire (equipment, access, badge, buddy, Day 1 meeting); my to-do list; countdown to Day 1.'],
 ], ['16%', '16%', '14%', '']))}
 <div style="height:14px"></div>`;
 })();
