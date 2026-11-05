@@ -1125,6 +1125,7 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .proto-drawer .pc-h{font-size:var(--t-micro); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--platinum); margin:14px 0 7px;}
 .proto-drawer .pc-h:first-of-type{margin-top:10px;}
 .proto-drawer .pc-sub{font-size:var(--t-micro); color:var(--platinum); font-weight:400; line-height:1.45; margin-top:7px;}
+.proto-drawer .pc-sub a{color:var(--eq-aqua); font-weight:700; cursor:pointer;}
 .pc-row{display:flex; gap:8px; flex-wrap:wrap;}
 .pc-btn{
   border:1px solid var(--carbon); background:none; color:var(--cloud); border-radius:var(--radius-sm);
@@ -2858,3 +2859,10 @@ body.snmarks .snm{display:inline-flex;}
 .svq-text{font:inherit; font-size:var(--t-sm); padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--radius); margin-left:26px; width:calc(100% - 26px); max-width:620px;}
 .svq-known{display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-left:26px; font-size:var(--t-sm); color:var(--charcoal);}
 .svq-known span{color:var(--carbon); font-size:var(--t-meta);}
+
+/* Prototype controls that change nothing on this side (greyProtoControls).
+   The drawer is dark, so the note uses the same grey as its other notes. */
+.proto-drawer .pc-row.na .pc-btn{opacity:.4; cursor:not-allowed;}
+.proto-drawer .pc-row.na .pc-btn:hover{border-color:var(--carbon); color:var(--cloud);}
+.proto-drawer .pc-row.na .pc-btn.on:hover{border-color:var(--eq-aqua); color:var(--charcoal);}
+.proto-drawer .pc-na{font-size:var(--t-micro); color:var(--platinum); font-style:italic; margin-top:6px;}

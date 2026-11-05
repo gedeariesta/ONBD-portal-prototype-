@@ -1132,6 +1132,7 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .proto-drawer .pc-h{font-size:var(--t-micro); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--platinum); margin:14px 0 7px;}
 .proto-drawer .pc-h:first-of-type{margin-top:10px;}
 .proto-drawer .pc-sub{font-size:var(--t-micro); color:var(--platinum); font-weight:400; line-height:1.45; margin-top:7px;}
+.proto-drawer .pc-sub a{color:var(--eq-aqua); font-weight:700; cursor:pointer;}
 .pc-row{display:flex; gap:8px; flex-wrap:wrap;}
 .pc-btn{
   border:1px solid var(--carbon); background:none; color:var(--cloud); border-radius:var(--radius-sm);
@@ -2865,6 +2866,13 @@ body.snmarks .snm{display:inline-flex;}
 .svq-text{font:inherit; font-size:var(--t-sm); padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--radius); margin-left:26px; width:calc(100% - 26px); max-width:620px;}
 .svq-known{display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-left:26px; font-size:var(--t-sm); color:var(--charcoal);}
 .svq-known span{color:var(--carbon); font-size:var(--t-meta);}
+
+/* Prototype controls that change nothing on this side (greyProtoControls).
+   The drawer is dark, so the note uses the same grey as its other notes. */
+.proto-drawer .pc-row.na .pc-btn{opacity:.4; cursor:not-allowed;}
+.proto-drawer .pc-row.na .pc-btn:hover{border-color:var(--carbon); color:var(--cloud);}
+.proto-drawer .pc-row.na .pc-btn.on:hover{border-color:var(--eq-aqua); color:var(--charcoal);}
+.proto-drawer .pc-na{font-size:var(--t-micro); color:var(--platinum); font-style:italic; margin-top:6px;}
 
 </style>
 </head>
@@ -8267,18 +8275,26 @@ const DEFAULT_STATE = () => ({
   },
 });
 
+/* v6 keeps its own saved state. v4 and v5 share 'onbd-proto-v4', and a state
+   saved by them lacks what v6 added, so reading it crashed the manager's home. */
+const STORE = 'onbd-proto-v6';
 let S = load();
 function load() {
   try {
-    const raw = localStorage.getItem('onbd-proto-v4');
+    const raw = localStorage.getItem(STORE);
     if (raw) {
-      const d = DEFAULT_STATE(), saved = JSON.parse(raw);
-      const merged = Object.assign(d, saved);
+      // Every saved branch is laid over its own defaults, so a field added
+      // since the state was saved still has a value. base is a separate copy:
+      // assigning onto d first would replace d's branches with the saved ones.
+      const base = DEFAULT_STATE(), saved = JSON.parse(raw);
+      const merged = Object.assign(DEFAULT_STATE(), saved);
+      const plain = v => v && typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date);
+      Object.keys(base).forEach(k => {
+        if (plain(base[k])) merged[k] = Object.assign({}, base[k], plain(saved[k]) ? saved[k] : {});
+      });
       // hm is nested two deep, so merge it branch by branch
-      merged.hm = Object.assign({}, d.hm, saved.hm || {});
-      Object.keys(d.hm).forEach(k => {
-        if (d.hm[k] && typeof d.hm[k] === 'object' && !Array.isArray(d.hm[k]))
-          merged.hm[k] = Object.assign({}, d.hm[k], (saved.hm || {})[k] || {});
+      Object.keys(base.hm).forEach(k => {
+        if (plain(base.hm[k])) merged.hm[k] = Object.assign({}, base.hm[k], plain((saved.hm || {})[k]) ? saved.hm[k] : {});
       });
       return merged;
     }
@@ -8287,7 +8303,7 @@ function load() {
 }
 /* Some viewers (an in-app file preview, a private window) block storage. The
    prototype still has to work there, it just forgets on reload. */
-function save() { try { localStorage.setItem('onbd-proto-v4', JSON.stringify(S)); } catch {} }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch {} }
 
 /* ---------------- dates (A-45: two runways) ---------------- */
 function startDate() { return S.horizon === '3mo' ? SIM.start3mo : SIM.start2wk; }
@@ -10467,52 +10483,52 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.snMarks?'on':''}" data-pc="snmarks:on">Shown</button>
     </div>
     <div class="pc-sub">Where each of the ${SN_FEATURES.length} ServiceNow onboarding features lives now. <a data-goto="#/servicenow">See them all</a>.</div>
-    <div class="pc-h">Type of hire</div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="persona">Type of hire</div>
+    <div class="pc-row" data-pck="persona">
       <button class="pc-btn ${S.persona==='external'?'on':''}" data-pc="persona:external">External new hire</button>
       <button class="pc-btn ${S.persona==='conversion'?'on':''}" data-pc="persona:conversion">Contract-to-permanent</button>
     </div>
-    <div class="pc-h">Country of hire</div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="country">Country of hire</div>
+    <div class="pc-row" data-pck="country">
       <button class="pc-btn ${S.country==='US'?'on':''}" data-pc="country:US">United States</button>
       <button class="pc-btn ${S.country==='JP'?'on':''}" data-pc="country:JP">Japan</button>
     </div>
-    <div class="pc-h">Caseload size <span class="pc-mark">OI-01</span></div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="pexsize">Caseload size <span class="pc-mark">OI-01</span></div>
+    <div class="pc-row" data-pck="pexsize">
       ${[5, 12, 24].map(n => `<button class="pc-btn ${S.pex.size===n?'on':''}" data-pc="pexsize:${n}">${n} hires</button>`).join('')}
     </div>
     <div class="pc-sub">The spec's first open item, and the one that decides the shape: at five a plain list is
     the home screen, at fifty only triage works.</div>
-    <div class="pc-h">People Experience <span class="pc-mark">M-32</span></div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="pexUpdate">People Experience <span class="pc-mark">M-32</span></div>
+    <div class="pc-row" data-pck="pexUpdate">
       <button class="pc-btn ${!S.pexUpdate?'on':''}" data-pc="pexUpdate:no">Office details unchanged</button>
       <button class="pc-btn ${S.pexUpdate?'on':''}" data-pc="pexUpdate:yes">Office details changed</button>
     </div>
-    <div class="pc-h">Equipment for this role <span class="pc-mark">A-60</span></div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="deviceMode">Equipment for this role <span class="pc-mark">A-60</span></div>
+    <div class="pc-row" data-pck="deviceMode">
       <button class="pc-btn ${S.deviceMode==='single'?'on':''}" data-pc="deviceMode:single">Single build</button>
       <button class="pc-btn ${S.deviceMode==='choice'?'on':''}" data-pc="deviceMode:choice">Choice of builds</button>
     </div>
-    <div class="pc-h">Where equipment can ship <span class="pc-mark">A-85</span></div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="shipRule">Where equipment can ship <span class="pc-mark">A-85</span></div>
+    <div class="pc-row" data-pck="shipRule">
       <button class="pc-btn ${S.shipRule==='standard'?'on':''}" data-pc="shipRule:standard">Equinix location or home</button>
       <button class="pc-btn ${S.shipRule==='anywhere'?'on':''}" data-pc="shipRule:anywhere">Intern, or Senior Director and above</button>
     </div>
-    <div class="pc-h">Time until Day 1 <span class="pc-mark">A-45</span></div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="horizon">Time until Day 1 <span class="pc-mark">A-45</span></div>
+    <div class="pc-row" data-pck="horizon">
       <button class="pc-btn ${S.horizon==='2wk'?'on':''}" data-pc="horizon:2wk">Two weeks out</button>
       <button class="pc-btn ${S.horizon==='3mo'?'on':''}" data-pc="horizon:3mo">Three months out</button>
     </div>
-    <div class="pc-h">Task state</div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="scenario">Task state</div>
+    <div class="pc-row" data-pck="scenario">
       <button class="pc-btn ${S.scenario==='default'?'on':''}" data-pc="scenario:default">Not started</button>
       <button class="pc-btn ${S.scenario==='inprogress'?'on':''}" data-pc="scenario:inprogress">In progress</button>
       <button class="pc-btn ${S.scenario==='review'?'on':''}" data-pc="scenario:review">Under review</button>
       <button class="pc-btn ${S.scenario==='overdue'?'on':''}" data-pc="scenario:overdue">Overdue</button>
       <button class="pc-btn ${S.scenario==='complete'?'on':''}" data-pc="scenario:complete">Complete</button>
     </div>
-    <div class="pc-h">Buddy visibility <span class="pc-mark">L-01</span></div>
-    <div class="pc-row">
+    <div class="pc-h" data-pck="buddyRule">Buddy visibility <span class="pc-mark">L-01</span></div>
+    <div class="pc-row" data-pck="buddyRule">
       <button class="pc-btn ${S.buddyRule==='assignment'?'on':''}" data-pc="buddyRule:assignment">On assignment</button>
       <button class="pc-btn ${S.buddyRule==='72h'?'on':''}" data-pc="buddyRule:72h">72 hours before start</button>
     </div>
@@ -10523,6 +10539,32 @@ function renderProtoDrawer() {
       <a data-goto="#/flow">${ic('rocket.svg','sm')} Flow overview, the new hire journey</a>
       <a data-openassume="1">${ic('question-circle.svg','sm')} Assumptions &amp; gaps, ${ASSUMPTIONS.length} entries</a>
     </div>`;
+  greyProtoControls();
+}
+
+/* Which controls change anything on each side. Measured, not guessed:
+   flows.js toggles every option on every screen of a side and fails if
+   this map and what the screens actually do ever disagree. The design
+   notes and ServiceNow markers are on every side, so they are never greyed.
+   Shared pages (How they connect, the ServiceNow page) grey nothing. */
+const PC_APPLIES = {
+  nh:  ['persona', 'country', 'deviceMode', 'shipRule', 'horizon', 'scenario', 'buddyRule'],
+  hm:  ['country', 'pexUpdate', 'horizon', 'scenario', 'buddyRule'],
+  pex: ['country', 'pexsize', 'horizon', 'scenario'],
+};
+const PC_SIDE = { nh:'new hire', hm:'hiring manager', pex:'People Experience' };
+function greyProtoControls() {
+  const route = location.hash || '#/';
+  if (route === '#/handoffs' || route === '#/servicenow') return;
+  const on = PC_APPLIES[S.view] || [];
+  $$('#protoDrawer .pc-row[data-pck]').forEach(row => {
+    if (on.includes(row.dataset.pck)) return;
+    row.classList.add('na');
+    row.querySelectorAll('.pc-btn').forEach(b => { b.disabled = true; });
+    const h = $(`#protoDrawer .pc-h[data-pck="${row.dataset.pck}"]`);
+    if (h) h.classList.add('na');
+    row.insertAdjacentHTML('afterend', `<div class="pc-na">Doesn’t change anything in the ${PC_SIDE[S.view]} view</div>`);
+  });
 }
 
 function applyScenario(name) {

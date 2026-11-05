@@ -80,7 +80,9 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   check('design notes hide again', await p.evaluate(() => ![...document.querySelectorAll('.am')].some(e=>e.offsetParent)));
   await p.evaluate(() => document.getElementById('protoDrawer').classList.remove('show'));
 
-  // 8. Manager side: PEX reopen
+  // 8. Manager side: PEX reopen. Set from the manager's side, because the
+  // control is greyed where it changes nothing (the new hire's side).
+  await go('#/hm/');
   await p.click('#protoFab');
   await p.evaluate(() => document.querySelector('[data-pc="scenario:inprogress"]').click()); await p.waitForTimeout(450);
   await p.evaluate(() => document.querySelector('[data-pc="pexUpdate:yes"]').click()); await p.waitForTimeout(450);
@@ -269,6 +271,54 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
     await p.click('[data-view="hm"]'); await p.waitForTimeout(350);
     check(`Hiring manager tab goes home from ${from}`, await p.evaluate(() => location.hash === '#/hm/'));
   }
+
+  // Prototype controls: what is greyed on each side must be exactly what
+  // changes nothing there. Every option is tried on every screen of the side,
+  // across a few task states, and compared with PC_APPLIES.
+  const pcDrift = await p.evaluate(() => {
+    const VIEWS = {
+      nh: ['#/', '#/todos', '#/startdate', '#/bgcheck', '#/equipment', '#/details', '#/jd', '#/intro', '#/network', '#/policies', '#/flow'],
+      hm: ['#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy', '#/hm/calendar', '#/hm/welcome', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction'],
+      pex: ['#/pex/', '#/pex/caseload', '#/pex/blueprints', '#/pex/hire/jreyes', '#/pex/hire/wzhang'],
+    };
+    const keep = S, hash = location.hash;
+    const opts = [...document.querySelectorAll('#protoDrawer [data-pc]')].map(x => x.dataset.pc)
+      .filter(o => !/^(notes|snmarks):/.test(o));
+    const apply = (k, v) => { if (k === 'scenario') applyScenario(v); else if (k === 'pexUpdate') S.pexUpdate = (v === 'yes');
+      else if (k === 'pexsize') S.pex.size = +v; else S[k] = v; };
+    const html = r => { history.replaceState(null, '', r);
+      S.view = r.startsWith('#/pex/') ? 'pex' : r.startsWith('#/hm/') ? 'hm' : 'nh';
+      return (r.startsWith('#/pex/hire/') ? renderPexHire : (ROUTES[r] || renderLanding))(); };
+    const setups = [() => {}, () => { S.equipment.choice = 'headset'; }, () => applyScenario('complete'),
+      () => { S.hm.buddy.assigned = ORG_PEOPLE[0].id; S.hm.buddy.notified = S.hm.buddy.accepted = true; S.hm.logistics.confirmed = true; }];
+    const drift = [];
+    for (const [view, routes] of Object.entries(VIEWS)) {
+      const changes = new Set();
+      for (const o of opts) { const [k, v] = o.split(':');
+        for (const setup of setups) {
+          S = DEFAULT_STATE(); setup(); const a = routes.map(html).join('');
+          S = DEFAULT_STATE(); setup(); apply(k, v); const b = routes.map(html).join('');
+          if (a !== b) changes.add(k);
+        } }
+      const keys = [...new Set(opts.map(o => o.split(':')[0]))];
+      keys.forEach(k => { if (changes.has(k) !== PC_APPLIES[view].includes(k)) drift.push(`${view}:${k}`); });
+    }
+    S = keep; history.replaceState(null, '', hash); render();
+    return drift;
+  });
+  check('greyed prototype controls are exactly the ones that change nothing', pcDrift.length === 0, pcDrift.join(', '));
+  await go('#/hm/'); await p.click('#protoFab'); await p.waitForTimeout(200);
+  const was = await p.evaluate(() => S.persona);
+  await p.evaluate(w => document.querySelector(`[data-pc="persona:${w === 'external' ? 'conversion' : 'external'}"]`).click(), was);
+  await p.waitForTimeout(200);
+  check('a greyed control cannot be pressed', await p.evaluate(w => S.persona === w, was));
+  await p.evaluate(() => document.getElementById('protoDrawer').classList.remove('show'));
+
+  // State saved by an older version must not break the manager's home.
+  await p.evaluate(() => { const s = JSON.parse(JSON.stringify(S)); delete s.hm.survey; localStorage.setItem(STORE, JSON.stringify(s)); });
+  await p.reload({ waitUntil: 'networkidle' }); await p.waitForTimeout(400);
+  await go('#/'); await p.click('[data-view="hm"]'); await p.waitForTimeout(400);
+  check('an older saved state still opens the manager home', await p.evaluate(() => /starts in/.test(document.querySelector('#app h1').textContent)));
 
   check('keyboard focus is visible', hasRing);
 
