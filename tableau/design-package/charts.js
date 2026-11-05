@@ -94,6 +94,7 @@
       let x = e.clientX + 14, y = e.clientY + 14;
       if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
       if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+      x = Math.max(8, Math.min(x, innerWidth - r.width - 8)); y = Math.max(8, Math.min(y, innerHeight - r.height - 8));
       tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
     });
     document.addEventListener('click', e => {

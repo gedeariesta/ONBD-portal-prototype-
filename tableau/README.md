@@ -9,11 +9,11 @@ This is separate from the portal prototypes (`v1` to `v3`) at the repo root.
 | Path | What it is |
 |---|---|
 | `wireframe/index.html` | **Executive View v0.7 sketch.** Low-fidelity, hand-drawn style wireframe, ordered outcomes, new hire, then managers and PEX, with open discussion questions: survey bucket scores for new hires and hiring managers, the question map built on Viva Glint's standard onboarding items, the PEX Success bucket built from PEX's own SLAs (with a PEX detail sheet), scoring rules, and the integration backlog. |
-| `exec-view/index.html` | **Executive / Program View** mockup, updated to the v0.6 layout (outcomes, New Hire Success, then managers and PEX; First 90 Days trend). Fixed 1600×900. A second tab has the build notes: where it departs from the prompt and why, numbers to confirm, the field spec, the Tableau recipe, and the two views not drawn yet. |
-| `exec-view/views.js` | Three more sheets in the same workbook: **PEX Detail** (drill-down from the PEX header), **PEX Operations** (daily, for coordinators) and **My New Hires** (hiring managers). Sample data. |
-| `exec-view/data.js` | Every tile, value, source and readiness flag in one place. Each value is marked `real`, `sample` or `none`. Only the Equipment figures are real. |
+| `tableau-view/index.html` | **Onboarding Tableau View** mockup: the Executive View, updated to the v0.6 layout (outcomes, New Hire Success, then managers and PEX; First 90 Days trend). Fixed 1600×900. A second tab has the build notes: where it departs from the prompt and why, numbers to confirm, the field spec, the Tableau recipe, and the two views not drawn yet. |
+| `tableau-view/views.js` | Three more sheets in the same workbook: **PEX Detail** (drill-down from the PEX header), **PEX Operations** (daily, for coordinators) and **My New Hires** (hiring managers). Sample data. |
+| `tableau-view/data.js` | Every tile, value, source and readiness flag in one place. Each value is marked `real`, `sample` or `none`. Only the Equipment figures are real. |
 | `dist/` | One-file builds of each page for sending around. Rebuild with `node tableau/tools/build_standalone.js`. |
-| `tools/build_geo.py` | Regenerates `exec-view/geo.js` (Natural Earth 110m, Web Mercator). |
+| `tools/build_geo.py` | Regenerates `tableau-view/geo.js` (Natural Earth 110m, Web Mercator). |
 | `RESEARCH.md` | Tableau's look (fonts, grays, default colors), every mark type, the 24 Show Me charts, common builds, viz extensions, and the **limits on what to mock**. Sources included. |
 | `wireframe/sketch-font.css` | Patrick Hand (open font, OFL) for the sketch dashboard. |
 | `design-package/fonts.css` | News Cycle (open font, OFL) embedded as the stand-in for Tableau's font when Tableau Desktop isn't installed. |
@@ -25,7 +25,7 @@ This is separate from the portal prototypes (`v1` to `v3`) at the repo root.
 
 ## Open it
 
-Double-click `exec-view/index.html` or `design-package/index.html`, or the one-file copies in `dist/`. They work over `file://` and need no server or network.
+Double-click `tableau-view/index.html` or `design-package/index.html`, or the one-file copies in `dist/`. They work over `file://` and need no server or network.
 
 ## Using the kit for the real mock
 

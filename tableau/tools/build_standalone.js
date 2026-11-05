@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /* Inlines CSS and JS into one self-contained HTML file per page.
      node tableau/tools/build_standalone.js
-   → tableau/dist/onboarding-exec-view.html, tableau-design-package.html, exec-view-v0.7-sketch.html */
+   → tableau/dist/onboarding-tableau-view.html, tableau-design-package.html, onboarding-tableau-view-v0.7-sketch.html */
 const fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..');
 const pages = [
-  ['exec-view/index.html', 'onboarding-exec-view.html'],
+  ['tableau-view/index.html', 'onboarding-tableau-view.html'],
   ['design-package/index.html', 'tableau-design-package.html'],
-  ['wireframe/index.html', 'exec-view-v0.7-sketch.html'],
+  ['wireframe/index.html', 'onboarding-tableau-view-v0.7-sketch.html'],
 ];
 fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
 for (const [src, out] of pages) {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Onboarding Executive View</title>
+<title>Onboarding Tableau View</title>
 <link rel="stylesheet" href="../design-package/fonts.css">
 <link rel="stylesheet" href="../design-package/tokens.css">
 <link rel="stylesheet" href="../design-package/components.css">
@@ -110,6 +110,23 @@
   .defs .pill.m { background: #00B180; }
   section[hidden] { display: none !important; }
 
+  /* Keep text inside its box whatever font the browser ends up using */
+  .tab-tooltip { box-sizing: border-box; width: max-content; max-width: min(320px, calc(100vw - 24px)); overflow-wrap: anywhere; }
+  .tab-tooltip .tt-row, .tab-tooltip .tt-actions { white-space: normal; }
+  .tile { overflow: hidden; }
+  .t-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t-row { min-width: 0; overflow: hidden; }
+  .t-tgt, .t-gap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .t-src { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .fbar .tab-filter .f-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fbar .tab-filter select { max-width: 100%; }
+  .panel, .kgrp, .vrow > * { min-width: 0; }
+  .ops-t td, .ops-t th { overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+  .grid-t td.c { overflow: hidden; overflow-wrap: anywhere; line-height: 1.2; padding: 0 3px; }
+  .todo-i span, .todo-i small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fut { overflow: hidden; }
+  .defs .tab-xtab td { overflow-wrap: anywhere; }
+
   /* Extra sheets */
   .vbody { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 8px 12px 6px; }
   .vrow { display: grid; gap: 12px; min-height: 0; }
@@ -141,7 +158,7 @@
 <body class="tab-root">
 
 <header class="tab-chrome">
-  <div class="crumbs">Explore › Onboarding Reimagined › Onboarding Dashboard › <b>Executive View</b></div>
+  <div class="crumbs">Explore › Onboarding Reimagined › <b>Onboarding Tableau View</b></div>
   <div class="toolbar">
     <button class="tb-btn"><svg viewBox="0 0 16 16"><path d="M5 4 2 7l3 3M2 7h8a4 4 0 0 1 0 8H7"/></svg><span>Undo</span></button>
     <button class="tb-btn"><svg viewBox="0 0 16 16"><path d="m11 4 3 3-3 3M14 7H6a4 4 0 0 0 0 8h3"/></svg><span>Redo</span></button>

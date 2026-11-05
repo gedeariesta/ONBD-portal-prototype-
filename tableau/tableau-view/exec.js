@@ -18,7 +18,7 @@
 
   /* Long notes wrap inside the tooltip */
   const css = document.createElement('style');
-  css.textContent = '.tab-tooltip .tt-row{white-space:normal}.tab-tooltip{max-width:320px}';
+  css.textContent = '';
   document.head.appendChild(css);
 
   /* ---------------- KPI strip ---------------- */

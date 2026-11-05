@@ -1,4 +1,4 @@
-"""Build exec-view/geo.js from Natural Earth 110m (world-atlas@2.0.2 countries-110m.json).
+"""Build tableau-view/geo.js from Natural Earth 110m (world-atlas@2.0.2 countries-110m.json).
 
 Usage: python3 build_geo.py <countries-110m.json> <out geo.js>
 Source: https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json
