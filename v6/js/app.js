@@ -119,7 +119,9 @@ function load() {
   } catch (e) {}
   return DEFAULT_STATE();
 }
-function save() { localStorage.setItem('onbd-proto-v4', JSON.stringify(S)); }
+/* Some viewers (an in-app file preview, a private window) block storage. The
+   prototype still has to work there, it just forgets on reload. */
+function save() { try { localStorage.setItem('onbd-proto-v4', JSON.stringify(S)); } catch {} }
 
 /* ---------------- dates (A-45: two runways) ---------------- */
 function startDate() { return S.horizon === '3mo' ? SIM.start3mo : SIM.start2wk; }
@@ -3176,11 +3178,12 @@ document.addEventListener('click', e => {
 
   const vs = t.closest('[data-view]');
   if (vs) {
+    // Always lands on that side's home, including from one of its own
+    // sub-screens or a shared page, where the view is already set.
     const want = vs.dataset.view;
-    if (want !== S.view) {
-      S.view = want; save();
-      location.hash = want === 'hm' ? '#/hm/' : want === 'pex' ? '#/pex/' : '#/';
-    }
+    const home = want === 'hm' ? '#/hm/' : want === 'pex' ? '#/pex/' : '#/';
+    S.view = want; save();
+    if ((location.hash || '#/') !== home) location.hash = home;
     return;
   }
   if (t.closest('#rbAssume')) { openAssumptions(); return; }

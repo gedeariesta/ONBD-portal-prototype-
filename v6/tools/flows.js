@@ -262,6 +262,14 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await p.evaluate(() => document.getElementById('svSend').click()); await p.waitForTimeout(250);
   check('survey sends and its task is done', await p.evaluate(() => S.hm.survey.sent && hmTasks().find(t => t.id === 'survey').done));
 
+  // The view tabs always go to that side's home, even from its own sub-screens
+  // or a shared page, where the view is already set.
+  for (const from of ['#/hm/buddy', '#/servicenow', '#/handoffs']) {
+    await go('#/hm/'); await go(from);
+    await p.click('[data-view="hm"]'); await p.waitForTimeout(350);
+    check(`Hiring manager tab goes home from ${from}`, await p.evaluate(() => location.hash === '#/hm/'));
+  }
+
   check('keyboard focus is visible', hasRing);
 
   console.log(`PASS ${ok.length}`); ok.forEach(o => console.log('  ok  ', o));
