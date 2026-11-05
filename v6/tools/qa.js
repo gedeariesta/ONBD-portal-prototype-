@@ -1,6 +1,6 @@
 const { launch, BASE, OUT, outDir } = require('./lib');
 
-const ROUTES = ['', '#/equipment', '#/details', '#/jd', '#/intro', '#/policies', '#/network',
+const ROUTES = ['', '#/equipment', '#/details', '#/intro', '#/policies', '#/network',
   '#/flow', '#/todos', '#/handoffs', '#/startdate', '#/bgcheck',
   '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy',
   '#/hm/calendar', '#/hm/welcome', '#/hm/network', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction', '#/servicenow',
@@ -9,7 +9,7 @@ const ROUTES = ['', '#/equipment', '#/details', '#/jd', '#/intro', '#/policies',
 const COMBOS = [
   {}, {persona:'conversion'}, {country:'JP'}, {horizon:'3mo'},
   {scenario:'inprogress'}, {scenario:'review'}, {scenario:'overdue'}, {scenario:'complete'},
-  {deviceMode:'choice'}, {pexUpdate:'yes'}, {buddyRule:'72h'}, {notes:'on'}, {pexsize:'5'},
+  {deviceMode:'choice'}, {pexUpdate:'yes'}, {shipRule:'anywhere'}, {notes:'on'}, {pexsize:'5'},
 ];
 
 (async () => {
@@ -29,7 +29,9 @@ const COMBOS = [
       await p.click('#protoFab');
       for (const [k,v] of keys) {
         const ok = await p.evaluate(([k,v]) => {
-          const el = document.querySelector(`[data-pc="${k}:${v}"]`); if (!el) return false; el.click(); return true;
+          const el = document.querySelector(`[data-pc="${k}:${v}"]`); if (!el) return false;
+          // A control greyed on this side is still a state worth rendering here.
+          el.disabled = false; el.click(); return true;
         }, [k,v]);
         if (!ok) problems.push(`MISSING CONTROL ${k}:${v}`);
         await p.waitForTimeout(250);

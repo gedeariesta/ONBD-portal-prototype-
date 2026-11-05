@@ -8,7 +8,7 @@ function parse(s){const m=s.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s
   const b = await launch();
   const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
   // Every route, not a sample: v4 restyled all of them.
-  const routes = ['', '#/equipment', '#/details', '#/jd', '#/intro', '#/policies', '#/network', '#/flow', '#/todos',
+  const routes = ['', '#/equipment', '#/details', '#/intro', '#/policies', '#/network', '#/flow', '#/todos',
     '#/handoffs', '#/startdate', '#/bgcheck', '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy',
     '#/hm/calendar', '#/hm/welcome', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction', '#/servicenow',
     '#/pex/', '#/pex/caseload', '#/pex/hire/jreyes', '#/pex/hire/wzhang', '#/pex/blueprints'];

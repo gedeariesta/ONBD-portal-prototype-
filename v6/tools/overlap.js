@@ -8,7 +8,7 @@
    every route and the states that change widths (a long team name, the
    Japan variant, the brief opened, the Sidekick panel open). */
 const { launch, BASE } = require('./lib');
-const ROUTES = ['', '#/equipment', '#/details', '#/jd', '#/intro', '#/policies', '#/network', '#/flow', '#/todos',
+const ROUTES = ['', '#/equipment', '#/details', '#/intro', '#/policies', '#/network', '#/flow', '#/todos',
   '#/handoffs', '#/startdate', '#/bgcheck', '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy',
   '#/hm/calendar', '#/hm/welcome', '#/hm/network', '#/hm/intro', '#/hm/card', '#/hm/subtraction',
   '#/pex/', '#/pex/caseload', '#/pex/blueprints', '#/pex/hire/jreyes', '#/pex/hire/wzhang'];

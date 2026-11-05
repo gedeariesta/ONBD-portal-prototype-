@@ -11,7 +11,7 @@ register row.
 | Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` | `v5/` | `v6/` |
 | Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` | `dist/equinix-preday1-portals-v5-paradox-teams.html` | `…-v6-servicenow-rethought.html` |
 | Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick | Same as v4, with Sidekick for the coordinator too | Same as v5, plus the buddy's ask |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 142 · 125 live · 17 retired, plus 52 ServiceNow features |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 143 · 121 live · 22 retired, plus 52 ServiceNow features |
 | Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) | same as v4 | adds the ServiceNow walkthrough (January 2026) and the 30 Oct review |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
@@ -38,10 +38,10 @@ what it does today, where it lives in the prototype now, and a verdict:
 
 | Verdict | Count |
 |---|---|
-| Rethought here | 28 |
+| Rethought here | 29 |
 | Folded in | 6 |
 | Proposed to drop | 4 |
-| Open question (each names who decides) | 6 |
+| Open question (each names who decides) | 5 |
 | Not drawn here (after the first week, or one team's content) | 8 |
 
 44 of them are pinned to their screen by a green `SN-nn` marker. The
@@ -63,6 +63,27 @@ ServiceNow bookkeeping, and `flows.js` fails if one loses its anchor.
   filled in.
 - **Manager equipment fallback** (M-36): the order comes to the manager
   only if the new hire hasn't chosen 14 days before the start.
+
+**What the 5 Nov change notes changed:**
+- **Sidekick does everything for the manager** (M-37). Every manager task
+  has a "Do it" in the Teams checklist that opens it as a card in the chat,
+  so a manager never needs the portal; it is the full view, if they want it.
+  The chat and the portal write to the same record.
+- **Check your details** (A-65). Something the new hire can act on now: the
+  name, email and address Equinix holds, confirmed or corrected (a
+  correction reaches the coordinator's Help requests). Bank, tax and
+  emergency contacts are a Day 1 step, also in the portal. No Workday
+  wording on the new hire's side: the portal is their only system.
+- **Apps come from the role** (M-04). The standard list for Jordan's role
+  is already ticked; the manager confirms, adds or removes.
+- **The buddy shows from assignment** (L-01, settled). The 72-hour rule,
+  its control and the conflict banners are gone.
+- **The job description task is dropped.** Janine said it isn't needed.
+- **Home keeps your place.** Coming back from a task returns you to where
+  you were, and finished tasks move to a Done list at the bottom (the
+  manager's sink to the bottom of each phase).
+- **Equipment follow-ups.** The comment box on a submitted order is now
+  "Follow-ups and requests", for anything about the equipment.
 
 ## v5 — Sidekick where people meet it
 

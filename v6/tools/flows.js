@@ -22,7 +22,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   check('three things before Day 1', pre === 3, `${pre} task cards`);
   const firstTask = await p.evaluate(() => document.querySelector('.tcard .t-name').innerText.trim());
   check('start date is task 1', /start date/i.test(firstTask), firstTask);
-  check('personal details moved to Day 1', /Your personal details, in Workday/.test(await txt()));
+  check('bank, tax and emergency contacts are a Day 1 step', /Add your bank, tax and emergency contacts/.test(await txt()));
 
   // 2. Start the background check
   await go('#/bgcheck');
@@ -48,12 +48,15 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await p.waitForTimeout(400);
   check('late-delivery warning fires', (await txt()).includes('after you start'));
 
-  // 5. Details are a Workday handoff now (A-65): nothing personal is typed
-  //    into the portal, and Workday opens on the start date, not before.
+  // 5. Check your details (A-65, revised 5 Nov): something the new hire can do
+  //    now, in the portal, with no Workday wording. Bank and tax wait for Day 1.
   await go('#/details');
-  const inputs = await p.evaluate(() => document.querySelectorAll('#app input, #app select, #app textarea').length);
-  check('the portal collects no personal details', inputs === 0, `${inputs} inputs`);
-  check('Workday opens on Day 1, not before', await p.evaluate(() => document.getElementById('wdOpen').disabled));
+  check('details screen never mentions Workday', !/Workday/.test(await txt()));
+  check('the portal asks for nothing personal before Day 1', await p.evaluate(() => document.querySelectorAll('#app input, #app select, #app textarea').length === 0));
+  await p.evaluate(() => document.getElementById('detWrong').click()); await p.waitForTimeout(250);
+  await p.fill('#detFlag', 'I moved last month');
+  await p.evaluate(() => document.getElementById('detSend').click()); await p.waitForTimeout(250);
+  check('a correction reaches the coordinator', await p.evaluate(() => S.details.flagged && S.sidekick.handoffs.some(h => /Details correction/.test(h.q))));
 
   // 5b. Policies are first-week work (A-66): readable now, nothing signable
   await go('#/policies');
@@ -277,7 +280,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   // across a few task states, and compared with PC_APPLIES.
   const pcDrift = await p.evaluate(() => {
     const VIEWS = {
-      nh: ['#/', '#/todos', '#/startdate', '#/bgcheck', '#/equipment', '#/details', '#/jd', '#/intro', '#/network', '#/policies', '#/flow'],
+      nh: ['#/', '#/todos', '#/startdate', '#/bgcheck', '#/equipment', '#/details', '#/intro', '#/network', '#/policies', '#/flow'],
       hm: ['#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy', '#/hm/calendar', '#/hm/welcome', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction'],
       pex: ['#/pex/', '#/pex/caseload', '#/pex/blueprints', '#/pex/hire/jreyes', '#/pex/hire/wzhang'],
     };
@@ -319,6 +322,46 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await p.reload({ waitUntil: 'networkidle' }); await p.waitForTimeout(400);
   await go('#/'); await p.click('[data-view="hm"]'); await p.waitForTimeout(400);
   check('an older saved state still opens the manager home', await p.evaluate(() => /starts in/.test(document.querySelector('#app h1').textContent)));
+
+  // 5 Nov change notes. Fresh state for each, so earlier flows cannot leak in.
+  // A hash-only goto does not reload, so clear storage and reload explicitly.
+  const fresh = async h => { await p.goto(BASE + (h || ''), { waitUntil: 'networkidle' });
+    await p.evaluate(() => { try { localStorage.clear(); } catch {} });
+    await p.reload({ waitUntil: 'networkidle' }); await p.waitForTimeout(400); };
+  await fresh('#/');
+  check('the job description task is gone', !/job description/i.test(await txt()));
+  await p.evaluate(() => { S.hm.buddy = { assigned: ORG_PEOPLE[0].id, notified:false, accepted:false }; save(); rerender(); });
+  check('the buddy shows from assignment', /Your onboarding buddy/.test(await p.evaluate(() => document.querySelector('.rail').innerText))
+    && await p.evaluate(() => buddyVisibleToNH()));
+  // finished tasks move to Done at the bottom; coming back home keeps your place
+  await p.evaluate(() => { S.startdate.confirmed = true; save(); rerender(); });
+  check('a finished task moves to Done', await p.evaluate(() => {
+    const first = document.querySelector('.landing-grid .tcards .tcard .t-name').innerText;
+    const done = document.querySelector('.done-h'); return !/start date/i.test(first) && !!done && /start date/i.test(done.nextElementSibling.innerText); }));
+  await p.evaluate(() => window.scrollTo(0, 1200)); await p.waitForTimeout(150);
+  await go('#/equipment'); await go('#/');
+  check('coming back home keeps your place', Math.abs(await p.evaluate(() => window.scrollY) - 1200) <= 2);
+  // the apps list comes from the role
+  await go('#/hm/software');
+  check('apps for the role are already ticked', await p.evaluate(() => [...document.querySelectorAll('[data-swstd]')].every(c => c.checked)
+    && !document.querySelector('.blocked-panel')));
+  // the manager can do every task from Sidekick, and the portal agrees
+  await fresh('#/hm/');
+  await p.evaluate(() => openChat()); await p.waitForTimeout(300);
+  const tap = async sel => { await p.evaluate(x => { const e = [...document.querySelectorAll(x)].pop(); if (!e) throw new Error('missing ' + x); e.click(); }, sel); await p.waitForTimeout(220); };
+  await tap('[data-skdo="logistics"]'); await p.fill('#skWhere', '13:00, main reception'); await tap('[data-skact="logistics"]');
+  await tap('[data-skdo="software"]'); await tap('[data-skact="software"]');
+  await tap('[data-skdo="card"]'); await tap('[data-skset="card:no"]');
+  await tap('[data-skdo="buddy"]'); await p.selectOption('#skBuddy', { index: 1 }); await p.waitForTimeout(220);
+  await tap('[data-skact="buddyask"]'); await tap('[data-skact="buddyaccept"]');
+  await tap('[data-skdo="calendar"]'); await tap('[data-skact="calendar"]');
+  await tap('[data-skdo="welcome"]'); await tap('[data-skact="welcome"]');
+  await tap('[data-skphone="ok"]'); await tap('[data-skact="channels"]');
+  await tap('[data-skdo="survey"]'); for (let n = 1; n <= 7; n++) await tap(`[data-skset="svq:${n}:4"]`); await tap('[data-skact="survey"]');
+  check('every manager task can be done from the chat', await p.evaluate(() =>
+    hmTasks().filter(t => t.route && t.id !== 'computer' && t.id !== 'intro').every(t => t.done) && skHmOpenCount() === 0));
+  await p.evaluate(() => closePanels());
+  check('the portal shows what the chat did', await p.evaluate(() => document.querySelectorAll('.tcard.hm.done').length >= 7));
 
   check('keyboard focus is visible', hasRing);
 

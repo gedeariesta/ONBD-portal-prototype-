@@ -39,7 +39,6 @@ const DEFAULT_STATE = () => ({
   // v3: one state object, two lenses. `view` is a prototype device. A real
   // manager and a real new hire are different people on different screens.
   view: 'nh',                    // nh | hm
-  buddyRule: 'assignment',       // assignment | 72h   (L-01, the live conflict)
   notes: false,                  // design notes: rationale, A-nn markers, dispositions
   insideOpen: false,             // Inside Equinix strip expanded (A-35)
 
@@ -52,8 +51,9 @@ const DEFAULT_STATE = () => ({
   todoPhase: 0,                  // which phase the live to-do view is showing (A-56)
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
-  // Done in Workday on Day 1, so the portal only ever learns that it is done (A-65).
-  details: { submitted:false },
+  // Checked now, completed on Day 1, both in the portal (A-65). submitted is
+  // the Day 1 half; the portal only ever learns that it is done.
+  details: { checked:false, wrong:false, flagged:false, flagText:'', submitted:false },
   equipment: { choice:'', items:{}, shipOffice:'', shipOther:'', shipPhone:'', submitted:false, comment:'', comments:[],
     device:'', deviceConfirmed:false },
   // Whether this role maps to one build or offers a choice (A-60). A prototype
@@ -75,7 +75,6 @@ const DEFAULT_STATE = () => ({
       expect:'Orientation, then lunch with the other new starters.',
       host:'Ask for the People Experience desk' },
   },
-  jd: { state:'notstarted', scrolled:false, acked:false, dissent:false, dissentText:'' },
   intro: { text:'', consent:false, useBadge:false, saved:false, dismissed:[], done:false },
   photo: { uploaded:false, dataUrl:null, consent:false, done:false, confirmedExisting:false, replacing:false },
   policies: { open:{}, read:{}, acked:{}, cobcVisited:false, submitted:false, hbSigned:{}, hbOpen:true },
@@ -89,7 +88,7 @@ const DEFAULT_STATE = () => ({
     channels: { accepted:false },
     logistics: { confirmed:false, whereToBe:'', available:true, proxy:'', teamNote:'' },
     computer: { ordered:false, model:'', reason:'' },
-    software: { confirmed:false, added:[] },
+    software: { confirmed:false, added:[], removed:[] },
     // A name is not a commitment. Both roles have to accept (M-27).
     buddy: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
@@ -144,6 +143,8 @@ const isOverdue = key => simToday() > dueFor(key) && !taskDone(key);
 
 /* ---------------- task status model (A-25) ---------------- */
 function detailsStatus() { return S.details.submitted ? 'done' : 'notstarted'; }
+/* The part a new hire can do now: check what Equinix already holds. */
+function checkStatus() { return S.details.checked ? 'done' : S.details.flagged ? 'review' : 'notstarted'; }
 function startdateStatus() {
   if (S.startdate.changeRequested) return 'review';
   return S.startdate.confirmed ? 'done' : 'notstarted';
@@ -153,7 +154,6 @@ function equipmentStatus() {
   if (S.equipment.submitted) return 'done';
   return S.equipment.choice ? 'inprogress' : 'notstarted';
 }
-function jdStatus() { return S.jd.state; }
 function introStatus() {
   const a = S.intro.done, b = photoSectionDone();
   if (a && b) return 'done';
@@ -178,7 +178,7 @@ const COUNTED = ['startdate','bgcheck','equipment'];
 function taskDone(key) {
   return ({ startdate: startdateStatus()==='done', bgcheck: bgcheckStatus()==='done',
             equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
-            jd: jdStatus()==='done', intro: introStatus()==='done',
+            intro: introStatus()==='done',
             policies: policiesStatus()==='done' })[key];
 }
 function tasksComplete() { return COUNTED.filter(taskDone).length; }
@@ -231,12 +231,9 @@ function nextTask() { return taskList().find(t => t.status !== 'done') || null; 
 function day1Items() {
   const jp = S.country === 'JP';
   return [
-    { key:'details', route:'#/details', icon:'user-circle.svg', sys:'Workday', marker:'A-65',
-      name:'Your personal details, in Workday',
-      why:'Address, emergency contact, bank and tax, entered once in Workday' },
-    { key:'jd', route:'#/jd', icon:'file-alt.svg', sys:'Workday', marker:'A-67',
-      name:'Check your job description',
-      why:'You can read it now. You confirm it once you’ve started' },
+    { key:'details', route:'#/details', icon:'user-circle.svg', sys:'This portal', marker:'A-65',
+      name:'Add your bank, tax and emergency contacts',
+      why:'Here, on your first day, entered once. Have them to hand' },
     ...(jp ? [] : [{ key:'rtw2', icon:'id-card.svg', sys:'In person',
       name:'Show your right to work documents',
       why:'At orientation, to finish the check you start online',
@@ -258,6 +255,12 @@ function renderLanding() {
   const conv = S.persona === 'conversion';
   const jp = S.country === 'JP';
   const tasks = taskList();
+  const open3 = tasks.filter(t => t.status !== 'done');
+  const doneList = [
+    ...tasks.filter(t => t.status === 'done').map(taskCard),
+    ...(checkStatus() === 'done' ? [checkCard()] : []),
+    ...(introStatus() === 'done' ? [introCard()] : []),
+  ];
 
   const booked = Object.keys(S.network.booked).length;
   const netList = namedNetwork();          // written by the manager (L-06)
@@ -313,25 +316,14 @@ function renderLanding() {
           <span class="eyebrow">Before Day 1 · now to ${fmtShort(addDays(startDate(), -1))}</span>
           <h2>Three things, then you’re ready</h2>
         </div>
-        <div class="tcards">${tasks.map(taskCard).join('')}</div>
+        ${open3.length ? `<div class="tcards">${open3.map(taskCard).join('')}</div>`
+          : `<div class="all-done">${ic('check-circle.svg')}<span><b>All three are done.</b> They’re at the bottom of the page, under Done.</span></div>`}
 
         <div class="section-h"><h3>Optional, if you have time</h3><span class="hint">Nothing waits on these</span></div>
         ${videoCard('pre')}
         <div class="tcards">
-          <div class="tcard optional ${introStatus() === 'done' ? 'done' : ''}" data-task="#/intro" data-assume="A-68">
-            <div class="tic">${ic('comment-smile.svg','lg')}</div>
-            <div class="t-main">
-              <div class="t-name">Add a badge photo, and say hello to your team ${am('A-68')}</div>
-              <div class="t-why">Send the photo by ${photoBy} and your badge is printed and waiting on Day 1.
-                Or it’s taken at reception when you arrive.</div>
-              <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 5 min, optional</span></div>
-            </div>
-            <div class="t-side">
-              ${introStatus() === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(introStatus())}
-              ${ic('arrow-right.svg','lg go')}
-            </div>
-          </div>
-
+          ${checkStatus() !== 'done' ? checkCard() : ''}
+          ${introStatus() !== 'done' ? introCard() : ''}
           <div class="tcard optional ${netReady?'':'pending'}" data-task="#/network" data-assume="A-43 L-06">
             <div class="tic">${ic('users-connected.svg','lg')}</div>
             <div class="t-main">
@@ -414,11 +406,15 @@ function renderLanding() {
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
               <div class="o-name">Tax forms <span class="chip info">Payroll</span></div>
-              <div class="o-note">Payroll sends these separately, on their own schedule. Your tax details go into Workday
-              with your other personal details on your first day. ${am('A-65')}</div>
+              <div class="o-note">Payroll sends these separately, on their own schedule. Your tax details go in with your
+              other personal details on your first day, here. ${am('A-65')}</div>
             </div>
           </div>
         </div>
+
+        ${doneList.length ? `
+        <div class="section-h done-h"><h3>Done</h3><span class="hint">${doneList.length} finished. Open one to look back at it</span></div>
+        <div class="tcards">${doneList.join('')}</div>` : ''}
       </div>
 
       ${landingRail()}
@@ -529,8 +525,8 @@ function contactRow(p, extra='', tone='') {
   </div>`;
 }
 
-/* The buddy the manager assigned, subject to the unresolved visibility
-   rule (L-01). Both branches are real states, not placeholders. */
+/* The buddy the manager assigned. Shown from assignment (L-01, settled
+   5 Nov): the new hire has someone to talk to through the quiet weeks. */
 function buddyRailBlock() {
   const B = S.hm.buddy;
   const assigned = B.assigned ? orgPerson(B.assigned) : null;
@@ -543,31 +539,20 @@ function buddyRailBlock() {
         <div class="c-role">Not chosen yet</div>
         <div class="c-extra">Someone in your team to ask the things you’d rather not ask your manager.
         <span class="pnote">${HIRE.manager} picks them. Nobody is assigned automatically, so this stays empty
-        until she does. ${am('L-01')}</span></div>
-      </div>
-    </div>`;
-  }
-  if (!buddyVisibleToNH()) {
-    return `
-    <div class="contact pending" data-assume="L-01">
-      <div class="avatar peer">${ic('user.svg','sm')}</div>
-      <div>
-        <div class="c-name">Your onboarding buddy</div>
-        <div class="c-role">Chosen. You’ll meet them shortly before you start</div>
-        <div class="c-extra">Their details appear here 72 hours before your first day. ${am('L-01')}</div>
+        until she does.</span></div>
       </div>
     </div>`;
   }
   return contactRow(
     { name: assigned.name, role: `Your onboarding buddy, ${assigned.role}`, initials: assigned.initials, cls: 'buddy' },
-    `<div class="c-extra">${assigned.tz ? `${ic('clock.svg','sm')} ${assigned.tz}<br>` : ''}Chosen by ${HIRE.manager} ${am('A-31')} ${am('L-01')}</div>`
+    `<div class="c-extra">${assigned.tz ? `${ic('clock.svg','sm')} ${assigned.tz}<br>` : ''}Chosen by ${HIRE.manager} ${am('A-31')}</div>`
   );
 }
 
 function landingRail() {
   return `
   <div class="rail">
-    <div class="rail-card" data-assume="A-31 A-32 L-01 L-03">
+    <div class="rail-card" data-assume="A-31 A-32 L-03">
       <h3>Your people</h3>
       ${contactRow(Object.assign({}, PEOPLE.manager, { phone: S.hm.contactConfirmed ? S.hm.workPhone : null }),
         `<div class="c-extra">${S.hm.contactConfirmed
@@ -651,11 +636,11 @@ function readinessState() {
     (E.deviceConfirmed ? 'Computer chosen. The order goes in when the task is submitted.'
       : 'No order placed. The computer has not been chosen yet.') };
 
-  // Applications. The persona cannot be resolved, so this one is stuck at
-  // its first stage on purpose. That is the honest state today (M-04).
+  // Applications: the role's standard list is found, then the manager
+  // confirms it (M-04).
   out.apps = H.software.confirmed
-    ? { at: 2, note: 'Confirmed by hand, because nothing could be suggested.' }
-    : { at: 0, blocked: true, note: 'No persona is mapped for this role, so there is no default stack to confirm.' };
+    ? { at: 2, note: 'Confirmed by the manager.' }
+    : { at: 1, note: 'The standard apps for the role are listed. Waiting for the manager to confirm.' };
 
   // Workspace. Badge collection is not a stage: nothing reports it back.
   let ws = 0;
@@ -977,63 +962,126 @@ function renderBgCheck() {
 }
 
 /* ============================================================
-   Personal details, in Workday (A-65)
+   Your details (A-65, revised 5 Nov)
 
-   v3 collected all of this in the portal, banking included (A-61). The
-   September meetings put it back where it belongs: Workday stays the system
-   of record for anything personal, and a new starter enters the fields
-   payroll needs once, in one Workday task, instead of in the portal and
-   again downstream. So this screen is a signpost, drawn in full so the
-   hand-off itself can be argued with.
+   Two halves on one screen. Now: check what Equinix already holds from the
+   offer, because the laptop, the badge and the first pay go by it. Day 1:
+   add bank, tax and emergency contacts. Both happen here. The portal is the
+   only place a new hire goes (Gede: ServiceNow is their one interaction
+   layer), so Workday, which stores it behind the scenes, is never named.
    ============================================================ */
+function detailsOnRecord() {
+  const jp = S.country === 'JP';
+  return [
+    ['Legal name', `${HIRE.legalFirst} ${HIRE.legalLast}`],
+    ['Name you go by', HIRE.preferred],
+    ['Personal email', HIRE.email],
+    ['Home address', jp ? HIRE.homeAddressJP : HIRE.homeAddress],
+    ['Country you’re joining in', jp ? 'Japan' : 'United States'],
+  ];
+}
+function introCard() {
+  const photoBy = dueText(dueFor('photo'));
+  return `
+          <div class="tcard optional ${introStatus() === 'done' ? 'done' : ''}" data-task="#/intro" data-assume="A-68">
+            <div class="tic">${ic('comment-smile.svg','lg')}</div>
+            <div class="t-main">
+              <div class="t-name">Add a badge photo, and say hello to your team ${am('A-68')}</div>
+              <div class="t-why">Send the photo by ${photoBy} and your badge is printed and waiting on Day 1.
+                Or it’s taken at reception when you arrive.</div>
+              <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 5 min, optional</span></div>
+            </div>
+            <div class="t-side">
+              ${introStatus() === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(introStatus())}
+              ${ic('arrow-right.svg','lg go')}
+            </div>
+          </div>`;
+}
+function checkCard() {
+  const st = checkStatus();
+  return `
+  <div class="tcard optional ${st === 'done' ? 'done' : ''}" data-task="#/details" data-assume="A-65">
+    <div class="tic">${ic('user-circle.svg','lg')}</div>
+    <div class="t-main">
+      <div class="t-name">Check your details ${am('A-65')}</div>
+      <div class="t-why">Your name, email and home address, as we have them. Your laptop, badge and first pay go by these.</div>
+      <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 1 min</span></div>
+    </div>
+    <div class="t-side">
+      ${st === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(st)}
+      ${ic('arrow-right.svg','lg go')}
+    </div>
+  </div>`;
+}
 function renderDetails() {
+  const D = S.details;
   const jp = S.country === 'JP';
   const conv = S.persona === 'conversion';
-  const done = S.details.submitted;
   const pre = daysToStart() > 0;
-  const asked = [
-    ['user.svg', 'Your legal name, and the name you go by'],
-    ['globe.svg', 'Your home address'],
-    ['users-friends.svg', 'One or two emergency contacts'],
+  const pex = PEOPLE.pex.name.split(' ')[0];
+  const day1 = [
     ['banking.svg', 'Bank details, so you get paid'],
     ['file-alt.svg', jp ? 'Tax and social insurance details' : 'Tax withholding'],
+    ['users-friends.svg', 'One or two emergency contacts'],
     ['shield-check.svg', 'Voluntary self-identification, if you choose to'],
   ];
   return `
   <div class="page">
-    ${crumbs('Your personal details, in Workday')}
+    ${crumbs('Check your details')}
     <div class="task-head" data-assume="A-65">
-      <div class="eyebrow">Day 1 · ${fmtShort(startDate())}</div>
-      <h1>Your personal details, in Workday ${am('A-65')}</h1>
+      <h1>Check your details ${am('A-65')}</h1>
       <p class="why">${conv
-        ? `You’re already in Workday from your contract, so this is a check of what’s there rather than a form to fill.`
-        : `One task on your first day, in Workday, the system that keeps anything personal. You enter each thing once, and payroll, benefits and IT all read it from there.`}</p>
+        ? `We already hold your details from your contract role. Check they’re still right.`
+        : `This is what we have for you from your offer. If anything’s wrong, say so now, so your laptop, your badge
+          and your first pay all go to the right place.`}</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
-        <h3 class="wd-h">What Workday asks for</h3>
-        <ul class="wd-list">
-          ${asked.map(([i, t]) => `<li>${ic(i,'sm')}<span>${t}</span></li>`).join('')}
-        </ul>
-        <div class="callout soft mt16">
-          ${ic('lock.svg')}
-          <div><b>None of it is kept in this portal.</b> ${HIRE.manager} and People Experience see only that the task
-          is done, never what you entered.</div>
+        <div class="form-sec">
+          <h3>What we have</h3>
+          <div class="bp-card">
+            ${detailsOnRecord().map(([k, v]) => `<div class="bp-row"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
+          </div>
+          ${D.checked ? `
+          <div class="callout soft mt16">${ic('check-circle.svg')}<div><b>Thanks, that’s all right.</b> Nothing else to do until your first day.</div></div>`
+          : D.flagged ? `
+          <div class="callout soft mt16">${ic('clock.svg')}<div><b>With ${pex}.</b> She corrects it before anything is sent
+            or printed, and tells you when it’s done. You wrote: “${esc(D.flagText)}”</div></div>`
+          : D.wrong ? `
+          <div class="field mt16">
+            <label for="detFlag">What needs changing?</label>
+            <textarea id="detFlag" rows="3" placeholder="e.g. I moved last month. My new address is…">${esc(D.flagText)}</textarea>
+            <div class="note">It goes to ${pex}, your onboarding coordinator, with this screen attached.</div>
+          </div>` : ''}
         </div>
-        <div class="callout pnote mt16">
-          ${ic('question-circle.svg')}
-          <div><b>Is Day 1 early enough?</b> Bank details on the first day have to reach the first payroll run. If they
-          cannot, this becomes a Workday task before the start date, which would be a fourth thing before Day 1.
-          Address is the other one to watch: a laptop shipped to someone's home needs it earlier, so equipment takes it
-          from the offer instead. ${am('A-65')}</div>
+
+        <div class="form-sec">
+          <h3>On your first day, here</h3>
+          <p class="sec-note">You add these once, in this portal${pre ? `, on ${fmtLong(startDate())}` : ''}. Have them to hand.</p>
+          <ul class="wd-list">
+            ${day1.map(([i, t]) => `<li>${ic(i,'sm')}<span>${t}</span></li>`).join('')}
+          </ul>
+          <div class="callout soft mt16">
+            ${ic('lock.svg')}
+            <div><b>Private to you.</b> ${HIRE.manager} and People Experience see only that it’s done, never what you entered.</div>
+          </div>
+          <div class="callout pnote mt16">
+            ${ic('question-circle.svg')}
+            <div><b>Behind the portal.</b> What’s entered here is stored in Workday, which stays the system of record, so
+            the new hire never has to go there. Still open: whether bank details entered on Day 1 reach the first
+            payroll run. If not, that one item has to come before Day 1. ${am('A-65')}</div>
+          </div>
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic(done ? 'check-circle.svg' : 'clock.svg','sm')}${done
-          ? 'Done in Workday. The portal only knows that it is finished.'
-          : pre ? `Opens on ${fmtLong(startDate())}. Nothing to do before then.` : 'Open now, in Workday.'}</span>
+        <span class="saved-state">${ic(D.checked ? 'check-circle.svg' : 'clock.svg','sm')}${D.checked
+          ? 'Checked. The rest opens on your first day.' : D.flagged ? `Sent to ${pex}.` : 'About a minute'}</span>
         <span class="missing"></span>
-        <button class="btn primary" id="wdOpen" ${done || pre ? 'disabled' : ''}>${ic('external-link.svg','sm')} Open Workday</button>
+        ${D.checked || D.flagged ? `<button class="btn secondary" data-goto="#/">Back to your tasks</button>`
+          : D.wrong ? `<button class="btn quiet" id="detCancel">Cancel</button>
+                       <button class="btn primary" id="detSend" ${(D.flagText || '').trim() ? '' : 'disabled'}>Send to ${pex}</button>`
+          : `<button class="btn secondary" id="detWrong">Something’s wrong</button>
+             <button class="btn primary" id="detOk">These are right</button>`}
       </div>
     </div>
   </div>`;
@@ -1299,8 +1347,8 @@ function renderEquipment() {
               <input type="radio" name="shipOffice" data-ship="no" ${E.shipOffice==='no'?'checked':''}>
               <span class="so-body"><span class="so-h">Your home, as on your record</span>
                 <span class="so-addr">${S.country === 'JP' ? HIRE.homeAddressJP : HIRE.homeAddress}</span>
-                <span class="so-note">The address on your offer. Moved since then? Tell ${PEOPLE.pex.name.split(' ')[0]}, and it’s
-                corrected in Workday before anything ships. ${am('A-65')}</span></span>
+                <span class="so-note">The address on your offer. Moved since then? Tell ${PEOPLE.pex.name.split(' ')[0]}, or fix it in
+                <a data-goto="#/details">Check your details</a>, and it’s corrected before anything ships. ${am('A-65')}</span></span>
             </label>
             ${shipAnywhere() ? `
             <label class="ship-opt ${E.shipOffice==='other'?'on':''}">
@@ -1404,10 +1452,12 @@ function incidentCard(picked) {
 
     <div class="inc-body">
       ${tab === 'activity' ? `
-        <div class="inc-lbl">Additional comments</div>
+        <div class="inc-lbl">Follow-ups and requests</div>
+        <p class="inc-help">Need something else, or a change to what you ordered? Any question or concern about your
+        equipment goes here, and the tech team handling your order sees it.</p>
         <div class="inc-add">
-          <input type="text" id="incComment" placeholder="Type your message here…">
-          <button class="btn primary sm" id="incSend">Post</button>
+          <input type="text" id="incComment" aria-label="Follow-up or request for the tech team" placeholder="e.g. Could I also get a webcam?">
+          <button class="btn primary sm" id="incSend">Send</button>
         </div>
         <div class="inc-feed">
           ${E.comments.slice().reverse().map(c => `
@@ -1563,7 +1613,7 @@ function renderNetwork() {
             </div>
             <div class="dist-row">
               <div class="dr-h">${ic('users-three.svg','sm')} Your team</div>
-              <p>Your reporting line is on <a data-goto="#/jd">your job description</a>. <b>This list is not that</b>.
+              <p>Your reporting line is your manager and their team. <b>This list is not that</b>.
               <span class="pnote">Deliberately so: rendering it as a hierarchy would mislead.</span></p>
             </div>
           </div>
@@ -1578,112 +1628,6 @@ function renderNetwork() {
           </ol>
           <div class="rail-note">The problem this is meant to solve, in the platform owner’s words:
           <i>“I don’t even know what I’m supposed to be doing, or who I’m supposed to reach out to.”</i></div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ============================================================
-   Job description
-   ============================================================ */
-function renderJD() {
-  const jd = S.jd;
-  const done = jd.state === 'done';
-  const review = jd.state === 'review';
-  return `
-  <div class="page">
-    ${crumbs('Check your job description')}
-    <div class="task-head" data-assume="A-67">
-      <div class="eyebrow">Day 1 · ${fmtShort(startDate())}</div>
-      <h1>Check your job description ${am('A-67')}</h1>
-      <p class="why">You confirm it on your first day. You can read it now, and if anything looks different from your
-      conversations, say so now rather than waiting.</p>
-    </div>
-
-    ${review ? `
-    <div class="review-banner" data-assume="A-27">
-      ${ic('info-circle.svg','lg')}
-      <div><b>Under review ${am('A-27')}</b>
-      <p>You told us something doesn’t match. Recruiting has your note and someone will be in touch within 2 working days.
-      This task stays open, and there’s nothing else for you to do on it right now.</p></div>
-    </div>` : ''}
-    ${done ? `
-    <div class="review-banner ok">
-      ${ic('check-circle.svg','lg')}
-      <div><b>Confirmed</b><p>You confirmed this reflects the role you accepted. It stays here for reference.</p></div>
-    </div>` : ''}
-
-    <div class="jd-grid">
-      <div>
-        <div class="rail-card role-card" style="margin-bottom:18px;" data-assume="A-12">
-          <h3 style="display:flex; align-items:center; gap:10px;">Role summary <span class="src-tag">${ic('portal-window.svg','sm')}From the official record</span></h3>
-          <dl class="kv">
-            <dt>Job title</dt><dd>${HIRE.role}</dd>
-            <dt>Department</dt><dd>${HIRE.dept}</dd>
-            <dt>Reports to</dt><dd>${HIRE.manager}</dd>
-            <dt>Location &amp; arrangement</dt><dd>${HIRE.location}, ${HIRE.arrangement}</dd>
-            <dt>Employment type</dt><dd>${HIRE.employmentType}</dd>
-            <dt>Start date</dt><dd>${startDateText()}</dd>
-          </dl>
-          <div class="comp-line">${ic('lock.svg','sm')}Your compensation details are in your signed offer letter. ${am('A-12')}</div>
-        </div>
-
-        <div class="rail-card" style="margin-bottom:18px;" data-assume="A-13 A-24">
-          <h3 style="display:flex; align-items:center; gap:10px;">The job description ${am('A-13')}</h3>
-          <p style="font-size:var(--t-meta); margin:4px 0 12px;">Placeholder content, marked as such. The real text comes from the official record.</p>
-          <div class="jd-doc" id="jdDoc">${JD_TEXT}</div>
-          <div class="scroll-hint ${jd.scrolled?'ok':''}" id="scrollHint">
-            ${jd.scrolled ? ic('check.svg','sm')+'Read to the end, so you can confirm below.' : ic('chevron-down.svg','sm')+'Scroll to the end to unlock the confirmation. '+am('A-24')}
-          </div>
-          <div class="mt16">
-            <span class="internal-link" data-ext="workday">${ic('portal-window.svg')}View in Workday <small>another Equinix system, same sign-in</small></span>
-          </div>
-        </div>
-
-        ${!done && !review ? `
-        <div class="rail-card">
-          <label class="check ${jd.scrolled && daysToStart() <= 0 ? '' : 'disabled'}">
-            <input type="checkbox" id="jdAck" ${jd.scrolled && daysToStart() <= 0 ? '' : 'disabled'} ${jd.acked?'checked':''}>
-            <span>I’ve read my job description and confirm it reflects the role I accepted.</span>
-          </label>
-          ${daysToStart() > 0 ? `<div class="note mt8">${ic('clock.svg','sm')} Confirming opens on ${fmtLong(startDate())}.</div>` : ''}
-          <div class="mt16" style="display:flex; gap:14px; align-items:center;">
-            <button class="btn primary" id="jdConfirm" ${jd.acked?'':'disabled'}>Confirm my role</button>
-            <button class="btn quiet" id="jdDissent">This doesn’t match what I agreed</button>
-          </div>
-          <div class="dissent-box hidden" id="dissentBox">
-            <div class="field" style="max-width:none;">
-              <label>Tell us what’s different</label>
-              <textarea rows="4" id="dissentText" placeholder="What did you agree that you’re not seeing here?">${esc(jd.dissentText)}</textarea>
-              <div class="note">This goes to Recruiting with your name on it, and they’ll come back to you directly.</div>
-            </div>
-            <div style="display:flex; gap:12px;">
-              <button class="btn primary" id="dissentSend" disabled>Send to recruiting</button>
-              <button class="btn quiet" id="dissentCancel">Never mind, back to confirming</button>
-            </div>
-          </div>
-        </div>` : ''}
-      </div>
-
-      <div class="rail">
-        <div class="rail-card" data-assume="A-13">
-          <h3>Your team ${am('A-13')}</h3>
-          <div class="team-view">
-            <div class="tnode"><div class="avatar sm mgr">${HIRE.managerInitials}</div>
-              <div><div class="tn-name">${HIRE.manager}</div><div class="tn-role">Your manager, Director of FP&amp;A</div></div></div>
-            <div class="tline"></div>
-            <div class="tnode you"><div class="avatar sm">${HIRE.initials}</div>
-              <div><div class="tn-name">${HIRE.legalFirst} ${HIRE.legalLast}, you</div><div class="tn-role">${HIRE.role}</div></div></div>
-            <div class="tline"></div>
-            <div class="peer-row">
-              ${PEOPLE.peers.map(p => `
-                <div class="tnode"><div class="avatar sm peer">${p.initials}</div>
-                <div><div class="tn-name">${p.name}</div><div class="tn-role">${p.role}</div></div></div>`).join('')}
-            </div>
-          </div>
-          <div class="rail-note">This is your reporting line. The people you’ll work with <i>outside</i> it are on
-          <a data-goto="#/network">your suggested network</a>.</div>
         </div>
       </div>
     </div>
@@ -2059,7 +2003,7 @@ function renderFlow() {
     { x:82, r:50, cls:'day1', lbl:'Day 1', sub:'badge and laptop waiting' },
   ];
   const after = [
-    { x:80, r:22, cls:'later', lbl:'Personal details', sub:'in Workday, Day 1' },
+    { x:80, r:22, cls:'later', lbl:'Personal details', sub:'Day 1, in the portal' },
     { x:84, r:72, cls:'later', lbl:'Job description', sub:'confirm on Day 1' },
     { x:95, r:22, cls:'later', lbl:'Handbooks and notices', sub:'first week' },
     { x:96, r:72, cls:'later', lbl:'Benefits', sub:'first week, one link' },
@@ -2353,11 +2297,6 @@ function renderProtoDrawer() {
       <button class="pc-btn ${S.scenario==='overdue'?'on':''}" data-pc="scenario:overdue">Overdue</button>
       <button class="pc-btn ${S.scenario==='complete'?'on':''}" data-pc="scenario:complete">Complete</button>
     </div>
-    <div class="pc-h" data-pck="buddyRule">Buddy visibility <span class="pc-mark">L-01</span></div>
-    <div class="pc-row" data-pck="buddyRule">
-      <button class="pc-btn ${S.buddyRule==='assignment'?'on':''}" data-pc="buddyRule:assignment">On assignment</button>
-      <button class="pc-btn ${S.buddyRule==='72h'?'on':''}" data-pc="buddyRule:72h">72 hours before start</button>
-    </div>
     <div class="pc-h">Review screens</div>
     <div class="pc-links">
       <a data-goto="#/handoffs">${ic('users-connected.svg','sm')} How the portals connect, ${handoffRows().length} handoffs</a>
@@ -2374,8 +2313,8 @@ function renderProtoDrawer() {
    notes and ServiceNow markers are on every side, so they are never greyed.
    Shared pages (How they connect, the ServiceNow page) grey nothing. */
 const PC_APPLIES = {
-  nh:  ['persona', 'country', 'deviceMode', 'shipRule', 'horizon', 'scenario', 'buddyRule'],
-  hm:  ['country', 'pexUpdate', 'horizon', 'scenario', 'buddyRule'],
+  nh:  ['persona', 'country', 'deviceMode', 'shipRule', 'horizon', 'scenario'],
+  hm:  ['country', 'pexUpdate', 'horizon', 'scenario'],
   pex: ['country', 'pexsize', 'horizon', 'scenario'],
 };
 const PC_SIDE = { nh:'new hire', hm:'hiring manager', pex:'People Experience' };
@@ -2394,9 +2333,9 @@ function greyProtoControls() {
 }
 
 function applyScenario(name) {
-  const { persona, country, horizon, view, buddyRule, notes, pex } = S;
+  const { persona, country, horizon, view, notes, pex } = S;
   S = DEFAULT_STATE();
-  Object.assign(S, { persona, country, horizon, view, buddyRule, notes, pex, scenario: name });
+  Object.assign(S, { persona, country, horizon, view, notes, pex, scenario: name });
 
   const namePeople = () => {
     S.hm.network.named = {};
@@ -2415,7 +2354,7 @@ function applyScenario(name) {
   const hmComplete = () => {
     hmPartial(); namePeople();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
-    S.hm.software = { confirmed:true, added:['Anaplan','Tableau','Power BI'] };
+    S.hm.software = { confirmed:true, added:['Tableau'], removed:[] };
     S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true } };
     S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team. Shout if anything is unclear before the 18th.' };
     S.hm.channels.accepted = true;
@@ -2561,7 +2500,6 @@ const ROUTES = {
   '#/bgcheck': renderBgCheck,
   '#/equipment': renderEquipment,
   '#/details': renderDetails,
-  '#/jd': renderJD,
   '#/intro': renderIntro,
   '#/network': renderNetwork,
   '#/policies': renderPolicies,
@@ -2578,8 +2516,16 @@ Object.assign(ROUTES, SN_ROUTES);   // ServiceNow today, rethought (js/serviceno
    what made buttons feel like they teleported you. */
 let lastRoute = null;
 
+/* Coming back to a home screen from one of its own screens puts you where
+   you were on it, instead of at the top (Gede, 5 Nov). Anywhere else, a new
+   screen starts at the top. */
+const HOMES = ['#/', '#/hm/', '#/pex/'];
+const homeScroll = {};
+const sideOf = r => r.startsWith('#/hm/') ? 'hm' : r.startsWith('#/pex/') ? 'pex'
+  : (r === '#/handoffs' || r === '#/servicenow') ? 'shared' : 'nh';
 function render() {
   const route = location.hash || '#/';
+  const prevY = window.scrollY;   // read before the page is replaced
   // The route decides the lens, so a deep link lands on the right side.
   if (route.startsWith('#/pex/')) S.view = 'pex';
   else if (route.startsWith('#/hm/')) S.view = 'hm';
@@ -2592,7 +2538,12 @@ function render() {
   renderProtoDrawer();
   applyNotes();
   bindScreen(route);
-  if (route !== lastRoute) { window.scrollTo(0, 0); lastRoute = route; skHelloClose(); }
+  if (route !== lastRoute) {
+    if (HOMES.includes(lastRoute)) homeScroll[lastRoute] = prevY;
+    const back = HOMES.includes(route) && homeScroll[route] != null && lastRoute && sideOf(lastRoute) === sideOf(route);
+    window.scrollTo(0, back ? homeScroll[route] : 0);
+    lastRoute = route; skHelloClose();
+  }
   placeSnMarkers(route);
   skGreet();
 }
@@ -2702,7 +2653,7 @@ function bindScreen(route) {
   if (route === '#/startdate') return bindStartDate();
   if (route === '#/bgcheck') return bindBgCheck();
   if (route === '#/equipment') bindEquipment();
-  if (route === '#/jd') bindJD();
+  if (route === '#/details') bindDetails();
   if (route === '#/intro') bindIntro();
   if (route === '#/policies') bindPolicies();
 }
@@ -2820,49 +2771,28 @@ function updateEqChrome() {
   const b = $('#eqSubmit'); if (b) b.disabled = !eqReady();
 }
 
-/* ---------- jd bindings ---------- */
-function bindJD() {
-  const doc = $('#jdDoc');
-  if (doc && !S.jd.scrolled) {
-    doc.addEventListener('scroll', () => {
-      if (doc.scrollTop + doc.clientHeight >= doc.scrollHeight - 24) {
-        S.jd.scrolled = true;
-        if (S.jd.state === 'notstarted') S.jd.state = 'inprogress';
-        save(); rerender();
-      }
-    });
-  }
-  const ack = $('#jdAck');
-  if (ack) ack.addEventListener('change', () => {
-    S.jd.acked = ack.checked;
-    if (S.jd.state === 'notstarted') S.jd.state = 'inprogress';
-    save();
-    $('#jdConfirm').disabled = !ack.checked;
+/* ---------- details bindings (A-65) ---------- */
+function bindDetails() {
+  const D = S.details;
+  const ok = $('#detOk');
+  if (ok) ok.addEventListener('click', () => { D.checked = true; save(); rerender(); toast('Thanks. Your details are confirmed.', 'check-circle.svg'); });
+  const wr = $('#detWrong');
+  if (wr) wr.addEventListener('click', () => { D.wrong = true; rerender(); });
+  const cn = $('#detCancel');
+  if (cn) cn.addEventListener('click', () => { D.wrong = false; rerender(); });
+  const ta = $('#detFlag');
+  if (ta) ta.addEventListener('input', () => {
+    D.flagText = ta.value; save();
+    const b = $('#detSend'); if (b) b.disabled = !ta.value.trim();
   });
-  const confirm = $('#jdConfirm');
-  if (confirm) confirm.addEventListener('click', () => {
-    S.jd.state = 'done'; save(); rerender();
-    toast('Role confirmed. Task complete.', 'check-circle.svg');
+  const sd = $('#detSend');
+  if (sd) sd.addEventListener('click', () => {
+    D.flagged = true; D.wrong = false;
+    // It lands in the coordinator's Help requests, like any question for a person.
+    S.sidekick.handoffs.push({ who:'nh', q:'Details correction: ' + D.flagText.trim(), at: fmtDate(simToday()) });
+    save(); rerender();
+    toast(`Sent to ${PEOPLE.pex.name.split(' ')[0]}. She fixes it before anything ships.`, 'check-circle.svg');
   });
-  const dis = $('#jdDissent');
-  if (dis) dis.addEventListener('click', () => {
-    $('#dissentBox').classList.remove('hidden');
-    $('#jdAck').closest('.check').classList.add('hidden');
-    $('#jdConfirm').classList.add('hidden');
-    dis.classList.add('hidden');
-  });
-  const dt = $('#dissentText');
-  if (dt) dt.addEventListener('input', () => {
-    S.jd.dissentText = dt.value; save();
-    $('#dissentSend').disabled = !dt.value.trim();
-  });
-  const send = $('#dissentSend');
-  if (send) send.addEventListener('click', () => {
-    S.jd.state = 'review'; S.jd.dissent = true; save(); rerender();
-    toast('Sent to Recruiting. They’ll be in touch within 2 working days.');
-  });
-  const cancel = $('#dissentCancel');
-  if (cancel) cancel.addEventListener('click', () => { rerender(); });
 }
 
 /* ---------- intro bindings ---------- */
@@ -3259,5 +3189,8 @@ document.addEventListener('submit', e => {
 document.addEventListener('DOMContentLoaded', () => {
   // The panel is redrawn per person, so its input is handled by delegation.
   document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'chatInput') sendChat(); });
+  // Typing in a Sidekick card saves as you go; a choice from a list redraws.
+  document.addEventListener('input', e => { if (e.target.tagName !== 'SELECT') skInput(e.target); });
+  document.addEventListener('change', e => { if (e.target.tagName === 'SELECT') skInput(e.target); });
   render();
 });

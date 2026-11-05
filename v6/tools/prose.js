@@ -14,7 +14,7 @@
       so the scan runs with notes off and reads only what a user would see. */
 const { launch, BASE } = require('./lib');
 
-const ROUTES = ['', '#/equipment', '#/details', '#/jd', '#/intro', '#/policies', '#/network',
+const ROUTES = ['', '#/equipment', '#/details', '#/intro', '#/policies', '#/network',
   '#/flow', '#/todos', '#/handoffs', '#/startdate', '#/bgcheck',
   '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy',
   '#/hm/calendar', '#/hm/welcome', '#/hm/network', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction', '#/servicenow',
@@ -63,7 +63,7 @@ const JARGON = {
     if (keys.length) {
       await p.click('#protoFab');
       for (const [k, v] of keys) {
-        await p.evaluate(([k, v]) => { const el = document.querySelector(`[data-pc="${k}:${v}"]`); if (el) el.click(); }, [k, v]);
+        await p.evaluate(([k, v]) => { const el = document.querySelector(`[data-pc="${k}:${v}"]`); if (el) { el.disabled = false; el.click(); } }, [k, v]);
         await p.waitForTimeout(200);
       }
       await p.evaluate(() => document.getElementById('protoDrawer').classList.remove('show'));

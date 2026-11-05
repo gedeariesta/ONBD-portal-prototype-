@@ -6,12 +6,11 @@ const CASES = [
  ['#/hm/software', '#app input[type=checkbox]:not([disabled])'],
  ['#/hm/buddy',    '[data-meetperson]'],
  ['#/equipment',   '[data-device]'],
- ['#/details',     '[data-tab]'],
+ ['#/details',     '#detWrong'],
  ['#/policies',    '[data-doc]'],
  ['#/pex/caseload','[data-pexfilterfield]'],
  ['#/pex/caseload','[data-pexview]'],
  ['#/pex/',        '[data-pexnudge]'],
- ['#/jd',          '[data-ack]'],
  ['#/intro',       '[data-tab]'],
  ['#/pex/blueprints','[data-pexbploc]'],
 ];

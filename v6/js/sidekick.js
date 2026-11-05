@@ -55,13 +55,12 @@ const SK_NH = [
     } },
   { id:'pay', q:'How do I set up direct deposit?', keys:['direct deposit','bank','banking','pay','paid','payday','salary','payroll','account'],
     src:'Getting paid: direct deposit for new starters', task:'details',
-    say: () => `You add your bank details in <b>Workday</b> on your first day, with your address, emergency contact and tax details. It’s one task, entered once. There’s nothing to set up before you start.` },
+    say: () => `You add your bank details here in the portal on your first day, with your tax details and emergency contacts. It’s one task, entered once. Before then, it’s worth checking the details we already have, so your first pay goes to the right place.` },
   { id:'buddy', q:'Who is my buddy?', keys:['buddy','mentor','who can i ask'],
     src:'Onboarding buddies',
     say: () => {
       const B = S.hm.buddy, p = B.assigned ? orgPerson(B.assigned) : null;
       if (!p) return `${HIRE.manager} hasn’t named your buddy yet. When she does, their name and how to reach them appear under Your people.`;
-      if (!buddyVisibleToNH()) return `${HIRE.manager} has chosen someone. You’ll see who, and how to reach them, 72 hours before you start.`;
       return `Your buddy is <b>${p.name}</b>, ${p.role}. They’re under Your people, with Teams and email.`;
     } },
   { id:'handbook', q:'Do I need to read the handbook before I start?', keys:['handbook','policy','policies','code of conduct','notice','acknowledge','read before'],
@@ -97,12 +96,10 @@ const SK_HM = [
     } },
   { id:'buddyvis', q:'When does Jordan see their buddy?', keys:['buddy','see their buddy','visible','72'],
     src:'Onboarding buddies, for managers',
-    say: () => S.buddyRule === '72h'
-      ? `72 hours before they start. You can change your mind up to three days out, which is why it waits.`
-      : `As soon as you name someone and they accept. The two specifications disagree on this, and the prototype can show both.` },
-  { id:'apps', q:'Why can’t you suggest Jordan’s apps?', keys:['apps','applications','software','stack','suggest'],
+    say: () => `As soon as you name them. They appear under Jordan’s people straight away, so Jordan has someone to talk to before Day 1.` },
+  { id:'apps', q:'Which apps will Jordan get?', keys:['apps','applications','software','stack','suggest'],
     src:'Requesting software for a new starter',
-    say: () => `Because Jordan’s role isn’t linked to a standard app list yet, so there’s nothing to suggest. You pick them by hand from the IT catalogue until it is. That’s a gap in the system, not something you did.` },
+    say: () => `The standard set for a ${esc(HIRE.role)}: ${hmAppsChosen().map(a => `<b>${a}</b>`).join(', ')}. ${S.hm.software.confirmed ? 'You’ve confirmed them.' : 'Confirm them, or add anything else Jordan needs, from the checklist.'}` },
   { id:'nhsees', q:'What does Jordan have to do before Day 1?', keys:['jordan do','before day 1','new hire do','their tasks'],
     src:'What new hires do before Day 1',
     say: () => `Three things: confirm the start date, start the background check and choose equipment. ${tasksComplete()} of 3 are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
@@ -243,7 +240,7 @@ function skGreet() {
       <button class="x skh-x" type="button" data-skhello="close" aria-label="Close">${ic('times.svg','sm')}</button>`;
   } else {
     const line = who === 'hm'
-      ? (() => { const n = hmTasks().filter(t => !t.phase && !t.done).length + (S.sidekick.phoneOk ? 0 : 1);   // the checklist card's phone item counts too
+      ? (() => { const n = skHmOpenCount();   // the same count the checklist card shows
           return `${esc(HIRE.preferred)} starts in ${daysToStart()} days. You have ${n} thing${n === 1 ? '' : 's'} open on your checklist.`; })()
       : (() => { const n = pexAllExceptions().size; return `${n} hire${n === 1 ? ' needs' : 's need'} you today. Want the list?`; })();
     el.className = 'sk-hello tm-toast';
@@ -322,20 +319,35 @@ function skCard(title, sub, body, foot) {
   </div>`;
 }
 
-/* The manager's Pre-Day 1 checklist, the Sidekick action window Janine
-   described (A-83): one card, every item actionable from it, including the
-   phone number check, which shows what Workday holds. */
-function skHmChecklist() {
-  const t = hmTasks().filter(x => x.phase === 0 || x.phase === undefined);
-  const done = t.filter(x => x.done).length;
-  const phone = S.sidekick.phoneOk;
-  const rows = t.map(x => `
+/* The manager's checklist, the Sidekick action window (A-83, M-37). One card
+   for every manager task, before and after Day 1, and every item is done
+   from the chat: "Do it" opens that task as a card in the thread. A manager
+   never has to open the portal (Gede, 5 Nov); it is there for the full view.
+   Every control below writes to the same record the portal screens read. */
+const skPhoneOk = () => !!S.hm.contactConfirmed;
+function skHmOpenCount() {
+  // Equipment is the new hire's to do, so it is shown but never counted as open.
+  return hmTasks().filter(t => !t.phase && !t.done && t.id !== 'computer').length + (skPhoneOk() ? 0 : 1) + (S.hm.channels.accepted ? 0 : 1);
+}
+function skHmRow(x) {
+  const when = x.dueOff != null ? `Due ${dueText(addDays(startDate(), x.dueOff))}` : '';
+  const act = x.done ? '<span class="tmc-st">Done</span>'
+    : x.id === 'computer' ? '<span class="tmc-st">Nothing to do</span>'
+    : x.route ? `<button class="tm-btn" type="button" data-skdo="${x.id}">Do it</button>`
+    : '<span class="tmc-st">In your calendar</span>';
+  return `
     <div class="tmc-row ${x.done ? 'done' : ''}">
       <span class="tmc-tick">${x.done ? ic('check.svg','sm') : ''}</span>
-      <span class="tmc-l">${x.label}${x.done ? '' : `<span class="tmc-due">Due ${dueText(addDays(startDate(), x.dueOff))}</span>`}</span>
-      ${x.done ? '<span class="tmc-st">Done</span>' : x.route ? `<button class="tm-btn" type="button" data-goto="${x.route}" data-skclose="1">Do it</button>` : ''}
-    </div>`).join('');
-  const phoneRow = `
+      <span class="tmc-l">${x.label}${x.done ? '' : `<span class="tmc-due">${when}</span>`}</span>
+      ${act}
+    </div>`;
+}
+function skHmChecklist() {
+  const all = hmTasks();
+  const sink = list => [...list.filter(x => !x.done), ...list.filter(x => x.done)];
+  const pre = sink(all.filter(x => !x.phase)), later = sink(all.filter(x => x.phase));
+  const phone = skPhoneOk(), chan = S.hm.channels.accepted;
+  const quick = `
     <div class="tmc-row ${phone ? 'done' : ''}" data-assume="A-83">
       <span class="tmc-tick">${phone ? ic('check.svg','sm') : ''}</span>
       <span class="tmc-l">Verify your contact phone number
@@ -343,11 +355,177 @@ function skHmChecklist() {
       ${phone ? '<span class="tmc-st">Verified</span>' : `<span class="tmc-acts">
         <button class="tm-btn primary" type="button" data-skphone="ok">Verify</button>
         <button class="tm-btn" type="button" data-skphone="change">Change in Workday</button></span>`}
+    </div>
+    <div class="tmc-row ${chan ? 'done' : ''}">
+      <span class="tmc-tick">${chan ? ic('check.svg','sm') : ''}</span>
+      <span class="tmc-l">Add Jordan to the team’s channels
+        <span class="tmc-due">${CHANNEL_SUGGESTIONS.length} suggested from your team${chan ? ', queued for Day 1' : ''}</span></span>
+      ${chan ? '<span class="tmc-st">Added</span>' : `<button class="tm-btn primary" type="button" data-skact="channels">Add all</button>`}
     </div>`;
-  return skCard(`Pre-Day 1 checklist · ${esc(HIRE.preferred)} ${esc(HIRE.legalLast)}`,
-    `Starts ${fmtDate(startDate())} · ${done + (phone ? 1 : 0)} of ${t.length + 1} done`,
-    rows + phoneRow,
-    `<button class="tm-btn" type="button" data-goto="#/hm/" data-skclose="1">${ic('portal-window.svg','sm')}Open in portal</button>`);
+  const mine = pre.filter(x => x.id !== 'computer');
+  const preDone = mine.filter(x => x.done).length + (phone ? 1 : 0) + (chan ? 1 : 0);
+  return skCard(`Checklist · ${esc(HIRE.preferred)} ${esc(HIRE.legalLast)}`,
+    `Starts ${fmtDate(startDate())} · ${preDone} of ${mine.length + 2} done before Day 1`,
+    `<div class="tmc-sub">Before Day 1</div>${pre.map(skHmRow).join('')}${quick}
+     <div class="tmc-sub">From Day 1</div>${later.map(skHmRow).join('')}`,
+    `<span class="tmc-hint">You can do all of it here. The portal is there if you want the full view. ${am('M-37')}</span>
+     <button class="tm-btn" type="button" data-goto="#/hm/" data-skclose="1">${ic('portal-window.svg','sm')}Open in portal</button>`);
+}
+
+/* "Do it": the task as a card in the thread. The card is drawn live from the
+   record, so it always shows the current state. */
+const SK_DO_SAY = {
+  logistics: 'Here are Jordan’s first-day details. People Experience set the office part; only the rest is yours.',
+  software: `These are the standard apps for a ${HIRE.role}. Untick anything Jordan won’t use, add anything missing, then confirm.`,
+  card: 'One question, and only if they’ll travel on behalf of Equinix.',
+  buddy: 'Pick someone from Jordan’s team or function. I’ll ask them for you, and tell them what being a buddy means.',
+  calendar: 'Most of Day 1 is already in your calendar. Check it and confirm.',
+  welcome: 'The welcome note is already written. Add a line of your own if you like, and send it.',
+  intro: 'Jordan wrote an introduction and said you can share it. Forward it when you’re ready.',
+  survey: 'Nine quick questions about how recruiting went, while it’s fresh.',
+};
+function skDo(id) {
+  const last = SK_THREAD.filter(m => m.who === 'hm').pop();
+  if (!last || last.act !== id) SK_THREAD.push({ who:'hm', role:'bot', body: SK_DO_SAY[id] || 'Here it is.', act: id });
+  if (!$('#chatPanel').classList.contains('show')) openChat(); else renderSidekick();
+  const cards = $$('#chatMsgs .tm-act[data-act]');
+  const card = cards[cards.length - 1];
+  const b = $('#chatPanel .panel-b');
+  if (card && b) b.scrollTop = card.offsetTop - b.offsetTop - 60;
+}
+const skOn = (on, attrs, label, cls = '') =>
+  `<button class="tm-btn ${on ? 'on' : ''} ${cls}" type="button" ${attrs} aria-pressed="${!!on}">${label}</button>`;
+function skActCard(id) {
+  const H = S.hm, t = hmTasks().find(x => x.id === id) || {};
+  const doneLine = t.done ? `<div class="tmc-ok">${ic('check-circle.svg','sm')}Done. You can still change it here.</div>` : '';
+  let title = t.label || '', body = '', foot = '';
+  if (id === 'logistics') {
+    const L = H.logistics, jp = S.country === 'JP', ok = skReady('logistics');
+    body = `<div class="tmc-p"><b>Set by People Experience:</b> ${jp ? 'Otemachi Financial City Grand Cube, reception, 3rd floor' : '1225 17th Street, main reception, ground floor'}.
+        Orientation until ${S.pexUpdate ? S.pex.blueprint.until : '12:00'}.</div>
+      <label class="tmc-lab" for="skWhere">When and where should Jordan find you?</label>
+      <input class="tm-in" id="skWhere" data-skin="logistics.whereToBe" value="${esc(L.whereToBe)}" placeholder="e.g. 13:00, main reception. Ask for me at the desk">
+      <div class="tmc-lab">Will you be there on Day 1?</div>
+      <div class="tmc-acts">${skOn(L.available, 'data-skset="avail:yes"', 'Yes, I’ll be there')}${skOn(!L.available, 'data-skset="avail:no"', 'No, someone covers')}</div>
+      ${!L.available ? `<label class="tmc-lab" for="skProxy">Who covers for you?</label>
+      <select class="tm-in" id="skProxy" data-skin="logistics.proxy"><option value="">Choose someone…</option>
+        ${ORG_PEOPLE.filter(p => p.team).map(p => `<option ${L.proxy === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}</select>` : ''}`;
+    foot = `<button class="tm-btn primary" type="button" data-skact="logistics" ${ok ? '' : 'disabled'}>${L.confirmed ? 'Update' : 'Confirm'}</button>`;
+  } else if (id === 'software') {
+    const A = H.software;
+    body = `<div class="tmc-lab">Standard for the role</div>
+      <div class="tmc-chips">${ROLE_APPS.map(a => skOn(!A.removed.includes(a), `data-skset="swstd:${esc(a)}"`, a, 'chip')).join('')}</div>
+      <div class="tmc-lab">Anything else</div>
+      <div class="tmc-chips">${SOFTWARE_CATALOG.map(a => skOn(A.added.includes(a), `data-skset="sw:${esc(a)}"`, a, 'chip')).join('')}</div>`;
+    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : `Confirm ${hmAppsChosen().length} apps`}</button>`;
+  } else if (id === 'card') {
+    const C = H.card;
+    body = `<div class="tmc-p">${CARD_FLOW.managerQuestion}</div>
+      <div class="tmc-acts">${skOn(C.needed === true, 'data-skset="card:yes"', 'Yes, they’ll travel')}${skOn(C.needed === false, 'data-skset="card:no"', 'No, not needed')}</div>
+      ${C.needed === true ? `<div class="tmc-p sub">Jordan signs the card agreement on Day 2. Nothing else for you.</div>` : ''}`;
+  } else if (id === 'buddy') {
+    const B = H.buddy, p = B.assigned ? orgPerson(B.assigned) : null;
+    body = p ? `<div class="tmc-p"><b>${p.name}</b>, ${p.role}.
+        ${B.accepted ? 'They said yes. Their first month with Jordan gets booked.' : B.notified ? 'I’ve asked them. Waiting for a yes.' : 'Not asked yet.'}</div>
+        <div class="tmc-p sub">They get a message from me saying what to do before Day 1, on Day 1 and in the first month.</div>`
+      : `<label class="tmc-lab" for="skBuddy">Buddy</label>
+      <select class="tm-in" id="skBuddy" data-skin="buddy"><option value="">Choose someone…</option>
+        ${ORG_PEOPLE.filter(o => o.team || o.dept === 'Global FP&A').map(o => `<option value="${o.id}">${o.name}, ${o.role}</option>`).join('')}</select>`;
+    foot = !p ? '' : !B.notified ? `<button class="tm-btn primary" type="button" data-skact="buddyask">Ask ${p.name.split(' ')[0]}</button>
+        <button class="tm-btn" type="button" data-skact="buddyclear">Change</button>`
+      : !B.accepted ? `<button class="tm-btn" type="button" data-skact="buddyaccept">Simulate their yes</button>` : '';
+  } else if (id === 'calendar') {
+    const C = H.calendar;
+    body = DAY1_HOLDS.map(h => `
+      <div class="tmc-hold"><span class="tmc-time">${h.time}</span><span class="tmc-l">${h.label}</span>
+        ${h.auto ? `<span class="tmc-st">${h.blueprint ? 'Set by People Experience' : 'Placed for you'}</span>`
+          : skOn(C.holds[h.id], `data-skset="hold:${h.id}"`, C.holds[h.id] ? 'Added' : 'Add')}</div>`).join('');
+    foot = `<button class="tm-btn primary" type="button" data-skact="calendar">${C.confirmed ? 'Confirmed' : 'Looks right'}</button>`;
+  } else if (id === 'welcome') {
+    const W = H.welcome, text = W.body || WELCOME_BOILERPLATE;
+    body = `<div class="tmc-quote">${esc(text.length > 260 ? text.slice(0, 260).trim() + '…' : text)}</div>
+      <label class="tmc-lab" for="skPersonal">A line of your own <span class="tmc-opt">(optional)</span></label>
+      <input class="tm-in" id="skPersonal" data-skin="welcome.personal" value="${esc(W.personal)}" placeholder="e.g. Looking forward to the forecast work together">`;
+    foot = W.sent ? '' : `<button class="tm-btn primary" type="button" data-skact="welcome">Send to Jordan</button>`;
+  } else if (id === 'intro') {
+    body = `<div class="tmc-quote">${esc(S.intro.text)}</div>`;
+    foot = H.intro.forwarded ? '' : `<button class="tm-btn primary" type="button" data-skact="intro">Forward to the team</button>`;
+  } else if (id === 'survey') {
+    const V = H.survey;
+    const rated = HM_SURVEY.filter(q => q.kind === 'scale');
+    body = `<div class="tmc-p sub">1 is strongly disagree, 5 is strongly agree.</div>` + HM_SURVEY.map(q => q.kind === 'scale' ? `
+      <div class="tmc-sq"><div class="tmc-sq-q">${q.n}. ${q.q}${q.flag ? ` ${am('M-35')}` : ''}</div>
+        <div class="tmc-scale" role="group" aria-label="Question ${q.n}">${[1, 2, 3, 4, 5].map(v =>
+          skOn(V.answers[q.n] === v, `data-skset="svq:${q.n}:${v}" aria-label="${v} of 5"`, String(v), 'sq')).join('')}</div></div>`
+      : q.kind === 'text' ? `<label class="tmc-lab" for="skSv8">${q.n}. ${q.q}</label>
+        <input class="tm-in" id="skSv8" data-skin="survey.${q.n}" value="${esc(V.answers[q.n] || '')}" placeholder="Optional">`
+      : `<div class="tmc-p sub">${q.n}. Recruiter: <b>${PEOPLE.recruiter.name}</b>, filled in from the hire.</div>`).join('');
+    const n = rated.filter(q => V.answers[q.n]).length;
+    foot = V.sent ? '' : `<button class="tm-btn primary" type="button" data-skact="survey" ${n === rated.length ? '' : 'disabled'}>Send (${n} of ${rated.length} rated)</button>`;
+  }
+  return `<div data-act="${id}" class="tm-act">${skCard(title, t.dueOff != null && !t.done ? `Due ${dueText(addDays(startDate(), t.dueOff))}` : '',
+    doneLine + body,
+    foot + (t.route ? `<button class="tm-btn" type="button" data-goto="${t.route}" data-skclose="1">${ic('portal-window.svg','sm')}See it in the portal</button>` : ''))}</div>`;
+}
+function skReady(id) {
+  const L = S.hm.logistics;
+  if (id === 'logistics') return !!(L.whereToBe.trim() && (L.available || L.proxy));
+  return true;
+}
+/* Redraw the page underneath and the chat, keeping the chat where it was. */
+function skRefresh() {
+  const b = $('#chatPanel .panel-b'), y = b ? b.scrollTop : 0;
+  save(); render(); renderSidekick();
+  const b2 = $('#chatPanel .panel-b'); if (b2) b2.scrollTop = y;
+}
+function skSet(spec) {
+  const H = S.hm, [k, a, b] = spec.split(':');
+  if (k === 'avail') { H.logistics.available = a === 'yes'; if (H.logistics.available) H.logistics.proxy = ''; }
+  else if (k === 'card') {
+    H.card.needed = a === 'yes';
+    toast(H.card.needed ? 'Recorded. The agreement is now on Jordan’s list for Day 2.' : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
+  }
+  else if (k === 'swstd') H.software.removed = H.software.removed.includes(a) ? H.software.removed.filter(x => x !== a) : [...H.software.removed, a];
+  else if (k === 'sw') H.software.added = H.software.added.includes(a) ? H.software.added.filter(x => x !== a) : [...H.software.added, a];
+  else if (k === 'hold') H.calendar.holds[a] = !H.calendar.holds[a];
+  else if (k === 'svq') H.survey.answers[a] = +b;
+  skRefresh();
+}
+function skAct(what) {
+  const H = S.hm, who = H.buddy.assigned ? orgPerson(H.buddy.assigned) : null;
+  const done = {
+    logistics: () => { H.logistics.confirmed = true; return 'First-day details confirmed. They feed Jordan’s first-day card.'; },
+    software:  () => { H.software.confirmed = true; return `Apps confirmed: ${hmAppsChosen().length} for Jordan’s first day.`; },
+    buddyask:  () => { H.buddy.notified = true; return `${who.name} has been asked, with what being a buddy means. Nothing is booked until they say yes.`; },
+    buddyaccept: () => { H.buddy.accepted = true; return `${who.name} said yes. A prototype control, so you can see what follows.`; },
+    buddyclear: () => { H.buddy = { assigned:null, notified:false, accepted:false }; return ''; },
+    calendar:  () => { H.calendar.confirmed = true; return 'Day 1 confirmed.'; },
+    welcome:   () => { H.welcome.sent = true; return 'Sent. It’s the first thing Jordan sees on their portal.'; },
+    intro:     () => { H.intro.forwarded = true; return 'Forwarded to the team channel. Jordan has been told it was shared.'; },
+    survey:    () => { H.survey.sent = true; return 'Survey sent. Thank you.'; },
+    channels:  () => { H.channels.accepted = true; return 'All four queued to be added on Jordan’s first day.'; },
+  }[what];
+  if (!done) return;
+  const msg = done();
+  skRefresh();
+  if (msg) toast(msg, 'check-circle.svg');
+}
+/* Typing in a card saves as you go, without redrawing under the cursor. */
+function skInput(el) {
+  const k = el.dataset.skin; if (!k) return false;
+  const H = S.hm;
+  if (k === 'logistics.whereToBe') H.logistics.whereToBe = el.value;
+  else if (k === 'welcome.personal') H.welcome.personal = el.value;
+  else if (k.startsWith('survey.')) H.survey.answers[k.split('.')[1]] = el.value;
+  else if (k === 'logistics.proxy') { H.logistics.proxy = el.value; skRefresh(); return true; }
+  else if (k === 'buddy') {
+    if (!el.value) return true;
+    H.buddy = { assigned: el.value, notified:false, accepted:false };
+    skRefresh(); toast(`${orgPerson(el.value).name} chosen. They haven’t been asked yet.`); return true;
+  }
+  save();
+  $$('[data-skact="logistics"]').forEach(b => { b.disabled = !skReady('logistics'); });
+  return true;
 }
 
 /* The coordinator's list cards: the hires an answer is about, as rows. */
@@ -445,7 +623,7 @@ function skMsg(m, mode, i) {
   return `
     <div class="tm-msg"><span class="tm-av">${skAv()}</span><div class="tm-col">
       <div class="tm-meta"><b>Sidekick</b><span>${skAt(i)}</span></div>
-      <div class="tm-bubble ${m.role === 'note' ? 'handed' : ''}">${m.body}</div>${m.card || ''}</div></div>`;
+      <div class="tm-bubble ${m.role === 'note' ? 'handed' : ''}">${m.body}</div>${m.act ? skActCard(m.act) : (m.card || '')}</div></div>`;
 }
 
 function renderSidekick() {
@@ -543,9 +721,9 @@ function skDesignNotes(who) {
       <p>Stephanie hit exactly this in testing: a direct deposit question sent her to ADP, but new starters do it in
       Workday. The wrong sentence costs a detour; the card underneath still opens the right task. ${am('A-71')}</p>
     </div>` : `
-    <p>Why a Teams window: managers and coordinators already use Sidekick in Teams, and most managers will never open
-    the portal. Drawn the same way here, the chat is one conversation in both places; the portal is the full view for
-    when one chat is not enough, such as several hires at once. ${am('A-83')}</p>`}
+    <p>Why a Teams window: managers and coordinators already use Sidekick in Teams. A manager can do every task
+    from this chat, so they never need to open the portal; it is the full view, for when one chat is not enough, such
+    as several hires at once. ${am('A-83')} ${am('M-37')}</p>`}
   </div>`;
 }
 
@@ -613,9 +791,15 @@ function skClick(t) {
   if (t.closest('[data-skhuman]')) { skHandoff(); return true; }
   if (t.closest('[data-skx]')) { closePanels(); return true; }
   if (t.closest('[data-skteams]')) { toast('In the product, this opens the same chat in Microsoft Teams.', 'external-link.svg'); return true; }
+  const sdo = t.closest('[data-skdo]');
+  if (sdo) { skDo(sdo.dataset.skdo); return true; }
+  const sset = t.closest('[data-skset]');
+  if (sset) { skSet(sset.dataset.skset); return true; }
+  const sact = t.closest('[data-skact]');
+  if (sact && !sact.disabled) { skAct(sact.dataset.skact); return true; }
   const ph = t.closest('[data-skphone]');
   if (ph) {
-    if (ph.dataset.skphone === 'ok') { S.sidekick.phoneOk = true; save(); renderSidekick(); toast('Phone number verified.', 'check-circle.svg'); }
+    if (ph.dataset.skphone === 'ok') { S.hm.contactConfirmed = true; skRefresh(); toast('Phone number verified.', 'check-circle.svg'); }
     else toast('In the product, this opens your contact details in Workday.', 'external-link.svg');
     return true;
   }

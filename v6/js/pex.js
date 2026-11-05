@@ -164,7 +164,7 @@ function pexWithLiveJordan(list) {
     blueprint: S.country === 'JP' ? 'tokyo' : 'denver',
     remote: false, mgrColo: H.logistics.available !== false,
     startOff: daysToStart(),
-    persona: false,                                   // M-04: never resolves, by design
+    persona: true,                                    // M-04: Jordan's role has a standard app list
     buddy: !!H.buddy.assigned,
     proxy: !!(H.logistics.proxy && H.logistics.proxy.trim()),
     photo: S.photo.done || S.photo.confirmedExisting,

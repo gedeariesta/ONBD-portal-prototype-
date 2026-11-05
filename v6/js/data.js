@@ -23,7 +23,6 @@ const DUE_OFFSETS = {
   bgcheck: -13,     // launched from the portal, runs externally (A-50)
   equipment: -12,   // earliest of the provisioning tasks, build and ship lead (A-33)
   photo: -10,       // badge print lead
-  jd: -7,
   intro: -7,
   details: -4,
   policies: -4,
@@ -97,9 +96,9 @@ const ASSUMPTIONS = [
   { id:'A-10', group:'retired', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'The portal renders the full personal-details form, with banking as a locked boundary card. Bank data is handled differently from the rest of the profile, so it never passes through this portal.',
     resolve:'Reversed. Banking and direct deposit are captured in the portal now, on their own tab inside the mandatory personal-information task, because payroll cannot pay without them and a second form is a second place to abandon (A-61). The privacy handling the card described survives as a property of the fields rather than a reason to exclude them: encrypted, withheld from the manager, and outside what they can see of progress.', oi:'OI-01' },
-  { id:'A-12', group:'blocks', prov:'ASSUMED', screen:'Job description', route:'#/jd',
+  { id:'A-12', group:'retired', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'No compensation figures are shown anywhere in the portal.',
-    resolve:'Confirm the manager-visibility ruling on sensitive data. Omitting salary is the safe default. The figure is already in the signed offer.', oi:'OI-10' },
+    resolve:'Confirm the manager-visibility ruling on sensitive data. Omitting salary is the safe default. The figure is already in the signed offer. Retired 5 Nov as a marker only: it sat on the job description screen, which is gone. The rule stands: no compensation figure appears anywhere in the portal.', oi:'OI-10' },
   { id:'A-14', group:'blocks', prov:'ASSUMED', screen:'Introduction', route:'#/intro',
     assumed:'The manager forwards the introduction to the team. It is never auto-posted.',
     resolve:'Confirm the sharing model with Janine. Auto-posting would need much stronger consent design.', oi:'OI-11' },
@@ -132,9 +131,9 @@ const ASSUMPTIONS = [
   { id:'A-07', group:'content', prov:'ASSUMED', screen:'Personal details', route:'#/details',
     assumed:'Self-identification is collapsed by default, voluntary, with “prefer not to say” on every question, paired with its privacy notice.',
     resolve:'The interaction pattern is standard; the categories are country-specific and regulatory. PEX and Privacy need to supply the real country list and categories.', oi:'OI-22' },
-  { id:'A-13', group:'content', prov:'ASSUMED', screen:'Job description', route:'#/jd',
+  { id:'A-13', group:'retired', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'The job description text and the three-level team view are plausible placeholders.',
-    resolve:'Real job description content and the org-chart delivery mechanism are needed before build.', oi:'' },
+    resolve:'Real job description content and the org-chart delivery mechanism are needed before build. Retired 5 Nov: the job description task is dropped. Janine said it isn’t necessary, when the tree was reviewed; the offer already describes the role.', oi:'' },
   { id:'A-17', group:'content', prov:'ASSUMED', screen:'Badge photo', route:'#/intro',
     assumed:'JPG/PNG, under 5MB, at least 600 by 600 px, plus four guideline lines. All conventional values.',
     resolve:'Replace with the real badge specification from the workplace team before build. Printing to the wrong spec is a Day 1 failure.', oi:'OI-13' },
@@ -205,9 +204,9 @@ const ASSUMPTIONS = [
   { id:'A-26', group:'design', prov:'ASSUMED', screen:'All screens (platform)', route:null,
     assumed:'The ServiceNow object structure is not represented in this prototype.',
     resolve:'Whether these are catalog items, record producers or lifecycle-event activities changes the build, not the design.', oi:'OI-21', nolink:true },
-  { id:'A-27', group:'design', prov:'ASSUMED', screen:'Job description', route:'#/jd',
+  { id:'A-27', group:'retired', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'The dissent path mirrors the offer-letter “report an issue” pattern and puts the task into an Under review state.',
-    resolve:'The PRD defines this pattern for a wrong offer letter, not the job description. Reusing it is consistent; the routing target needs confirming.', oi:'' },
+    resolve:'The PRD defines this pattern for a wrong offer letter, not the job description. Reusing it is consistent; the routing target needs confirming. Retired 5 Nov: the job description task is dropped. Janine said it isn’t necessary, when the tree was reviewed; the offer already describes the role.', oi:'' },
   { id:'A-28', group:'design', prov:'ASSUMED', screen:'All screens', route:'#/',
     assumed:'Built for laptop only. No mobile layouts.',
     resolve:'Revisit this before build for the IBX technician persona, who may be more phone-reliant than a desk hire. Analytics from the current portal would settle it.', oi:'' },
@@ -296,15 +295,15 @@ const ASSUMPTIONS = [
   { id:'A-64', group:'blocks', prov:'MTG', screen:'Task list', route:'#/',
     assumed:'Only three things before Day 1: confirm the start date, start the background check, choose equipment. Everything else is optional before Day 1, or moves to Day 1 or the first week, and only the three are counted.',
     resolve:'Said in the Artifacts meeting: the pre-hire experience stays limited to these three, with about three tasks on Day 1 and benefits, compliance and the rest from Day 2 through the first week. The five-or-fewer target is the ceiling, not the plan. Open: whether the limit is strict enough to rule out the optional badge photo and introduction (A-68), and where right to work, which finishes in another system, is counted.', oi:'' },
-  { id:'A-65', group:'blocks', prov:'MTG', screen:'Personal details, in Workday', route:'#/details',
-    assumed:'Personal details are one Workday task on Day 1: legal and preferred name, address, emergency contacts, bank, tax and voluntary self-identification. The portal links to it and learns only that it is done. Equipment that ships to a home uses the address on the offer.',
-    resolve:'Workday stays the system of record for anything personal, for privacy, architecture and retention reasons, and the payroll-required fields are entered once rather than reviewed again downstream (both said in the Artifacts meeting). Open: whether bank details entered on Day 1 reach the first payroll run; if not, this becomes a Workday task before the start date and a fourth thing before Day 1.', oi:'' },
+  { id:'A-65', group:'blocks', prov:'MTG', screen:'Check your details', route:'#/details',
+    assumed:'Personal details have two halves, both in the portal. Now, optional: check what Equinix already holds from the offer (name, email, home address) and say if anything is wrong. Day 1: add bank, tax, emergency contacts and voluntary self-identification. The new hire never goes to Workday, which stores it behind the portal.',
+    resolve:'Gede, 5 Nov: a screen the new hire cannot act on is not worth showing, and ServiceNow is the only place they interact, so the Workday wording is gone. Before that, the Artifacts meeting had settled that Workday stays the system of record and the payroll fields are entered once. Open: whether bank details entered on Day 1 reach the first payroll run; if not, that one item has to come before Day 1. A correction lands in the coordinator’s Help requests.', oi:'OI-20' },
   { id:'A-66', group:'retired', prov:'MTG', screen:'Policies and notices', route:'#/policies',
     assumed:'Policies and notices open in the first week. Labour notices are acknowledged in ServiceNow, each with its date and time kept for audit. The handbooks are one link to the SharePoint site and one acknowledgment, not a pack of documents. The notices can be read ahead before the start date; nothing can be signed.',
     resolve:'Handbook access starts after the start date, the roughly 35 handbooks need one task rather than one each, and labour notices sit in ServiceNow for the timestamp (all said in the Artifacts meeting). Open: Netherlands and Canada contracts refer to the handbook, which a new hire cannot see before they start; whether acknowledging is mandatory before the next task opens; and which code of conduct and whistleblower acknowledgments can go, since compliance learning already asks for some of them. Retired after the review with Janine: the handbooks are eight acknowledgements nested in one task, not one link and one acknowledgment, and signing goes through DocuSign rather than ServiceNow (A-76).', oi:'' },
-  { id:'A-67', group:'design', prov:'ASSUMED', screen:'Job description', route:'#/jd',
+  { id:'A-67', group:'retired', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'The job description is confirmed on Day 1. It can be read now, and a mismatch can be raised now, rather than waiting for the start date.',
-    resolve:'Nothing in the meetings places it. The other reading is to drop it: the offer already describes the role, and a mismatch found on Day 1 is late. Raising a mismatch early is kept because it is the one part of the task that is worth more before the start date than after it.', oi:'' },
+    resolve:'Nothing in the meetings places it. The other reading is to drop it: the offer already describes the role, and a mismatch found on Day 1 is late. Raising a mismatch early is kept because it is the one part of the task that is worth more before the start date than after it. Retired 5 Nov: the job description task is dropped. Janine said it isn’t necessary, when the tree was reviewed; the offer already describes the role.', oi:'' },
   { id:'A-68', group:'design', prov:'ASSUMED', screen:'Badge photo and introduction', route:'#/intro',
     assumed:'The badge photo and the introduction are optional before Day 1, with no due date. A photo sent by ten days before the start gets the badge printed in time; without one, the photo is taken at reception.',
     resolve:'The badge needs print time before Day 1, but the photo is not one of the three things. Two readings are open: keep it optional, as drawn, or make it a Day 1 step and accept that nobody arrives with a printed badge. The introduction loses most of its value after Day 1, which is the case for keeping it optional rather than moving it.', oi:'' },
@@ -401,7 +400,7 @@ const DECIDE_FIRST = [
     why:'416 document instances today, a US bundle of 28 where 24 addenda do not apply, Germany uncovered by the shared EU addendum, and no French French version for the francophone countries. Consolidation is the goal and the privacy notice team owns the files.',
     when:'Start now, because it depends on another team’s calendar.' },
   { ids:['M-04'], head:'Whether software provisioning is in phase one at all',
-    why:'The persona cannot be resolved, an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine. If phase one carries no software, this screen is premature rather than blocked.',
+    why:'The prototype now assumes each role has a standard app list. Still open: an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine.',
     when:'Before the manager task list is fixed.' },
   { ids:['M-27','M-10'], head:'What makes a name count',
     why:'Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
@@ -409,9 +408,6 @@ const DECIDE_FIRST = [
   { ids:['A-38'], head:'Shipping to an address a new hire chooses',
     why:'A person who has not started yet can redirect a laptop. Whether the answer is a restriction, a verification or an approval, it belongs in the requirements.',
     when:'Before the equipment flow is built.' },
-  { ids:['L-01'], head:'When the new hire sees their buddy',
-    why:'The two prototypes disagree, and the manager can change their mind up to three days before a start, which would remove a name the new hire had already seen.',
-    when:'Cheap to settle. Both behaviours are already built, so pick one.' },
 ];
 
 /* ---------- Open before build (§10) ---------- */
@@ -424,31 +420,6 @@ const OPEN_BEFORE_BUILD = [
 ];
 
 /* ---------- Job description placeholder (A-13) ---------- */
-const JD_TEXT = `
-<h4>Purpose of the role</h4>
-<p>You'll help the Global FP&amp;A team understand how the business is performing and where it's heading. That means building the monthly forecast, explaining the variances that matter, and giving leaders numbers they can act on, clearly and on time.</p>
-<h4>What you'll do</h4>
-<ul>
-<li>Own the monthly forecast and variance analysis for your business areas, including commentary that explains why, not only what.</li>
-<li>Build and maintain planning models for revenue, operating expense and headcount.</li>
-<li>Partner with Accounting during close to make sure actuals land where the forecast expected them to.</li>
-<li>Prepare the monthly review pack for Finance leadership, and present your areas when asked.</li>
-<li>Support the annual planning cycle: targets, submissions, consolidation and the inevitable late changes.</li>
-<li>Improve how the team works: better models, fewer manual steps, clearer outputs.</li>
-</ul>
-<h4>Who you'll work with</h4>
-<p>You'll report to Priya Anand and sit within Global FP&amp;A. Day to day you'll work with business partners across the region, the Accounting close team, and the other analysts covering neighbouring portfolios. Expect a mix of scheduled rhythm (close, forecast, planning) and ad-hoc questions from leadership.</p>
-<h4>What you'll bring</h4>
-<ul>
-<li>Solid experience in FP&amp;A, corporate finance or a similar analytical role.</li>
-<li>Comfort building and defending a forecast, and explaining it to people who don't live in spreadsheets.</li>
-<li>Fluency in Excel; familiarity with a planning tool (Anaplan, Adaptive or similar) helps.</li>
-<li>A habit of making things clearer, not only more detailed.</li>
-</ul>
-<p><em>This is placeholder content for layout and reading-length testing. The real job description comes from the official record.</em></p>
-`;
-
-/* ---------- Compliance documents ---------- */
 const FILLER = [
   'This is placeholder policy text, shown so the reading and acknowledgement flow can be tested at a realistic length. The real document is owned by Legal and served with version control.',
   'It stands in for several paragraphs of real policy content: definitions of the terms the policy uses, the scope it applies to, the obligations that fall on you as an employee, and the situations where those obligations change.',
@@ -713,7 +684,7 @@ const READINESS = [
   { id:'apps', label:'Applications', icon:'portal-window.svg', sys:'ServiceNow',
     owners:'The manager and IT',
     stages:[
-      { label:'Persona resolved',   note:'The role decides the default stack. No persona means no default.' },
+      { label:'Role list found',    note:'The role decides the standard apps.' },
       { label:'Stack confirmed',    note:'The manager confirms the defaults and adds anything role-specific.' },
       { label:'Licences requested', note:'Each application raises its own request and carries its own status.' },
       { label:'Active on Day 1',    note:'Access switches on with the start date, not before.' },
@@ -736,7 +707,7 @@ const READINESS = [
       { label:'Network named',    note:'The people outside the reporting line, with a reason for each.' },
       { label:'Introduction out', note:'The manager forwards it. Nothing is posted automatically.' },
     ] },
-  { id:'paperwork', label:'Paperwork', icon:'file-alt.svg', sys:'Workday and HR Operations',
+  { id:'paperwork', label:'Paperwork', icon:'file-alt.svg', sys:'The portal and HR Operations',
     owners:'The new hire and HR Operations',
     stages:[
       { label:'Start date confirmed', note:'Every other due date is anchored to it.' },
@@ -961,10 +932,13 @@ function deviceArt(family) {
   </svg>`;
 }
 
-/* Default software stack for H-05. Cannot resolve without a persona (M-04 / OI-04) */
+/* The standard apps for Jordan's role (M-04, revised 5 Nov). The prototype
+   assumes roles are linked to app lists, so the manager confirms rather than
+   builds. Illustrative: the real list comes from IT for each role. */
+const ROLE_APPS = ['Anaplan', 'Power BI', 'Workday Adaptive Planning', 'Coupa'];
+/* Everything else in the IT catalogue, for anything the role list misses. */
 const SOFTWARE_CATALOG = [
-  'Anaplan', 'Tableau', 'Power BI', 'Alteryx', 'Workday Adaptive Planning',
-  'Bloomberg Terminal', 'Salesforce', 'Coupa',
+  'Tableau', 'Alteryx', 'Bloomberg Terminal', 'Salesforce',
 ];
 
 /* Day 1 calendar holds for H-08 (M-06) */
@@ -1068,9 +1042,9 @@ const HM_ASSUMPTIONS = [
   { id:'M-03', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager sees the new hire’s task names and status, but never task content. Sensitive tasks report status only.',
     resolve:'The walkthrough’s cross-persona visibility principle and the Decision Log’s caution point in different directions, and the persona-by-section visibility matrix is unwritten. This is the conservative reading. Argue it before build.', oi:'OI-03' },
-  { id:'M-04', side:'hm', group:'blocks', prov:'1:1', screen:'Software stack', route:'#/hm/software',
-    assumed:'H-05 is drawn in its blocked state. The persona cannot be resolved, so the default stack is empty.',
-    resolve:'No full personas list exists in ServiceNow, and the job-family fallback under discussion is the approach the requirements analysis rejects as inaccurate. Two things have since changed the question. Phase one may carry no software provisioning at all, which would make this screen premature rather than blocked. And an application rationalisation is running, so the list of applications to provision is itself moving. Also unanswered: how access is actually granted, whether that is tied to the person through the identity layer or to the machine, because it decides whether this belongs beside the hardware order at all.', oi:'OI-04' },
+  { id:'M-04', side:'hm', group:'design', prov:'MTG', screen:'Software stack', route:'#/hm/software',
+    assumed:'Each role is linked to a standard app list, so the manager sees Jordan’s apps already listed and only confirms, adds or removes.',
+    resolve:'Gede, 5 Nov: assume the role list exists. Before that this screen was drawn blocked and empty, because no list of roles to apps exists in ServiceNow today and the job-family fallback was rejected as inaccurate. That gap is real and still has to be closed with IT. Also open: an application rationalisation is running, so the list itself is moving; whether a manager may remove a standard app; and what happens to these requests today (Janine, 30 Oct).', oi:'OI-04' },
   { id:'M-10', side:'hm', group:'blocks', prov:'1:1', screen:'Team network', route:'#/hm/network',
     assumed:'Naming the new hire’s network is net-new manager work, the only proposal here that adds load instead of removing it.',
     resolve:'Everything else on the disposition review subtracts. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggested list can be close to one tap. It needs an explicit decision.', oi:'OI-26' },
@@ -1169,6 +1143,9 @@ const HM_ASSUMPTIONS = [
   { id:'M-36', side:'hm', group:'design', prov:'MTG', screen:'Equipment for your new hire', route:'#/hm/computer',
     assumed:'The new hire has the first chance to choose their equipment. If it is still not chosen 14 days before the start date, the order comes to the manager, with whatever the new hire picked so far.',
     resolve:'Janine, 30 Oct. She also said not to redesign equipment ordering yet, so the manager’s order screen itself is not drawn. Open: role-specific hardware, which ServiceNow asks the manager about today (M-17).', oi:'' },
+  { id:'M-37', side:'hm', group:'design', prov:'MTG', screen:'Sidekick, hiring manager', route:'#/hm/',
+    assumed:'Every manager task can be done from Sidekick in Teams: “Do it” opens the task as a card in the chat, writing to the same record the portal reads. The portal is optional, for seeing everything at once.',
+    resolve:'Gede, 5 Nov, from the Sidekick demo: unlike Paradox, Sidekick can act, so a manager should never need to open the portal. Open: whether the real Sidekick can write to every one of these records, and what it shows when a write fails.', oi:'' },
   { id:'M-29', side:'hm', group:'blocks', prov:'1:1', screen:'Not built', route:null, nolink:true,
     assumed:'There is a third portal. People Experience need their own view: every pending start at once, and the ability to open one hire and see roughly what that hire sees.',
     resolve:'Named as the next thing to design. It matters because the problem statement is that nobody has visibility at any point, and this prototype currently answers that for two of the three people who need it. What People Experience actually validate, background check clearance among them, has to be settled before the view can be drawn.', oi:'' },
@@ -1178,9 +1155,9 @@ const HM_ASSUMPTIONS = [
 ];
 
 const LINK_ASSUMPTIONS = [
-  { id:'L-01', side:'link', group:'blocks', prov:'PRIOR', screen:'Buddy → new hire', route:'#/hm/buddy',
-    assumed:'CONFLICT, unresolved. The manager assigns the buddy here; the new hire prototype shows that buddy from the moment of assignment; the spec says the contact card appears 72 hours before the start date. Both cannot be right.',
-    resolve:'Use the prototype control to switch between the two rules and see the difference on the new hire’s landing screen. Also unresolved: whether the buddy has accepted before their name is shown, which matters because the manager can reassign up to Day −3, and a reassignment would remove a name the new hire has already seen.', oi:'OI-22' },
+  { id:'L-01', side:'link', group:'retired', prov:'MTG', screen:'Buddy → new hire', route:'#/hm/buddy',
+    assumed:'The manager assigns the buddy; the new hire sees them from assignment. The specification had said 72 hours before the start date.',
+    resolve:'Settled 5 Nov (Gede): from assignment, so the new hire has someone to talk to through the quiet weeks before Day 1. The 72-hour rule and its prototype control are gone. Still worth knowing: if the manager reassigns, the new hire sees the name change.', oi:'OI-22' },
   { id:'L-02', side:'link', group:'blocks', prov:'ASSUMED', screen:'Introduction → manager', route:'#/hm/intro',
     assumed:'The new hire’s introduction arrives in the manager’s portal with an explicit Forward action. Nothing is posted automatically.',
     resolve:'Closes the loop on the new hire side’s manager-forward model, but no source specifies a manager-side receive-and-forward screen. The merge analysis keeps the welcome email and the introduction separate without saying where the introduction lands.', oi:'' },
@@ -1280,7 +1257,6 @@ const HM_OPEN_BEFORE_BUILD = [
   'What goes into the readiness score: composition, weighting, and what counts as ready? It is the most prominent element on the manager’s home screen.',
   'What new hire task detail can a manager see? The visibility matrix is unwritten and several new hire tasks are plainly sensitive.',
   'How is persona resolved for provisioning? Until it is, the software stack renders empty and the manager fills it by hand, which is the opposite of the intended design.',
-  'When does the buddy become visible to the new hire: from assignment, or 72 hours before start? The two prototypes currently disagree.',
   'Should the team network task exist, given it is the only proposal that adds manager work?',
   'Does the manager override blueprint logistics, and if so how is precedence shown?',
   'Are the remaining Day 1 calendar holds auto-created or manager-driven? It is the biggest lever on that screen’s weight.',
