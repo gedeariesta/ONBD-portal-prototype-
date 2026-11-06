@@ -51,10 +51,15 @@ const DEFAULT_STATE = () => ({
   todoPhase: 0,                  // which phase the live to-do view is showing (A-56)
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
+  // The new hire's part of the right to work check: I-9 Section 1 in the US.
+  // It runs in the separate Right to Work system; the portal learns it is done.
+  rtw: { done:false },
   // Checked now, completed on Day 1, both in the portal (A-65). submitted is
   // the Day 1 half; the portal only ever learns that it is done.
-  details: { checked:false, wrong:false, flagged:false, flagText:'', submitted:false },
-  equipment: { choice:'', items:{}, shipOffice:'', shipOther:'', shipPhone:'', submitted:false, comment:'', comments:[],
+  // edits: what the new hire changed themselves. The email is locked (it is
+  // their sign-in), so changing it is a request to People Experience.
+  details: { checked:false, edits:{}, editing:'', wrong:false, flagged:false, flagText:'', submitted:false },
+  equipment: { choice:'', items:{}, shipOffice:'', shipTo:{ street:'', city:'', region:'', postcode:'', country:'' }, shipPhone:'', submitted:false,
     device:'', deviceConfirmed:false },
   // Whether this role maps to one build or offers a choice (A-60). A prototype
   // control, because both states are real and both need reviewing.
@@ -86,9 +91,11 @@ const DEFAULT_STATE = () => ({
   hm: {
     contactConfirmed: false, workPhone: '+1 303 555 0188',
     channels: { accepted:false },
-    logistics: { confirmed:false, whereToBe:'', available:true, proxy:'', teamNote:'' },
+    // firstInOffice: when the manager will first be in the office with the new
+    // hire. The badge is issued for that day, not the start date (A-87).
+    logistics: { confirmed:false, whereToBe:'', available:true, proxy:'', teamNote:'', firstInOffice:'day1', firstInOfficeDate:'' },
     computer: { ordered:false, model:'', reason:'' },
-    software: { confirmed:false, added:[], removed:[] },
+    software: { confirmed:false, added:[] },
     // A name is not a commitment. Both roles have to accept (M-27).
     buddy: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
@@ -150,6 +157,7 @@ function startdateStatus() {
   return S.startdate.confirmed ? 'done' : 'notstarted';
 }
 function bgcheckStatus() { return S.bgcheck.launched ? 'done' : 'notstarted'; }
+function rtwStatus() { return S.rtw.done ? 'done' : 'notstarted'; }
 function equipmentStatus() {
   if (S.equipment.submitted) return 'done';
   return S.equipment.choice ? 'inprogress' : 'notstarted';
@@ -170,14 +178,17 @@ function policiesStatus() {
 }
 function hbSignedCount() { return HANDBOOKS.filter(h => (S.policies.hbSigned || {})[h.id]).length;
 }
-/* v4: three things before Day 1, and only three (A-64). Pre-hire was
-   limited to the background check, equipment and the start date in the
-   September meetings; personal details, the job description and the
-   policies move after the start date, where they are not counted here. */
-const COUNTED = ['startdate','bgcheck','equipment'];
+/* Four things before Day 1, and only four (A-64). v4 had three: the start
+   date, the background check and equipment. Janine added the right to work
+   check on 6 Nov, because I-9 Section 1 must be done by the first day; it
+   goes third, in the order of the process tree. Everything else is not
+   counted here. */
+const COUNTED = ['startdate','bgcheck','rtw','equipment'];
+const NUM_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
+const thingsWord = () => NUM_WORDS[COUNTED.length];
 function taskDone(key) {
   return ({ startdate: startdateStatus()==='done', bgcheck: bgcheckStatus()==='done',
-            equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
+            rtw: rtwStatus()==='done', equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
             intro: introStatus()==='done',
             policies: policiesStatus()==='done' })[key];
 }
@@ -200,7 +211,7 @@ function chip(status, overdue) {
 /* ============================================================
    Landing / task list
    ============================================================ */
-/* The three counted pre-Day 1 tasks, in due-date order. Shared, so the
+/* The counted pre-Day 1 tasks, in due-date order. Shared, so the
    landing page, Sidekick and the platform's own to-do view read one list
    (A-56). v3 put the background check first because it runs longest; with
    only three, date order reads cleaner and the start date, which every
@@ -215,6 +226,10 @@ function taskList() {
       name:'Start your background check',
       why:'It runs on its own and takes a while, so the sooner it starts the better',
       est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
+    { key:'rtw', route:'#/rtw', icon:'id-card.svg',
+      name: S.country === 'JP' ? 'Share your right to work documents' : 'Complete your I-9, Section 1',
+      why:'The law says this is done by your first day. You do it in the separate Right to Work system',
+      est:'10 min', estMark:'A-23', status:rtwStatus(), marker:'A-86' },
     // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your equipment',
@@ -277,7 +292,7 @@ function renderLanding() {
         <p class="lede">${all
           ? `Everything we needed before <b>${startDateText()}</b> is done. Your laptop ships and your badge gets printed
              without you, and your first-day details turn up here three days before you start.`
-          : `You start as ${esc(HIRE.role)} on <b>${startDateText()}</b>. Three things to do before then, and you’re ready.
+          : `You start as ${esc(HIRE.role)} on <b>${startDateText()}</b>. ${thingsWord().charAt(0).toUpperCase() + thingsWord().slice(1)} things to do before then, and you’re ready.
              Everything else waits until you’ve started.`} ${am('A-64')}</p>
         ${sidekickAskBar('nh')}
       </div>
@@ -314,12 +329,12 @@ function renderLanding() {
       <div>
         <div class="section-h stack">
           <span class="eyebrow">Before Day 1 · now to ${fmtShort(addDays(startDate(), -1))}</span>
-          <h2>Three things, then you’re ready</h2>
+          <h2>${thingsWord().charAt(0).toUpperCase() + thingsWord().slice(1)} things, then you’re ready</h2>
         </div>
         ${open3.length ? `<div class="tcards">${open3.map(taskCard).join('')}</div>`
-          : `<div class="all-done">${ic('check-circle.svg')}<span><b>All three are done.</b> They’re at the bottom of the page, under Done.</span></div>`}
+          : `<div class="all-done">${ic('check-circle.svg')}<span><b>All ${thingsWord()} are done.</b> They’re at the bottom of the page, under Done.</span></div>`}
 
-        <div class="section-h"><h3>Optional, if you have time</h3><span class="hint">Nothing waits on these</span></div>
+        <div class="section-h"><h3>Up next, when you have time</h3><span class="hint">Before Day 1</span></div>
         ${videoCard('pre')}
         <div class="tcards">
           ${checkStatus() !== 'done' ? checkCard() : ''}
@@ -332,29 +347,20 @@ function renderLanding() {
                 ? `${HIRE.manager} has named the people you’ll actually work with, and why each one matters`
                 : `${HIRE.manager} hasn’t named anyone yet. This fills in when she does ${am('L-06')}`}</div>
               <div class="t-meta">
-                <span class="m">${ic('clock.svg','sm')}No due date, optional</span>
+                <span class="m">${ic('clock.svg','sm')}Any time before Day 1</span>
                 ${booked ? `<span class="mini-prog"><span class="bar"><i style="width:${(booked/netList.length)*100}%"></i></span>${booked} of ${netList.length} booked</span>` : ''}
               </div>
             </div>
             <div class="t-side">
               ${!netReady ? `<span class="chip waiting">Waiting on your manager</span>`
-                : booked ? `<span class="chip inprogress">${booked} booked</span>` : `<span class="chip waiting">Optional</span>`}
+                : booked ? `<span class="chip inprogress">${booked} booked</span>` : `<span class="chip waiting">Ready to book</span>`}
               ${ic('arrow-right.svg','lg go')}
             </div>
           </div>
         </div>
 
-        <div class="section-h"><h3>Also open now</h3><span class="hint">Yours, but it finishes in another system</span></div>
+        ${jp ? `<div class="section-h"><h3>Also open now</h3><span class="hint">Yours, but it finishes in another system</span></div>` : ''}
         <div class="ocards">
-          <div class="ocard live">
-            <div class="tic">${ic('id-card.svg')}</div>
-            <div class="o-main">
-              <div class="o-name">Right to work documents <span class="chip info">Available now</span></div>
-              <div class="o-note">Proof that you’re allowed to work in the country you’re joining. You can start it now,
-              and you finish it in the separate Right to Work system.</div>
-            </div>
-            <a class="o-go" data-ext="rtw">Open ${ic('external-link.svg','sm')}</a>
-          </div>
           ${jp ? `
           <div class="ocard live" data-assume="A-46">
             <div class="tic">${ic('health.svg')}</div>
@@ -525,7 +531,7 @@ function contactRow(p, extra='', tone='') {
   </div>`;
 }
 
-/* The buddy the manager assigned. Shown from assignment (L-01, settled
+/* The Onboarding Buddy the manager assigned. Shown from assignment (L-01, settled
    5 Nov): the new hire has someone to talk to through the quiet weeks. */
 function buddyRailBlock() {
   const B = S.hm.buddy;
@@ -535,7 +541,7 @@ function buddyRailBlock() {
     <div class="contact pending" data-assume="L-01">
       <div class="avatar peer">${ic('user.svg','sm')}</div>
       <div>
-        <div class="c-name">Your onboarding buddy</div>
+        <div class="c-name">Your Onboarding Buddy</div>
         <div class="c-role">Not chosen yet</div>
         <div class="c-extra">Someone in your team to ask the things you’d rather not ask your manager.
         <span class="pnote">${HIRE.manager} picks them. Nobody is assigned automatically, so this stays empty
@@ -544,7 +550,7 @@ function buddyRailBlock() {
     </div>`;
   }
   return contactRow(
-    { name: assigned.name, role: `Your onboarding buddy, ${assigned.role}`, initials: assigned.initials, cls: 'buddy' },
+    { name: assigned.name, role: `Your Onboarding Buddy, ${assigned.role}`, initials: assigned.initials, cls: 'buddy' },
     `<div class="c-extra">${assigned.tz ? `${ic('clock.svg','sm')} ${assigned.tz}<br>` : ''}Chosen by ${HIRE.manager} ${am('A-31')}</div>`
   );
 }
@@ -591,7 +597,7 @@ function landingRail() {
 }
 
 /* Everyone the MANAGER named, with their role (L-06). Keyed by person id
-   now that the buddy and the rest live on one screen.
+   now that the Onboarding Buddy and the rest live on one screen.
    Empty until submitted, which is what the new hire's waiting state shows. */
 function namedNetwork() {
   const H = S.hm, out = [];
@@ -640,7 +646,7 @@ function readinessState() {
   // confirms it (M-04).
   out.apps = H.software.confirmed
     ? { at: 2, note: 'Confirmed by the manager.' }
-    : { at: 1, note: 'The standard apps for the role are listed. Waiting for the manager to confirm.' };
+    : { at: 1, note: 'Waiting for the manager to pick from the standard list.' };
 
   // Workspace. Badge collection is not a stage: nothing reports it back.
   let ws = 0;
@@ -656,7 +662,7 @@ function readinessState() {
   if (H.buddy.assigned && H.buddy.notified) pp = 2;
   if (pp === 2 && H.network.submitted) pp = 3;
   if (pp === 3 && H.intro.forwarded) pp = 4;
-  out.people = { at: pp, note: H.buddy.assigned ? '' : 'No buddy chosen yet.' };
+  out.people = { at: pp, note: H.buddy.assigned ? '' : 'No Onboarding Buddy chosen yet.' };
 
   // Background check, now its own top-level step. The portal can only see the
   // launch; everything after it happens in the provider's system, so the later
@@ -921,6 +927,57 @@ function renderStartDate() {
 /* ============================================================
    Background check (A-50)
    ============================================================ */
+/* ============================================================
+   Right to work, the new hire's part (A-86)
+   US: I-9 Section 1, which must be done on or before Day 1. People
+   Experience finishes Section 2 in person at orientation. It runs in the
+   separate Right to Work system, so this screen explains and hands off.
+   ============================================================ */
+function renderRtw() {
+  const jp = S.country === 'JP';
+  const done = S.rtw.done;
+  return `
+  <div class="page">
+    ${crumbs(jp ? 'Share your right to work documents' : 'Complete your I-9, Section 1')}
+    <div class="task-head" data-assume="A-86">
+      <h1>${jp ? 'Share your right to work documents' : 'Complete your I-9, Section 1'} ${am('A-86')}</h1>
+      <p class="why">${jp
+        ? 'Proof you’re allowed to work in Japan. It has to be in before your first day.'
+        : 'Every new hire in the US confirms they’re allowed to work here. The law says your part is done by your first day.'}
+      It takes about ten minutes, in the separate Right to Work system.</p>
+    </div>
+    <div class="task-shell">
+      <div class="wiz-body">
+        <div class="form-sec">
+          <h3>What happens</h3>
+          <ol class="mech-list">
+            ${jp ? `
+            <li>You upload your residence card, or your passport and work visa.</li>
+            <li>People Experience checks them before you start.</li>`
+            : `
+            <li>You fill in Section 1 online: your details, and which documents you’ll show.</li>
+            <li>On your first day, People Experience sees the original documents at orientation. That’s Section 2.</li>
+            <li>Bring the documents you chose. A passport on its own is enough, or two documents from the lists.</li>`}
+          </ol>
+        </div>
+        ${done ? `<div class="callout soft">${ic('check-circle.svg')}<div><b>Done.</b> ${jp ? 'People Experience has your documents.' : 'Bring the documents you chose on your first day.'}</div></div>` : ''}
+        <div class="callout pnote mt16">
+          ${ic('question-circle.svg')}
+          <div>Added to the things before Day 1 by Janine on 6 Nov, third after the start date and the background
+          check, as in the process tree. A Workday delay hides this task today, so people miss it; one place to see it
+          fixes that from the new hire’s side. ${am('A-86')}</div>
+        </div>
+      </div>
+      <div class="wiz-foot">
+        <span class="saved-state">${ic(done ? 'check-circle.svg' : 'clock.svg','sm')}${done ? 'Done' : 'About 10 minutes'}</span>
+        <span class="missing"></span>
+        ${done ? `<button class="btn secondary" data-goto="#/">Back to your tasks</button>`
+          : `<button class="btn primary" id="rtwOpen">${ic('external-link.svg','sm')} Open the Right to Work system</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderBgCheck() {
   const B = S.bgcheck;
   return `
@@ -970,16 +1027,20 @@ function renderBgCheck() {
    only place a new hire goes (Gede: ServiceNow is their one interaction
    layer), so Workday, which stores it behind the scenes, is never named.
    ============================================================ */
+/* What Equinix holds from the offer, with anything the new hire has changed
+   laid over it (A-65). lock: the field is not theirs to edit. */
 function detailsOnRecord() {
-  const jp = S.country === 'JP';
+  const jp = S.country === 'JP', E = S.details.edits || {};
   return [
-    ['Legal name', `${HIRE.legalFirst} ${HIRE.legalLast}`],
-    ['Name you go by', HIRE.preferred],
-    ['Personal email', HIRE.email],
-    ['Home address', jp ? HIRE.homeAddressJP : HIRE.homeAddress],
-    ['Country you’re joining in', jp ? 'Japan' : 'United States'],
+    { k:'legal', label:'Legal name', value: E.legal || `${HIRE.legalFirst} ${HIRE.legalLast}` },
+    { k:'preferred', label:'Name you go by', value: E.preferred || HIRE.preferred },
+    { k:'email', label:'Personal email', value: HIRE.email, lock:'It’s how you sign in, so only People Experience can change it.' },
+    { k:'address', label:'Home address', value: E.address || (jp ? HIRE.homeAddressJP : HIRE.homeAddress) },
+    { k:'country', label:'Country you’re joining in', value: jp ? 'Japan' : 'United States', lock:'From your offer.' },
   ];
 }
+/* The home address, as the new hire last confirmed it. Equipment ships here. */
+function homeAddress() { return detailsOnRecord().find(f => f.k === 'address').value; }
 function introCard() {
   const photoBy = dueText(dueFor('photo'));
   return `
@@ -989,10 +1050,10 @@ function introCard() {
               <div class="t-name">Add a badge photo, and say hello to your team ${am('A-68')}</div>
               <div class="t-why">Send the photo by ${photoBy} and your badge is printed and waiting on Day 1.
                 Or it’s taken at reception when you arrive.</div>
-              <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 5 min, optional</span></div>
+              <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 5 min</span></div>
             </div>
             <div class="t-side">
-              ${introStatus() === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(introStatus())}
+              ${chip(introStatus())}
               ${ic('arrow-right.svg','lg go')}
             </div>
           </div>`;
@@ -1008,7 +1069,7 @@ function checkCard() {
       <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 1 min</span></div>
     </div>
     <div class="t-side">
-      ${st === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(st)}
+      ${chip(st)}
       ${ic('arrow-right.svg','lg go')}
     </div>
   </div>`;
@@ -1032,25 +1093,33 @@ function renderDetails() {
       <h1>Check your details ${am('A-65')}</h1>
       <p class="why">${conv
         ? `We already hold your details from your contract role. Check they’re still right.`
-        : `This is what we have for you from your offer. If anything’s wrong, say so now, so your laptop, your badge
-          and your first pay all go to the right place.`}</p>
+        : `This is what we have for you from your offer. Fix anything that’s wrong, so your laptop, your badge and
+          your first pay all go to the right place.`}</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
         <div class="form-sec">
           <h3>What we have</h3>
-          <div class="bp-card">
-            ${detailsOnRecord().map(([k, v]) => `<div class="bp-row"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
+          <div class="bp-card det-card">
+            ${detailsOnRecord().map(f => D.editing === f.k ? `
+              <div class="bp-row det-edit"><dt><label for="detIn">${f.label}</label></dt><dd>
+                <input type="text" id="detIn" value="${esc(f.value)}">
+                <span class="det-acts"><button class="btn primary sm" id="detSave">Save</button>
+                <button class="btn quiet sm" id="detEditCancel">Cancel</button></span></dd></div>` : `
+              <div class="bp-row"><dt>${f.label}</dt><dd>${esc(f.value)}
+                ${(D.edits || {})[f.k] ? `<span class="chip done">Changed</span>` : ''}
+                ${f.lock ? `<span class="det-lock">${ic('lock.svg','sm')}${f.lock}</span>`
+                  : `<button class="det-edit-btn" data-detedit="${f.k}" aria-label="Edit ${f.label.toLowerCase()}">Edit</button>`}</dd></div>`).join('')}
           </div>
           ${D.checked ? `
           <div class="callout soft mt16">${ic('check-circle.svg')}<div><b>Thanks, that’s all right.</b> Nothing else to do until your first day.</div></div>`
           : D.flagged ? `
-          <div class="callout soft mt16">${ic('clock.svg')}<div><b>With ${pex}.</b> She corrects it before anything is sent
-            or printed, and tells you when it’s done. You wrote: “${esc(D.flagText)}”</div></div>`
+          <div class="callout soft mt16">${ic('clock.svg')}<div><b>With ${pex}.</b> She changes your email and tells you
+            how to sign in with it. You asked for: “${esc(D.flagText)}”</div></div>`
           : D.wrong ? `
           <div class="field mt16">
-            <label for="detFlag">What needs changing?</label>
-            <textarea id="detFlag" rows="3" placeholder="e.g. I moved last month. My new address is…">${esc(D.flagText)}</textarea>
+            <label for="detFlag">What should your personal email be?</label>
+            <textarea id="detFlag" rows="2" placeholder="e.g. jordan.reyes@outlook.com, because I no longer use the old one">${esc(D.flagText)}</textarea>
             <div class="note">It goes to ${pex}, your onboarding coordinator, with this screen attached.</div>
           </div>` : ''}
         </div>
@@ -1067,8 +1136,9 @@ function renderDetails() {
           </div>
           <div class="callout pnote mt16">
             ${ic('question-circle.svg')}
-            <div><b>Behind the portal.</b> What’s entered here is stored in Workday, which stays the system of record, so
-            the new hire never has to go there. Still open: whether bank details entered on Day 1 reach the first
+            <div><b>Behind the portal.</b> What’s entered or changed here goes both ways with Workday, which stays the
+            system of record, so the new hire never has to go there. The personal email is locked because it is their
+            sign-in (Janine, 6 Nov). Still open: whether bank details entered on Day 1 reach the first
             payroll run. If not, that one item has to come before Day 1. ${am('A-65')}</div>
           </div>
         </div>
@@ -1080,7 +1150,7 @@ function renderDetails() {
         ${D.checked || D.flagged ? `<button class="btn secondary" data-goto="#/">Back to your tasks</button>`
           : D.wrong ? `<button class="btn quiet" id="detCancel">Cancel</button>
                        <button class="btn primary" id="detSend" ${(D.flagText || '').trim() ? '' : 'disabled'}>Send to ${pex}</button>`
-          : `<button class="btn secondary" id="detWrong">Something’s wrong</button>
+          : `<button class="btn secondary" id="detWrong">Change my email</button>
              <button class="btn primary" id="detOk">These are right</button>`}
       </div>
     </div>
@@ -1095,10 +1165,19 @@ function renderDetails() {
    Everyone else gets an Equinix location or the home address on record,
    because laptops sent to new addresses are how bad actors get inside. */
 function shipAnywhere() { return S.shipRule === 'anywhere'; }
+/* A different address, as separate fields (A-85). Region is the one that
+   not every country uses. */
+const SHIP_FIELDS = [['street', 'Street address'], ['city', 'City'], ['region', 'State, province or region', true],
+  ['postcode', 'Postcode or ZIP'], ['country', 'Country']];
+const SHIP_AUTO = { street:'street-address', city:'address-level2', region:'address-level1', postcode:'postal-code', country:'country-name' };
+function shipToComplete() {
+  const t = S.equipment.shipTo || {};
+  return SHIP_FIELDS.every(([k, , opt]) => opt || (t[k] || '').trim());
+}
 /* Where an order is going, in words, for the screens that report it. */
 function shipDest() {
   const o = S.equipment.shipOffice;
-  return o === 'no' ? 'the home address on their record' : o === 'other' ? 'the address they gave' : 'their Equinix office';
+  return o === 'no' ? 'the home address on their record' : o === 'other' ? 'a different address they gave' : 'their Equinix office';
 }
 function officeAddress() { return S.country === 'JP' ? HIRE.officeAddressJP : HIRE.officeAddress; }
 
@@ -1334,7 +1413,7 @@ function renderEquipment() {
         <div class="form-sec" data-assume="A-38 A-85">
           <h3>Where should it go? ${am('A-38')}</h3>
           <p class="sec-note">An Equinix location, or the home address on your record. ${shipAnywhere()
-            ? 'As an intern or a Senior Director and above, you can also name somewhere else.'
+            ? 'As an intern, or a Senior Director and above, you can also give a different address.'
             : 'Nothing else, so a laptop only ever goes to an address Equinix already knows.'} ${am('A-85')}</p>
           <div class="ship-opts">
             <label class="ship-opt ${E.shipOffice==='yes'?'on':''}">
@@ -1346,22 +1425,27 @@ function renderEquipment() {
             <label class="ship-opt ${E.shipOffice==='no'?'on':''}" data-assume="A-65">
               <input type="radio" name="shipOffice" data-ship="no" ${E.shipOffice==='no'?'checked':''}>
               <span class="so-body"><span class="so-h">Your home, as on your record</span>
-                <span class="so-addr">${S.country === 'JP' ? HIRE.homeAddressJP : HIRE.homeAddress}</span>
+                <span class="so-addr">${esc(homeAddress())}</span>
                 <span class="so-note">The address on your offer. Moved since then? Tell ${PEOPLE.pex.name.split(' ')[0]}, or fix it in
                 <a data-goto="#/details">Check your details</a>, and it’s corrected before anything ships. ${am('A-65')}</span></span>
             </label>
             ${shipAnywhere() ? `
             <label class="ship-opt ${E.shipOffice==='other'?'on':''}">
               <input type="radio" name="shipOffice" data-ship="other" ${E.shipOffice==='other'?'checked':''}>
-              <span class="so-body"><span class="so-h">Somewhere else</span>
+              <span class="so-body"><span class="so-h">A different address</span>
                 <span class="so-note">For interns, and Senior Directors and above.</span></span>
             </label>` : ''}
           </div>
           ${E.shipOffice === 'other' && shipAnywhere() ? `
-            <div class="field mt16">
-              <label for="shipOther">Deliver to</label>
-              <textarea id="shipOther" rows="3" placeholder="Street, city, postcode and country">${esc(E.shipOther || '')}</textarea>
-            </div>` : ''}
+            <div class="addr-grid mt16" data-assume="A-85">
+              ${SHIP_FIELDS.map(([k, label, opt]) => `
+              <div class="field ${k === 'street' ? 'wide' : ''}">
+                <label for="ship-${k}">${label}${opt ? ' <span class="opt">(if your country uses one)</span>' : ''}</label>
+                <input type="text" id="ship-${k}" data-shipto="${k}" value="${esc(E.shipTo[k] || '')}" autocomplete="${SHIP_AUTO[k]}">
+              </div>`).join('')}
+            </div>
+            <p class="pnote">Separate fields so a courier in any country can read it. Which fields each country needs is
+            to confirm with CDW. ${am('A-85')}</p>` : ''}
 
           <div class="field" style="max-width:340px;">
             <label>Phone number for the courier</label>
@@ -1383,7 +1467,7 @@ function eqReady() {
   const E = S.equipment;
   if (!E.choice) return false;
   if (!E.shipOffice) return false;
-  if (E.shipOffice === 'other' && (E.shipOther || '').trim().length < 10) return false;
+  if (E.shipOffice === 'other' && !shipToComplete()) return false;
   if (E.shipPhone.replace(/\D/g,'').length < 7) return false;
   return true;
 }
@@ -1391,7 +1475,7 @@ function eqMissingText() {
   const E = S.equipment;
   if (!E.choice) return 'Choose what you need to continue.';
   const missing = [];
-  if (!E.shipOffice || (E.shipOffice === 'other' && (E.shipOther || '').trim().length < 10)) missing.push('a delivery address');
+  if (!E.shipOffice || (E.shipOffice === 'other' && !shipToComplete())) missing.push('a delivery address');
   if (E.shipPhone.replace(/\D/g,'').length < 7) missing.push('a phone number for the courier');
   return missing.length ? `Still needed: ${missing.join(', ')}.` : 'Everything needed is filled in.';
 }
@@ -1452,21 +1536,20 @@ function incidentCard(picked) {
 
     <div class="inc-body">
       ${tab === 'activity' ? `
-        <div class="inc-lbl">Follow-ups and requests</div>
-        <p class="inc-help">Need something else, or a change to what you ordered? Any question or concern about your
-        equipment goes here, and the tech team handling your order sees it.</p>
-        <div class="inc-add">
-          <input type="text" id="incComment" aria-label="Follow-up or request for the tech team" placeholder="e.g. Could I also get a webcam?">
-          <button class="btn primary sm" id="incSend">Send</button>
+        <div class="inc-lbl">Need something else?</div>
+        <div class="inc-next" data-assume="A-42">
+          <div class="in-opt">
+            <b>Change what you ordered</b>
+            <span>Reopens your order with the same choices, so you can swap or add from what’s on offer.</span>
+            <button class="btn secondary sm" id="eqChange">Change my order</button>
+          </div>
+          <div class="in-opt">
+            <b>A question about your order</b>
+            <span>Get help looks in MyHR first. If that doesn’t answer it, it goes to People Experience, with your order attached.</span>
+            <button class="btn secondary sm" data-openchat="1">${ic('question-circle.svg','sm')} Get help</button>
+          </div>
         </div>
         <div class="inc-feed">
-          ${E.comments.slice().reverse().map(c => `
-            <div class="inc-ev">
-              <div class="avatar sm">${HIRE.initials}</div>
-              <div class="ev-body"><div class="ev-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
-                <div class="ev-text">${esc(c)}</div></div>
-              <span class="ev-when">${ic('clock.svg','sm')}just now</span>
-            </div>`).join('')}
           <div class="inc-ev">
             <div class="avatar sm">${HIRE.initials}</div>
             <div class="ev-body"><div class="ev-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
@@ -1480,12 +1563,8 @@ function incidentCard(picked) {
             <span class="ev-when">${ic('clock.svg','sm')}just now</span>
           </div>
         </div>
-        <div class="callout soft mt16">
-          ${ic('exclamation-triangle.svg')}
-          <div><b>This is how people amend orders today</b>, by typing into the ticket after submitting.
-          It works, but nobody designed it. A proper “change my order” path would beat a comment thread. ${am('A-42')}</div>
-        </div>
-        <button class="btn secondary mt16" id="eqChange">Change my order</button>`
+        <p class="pnote mt16">No free-text box (Janine, 6 Nov): what can be ordered is set by the system, so changes go
+        back through the same choices, and questions go to Get help. Today people type into the ticket instead. ${am('A-42')}</p>`
       : tab === 'attachments' ? `
         <div class="inc-lbl">Attachments</div>
         <div class="attach">${ic('file-alt.svg','sm')}<b>Accessories Details.csv</b> <span>782 B</span></div>
@@ -1518,10 +1597,21 @@ function incidentCard(picked) {
 /* Slots sit in the week after the start date, so they stay plausible
    on both the two-week and three-month runways (A-45). */
 const SLOT_TIMES = ['10:00', '14:30', '09:00'];
+/* Times to meet the people the manager named. Never Day 1 or Day 2, which
+   are for the manager and the Onboarding Buddy (Janine, 6 Nov): weekdays from
+   the end of the first week into the second. */
+function meetDays() {
+  const days = [];
+  for (let k = 2; days.length < 8; k++) {
+    const d = addDays(startDate(), k);
+    if (d.getDay() !== 0 && d.getDay() !== 6) days.push(d);
+  }
+  return days;
+}
 function slotsFor(id) {
-  const i = ORG_PEOPLE.findIndex(p => p.id === id);
+  const i = Math.max(ORG_PEOPLE.findIndex(p => p.id === id), 0), days = meetDays();
   return SLOT_TIMES.map((t, j) => {
-    const d = addDays(startDate(), 5 + Math.max(i, 0) + j * 2);
+    const d = days[(i + j * 2) % days.length];
     return `${d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' })}, ${t}`;
   });
 }
@@ -1571,7 +1661,7 @@ function renderNetwork() {
 
     <div class="net-grid">
       <div>
-        <div class="section-h"><h2>${list.length} ${list.length===1?'person':'people'}, and why</h2><span class="hint">Optional. Book what’s useful, ignore the rest</span></div>
+        <div class="section-h"><h2>${list.length} ${list.length===1?'person':'people'}, and why</h2><span class="hint">From the end of your first week. Day 1 and 2 are for your manager and your Onboarding Buddy</span></div>
         <div class="net-cards">
           ${list.map((p,i) => `
             <div class="net-card ${booked[p.id]?'booked':''}">
@@ -1608,7 +1698,7 @@ function renderNetwork() {
               <p>Several people, across other teams, for the <b>job itself</b>. Chosen by your manager for your role.</p>
             </div>
             <div class="dist-row">
-              <div class="dr-h">${ic('user-circle.svg','sm')} Your buddy</div>
+              <div class="dr-h">${ic('user-circle.svg','sm')} Your Onboarding Buddy</div>
               <p>One person on your team, for <b>culture and logistics</b>. The questions you would rather not ask your manager.</p>
             </div>
             <div class="dist-row">
@@ -1621,7 +1711,7 @@ function renderNetwork() {
         <div class="rail-card">
           <h3>What happened behind this</h3>
           <ol class="mech-list">
-            <li>${HIRE.manager} named a <b>buddy</b> and anyone else worth meeting early.</li>
+            <li>${HIRE.manager} named an <b>Onboarding Buddy</b> and anyone else worth meeting early.</li>
             <li>Where she wrote a reason, it is on the card. She knows you can see it.</li>
             <li>Each of them was <b>asked</b>, not told, and had to accept. ${am('M-27')}</li>
             <li>You get the list, the reasons, and times you can book.</li>
@@ -1651,9 +1741,9 @@ function renderIntro() {
   <div class="page">
     ${crumbs('A badge photo, and a hello')}
     <div class="task-head" data-assume="A-16 A-68">
-      <div class="eyebrow">Optional · before Day 1</div>
+      <div class="eyebrow">Up next · before Day 1</div>
       <h1>Add a badge photo, and say hello to your team ${am('A-68')}</h1>
-      <p class="why">Both optional, and nothing waits on either. The photo gets your badge printed before you arrive;
+      <p class="why">Two small things that make your first day easier. The photo gets your badge printed before you arrive;
       the hello lets ${HIRE.manager.split(' ')[0]} introduce you to the team in your own words. ${am('A-16')}</p>
     </div>
     <div class="two-sec">
@@ -1661,9 +1751,9 @@ function renderIntro() {
       <div class="sec-card" data-assume="A-14 A-15">
         <div class="sec-top">
           <h2>Introduce yourself</h2>
-          ${introDone ? chip('done') : (S.intro.text ? chip('inprogress') : `<span class="chip waiting">Optional</span>`)}
+          ${introDone ? chip('done') : (S.intro.text ? chip('inprogress') : chip('notstarted'))}
         </div>
-        <div class="due-line">${ic('clock.svg','sm')}Optional, no due date ${am('A-68')}</div>
+        <div class="due-line">${ic('clock.svg','sm')}No due date ${am('A-68')}</div>
         <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:12px;">${HIRE.manager} will share this with the team before you start,
         so nobody has to write a “please welcome…” post from scratch and you get to describe yourself in your own words.</p>
 
@@ -1718,7 +1808,7 @@ function renderIntro() {
           <h2>Photo for your badge</h2>
           ${photoDone ? chip('done') : (S.photo.uploaded ? chip('inprogress') : chip('notstarted'))}
         </div>
-        <div class="due-line">${ic('calendar.svg','sm')}Optional. Send it by <b>${dueText(dueFor('photo'))}</b> and your badge is printed before Day 1. Otherwise it’s taken at reception when you arrive.</div>
+        <div class="due-line">${ic('calendar.svg','sm')}Send it by <b>${dueText(dueFor('photo'))}</b> and your badge is printed before Day 1. Otherwise it’s taken at reception when you arrive.</div>
         <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:14px;">Send it now and your badge is printed and waiting for you on Day 1.</p>
 
         ${conv && !S.photo.replacing ? convPhotoBlock() : uploadBlock()}
@@ -1987,8 +2077,8 @@ function renderFlow() {
     { x:2, lbl:'Offer accepted', sub:'and signed', major:true },
     { x:11, lbl:'Identity verified', sub:'account created' },
     { x:20, lbl:'Portal opens', sub:'you are here', major:true },
-    { x:37, lbl:'13 days before', sub:'three things due' },
-    { x:52, lbl:'8 days before', sub:'optional photo' },
+    { x:37, lbl:'13 days before', sub:'four things due' },
+    { x:52, lbl:'8 days before', sub:'badge photo' },
     { x:66, lbl:'3 days before', sub:'first-day details' },
     { x:82, lbl:'Day 1', sub:'in person', major:true },
     { x:96, lbl:'First week', sub:'policies, benefits' },
@@ -1997,9 +2087,9 @@ function renderFlow() {
     { x:32, r:22, cls:'you', lbl:'Start date', sub:'confirm, 14 days before' },
     { x:38, r:72, cls:'you', lbl:'Background check', sub:'start, 13 days before' },
     { x:44, r:22, cls:'you', lbl:'Equipment', sub:'choose, 12 days before' },
-    { x:52, r:72, cls:'you opt', lbl:'Badge photo', sub:'optional' },
-    { x:58, r:22, cls:'you opt', lbl:'Say hello', sub:'optional' },
-    { x:66, r:72, cls:'you opt', lbl:'Suggested network', sub:'optional' },
+    { x:52, r:72, cls:'you opt', lbl:'Badge photo', sub:'up next' },
+    { x:58, r:22, cls:'you opt', lbl:'Say hello', sub:'up next' },
+    { x:66, r:72, cls:'you opt', lbl:'Suggested network', sub:'up next' },
     { x:82, r:50, cls:'day1', lbl:'Day 1', sub:'badge and laptop waiting' },
   ];
   const after = [
@@ -2046,7 +2136,7 @@ function renderFlow() {
   <div class="page flow-page">
     ${crumbs('The whole flow on one screen')}
     <h1>From the offer to the first week</h1>
-    <p class="flow-sub">Three things before Day 1, and everything else after it: what ${HIRE.preferred} does, what opens on its own,
+    <p class="flow-sub">Four things before Day 1, and everything else after it: what ${HIRE.preferred} does, what opens on its own,
     what other teams handle, and where Sidekick sits across all of it. This is the review screen: argue with the shape here,
     not in the individual pages. ${am('A-64')}</p>
 
@@ -2061,7 +2151,7 @@ function renderFlow() {
         ${axis.map(a => `<div class="axis-pt ${a.major?'major':''}" data-x="${a.x}" style="left:${a.x}%"><div class="apt-dot"></div>
           <div class="apt-lbl">${a.lbl}</div><div class="apt-sub">${a.sub}</div></div>`).join('')}
       </div>
-      ${lane(`Before Day 1: three things in the portal, and three optional`, 'user-circle.svg', you, '', 130)}
+      ${lane(`Before Day 1: four things, and three for when you have time`, 'user-circle.svg', you, '', 130)}
       ${lane('Day 1 and the first week', 'calendar.svg', after, '', 130)}
       ${lane('Opens on its own, or in another system', 'clock.svg', later, '', 130)}
       ${lane('Handled by other teams, nothing for you to do', 'users-friends.svg', other, 'other', 100)}
@@ -2354,7 +2444,7 @@ function applyScenario(name) {
   const hmComplete = () => {
     hmPartial(); namePeople();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
-    S.hm.software = { confirmed:true, added:['Tableau'], removed:[] };
+    S.hm.software = { confirmed:true, added:['Tableau'] };
     S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true } };
     S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team. Shout if anything is unclear before the 18th.' };
     S.hm.channels.accepted = true;
@@ -2369,17 +2459,17 @@ function applyScenario(name) {
     S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.network.booked = { 0: slotsFor(0)[0] };
   }
-  // Under review, in v4, is the start date: the job description it used to
-  // hang off is a Day 1 task now (A-67), so it cannot be disputed before start.
+  // Under review is the start date: the job description it used to hang off
+  // is gone (A-67), so there is nothing else to dispute before the start.
   if (name === 'review') {
-    S.bgcheck.launched = true;
+    S.bgcheck.launched = true; S.rtw.done = true;
     S.startdate.changeRequested = true;
     S.startdate.requestedDate = 'Tuesday 1 September 2026';
     S.startdate.reason = 'My notice period runs two weeks longer than I expected.';
     equipComplete(); hmPartial(); namePeople();
   }
   if (name === 'complete') {
-    S.startdate.confirmed = true; S.bgcheck.launched = true;
+    S.startdate.confirmed = true; S.bgcheck.launched = true; S.rtw.done = true;
     equipComplete(); hmComplete();
     S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. I’ll be picking up the forecast for the Americas portfolios. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.intro.consent = true; S.intro.saved = true; S.intro.done = true;
@@ -2394,7 +2484,6 @@ function equipComplete() {
   Object.assign(S.equipment, {
     choice:'more', items:{ monitor:true, keyboard:true, mouse:true },
     shipOffice:'yes', shipPhone:'+1 303 555 0117', submitted:true,
-    comments:['can you please add a webcam'],
   });
 }
 /* a soft neutral placeholder "photo" for the all-complete scenario */
@@ -2498,6 +2587,7 @@ const ROUTES = {
   '#/todos': renderTodos,
   '#/startdate': renderStartDate,
   '#/bgcheck': renderBgCheck,
+  '#/rtw': renderRtw,
   '#/equipment': renderEquipment,
   '#/details': renderDetails,
   '#/intro': renderIntro,
@@ -2654,6 +2744,13 @@ function bindScreen(route) {
   if (route === '#/bgcheck') return bindBgCheck();
   if (route === '#/equipment') bindEquipment();
   if (route === '#/details') bindDetails();
+  if (route === '#/rtw') {
+    const o = $('#rtwOpen');
+    if (o) o.addEventListener('click', () => {
+      S.rtw.done = true; save(); rerender();
+      toast('In the product, this opens the Right to Work system. Marked done here, as if you’d finished it.', 'check-circle.svg');
+    });
+  }
   if (route === '#/intro') bindIntro();
   if (route === '#/policies') bindPolicies();
 }
@@ -2744,8 +2841,9 @@ function bindEquipment() {
   $$('[data-ship]').forEach(r => r.addEventListener('change', () => {
     S.equipment.shipOffice = r.dataset.ship; save(); rerender();
   }));
-  const so = $('#shipOther');
-  if (so) so.addEventListener('input', () => { S.equipment.shipOther = so.value; save(); updateEqChrome(); });
+  $$('[data-shipto]').forEach(f => f.addEventListener('input', () => {
+    S.equipment.shipTo[f.dataset.shipto] = f.value; save(); updateEqChrome();
+  }));
   const ph = $('#shipPhone');
   if (ph) ph.addEventListener('input', () => { S.equipment.shipPhone = ph.value; save(); updateEqChrome(); });
   const sub = $('#eqSubmit');
@@ -2753,17 +2851,10 @@ function bindEquipment() {
     S.equipment.submitted = true; save(); rerender();
     toast('Order submitted. The IT help desk has it as INC6369627.', 'check-circle.svg');
   });
-  const send = $('#incSend');
-  if (send) send.addEventListener('click', () => {
-    const t = $('#incComment');
-    if (!t.value.trim()) return;
-    S.equipment.comments.push(t.value.trim()); save(); rerender();
-    toast('Comment added to the ticket. Someone in Tier 2 will pick it up.');
-  });
   const chg = $('#eqChange');
   if (chg) chg.addEventListener('click', () => {
     S.equipment.submitted = false; save(); rerender();
-    toast('Reopened your order. In the live portal this is where people type into the ticket instead.');
+    toast('Your order is open again. Change what you need and submit it.');
   });
 }
 function updateEqChrome() {
@@ -2774,6 +2865,16 @@ function updateEqChrome() {
 /* ---------- details bindings (A-65) ---------- */
 function bindDetails() {
   const D = S.details;
+  $$('[data-detedit]').forEach(b => b.addEventListener('click', () => { D.editing = b.dataset.detedit; rerender(); const f = $('#detIn'); if (f) f.focus(); }));
+  const ec = $('#detEditCancel');
+  if (ec) ec.addEventListener('click', () => { D.editing = ''; rerender(); });
+  const sv = $('#detSave');
+  if (sv) sv.addEventListener('click', () => {
+    const v = $('#detIn').value.trim();
+    if (v) { D.edits = Object.assign({}, D.edits, { [D.editing]: v }); }
+    D.editing = ''; save(); rerender();
+    toast('Saved. It goes to your record straight away.', 'check-circle.svg');
+  });
   const ok = $('#detOk');
   if (ok) ok.addEventListener('click', () => { D.checked = true; save(); rerender(); toast('Thanks. Your details are confirmed.', 'check-circle.svg'); });
   const wr = $('#detWrong');
@@ -2789,9 +2890,9 @@ function bindDetails() {
   if (sd) sd.addEventListener('click', () => {
     D.flagged = true; D.wrong = false;
     // It lands in the coordinator's Help requests, like any question for a person.
-    S.sidekick.handoffs.push({ who:'nh', q:'Details correction: ' + D.flagText.trim(), at: fmtDate(simToday()) });
+    S.sidekick.handoffs.push({ who:'nh', q:'Email change request: ' + D.flagText.trim(), at: fmtDate(simToday()) });
     save(); rerender();
-    toast(`Sent to ${PEOPLE.pex.name.split(' ')[0]}. She fixes it before anything ships.`, 'check-circle.svg');
+    toast(`Sent to ${PEOPLE.pex.name.split(' ')[0]}. She’ll change it and tell you how to sign in.`, 'check-circle.svg');
   });
 }
 

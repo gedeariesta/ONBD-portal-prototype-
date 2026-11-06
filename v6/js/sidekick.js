@@ -37,8 +37,8 @@ const SK_NH = [
     say: () => {
       const n = nextTask();
       return n
-        ? `Next is <b>${n.name.toLowerCase()}</b>, due ${dueText(dueFor(n.key))}. It’s one of the three things before Day 1, and after those there’s nothing else until you start.`
-        : `Nothing. All three things before Day 1 are done, so the next thing you’ll see is your first-day details, three days before you start.`;
+        ? `Next is <b>${n.name.toLowerCase()}</b>, due ${dueText(dueFor(n.key))}. It’s one of the ${thingsWord()} things before Day 1, and after those there’s nothing else until you start.`
+        : `Nothing. All ${thingsWord()} things before Day 1 are done, so the next thing you’ll see is your first-day details, three days before you start.`;
     } },
   { id:'laptop', q:'When does my laptop arrive?', keys:['laptop','computer','equipment','arrive','deliver','ship','monitor','headset'],
     src:'Equipment for new starters', task:'equipment',
@@ -56,12 +56,12 @@ const SK_NH = [
   { id:'pay', q:'How do I set up direct deposit?', keys:['direct deposit','bank','banking','pay','paid','payday','salary','payroll','account'],
     src:'Getting paid: direct deposit for new starters', task:'details',
     say: () => `You add your bank details here in the portal on your first day, with your tax details and emergency contacts. It’s one task, entered once. Before then, it’s worth checking the details we already have, so your first pay goes to the right place.` },
-  { id:'buddy', q:'Who is my buddy?', keys:['buddy','mentor','who can i ask'],
-    src:'Onboarding buddies',
+  { id:'buddy', q:'Who is my Onboarding Buddy?', keys:['buddy','mentor','who can i ask'],
+    src:'Onboarding Buddies',
     say: () => {
       const B = S.hm.buddy, p = B.assigned ? orgPerson(B.assigned) : null;
-      if (!p) return `${HIRE.manager} hasn’t named your buddy yet. When she does, their name and how to reach them appear under Your people.`;
-      return `Your buddy is <b>${p.name}</b>, ${p.role}. They’re under Your people, with Teams and email.`;
+      if (!p) return `${HIRE.manager} hasn’t named your Onboarding Buddy yet. When she does, their name and how to reach them appear under Your people.`;
+      return `Your Onboarding Buddy is <b>${p.name}</b>, ${p.role}. They’re under Your people, with Teams and email.`;
     } },
   { id:'handbook', q:'Do I need to read the handbook before I start?', keys:['handbook','policy','policies','code of conduct','notice','acknowledge','read before'],
     src:'Employee handbooks and notices', task:'policies',
@@ -94,15 +94,15 @@ const SK_HM = [
         ? `${soon.length ? 'Due within a week' : 'Nothing is due this week, but still open'}: ${list.join(', ')}. The first one is linked below.`
         : `Nothing. Everything you owe before Day 1 is done.`;
     } },
-  { id:'buddyvis', q:'When does Jordan see their buddy?', keys:['buddy','see their buddy','visible','72'],
-    src:'Onboarding buddies, for managers',
+  { id:'buddyvis', q:'When does Jordan see their Onboarding Buddy?', keys:['buddy','see their buddy','visible','72'],
+    src:'Onboarding Buddies, for managers',
     say: () => `As soon as you name them. They appear under Jordan’s people straight away, so Jordan has someone to talk to before Day 1.` },
   { id:'apps', q:'Which apps will Jordan get?', keys:['apps','applications','software','stack','suggest'],
     src:'Requesting software for a new starter',
-    say: () => `The standard set for a ${esc(HIRE.role)}: ${hmAppsChosen().map(a => `<b>${a}</b>`).join(', ')}. ${S.hm.software.confirmed ? 'You’ve confirmed them.' : 'Confirm them, or add anything else Jordan needs, from the checklist.'}` },
+    say: () => { const a = hmAppsChosen(); return `Email, Teams and the basics come with the laptop. ${a.length ? `You’ve picked ${a.map(x => `<b>${x}</b>`).join(', ')}.` : 'Nothing else is picked yet.'} ${S.hm.software.confirmed ? 'It’s confirmed.' : 'Pick from the standard list in your checklist.'}`; } },
   { id:'nhsees', q:'What does Jordan have to do before Day 1?', keys:['jordan do','before day 1','new hire do','their tasks'],
     src:'What new hires do before Day 1',
-    say: () => `Three things: confirm the start date, start the background check and choose equipment. ${tasksComplete()} of 3 are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
+    say: () => `Four things: confirm the start date, start the background check, do their part of the right to work check, and choose equipment. ${tasksComplete()} of ${COUNTED.length} are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
 ];
 
 
@@ -295,7 +295,7 @@ function skWhereCard() {
   return `
   <div class="sk-where" data-assume="A-70">
     <div class="sk-sys-l">${ic('list-tasks.svg','sm')}From your task list, not written by Sidekick</div>
-    <div class="sk-where-n"><b>${tasksComplete()} of 3</b> things done before Day 1</div>
+    <div class="sk-where-n"><b>${tasksComplete()} of ${COUNTED.length}</b> things done before Day 1</div>
     <div class="three dark">${taskList().map(t => `<i class="${t.status === 'done' ? 'on' : ''}"></i>`).join('')}</div>
     ${n ? skSysRow({ name:n.name, meta:`Due ${dueText(dueFor(n.key))} · ${STATUS_CHIP[n.status][1]}`, route:n.route, icon:n.icon })
         : `<div class="sk-where-done">${ic('check-circle.svg','sm')}Nothing else until your first-day details arrive.</div>`}
@@ -376,13 +376,13 @@ function skHmChecklist() {
    record, so it always shows the current state. */
 const SK_DO_SAY = {
   logistics: 'Here are Jordan’s first-day details. People Experience set the office part; only the rest is yours.',
-  software: `These are the standard apps for a ${HIRE.role}. Untick anything Jordan won’t use, add anything missing, then confirm.`,
+  software: 'Email, Teams and the basics come with the laptop. Pick anything else Jordan needs from the standard list, then confirm.',
   card: 'One question, and only if they’ll travel on behalf of Equinix.',
-  buddy: 'Pick someone from Jordan’s team or function. I’ll ask them for you, and tell them what being a buddy means.',
+  buddy: 'Pick someone from Jordan’s team or function. I’ll ask them for you, and tell them what being an Onboarding Buddy means.',
   calendar: 'Most of Day 1 is already in your calendar. Check it and confirm.',
   welcome: 'The welcome note is already written. Add a line of your own if you like, and send it.',
   intro: 'Jordan wrote an introduction and said you can share it. Forward it when you’re ready.',
-  survey: 'Nine quick questions about how recruiting went, while it’s fresh.',
+  survey: 'Eight quick questions about how recruiting went, while it’s fresh.',
 };
 function skDo(id) {
   const last = SK_THREAD.filter(m => m.who === 'hm').pop();
@@ -409,15 +409,17 @@ function skActCard(id) {
       <div class="tmc-acts">${skOn(L.available, 'data-skset="avail:yes"', 'Yes, I’ll be there')}${skOn(!L.available, 'data-skset="avail:no"', 'No, someone covers')}</div>
       ${!L.available ? `<label class="tmc-lab" for="skProxy">Who covers for you?</label>
       <select class="tm-in" id="skProxy" data-skin="logistics.proxy"><option value="">Choose someone…</option>
-        ${ORG_PEOPLE.filter(p => p.team).map(p => `<option ${L.proxy === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}</select>` : ''}`;
+        ${ORG_PEOPLE.filter(p => p.team).map(p => `<option ${L.proxy === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}</select>` : ''}
+      <div class="tmc-lab">When will you first be in the office with Jordan?</div>
+      <div class="tmc-acts">${skOn(L.firstInOffice !== 'later', 'data-skset="inoffice:day1"', 'On Day 1')}${skOn(L.firstInOffice === 'later', 'data-skset="inoffice:later"', 'Later')}</div>
+      ${L.firstInOffice === 'later' ? `<input class="tm-in" type="date" data-skin="logistics.firstInOfficeDate" aria-label="First day in the office together" value="${esc(L.firstInOfficeDate)}">` : ''}
+      <div class="tmc-p sub">Jordan’s badge is ready for that day.</div>`;
     foot = `<button class="tm-btn primary" type="button" data-skact="logistics" ${ok ? '' : 'disabled'}>${L.confirmed ? 'Update' : 'Confirm'}</button>`;
   } else if (id === 'software') {
     const A = H.software;
-    body = `<div class="tmc-lab">Standard for the role</div>
-      <div class="tmc-chips">${ROLE_APPS.map(a => skOn(!A.removed.includes(a), `data-skset="swstd:${esc(a)}"`, a, 'chip')).join('')}</div>
-      <div class="tmc-lab">Anything else</div>
-      <div class="tmc-chips">${SOFTWARE_CATALOG.map(a => skOn(A.added.includes(a), `data-skset="sw:${esc(a)}"`, a, 'chip')).join('')}</div>`;
-    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : `Confirm ${hmAppsChosen().length} apps`}</button>`;
+    body = `<div class="tmc-lab">The standard list for new hires</div>
+      <div class="tmc-chips">${STANDARD_APPS.map(a => skOn(A.added.includes(a), `data-skset="sw:${esc(a)}"`, a, 'chip')).join('')}</div>`;
+    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : hmAppsChosen().length ? `Confirm ${hmAppsChosen().length} apps` : 'Just the basics'}</button>`;
   } else if (id === 'card') {
     const C = H.card;
     body = `<div class="tmc-p">${CARD_FLOW.managerQuestion}</div>
@@ -428,7 +430,7 @@ function skActCard(id) {
     body = p ? `<div class="tmc-p"><b>${p.name}</b>, ${p.role}.
         ${B.accepted ? 'They said yes. Their first month with Jordan gets booked.' : B.notified ? 'I’ve asked them. Waiting for a yes.' : 'Not asked yet.'}</div>
         <div class="tmc-p sub">They get a message from me saying what to do before Day 1, on Day 1 and in the first month.</div>`
-      : `<label class="tmc-lab" for="skBuddy">Buddy</label>
+      : `<label class="tmc-lab" for="skBuddy">Onboarding Buddy</label>
       <select class="tm-in" id="skBuddy" data-skin="buddy"><option value="">Choose someone…</option>
         ${ORG_PEOPLE.filter(o => o.team || o.dept === 'Global FP&A').map(o => `<option value="${o.id}">${o.name}, ${o.role}</option>`).join('')}</select>`;
     foot = !p ? '' : !B.notified ? `<button class="tm-btn primary" type="button" data-skact="buddyask">Ask ${p.name.split(' ')[0]}</button>
@@ -481,11 +483,11 @@ function skRefresh() {
 function skSet(spec) {
   const H = S.hm, [k, a, b] = spec.split(':');
   if (k === 'avail') { H.logistics.available = a === 'yes'; if (H.logistics.available) H.logistics.proxy = ''; }
+  else if (k === 'inoffice') H.logistics.firstInOffice = a;
   else if (k === 'card') {
     H.card.needed = a === 'yes';
     toast(H.card.needed ? 'Recorded. The agreement is now on Jordan’s list for Day 2.' : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
   }
-  else if (k === 'swstd') H.software.removed = H.software.removed.includes(a) ? H.software.removed.filter(x => x !== a) : [...H.software.removed, a];
   else if (k === 'sw') H.software.added = H.software.added.includes(a) ? H.software.added.filter(x => x !== a) : [...H.software.added, a];
   else if (k === 'hold') H.calendar.holds[a] = !H.calendar.holds[a];
   else if (k === 'svq') H.survey.answers[a] = +b;
@@ -496,7 +498,7 @@ function skAct(what) {
   const done = {
     logistics: () => { H.logistics.confirmed = true; return 'First-day details confirmed. They feed Jordan’s first-day card.'; },
     software:  () => { H.software.confirmed = true; return `Apps confirmed: ${hmAppsChosen().length} for Jordan’s first day.`; },
-    buddyask:  () => { H.buddy.notified = true; return `${who.name} has been asked, with what being a buddy means. Nothing is booked until they say yes.`; },
+    buddyask:  () => { H.buddy.notified = true; return `${who.name} has been asked, with what being an Onboarding Buddy means. Nothing is booked until they say yes.`; },
     buddyaccept: () => { H.buddy.accepted = true; return `${who.name} said yes. A prototype control, so you can see what follows.`; },
     buddyclear: () => { H.buddy = { assigned:null, notified:false, accepted:false }; return ''; },
     calendar:  () => { H.calendar.confirmed = true; return 'Day 1 confirmed.'; },
@@ -515,6 +517,7 @@ function skInput(el) {
   const k = el.dataset.skin; if (!k) return false;
   const H = S.hm;
   if (k === 'logistics.whereToBe') H.logistics.whereToBe = el.value;
+  else if (k === 'logistics.firstInOfficeDate') H.logistics.firstInOfficeDate = el.value;
   else if (k === 'welcome.personal') H.welcome.personal = el.value;
   else if (k.startsWith('survey.')) H.survey.answers[k.split('.')[1]] = el.value;
   else if (k === 'logistics.proxy') { H.logistics.proxy = el.value; skRefresh(); return true; }
@@ -580,7 +583,7 @@ function skTaskCard(key) {
   if (later) return `<div class="sk-sys">${skSysRow({ name:later.name,
     meta:`${week1Items().includes(later) ? 'Your first week' : `Day 1, ${dueText(startDate())}`} · ${later.sys}`, route:later.route, icon:later.icon })}</div>`;
   if (key === 'intro') return `<div class="sk-sys">${skSysRow({ name:'Add a badge photo, and say hello to your team',
-    meta:`Optional · photo by ${dueText(dueFor('photo'))}`, route:'#/intro', icon:'comment-smile.svg' })}</div>`;
+    meta:`Up next · photo by ${dueText(dueFor('photo'))}`, route:'#/intro', icon:'comment-smile.svg' })}</div>`;
   return '';
 }
 

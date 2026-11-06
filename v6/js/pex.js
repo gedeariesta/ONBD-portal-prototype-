@@ -168,7 +168,7 @@ function pexWithLiveJordan(list) {
     buddy: !!H.buddy.assigned,
     proxy: !!(H.logistics.proxy && H.logistics.proxy.trim()),
     photo: S.photo.done || S.photo.confirmedExisting,
-    rtw: false,
+    rtw: S.rtw.done,
     medicalNeeded: S.country === 'JP', medicalDone: false,
     bgcheck: S.bgcheck.launched,
     compliance: Object.values(S.policies.acked).filter(Boolean).length,
@@ -215,14 +215,14 @@ const PEX_QUEUES = [
     reason: h => `Waiting on ${h.blockedBy}`,
     waiting: h => h.blockedBy, action:'Remind' },
 
-  /* Reframed: auto-assignment was cut. The PRD's SLA assigned a buddy from a
+  /* Reframed: auto-assignment was cut. The PRD's SLA assigned an Onboarding Buddy from a
      pool at Day −1 if the manager had not, which made this queue a window in
      which a considered choice was still possible. With no safety net, nothing
      catches it at all — an unworked row here means a new hire starts without
-     a buddy. The queue got more important, not less. */
-  { id:'buddy', label:'No buddy named', icon:'users-friends.svg', sev:'high',
-    blurb:'Any hire inside three weeks without a buddy',
-    why:'Nothing assigns one automatically. If the manager does not name somebody, the new hire starts without a buddy and this queue is the only thing that catches it.',
+     an Onboarding Buddy. The queue got more important, not less. */
+  { id:'buddy', label:'No Onboarding Buddy named', icon:'users-friends.svg', sev:'high',
+    blurb:'Any hire inside three weeks without an Onboarding Buddy',
+    why:'Nothing assigns one automatically. If the manager does not name somebody, the new hire starts without an Onboarding Buddy and this queue is the only thing that catches it.',
     src:'PRD S2-US18 AC3 gave the manager until Day −3 to change. The pool auto-assignment in that SLA has been cut, so the fallback it described no longer exists.',
     batch:'Yes.',
     test: h => !h.buddy && h.startOff <= 21,
@@ -560,12 +560,12 @@ function pexWaitingOn(h) {
 /* The inline three-step stepper the HR sample uses per row. Phase is
    derived, not stored: there is no agreed readiness formula (OI-06),
    so this counts what is done rather than scoring it. */
-/* The same three the new hire and the manager count (A-64). Right to work
-   and the badge photo still show on the record, but they are not counted,
-   so "2 of 3" means the same thing on all three screens. */
+/* The same four the new hire and the manager count (A-64, A-86). The badge
+   photo still shows on the record but is not counted, so "2 of 4" means the
+   same thing on all three screens. */
 function pexPhase(h) {
-  const done = [h.startConfirmed, h.bgcheck, h.eqOrdered].filter(Boolean).length;
-  return { done, total:3, at: done >= 3 ? 2 : done ? 1 : 0 };
+  const done = [h.startConfirmed, h.bgcheck, h.rtw, h.eqOrdered].filter(Boolean).length;
+  return { done, total:4, at: done >= 4 ? 2 : done ? 1 : 0 };
 }
 
 function renderPexCaseload() {
@@ -831,19 +831,19 @@ function pexOwnerRows(who, h) {
       note: h.dateMoved ? 'Change requested, sitting with you' : '' },
     { group:'pre', label:'Background check started', state: st(h.bgcheck), sensitive:true,
       note: h.bgcheck ? 'Running with the provider' : 'Not started' },
+    { group:'pre', label:'Right to work, their part', state: st(h.rtw), sensitive:true,
+      note: h.rtw ? 'Done. The rest is checked in person on Day 1.' : 'Not done, in the Right to Work system' },
     { group:'pre', label:'Equipment chosen and ordered', state: st(h.eqOrdered, h.eqChosen),
       note: h.eqOrdered ? `Ships in ${h.eqEta} days` : h.eqChosen ? 'Chosen, order not submitted' : 'Not chosen' },
-    { group:'also', label:'Right to work, their part', state: st(h.rtw), sensitive:true,
-      note: h.rtw ? 'Done. The rest is checked in person on Day 1.' : 'Not done, in the Right to Work system' },
-    { group:'also', label:'Badge photo, optional', state: h.remote ? 'done' : st(h.photo),
+    { group:'also', label:'Badge photo', state: h.remote ? 'done' : st(h.photo),
       note: h.remote ? 'Remote hire, no badge required' : h.photo ? 'Sent to Workplace' : 'Otherwise taken at reception on Day 1' },
-    { group:'later', label:'Personal details, in Workday', state:'later', sensitive:true, note:'Opens on Day 1' },
+    { group:'later', label:'Bank, tax and emergency contacts', state:'later', sensitive:true, note:'Opens on Day 1' },
     { group:'later', label:'Handbooks and notices', state:'later', sensitive:true, note:'Opens in the first week' },
   ];
   if (who === 'hm') return [
     { label:'First-day details confirmed', state: st(h.firstDayDone), owner:h.mgr,
       note: !h.mgrColo && !h.proxy ? 'Nobody to meet them on Day 1' : !h.firstDayDone ? 'Not confirmed yet' : h.mgrColo ? 'Manager will be there' : 'Stand-in will meet them' },
-    { label:'Buddy named', state: st(h.buddy), owner:h.mgr,
+    { label:'Onboarding Buddy named', state: st(h.buddy), owner:h.mgr,
       note: h.buddy ? 'Accepted' : 'Nothing assigns one automatically' },
     { label:'Apps for Day 1', state: h.appsDone ? 'done' : 'open', owner:h.mgr,
       note: h.persona ? 'Confirmed' : h.appsDone ? 'Picked by hand, no standard list for the role' : 'Held up: no standard app list for the role' },
@@ -872,7 +872,7 @@ function pexActivity(h) {
   if (h.dateMoved) ev.push([0, 'Start date', `${h.preferred} requested a new start date. Sitting with you.`]);
   if (h.escalations) ev.push([0, 'Help request', `${h.escalations} help request${h.escalations>1?'s':''} passed on from the manager.`]);
   if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Delivery takes ${h.eqEta} days.`]);
-  if (h.buddy) ev.push([2, 'People', `${h.mgr} named a buddy and they accepted.`]);
+  if (h.buddy) ev.push([2, 'People', `${h.mgr} named an Onboarding Buddy and they accepted.`]);
   if (h.bgcheck) ev.push([3, 'Background check', `Launched by ${h.preferred}. Running with the provider.`]);
   if (!h.persona) ev.push([4, 'Apps', 'No standard app list for this role. You were told.']);
   ev.push([6, 'Location', `${h.loc} Day 1 details set by People Experience.`]);

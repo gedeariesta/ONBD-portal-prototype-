@@ -11,7 +11,7 @@ register row.
 | Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` | `v5/` | `v6/` |
 | Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` | `dist/equinix-preday1-portals-v5-paradox-teams.html` | `…-v6-servicenow-rethought.html` |
 | Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick | Same as v4, with Sidekick for the coordinator too | Same as v5, plus the buddy's ask |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 143 · 121 live · 22 retired, plus 52 ServiceNow features |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 146 · 124 live · 22 retired, plus 52 ServiceNow features |
 | Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) | same as v4 | adds the ServiceNow walkthrough (January 2026) and the 30 Oct review |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
@@ -82,8 +82,34 @@ ServiceNow bookkeeping, and `flows.js` fails if one loses its anchor.
 - **Home keeps your place.** Coming back from a task returns you to where
   you were, and finished tasks move to a Done list at the bottom (the
   manager's sink to the bottom of each phase).
-- **Equipment follow-ups.** The comment box on a submitted order is now
-  "Follow-ups and requests", for anything about the equipment.
+- **Equipment follow-ups.** The comment box on a submitted order was
+  renamed; on 6 Nov it was replaced (below).
+
+**What the 6 Nov review with Janine changed:**
+- **Four things before Day 1** (A-86): the right to work check (I-9 Section
+  1 in the US) joins the start date, the background check and equipment,
+  third, in the process tree's order. Counted the same on all three sides.
+- **No "optional".** What used to be "Optional, if you have time" is "Up
+  next, when you have time", with no Optional chips.
+- **Equipment.** "Somewhere else" is now "a different address", in separate
+  fields so it works in every country (to confirm with CDW, A-85). No
+  free-text box on a submitted order: "Change my order" goes back through
+  the same choices, and Get help goes to MyHR, then People Experience.
+- **Check your details.** Edited in place, except the personal email, which
+  is the sign-in, so changing it is a request to People Experience. An
+  edited home address is where equipment ships.
+- **Onboarding Buddy** everywhere, the programme's name.
+- **Day 1 is for the manager and the Onboarding Buddy.** Other meetings
+  are offered from the end of the first week (A-87 covers the badge below).
+- **The badge** is issued for the day the manager will first be in the
+  office with the new hire, which the manager now gives (A-87).
+- **Apps:** one standard list for every new hire, no lists by role (M-04).
+- **Manager survey:** the diverse candidates question is gone; reporting
+  measures it (M-35).
+- **The manager's banner** shows what is to do now, what is done of the
+  total, and what is coming up, with the new hire's own progress beneath.
+- **Get ready for Day 1** (A-88) opens a week before the start, for the
+  live online orientation.
 
 ## v5 — Sidekick where people meet it
 

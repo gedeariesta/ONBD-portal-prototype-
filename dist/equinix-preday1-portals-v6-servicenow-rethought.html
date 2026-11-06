@@ -1304,16 +1304,12 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .inc-team{font-size:var(--t-meta); color:var(--nickel); margin-left:auto;}
 /* single column now that the incident is tabbed, as the live one is */
 .inc-body{padding:20px 22px;}
-.inc-body .inc-add{margin-top:8px;}
 .inc-lbl{font-size:var(--t-micro); font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px;}
 .inc-val{font-size:var(--t-sm); color:var(--charcoal); font-weight:400;}.attach{
   display:flex; gap:8px; align-items:center; margin-top:14px; padding:9px 12px;
   background:var(--silver); border-radius:var(--radius); font-size:var(--t-meta); color:var(--charcoal); font-weight:400;
 }
-.attach .ic{color:var(--carbon);}.inc-add{display:flex; gap:8px;}
-.inc-add input{flex:1; font-family:inherit; font-size:var(--t-sm); padding:8px 12px; border:1px solid var(--titanium); border-radius:var(--radius); outline:none;}
-.inc-add input:focus{border-color:var(--eq-blue);}
-
+.attach .ic{color:var(--carbon);}
 /* ---------- suggested network (A-43) ---------- */
 .proposed-banner{
   display:flex; gap:14px; align-items:flex-start; max-width:940px; margin-bottom:22px;
@@ -2819,7 +2815,6 @@ body.snmarks .snm{display:inline-flex;}
 .proto-drawer .pc-row.na .pc-btn.on:hover{border-color:var(--eq-aqua); color:var(--charcoal);}
 .proto-drawer .pc-na{font-size:var(--t-micro); color:var(--platinum); font-style:italic; margin-top:6px;}
 
-.inc-help{font-size:var(--t-sm); color:var(--carbon); margin:2px 0 10px; max-width:640px;}
 
 /* v6: the manager does every task from the Teams chat (M-37) */
 .tmc-f{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
@@ -2845,6 +2840,28 @@ body.snmarks .snm{display:inline-flex;}
 .tmc-sq-q{font-size:var(--t-sm); color:var(--tm-text); line-height:1.45;}
 .tmc-scale{display:flex; gap:5px;}
 .tm-btn.sq{width:34px; justify-content:center; padding:5px 0;}
+
+/* A different address, as separate fields (A-85) */
+.addr-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 16px; max-width:620px;}
+.addr-grid .field.wide{grid-column:1 / -1;}
+/* What to do after an order is in: change it, or get help (A-42) */
+.inc-next{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;}
+.in-opt{display:flex; flex-direction:column; gap:4px; align-items:flex-start; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; background:var(--white);}
+.in-opt b{font-size:var(--t-ui); color:var(--charcoal);}
+.in-opt span{font-size:var(--t-sm); color:var(--carbon); margin-bottom:6px;}
+
+/* Check your details: edit in place, or locked (A-65) */
+.det-card dd{display:flex; flex-wrap:wrap; align-items:center; gap:8px;}
+.det-edit-btn{font:inherit; font-size:var(--t-sm); font-weight:700; color:var(--text-link); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;}
+.det-lock{display:inline-flex; align-items:center; gap:5px; font-size:var(--t-meta); font-weight:400; color:var(--carbon);}
+.det-edit dd input{flex:1 1 260px; font:inherit; font-size:var(--t-sm); padding:6px 9px; border:1px solid var(--line-strong); border-radius:var(--radius);}
+.det-acts{display:flex; gap:6px;}
+
+/* The manager's three stats, and the new hire's progress beneath (Janine, 6 Nov) */
+.scene-stats.hm3{display:grid; grid-template-columns:repeat(3, auto); gap:14px 40px; align-items:end;}
+.scene-stats.hm3 .stat b{font-size:72px;}
+.scene-stats .stat-line{grid-column:1 / -1; max-width:420px; font-size:var(--t-sm); color:var(--scene-text); display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.scene-stats .stat-line b{color:var(--white);}
 
 </style>
 </head>
@@ -2949,6 +2966,7 @@ const SIM = {
 const DUE_OFFSETS = {
   startdate: -14,   // triggered at offer acceptance (A-49)
   bgcheck: -13,     // launched from the portal, runs externally (A-50)
+  rtw: -13,         // I-9 Section 1, by Day 1 at the latest (A-86)
   equipment: -12,   // earliest of the provisioning tasks, build and ship lead (A-33)
   photo: -10,       // badge print lead
   intro: -7,
@@ -2981,7 +2999,7 @@ const PEOPLE = {
   recruiter: { name: 'Daniel Okafor', role: 'Recruiter', initials: 'DO', cls: 'rec' },
   manager: { name: 'Priya Anand', role: 'Your manager, Director of FP&A', initials: 'PA', cls: 'mgr' },
   buddy: {
-    name: 'Nina Kowalski', role: 'Your onboarding buddy, Senior Financial Analyst',
+    name: 'Nina Kowalski', role: 'Your Onboarding Buddy, Senior Financial Analyst',
     initials: 'NK', cls: 'buddy', tz: 'Chicago (CT), an hour ahead of you',
     assignedBy: 'Chosen by Priya Anand when your start date was confirmed.',
   },
@@ -3044,7 +3062,7 @@ const ASSUMPTIONS = [
     resolve:'The earlier spec assumed RITMs throughout. Amendment by comment is what people actually do, and UAT shows it: “can you please add a webcam” typed into the ticket for an item that was left unticked on the form minutes earlier. Either support it with a proper “change my order” path, or route amendments somewhere better. Nothing reads the CSV back, so today a person at the other end has to reconcile the two.', oi:'' },
   { id:'A-43', group:'blocks', prov:'1:1', screen:'Suggested network', route:'#/network',
     assumed:'The manager names at least five people outside the reporting line, writes why each matters, each is notified, and the new hire gets the list plus suggested 1:1 times.',
-    resolve:'Does not exist today. It needs a new manager task, a notification and a booking integration, and it may belong at Day 1 instead of pre-Day 1. It is neither the org chart nor the buddy, so keep all three separate.', oi:'' },
+    resolve:'Does not exist today. It needs a new manager task, a notification and a booking integration, and it may belong at Day 1 instead of pre-Day 1. It is neither the org chart nor the Onboarding Buddy, so keep all three separate.', oi:'' },
   { id:'A-48', group:'blocks', prov:'UAT', screen:'All screens', route:'#/',
     assumed:'The prototype is a single page. The live platform is two levels: a MyHR hub (carousel, videos, countdown, culture links) and a separate task portal you click into.',
     resolve:'Declared, not silently diverged. Decide whether to adopt the split, because it changes navigation, the progress model and where the culture content lives.', oi:'' },
@@ -3139,8 +3157,8 @@ const ASSUMPTIONS = [
     assumed:'Built for laptop only. No mobile layouts.',
     resolve:'Revisit this before build for the IBX technician persona, who may be more phone-reliant than a desk hire. Analytics from the current portal would settle it.', oi:'' },
   { id:'A-31', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
-    assumed:'The onboarding buddy is visible from the moment they are assigned, with role, timezone and who chose them.',
-    resolve:'An earlier proposal surfaced the buddy 72 hours before the start date. Showing them from assignment gives the new hire someone to talk to during the quiet weeks. Confirm what the buddy programme intends.', oi:'' },
+    assumed:'The Onboarding Buddy is visible from the moment they are assigned, with role, timezone and who chose them.',
+    resolve:'An earlier proposal surfaced the Onboarding Buddy 72 hours before the start date. Showing them from assignment gives the new hire someone to talk to during the quiet weeks. Confirm what the Onboarding Buddy programme intends.', oi:'' },
   { id:'A-32', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
     assumed:'The hiring manager is contactable from the portal before Day 1, by Teams and email.',
     resolve:'Confirm the manager expects to be reachable this early, and that Teams reaches them before the new hire has an Equinix account.', oi:'' },
@@ -3225,7 +3243,7 @@ const ASSUMPTIONS = [
     resolve:'Said in the Artifacts meeting: the pre-hire experience stays limited to these three, with about three tasks on Day 1 and benefits, compliance and the rest from Day 2 through the first week. The five-or-fewer target is the ceiling, not the plan. Open: whether the limit is strict enough to rule out the optional badge photo and introduction (A-68), and where right to work, which finishes in another system, is counted.', oi:'' },
   { id:'A-65', group:'blocks', prov:'MTG', screen:'Check your details', route:'#/details',
     assumed:'Personal details have two halves, both in the portal. Now, optional: check what Equinix already holds from the offer (name, email, home address) and say if anything is wrong. Day 1: add bank, tax, emergency contacts and voluntary self-identification. The new hire never goes to Workday, which stores it behind the portal.',
-    resolve:'Gede, 5 Nov: a screen the new hire cannot act on is not worth showing, and ServiceNow is the only place they interact, so the Workday wording is gone. Before that, the Artifacts meeting had settled that Workday stays the system of record and the payroll fields are entered once. Open: whether bank details entered on Day 1 reach the first payroll run; if not, that one item has to come before Day 1. A correction lands in the coordinator’s Help requests.', oi:'OI-20' },
+    resolve:'Gede, 5 Nov: a screen the new hire cannot act on is not worth showing, and ServiceNow is the only place they interact, so the Workday wording is gone. Before that, the Artifacts meeting had settled that Workday stays the system of record and the payroll fields are entered once. Open: whether bank details entered on Day 1 reach the first payroll run; if not, that one item has to come before Day 1. A correction lands in the coordinator’s Help requests. Janine, 6 Nov: the new hire edits their own details here (a two-way link with Workday is planned), except the personal email, which is their sign-in, so changing it is a request to People Experience.', oi:'OI-20' },
   { id:'A-66', group:'retired', prov:'MTG', screen:'Policies and notices', route:'#/policies',
     assumed:'Policies and notices open in the first week. Labour notices are acknowledged in ServiceNow, each with its date and time kept for audit. The handbooks are one link to the SharePoint site and one acknowledgment, not a pack of documents. The notices can be read ahead before the start date; nothing can be signed.',
     resolve:'Handbook access starts after the start date, the roughly 35 handbooks need one task rather than one each, and labour notices sit in ServiceNow for the timestamp (all said in the Artifacts meeting). Open: Netherlands and Canada contracts refer to the handbook, which a new hire cannot see before they start; whether acknowledging is mandatory before the next task opens; and which code of conduct and whistleblower acknowledgments can go, since compliance learning already asks for some of them. Retired after the review with Janine: the handbooks are eight acknowledgements nested in one task, not one link and one acknowledgment, and signing goes through DocuSign rather than ServiceNow (A-76).', oi:'' },
@@ -3271,9 +3289,9 @@ const ASSUMPTIONS = [
   { id:'A-80', group:'content', prov:'MTG', screen:'Onboarding videos', route:'#/',
     assumed:'The portal uses the onboarding videos that already exist: one before Day 1 and one for Day 1. The others stay as supporting links. Nothing new is produced first.',
     resolve:'Janine’s call: Adair’s video for pre-Day 1 and Brandy’s for Day 1, rather than waiting on employee communications for new content. The titles on screen are descriptive, not the videos’ real titles, and the videos are not embedded in the prototype.', oi:'' },
-  { id:'A-81', group:'content', prov:'MTG', screen:'Checklists and buddy content', route:'#/',
-    assumed:'The hiring-manager and candidate checklists do not survive as documents. Their actions become tasks where they need doing, and their guidance becomes HR articles Sidekick can answer from. The buddy programme materials are handled the same way.',
-    resolve:'Janine: the checklists should translate into the AI-first experience rather than be preserved as a standalone document, and Megan’s buddy materials are well advanced. Open: which checklist lines are tasks and which are guidance, line by line.', oi:'' },
+  { id:'A-81', group:'content', prov:'MTG', screen:'Checklists and Onboarding Buddy content', route:'#/',
+    assumed:'The hiring-manager and candidate checklists do not survive as documents. Their actions become tasks where they need doing, and their guidance becomes HR articles Sidekick can answer from. The Onboarding Buddy programme materials are handled the same way.',
+    resolve:'Janine: the checklists should translate into the AI-first experience rather than be preserved as a standalone document, and Megan’s Onboarding Buddy materials are well advanced. Open: which checklist lines are tasks and which are guidance, line by line.', oi:'' },
   { id:'A-82', group:'design', prov:'MTG', screen:'Sidekick, new hire', route:'#/',
     assumed:'Before Day 1 the new hire’s assistant runs on Paradox, at paradox.ai, the same place the candidate journey ran. It is Sidekick powered by Paradox: Sidekick’s answers, rules and system cards in Paradox’s frame, labelled clearly as Paradox and not the full Sidekick. From Day 1 the same help is Sidekick in Microsoft Teams.',
     resolve:'Gede’s direction, after seeing the talent marketplace team’s candidate journey on Paradox: dual-wield rather than make the new hire’s assistant purely generic, because the pre-Day 1 assistant was discussed as training wheels for the full Sidekick. Open: whether Paradox can host Sidekick’s answers and the knowledge articles at all, what the assistant is called on Paradox, and whether the hand-over on Day 1 carries the conversation with it.', oi:'' },
@@ -3282,9 +3300,18 @@ const ASSUMPTIONS = [
     resolve:'Janine: everything the hiring manager does should be actionable through Sidekick, as one checklist in a Teams chat, and the phone number check is to be added to it, though she wants People Experience to confirm it is needed at all. Open: whether a real Teams integration can be embedded in the portal or only linked, and who builds the Sidekick hiring manager experience with Brian.', oi:'' },
   { id:'A-84', group:'design', prov:'MTG', screen:'Sidekick, coordinator', route:'#/pex/',
     assumed:'The People Experience coordinator has Sidekick too, in the same Teams window. It answers from her queues and the caseload, and the answer is the list itself, drawn by the system. It does not offer to hand her to a person, because she is the person questions are handed to. v4 gave her no assistant for that reason.',
-    resolve:'Gede: the hiring manager and People Experience views are fully Sidekick. Open: which queue questions coordinators actually ask, and whether the nudges she sends from the queues should come from the same chat.', oi:'' },  { id:'A-85', group:'design', prov:'MTG', screen:'Equipment', route:'#/equipment',
-    assumed:'Equipment ships to an Equinix location or to the home address on the new hire’s record, nowhere else. Interns, and Senior Directors and above, can also name another address.',
-    resolve:'Janine, 30 Oct: bad actors have been getting laptops sent to new addresses and getting behind the firewall. The candidate fraud decision is due within a week and may change this. Open: how the portal knows someone is a Senior Director (job level from Workday), and whether “another Equinix site” needs its own picker or stays a message to the coordinator.', oi:'' },
+    resolve:'Gede: the hiring manager and People Experience views are fully Sidekick. Open: which queue questions coordinators actually ask, and whether the nudges she sends from the queues should come from the same chat.', oi:'' },  { id:'A-86', group:'design', prov:'MTG', screen:'Right to work', route:'#/rtw',
+    assumed:'The right to work check is one of the things before Day 1, third after the start date and the background check. In the US it is I-9 Section 1, done in the separate Right to Work system; Section 2 is in person at orientation.',
+    resolve:'Janine, 6 Nov: show the four things they need to do now, in the process tree’s order. Global mobility (3 Nov) said Section 1 is missed today because a Workday contact-verification task arrives 24 hours late and hides it. Open: what other countries need here, and whether the portal can learn the status back from the Right to Work system.', oi:'' },
+  { id:'A-87', group:'design', prov:'MTG', screen:'Confirm the first-day details', route:'#/hm/logistics',
+    assumed:'The manager says when they will first be in the office with the new hire, on Day 1 or a later date. The badge is issued for that day, not for the start date.',
+    resolve:'Janine, 6 Nov: not every Day 1 is in person, and someone may first come in weeks later, so security delivers the badge for the day the manager will meet them in person. Open: whether security can take that date from the portal, and what happens when it moves.', oi:'' },
+  { id:'A-88', group:'content', prov:'MTG', screen:'Task list', route:'#/',
+    assumed:'A “Get ready for Day 1” step opens a week before the start date, with the link to sign up for the live online orientation and what to have ready.',
+    resolve:'Janine, 6 Nov: the first day experience is being redesigned with a consulting firm as a digital session of an hour to an hour and a half, so there is preparation to do before Day 1. Open: the sign-up mechanics, and whether it is a step in the readiness tracker (for Brian).', oi:'' },
+  { id:'A-85', group:'design', prov:'MTG', screen:'Equipment', route:'#/equipment',
+    assumed:'Equipment ships to an Equinix location or to the home address on the new hire’s record, nowhere else. Interns, and Senior Directors and above, can also give a different address, as separate fields (street, city, region, postcode, country).',
+    resolve:'Janine, 30 Oct: bad actors have been getting laptops sent to new addresses and getting behind the firewall. The candidate fraud decision is due within a week and may change this. Open: how the portal knows someone is a Senior Director (job level from Workday), and whether “another Equinix site” needs its own picker or stays a message to the coordinator. Janine, 6 Nov: words have to work in every country (so “a different address”, not “somewhere else”), and the courier may need separate fields; to confirm with CDW.', oi:'' },
 ];
 
 const GROUP_LABELS = {
@@ -3312,7 +3339,7 @@ const PROV_LABELS = {
 const DECIDE_FIRST = [
   // v4: the two decisions the AI-forward proposal rests on come first. The
   // computer question that used to head this list is settled (A-60).
-  { ids:['A-64','A-68'], head:'How strict “three things before Day 1” is',
+  { ids:['A-64','A-68'], head:'How strict “four things before Day 1” is',
     why:'It decides whether the badge photo and the introduction stay as optional extras, move to Day 1, or go. It is the first thing a new hire sees, and the most visible change from today.',
     when:'Next conversation with Janine.' },
   { ids:['A-70','A-71'], head:'What Sidekick is allowed to do, and what it can see',
@@ -3332,7 +3359,7 @@ const DECIDE_FIRST = [
     when:'Before the manager task list is fixed.' },
   { ids:['M-27','M-10'], head:'What makes a name count',
     why:'Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
-    when:'Alongside the buddy programme, which is being written now.' },
+    when:'Alongside the Onboarding Buddy programme, which is being written now.' },
   { ids:['A-38'], head:'Shipping to an address a new hire chooses',
     why:'A person who has not started yet can redirect a laptop. Whether the answer is a restriction, a verification or an approval, it belongs in the requirements.',
     when:'Before the equipment flow is built.' },
@@ -3496,7 +3523,7 @@ const CHAPTER_ART = [
 /* Chapter titles, headlines and content come from the live Inside Equinix
    site. Chapter 03 is "What we do", not the "Our business" an earlier version
    of this prototype guessed at. Every chapter there closes with a reflection
-   prompt pointing at the manager or buddy conversation, which is the part
+   prompt pointing at the manager or Onboarding Buddy conversation, which is the part
    that reaches back into this portal (L-12). */
 const INSIDE_CHAPTERS = [
   { n:'01', title:'Who we are',
@@ -3543,7 +3570,7 @@ const INSIDE_CHAPTERS = [
    they are written to be picked up in a conversation, not stored in a form. */
 const REFLECT_NOTE =
   'Capture your thoughts, including any questions or areas where you want to learn more. ' +
-  'You will revisit these in your upcoming conversation with your manager or onboarding buddy.';
+  'You will revisit these in your upcoming conversation with your manager or buddy.';
 
 /* ---------- The live to-do timeline (A-56) ----------
    UAT shows the platform's own to-do UI: a phase rail on the left, one phase
@@ -3612,7 +3639,7 @@ const READINESS = [
   { id:'apps', label:'Applications', icon:'portal-window.svg', sys:'ServiceNow',
     owners:'The manager and IT',
     stages:[
-      { label:'Role list found',    note:'The role decides the standard apps.' },
+      { label:'Standard list ready', note:'One list for every new hire.' },
       { label:'Stack confirmed',    note:'The manager confirms the defaults and adds anything role-specific.' },
       { label:'Licences requested', note:'Each application raises its own request and carries its own status.' },
       { label:'Active on Day 1',    note:'Access switches on with the start date, not before.' },
@@ -3630,8 +3657,8 @@ const READINESS = [
   { id:'people', label:'People', icon:'users-friends.svg', sys:'Onboarding portal',
     owners:'The manager',
     stages:[
-      { label:'Buddy chosen',     note:'From the team, and changeable up to three days before the start date.' },
-      { label:'Buddy told',       note:'They are notified, including what being a buddy involves.' },
+      { label:'Onboarding Buddy chosen',     note:'From the team, and changeable up to three days before the start date.' },
+      { label:'Onboarding Buddy told',       note:'They are notified, including what being an Onboarding Buddy involves.' },
       { label:'Network named',    note:'The people outside the reporting line, with a reason for each.' },
       { label:'Introduction out', note:'The manager forwards it. Nothing is posted automatically.' },
     ] },
@@ -3705,6 +3732,10 @@ const COMING_UP = [
     note:'You set up your own laptop, and the IT help desk is open all day', icon:'portal-window.svg',
     expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
     dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
+  { id:'prep', when:'pre', name:'Get ready for Day 1', opens:'1 week before you start', marker:'A-88',
+    note:'Sign up for your online orientation, an hour to an hour and a half, live', icon:'rocket.svg',
+    expl:'Your first day starts with a live online orientation. A week before, this opens with the link to sign up and what to have ready: your laptop charged, a quiet spot, and your sign-in details from the day before.',
+    dnote:'New in v6 (Janine, 6 Nov): orientation is being redesigned with a consulting firm as a live digital session of an hour to an hour and a half, so there is something to prepare. Whether it becomes a step in the readiness tracker is for Brian.' },
   { id:'firstday', when:'pre', name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
     expl:'Held back until 3 days before you start, so what you see is final.' },
@@ -3712,7 +3743,7 @@ const COMING_UP = [
     note:'Your username and how to set your password', icon:'lock.svg',
     expl:'Your sign-in details, ready the day before you start.',
     dnote:'A to-do in the live portal that nobody has documented the contents of. Worth pinning down: it sits awkwardly beside the current practice of managers handing over sign-in details.' },
-  { id:'phone', when:'day1', name:'Order a phone', opens:'Day 1, optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
+  { id:'phone', when:'day1', name:'Order a phone', opens:'Day 1', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
     expl:'Ordered on or after Day 1, and only if your role needs one.',
     dnote:'Keeping it out of pre-boarding is a choice, not an oversight.' },
   { id:'benefits', when:'week1', name:'Benefits enrolment', opens:'Day 2', marker:'A-77',
@@ -3721,8 +3752,8 @@ const COMING_UP = [
     dnote:'Q4 scope, per the September meetings: Benefacts countries with links ready by the end of October, and PlanSource for the US. Darwin countries follow from Q1, quarter by quarter.' },
   { id:'infogov', when:'week1', name:'Information governance', opens:'Your first week', note:'Short training on how Equinix handles information', icon:'file-alt.svg', marker:'A-21',
     expl:'Runs in your first week, once you have your Equinix account. It covers how we handle information here.' },
-  { id:'workspace', when:'week1', name:'Complete your at-home workspace setup', opens:'No due date, optional', note:'', icon:'desktop.svg',
-    expl:'Optional, with no due date. Nothing is waiting on you.',
+  { id:'workspace', when:'week1', name:'Complete your at-home workspace setup', opens:'Your first week', note:'', icon:'desktop.svg',
+    expl:'No due date. Do it once you’re set up at home.',
     dnote:'Shipped exactly as the live portal has it, so optional behaviour is visible here.' },
 ];
 
@@ -3770,13 +3801,13 @@ const DISPOSITIONS = {
 /* ---------- Who a manager can name (M-07 revised, M-26) ----------
    The direction is a plain list of people in the org, with no suggestion
    logic at all: "anybody can be a buddy" on first rollout, and the certified
-   buddy programme is years out. One named role, plus everyone else.
+   Onboarding Buddy programme is years out. One named role, plus everyone else.
 
-     Buddy       within the team or function. Culture and logistics, and the
+     Onboarding Buddy       within the team or function. Culture and logistics, and the
                  questions someone would rather not ask their manager.
 
    The cross-functional second role ("ambassador") was cut: one function-based
-   buddy, and everyone else is simply someone to meet. The name never settled,
+   Onboarding Buddy, and everyone else is simply someone to meet. The name never settled,
    it collided with the Employee Connection Networks, and carrying two named
    roles asked more of a manager than the programme can support on rollout. */
 const PEOPLE_ROLES = {
@@ -3860,14 +3891,11 @@ function deviceArt(family) {
   </svg>`;
 }
 
-/* The standard apps for Jordan's role (M-04, revised 5 Nov). The prototype
-   assumes roles are linked to app lists, so the manager confirms rather than
-   builds. Illustrative: the real list comes from IT for each role. */
-const ROLE_APPS = ['Anaplan', 'Power BI', 'Workday Adaptive Planning', 'Coupa'];
-/* Everything else in the IT catalogue, for anything the role list misses. */
-const SOFTWARE_CATALOG = [
-  'Tableau', 'Alteryx', 'Bloomberg Terminal', 'Salesforce',
-];
+/* The standard list of apps every new hire's manager picks from (M-04,
+   revised 6 Nov). No lists by role for now: Janine, 6 Nov. Illustrative: the
+   real list is to confirm with End User Technology. */
+const STANDARD_APPS = ['Anaplan', 'Power BI', 'Workday Adaptive Planning', 'Coupa', 'Tableau', 'Alteryx',
+  'Bloomberg Terminal', 'Salesforce'];
 
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
@@ -3885,11 +3913,11 @@ const DAY1_HOLDS = [
    help desk is available all day, so the pointer belongs in their checklist
    rather than as an hour in the manager's calendar.
 
-   Buddy check-in: moved to the days after Day 1. Day 1 is already full, and
-   a buddy conversation lands better once there is something to ask about. */
+   Onboarding Buddy check-in: moved to the days after Day 1. Day 1 is already full, and
+   an Onboarding Buddy conversation lands better once there is something to ask about. */
 const AFTER_DAY1_HOLDS = [
-  { id:'buddy', label:'Buddy check-in', when:'Day 2 or 3',
-    note:'Booked once the buddy accepts. Day 1 is full enough, and it works better once they have questions.' },
+  { id:'buddy', label:'Onboarding Buddy check-in', when:'Day 2 or 3',
+    note:'Booked once the Onboarding Buddy accepts. Day 1 is full enough, and it works better once they have questions.' },
 ];
 
 /* Teams channels and distribution lists for H-12 */
@@ -3903,8 +3931,9 @@ const CHANNEL_SUGGESTIONS = [
    save the manager writing it; the point of offering tones is that a
    pre-filled note which does not sound like the sender is worse than none.
    Same facts in each, different register. */
-/* The hiring manager's Day 1 survey: the final survey set, Day 1 block,
-   unchanged from the Glint survey ServiceNow sends today (M-35). */
+/* The hiring manager's Day 1 survey: the final survey set's Day 1 block, as
+   ServiceNow sends it today in Glint, less the diverse candidates question,
+   which is measured through reporting instead (Janine, 6 Nov) (M-35). */
 const HM_SURVEY = [
   { n:1, kind:'scale', q:'I am satisfied with the overall recruitment process.' },
   { n:2, kind:'scale', q:'The recruiter I worked with was a trusted advisor throughout the recruitment process.' },
@@ -3912,10 +3941,8 @@ const HM_SURVEY = [
   { n:4, kind:'scale', q:'I was provided with qualified candidates that fit the requirements for the role.' },
   { n:5, kind:'scale', q:'I was satisfied with the level of communication with the recruiter throughout our partnership.' },
   { n:6, kind:'scale', q:'I was sufficiently prepared to hold effective interviews.' },
-  { n:7, kind:'scale', q:'I was presented with diverse candidates (representation across more than one racial/ethnic/national background or gender identity).',
-    flag:'With Legal: this one cannot be asked as worded. Janine is reviewing it with Claire.' },
-  { n:8, kind:'text', q:'What would you recommend to help improve the overall recruitment process?' },
-  { n:9, kind:'known', q:'The primary recruiter who supported this hiring process.' },
+  { n:7, kind:'text', q:'What would you recommend to help improve the overall recruitment process?' },
+  { n:8, kind:'known', q:'The primary recruiter who supported this hiring process.' },
 ];
 
 const WELCOME_TEMPLATES = [
@@ -3971,8 +3998,8 @@ const HM_ASSUMPTIONS = [
     assumed:'The manager sees the new hire’s task names and status, but never task content. Sensitive tasks report status only.',
     resolve:'The walkthrough’s cross-persona visibility principle and the Decision Log’s caution point in different directions, and the persona-by-section visibility matrix is unwritten. This is the conservative reading. Argue it before build.', oi:'OI-03' },
   { id:'M-04', side:'hm', group:'design', prov:'MTG', screen:'Software stack', route:'#/hm/software',
-    assumed:'Each role is linked to a standard app list, so the manager sees Jordan’s apps already listed and only confirms, adds or removes.',
-    resolve:'Gede, 5 Nov: assume the role list exists. Before that this screen was drawn blocked and empty, because no list of roles to apps exists in ServiceNow today and the job-family fallback was rejected as inaccurate. That gap is real and still has to be closed with IT. Also open: an application rationalisation is running, so the list itself is moving; whether a manager may remove a standard app; and what happens to these requests today (Janine, 30 Oct).', oi:'OI-04' },
+    assumed:'The manager picks Jordan’s apps from one standard list that every new hire’s manager sees. There are no lists by role.',
+    resolve:'Janine, 6 Nov: no role lists for now, a standard list for every new hire to pick from (on 5 Nov the prototype had assumed role lists). To confirm with End User Technology: whether that list exists today, and what happens to the requests. Janine also doubts software will be in the first release at all.', oi:'OI-04' },
   { id:'M-10', side:'hm', group:'blocks', prov:'1:1', screen:'Team network', route:'#/hm/network',
     assumed:'Naming the new hire’s network is net-new manager work, the only proposal here that adds load instead of removing it.',
     resolve:'Everything else on the disposition review subtracts. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggested list can be close to one tap. It needs an explicit decision.', oi:'OI-26' },
@@ -4008,8 +4035,8 @@ const HM_ASSUMPTIONS = [
     assumed:'The Day 1 one-to-one is auto-created and can be rescheduled but not deleted. The other holds are suggestions the manager accepts.',
     resolve:'Automatic placement is specified for the one-to-one only. Whether the remaining holds auto-create is undecided, and it is the single biggest lever on how much work this screen represents.', oi:'OI-13' },
   { id:'M-07', side:'hm', group:'design', prov:'ASSUMED', screen:'Assign a buddy', route:'#/hm/buddy',
-    assumed:'REVISED. No suggestions at all. A plain list of people in the org, because on first rollout anybody can be a buddy. The capacity warning and the withheld performance signal are both gone with it.',
-    resolve:'The earlier design suggested a buddy and hid why. The direction is simpler and it removes the privacy problem entirely: pick from everyone in the function, and revisit suggestion logic when a certified buddy programme exists, which is years out rather than months. What is still undefined is the decline process, which now matters more because acceptance is a real step (M-27).', oi:'OI-10' },
+    assumed:'REVISED. No suggestions at all. A plain list of people in the org, because on first rollout anybody can be an Onboarding Buddy. The capacity warning and the withheld performance signal are both gone with it.',
+    resolve:'The earlier design suggested an Onboarding Buddy and hid why. The direction is simpler and it removes the privacy problem entirely: pick from everyone in the function, and revisit suggestion logic when a certified Onboarding Buddy programme exists, which is years out rather than months. What is still undefined is the decline process, which now matters more because acceptance is a real step (M-27).', oi:'OI-10' },
   { id:'M-08', side:'hm', group:'design', prov:'ASSUMED', screen:'Welcome email', route:'#/hm/welcome',
     assumed:'Pre-filled boilerplate, an editable personal message, and a read-only first-week block generated from the new hire’s actual task list.',
     resolve:'A superset screen, not in the approved workflow file. The generated first-week block is what makes this cheap instead of a blank page. Confirm the content can actually be generated.', oi:'' },
@@ -4029,7 +4056,7 @@ const HM_ASSUMPTIONS = [
     assumed:'The readiness tracker covers the whole checklist, not only manager tasks: their tasks plus People Experience, IT fulfilment and the badge and workspace items, each carrying its own status.',
     resolve:'Taken from the manager mockup v6.1, which states exactly this. It changes what the manager’s home screen is for: less a to-do list, more a single place to see whether Day 1 will work. Confirm the manager is meant to see other teams’ fulfilment status at all, because M-03 says they cannot see the new hire’s task content.', oi:'' },
   { id:'M-23', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
-    assumed:'Manager tasks carry due dates and a recommended order. Four are taken from the mockup, at Day −7 for equipment and location, Day −4 for the application stack and Day −2 for the welcome note and the buddy. The rest are proposed.',
+    assumed:'Manager tasks carry due dates and a recommended order. Four are taken from the mockup, at Day −7 for equipment and location, Day −4 for the application stack and Day −2 for the welcome note and the Onboarding Buddy. The rest are proposed.',
     resolve:'The mockup dates only five tasks. The corporate card, the Day 1 calendar, the team network and forwarding the introduction have no date in any source, so those four are marked. Someone has to set them, because a task with no date is a task with no nudge.', oi:'' },
   { id:'M-24', side:'hm', group:'blocks', prov:'PRIOR', screen:'Equipment', route:'#/equipment',
     assumed:'CONFLICT, unresolved. The mockup dates the equipment order at Day −7 and states a lead time of 5 to 7 business days.',
@@ -4038,8 +4065,8 @@ const HM_ASSUMPTIONS = [
     assumed:'CONFLICT, unresolved. This prototype draws the application stack blocked, because no persona resolves. The mockup shows eight applications auto-assigned from the job family in Workday, with the manager reviewing rather than building the list.',
     resolve:'The platform owner said no full persona list exists and that the job-family fallback is the approach the requirements analysis rejects as inaccurate. The mockup shows that fallback working. One of the two is out of date. This is the single biggest difference between the two manager screens, and it decides whether this task is a review or a data-entry job.', oi:'OI-04' },
   { id:'M-26', side:'hm', group:'retired', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
-    assumed:'Two named roles, not one. A buddy on the team or in the function, and a second cross-functional person who helps the new hire navigate and connect. Expected for executive hires, optional for everyone else, and one screen covers both plus anyone else worth meeting.',
-    resolve:'Decided: one function-based buddy, and the cross-functional role is removed. It never got an agreed name, “ambassador” collided with the Employee Connection Networks, and two named roles asked more of a manager than the buddy programme can carry on first rollout. Anyone who would have been an ambassador is now simply someone to meet. The role may return once the programme is written.', oi:'' },
+    assumed:'Two named roles, not one. An Onboarding Buddy on the team or in the function, and a second cross-functional person who helps the new hire navigate and connect. Expected for executive hires, optional for everyone else, and one screen covers both plus anyone else worth meeting.',
+    resolve:'Decided: one function-based Onboarding Buddy, and the cross-functional role is removed. It never got an agreed name, “ambassador” collided with the Employee Connection Networks, and two named roles asked more of a manager than the Onboarding Buddy programme can carry on first rollout. Anyone who would have been an ambassador is now simply someone to meet. The role may return once the programme is written.', oi:'' },
   { id:'M-27', side:'hm', group:'blocks', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
     assumed:'Naming someone is a request, not an assignment. They are asked, they accept, and only then is anything booked. Once accepted, the system reads their calendar and books the first month.',
     resolve:'“Assigned and approved and committed” is the bar, and this prototype only draws the first half. The booking side needs a calendar integration nobody has scoped, and the acceptance step needs a decision on what happens when someone says no three days before a start date.', oi:'' },
@@ -4059,15 +4086,15 @@ const HM_ASSUMPTIONS = [
     resolve:'The two-portal picture has a third party in it. Nothing specifies what happens when People Experience edit a blueprint a manager has already confirmed against: whether the task reopens, whether the manager is told, or what the new hire sees in the gap. This prototype reopens it and says so, which is the strict reading. The softer one, updating silently because the blueprint is authoritative anyway, is arguable and cheaper.', oi:'' },
 
   { id:'M-33', side:'hm', group:'design', prov:'1:1', screen:'Set up their first day', route:'#/hm/calendar',
-    assumed:'No IT setup window on Day 1. The new hire sets the machine up themselves, the help desk is open all day, and the pointer sits in their checklist rather than the manager’s calendar. The buddy check-in moves to Day 2 or 3.',
-    resolve:'IT would not commit to a designated setup window, so an hour booked against them was a promise nobody had made. The buddy move is a judgement: Day 1 is full, and the conversation lands better once there is something to ask about. Neither is sourced beyond the conversation they came from.', oi:'' },
+    assumed:'No IT setup window on Day 1. The new hire sets the machine up themselves, the help desk is open all day, and the pointer sits in their checklist rather than the manager’s calendar. The Onboarding Buddy check-in moves to Day 2 or 3.',
+    resolve:'IT would not commit to a designated setup window, so an hour booked against them was a promise nobody had made. The Onboarding Buddy move is a judgement: Day 1 is full, and the conversation lands better once there is something to ask about. Neither is sourced beyond the conversation they came from.', oi:'' },
 
   { id:'M-34', side:'hm', group:'design', prov:'MTG', screen:'Name who they should meet', route:'#/hm/buddy',
-    assumed:'The buddy gets a Sidekick message in Teams saying what being a buddy means and what to do before Day 1, on Day 1 and in the first month, and accepts from it. In ServiceNow today the buddy gets a task that only needs “complete”, with a link to the buddy programme.',
-    resolve:'Janine, 30 Oct: today nothing asks the buddy to do anything, or says why. The words come from the buddy playbook Janine is writing, which replaces the “role of a buddy” article. The three steps here are placeholders until it is written.', oi:'' },
+    assumed:'The Onboarding Buddy gets a Sidekick message in Teams saying what being an Onboarding Buddy means and what to do before Day 1, on Day 1 and in the first month, and accepts from it. In ServiceNow today the Onboarding Buddy gets a task that only needs “complete”, with a link to the Onboarding Buddy programme.',
+    resolve:'Janine, 30 Oct: today nothing asks the Onboarding Buddy to do anything, or says why. The words come from the Onboarding Buddy playbook Janine is writing, which replaces the “role of an Onboarding Buddy” article. The three steps here are placeholders until it is written.', oi:'' },
   { id:'M-35', side:'hm', group:'design', prov:'MTG', screen:'Hiring manager survey', route:'#/hm/survey',
-    assumed:'The hiring manager’s Day 1 survey is a task on their list, answered in Teams from Sidekick. The questions are the final survey set. ServiceNow sends the same questions today as a Glint survey, with a reminder.',
-    resolve:'Janine, 30 Oct: the survey fires out of ServiceNow today, so it has to be in the tree and in the new experience. Open: one question (the diverse candidates one) cannot be asked as worded and is with Legal, and whether answers still land in Glint.', oi:'' },
+    assumed:'The hiring manager’s Day 1 survey is a task on their list, answered in Teams from Sidekick. The questions are the final survey set’s Day 1 block, less the diverse candidates question. ServiceNow sends them today as a Glint survey, with a reminder.',
+    resolve:'Janine, 30 Oct: the survey fires out of ServiceNow today, so it has to be in the tree and in the new experience. Janine, 6 Nov: the diverse candidates question is removed, because it can be measured through reporting (it is reviewed in every QBR). Open: whether answers still land in Glint.', oi:'' },
   { id:'M-36', side:'hm', group:'design', prov:'MTG', screen:'Equipment for your new hire', route:'#/hm/computer',
     assumed:'The new hire has the first chance to choose their equipment. If it is still not chosen 14 days before the start date, the order comes to the manager, with whatever the new hire picked so far.',
     resolve:'Janine, 30 Oct. She also said not to redesign equipment ordering yet, so the manager’s order screen itself is not drawn. Open: role-specific hardware, which ServiceNow asks the manager about today (M-17).', oi:'' },
@@ -4083,8 +4110,8 @@ const HM_ASSUMPTIONS = [
 ];
 
 const LINK_ASSUMPTIONS = [
-  { id:'L-01', side:'link', group:'retired', prov:'MTG', screen:'Buddy → new hire', route:'#/hm/buddy',
-    assumed:'The manager assigns the buddy; the new hire sees them from assignment. The specification had said 72 hours before the start date.',
+  { id:'L-01', side:'link', group:'retired', prov:'MTG', screen:'Onboarding Buddy → new hire', route:'#/hm/buddy',
+    assumed:'The manager assigns the Onboarding Buddy; the new hire sees them from assignment. The specification had said 72 hours before the start date.',
     resolve:'Settled 5 Nov (Gede): from assignment, so the new hire has someone to talk to through the quiet weeks before Day 1. The 72-hour rule and its prototype control are gone. Still worth knowing: if the manager reassigns, the new hire sees the name change.', oi:'OI-22' },
   { id:'L-02', side:'link', group:'blocks', prov:'ASSUMED', screen:'Introduction → manager', route:'#/hm/intro',
     assumed:'The new hire’s introduction arrives in the manager’s portal with an explicit Forward action. Nothing is posted automatically.',
@@ -4114,10 +4141,10 @@ const LINK_ASSUMPTIONS = [
     assumed:'The manager’s welcome email should land before the new hire is asked to write their introduction. The prototype shows the intended order but does not enforce it.',
     resolve:'The merge analysis says sequence, not merge, but nothing enforces the order, and three welcome communications compete for the same week before Day 1.', oi:'' },
   { id:'L-12', side:'link', group:'design', prov:'PRIOR', screen:'Inside Equinix → manager and buddy', route:'#/',
-    assumed:'Every Inside Equinix chapter closes with a reflection prompt that says the new hire will revisit their notes in a conversation with their manager or onboarding buddy. Nothing is stored, and nothing is tracked.',
-    resolve:'That is verbatim from the live site, and it is a promise this portal currently does not keep: neither the manager nor the buddy is told the prompts exist, or given the questions. Either wire it, by putting the same questions in front of the manager before the first 1:1, or change the wording. A prompt that points at a conversation nobody has scheduled is worse than no prompt.', oi:'' },
+    assumed:'Every Inside Equinix chapter closes with a reflection prompt that says the new hire will revisit their notes in a conversation with their manager or Onboarding Buddy. Nothing is stored, and nothing is tracked.',
+    resolve:'That is verbatim from the live site, and it is a promise this portal currently does not keep: neither the manager nor the Onboarding Buddy is told the prompts exist, or given the questions. Either wire it, by putting the same questions in front of the manager before the first 1:1, or change the wording. A prompt that points at a conversation nobody has scheduled is worse than no prompt.', oi:'' },
   { id:'L-09', side:'link', group:'content', prov:'ASSUMED', screen:'Notifications', route:'#/hm/network',
-    assumed:'Named people and the assigned buddy are notified; the prototype shows that a notification was sent but never its content.',
+    assumed:'Named people and the assigned Onboarding Buddy are notified; the prototype shows that a notification was sent but never its content.',
     resolve:'Notification and reminder design is out of scope for both specs and deserves its own pass. Being named in someone’s network is a message to a third party who did not ask for it.', oi:'' },
   { id:'L-13', side:'link', group:'design', prov:'ASSUMED', screen:'Sidekick → Help requests', route:'#/handoffs',
     assumed:'A question passed from Sidekick to a person appears in the coordinator’s Help requests queue for that hire, with the question attached, and on the handoffs screen.',
@@ -4231,14 +4258,14 @@ function hmTasks() {
       done: S.equipment.submitted, icon:'laptop.svg', marker:'A-60', dueOff:-7, sys:'ServiceNow', srcDue:true,
       why:'Jordan chooses and orders this themselves. Nothing here waits on you.',
       dispNote:'Recommended for deletion. The order moved to the new hire, so all this does is tell you it happened, which the readiness view already does.' },
-    { id:'software', label:'Confirm Jordan’s apps', disp:'reduce', route:'#/hm/software',
+    { id:'software', label:'Choose Jordan’s apps', disp:'reduce', route:'#/hm/software',
       done: H.software.confirmed, icon:'portal-window.svg', marker:'M-04',
       dueOff:-4, sys:'ServiceNow', srcDue:true,
-      why:'The usual apps for their role are already listed. Confirm, or add what’s missing.',
+      why:'Pick anything beyond the basics from the standard list.',
       dispNote:'Exception-only: most managers glance and confirm.' },
     { id:'buddy', label:'Name who they should meet', disp:'keep', route:'#/hm/buddy',
       done: !!H.buddy.assigned && H.buddy.accepted, icon:'users-friends.svg', marker:'M-07', dueOff:-2, sys:'Onboarding portal', srcDue:true,
-      why:'One buddy in their function, and anyone else worth meeting early.',
+      why:'One Onboarding Buddy in their function, and anyone else worth meeting early.',
       dispNote:'Two screens merged into one, and the second named role was dropped. Your judgement, so it stays, but nothing is suggested for you.' },
     { id:'calendar', label:'Set up their first day', disp:'automate', route:'#/hm/calendar',
       done: H.calendar.confirmed, icon:'clock.svg', marker:'M-06', dueOff:-5, sys:'Outlook', marker2:'M-23',
@@ -4269,7 +4296,7 @@ function hmTasks() {
       dispNote:'Already placed automatically. It is on this list to be visible, not to be done.' },
     { id:'survey', label:'Tell us how hiring Jordan went', disp:'keep', route:'#/hm/survey', phase:1,
       done: H.survey.sent, icon:'comment-lines.svg', marker:'M-35', dueOff:0, sys:'Teams',
-      why:'Nine questions about recruiting. Sidekick brings them to you in Teams.',
+      why:'Eight questions about recruiting. Sidekick brings them to you in Teams.',
       dispNote:'The same questions ServiceNow sends today as a Glint survey, now on the list with everything else.' },
     { id:'plan', label:'Agree their 30, 60 and 90 day plan', disp:'keep', route:null, phase:2,
       done:false, icon:'list-tasks.svg', marker:'M-30', dueOff:4, sys:'Not decided',
@@ -4379,11 +4406,11 @@ function hmBlockers() {
       action:'Re-confirm', route:'#/hm/logistics', marker:'M-32', short:'re-confirm the first-day details' });
   }
   if (!S.hm.buddy.assigned && days <= 21) {
-    out.push({ sev:'high', text:'No buddy named yet. Nothing assigns one for you, so if you do not name somebody Jordan starts without a buddy.',
-      action:'Name someone', route:'#/hm/buddy', marker:'M-07', short:'name a buddy' });
+    out.push({ sev:'high', text:'No Onboarding Buddy named yet. Nothing assigns one for you, so if you do not name somebody Jordan starts without an Onboarding Buddy.',
+      action:'Name someone', route:'#/hm/buddy', marker:'M-07', short:'name an Onboarding Buddy' });
   } else if (S.hm.buddy.assigned && !S.hm.buddy.accepted) {
-    out.push({ sev:'med', text:'The buddy has been asked but has not accepted. Nothing can go in their calendar until they do.',
-      action:'See status', route:'#/hm/buddy', marker:'M-27', short:'wait for the buddy to accept' });
+    out.push({ sev:'med', text:'The Onboarding Buddy has been asked but has not accepted. Nothing can go in their calendar until they do.',
+      action:'See status', route:'#/hm/buddy', marker:'M-27', short:'wait for the Onboarding Buddy to accept' });
   }
   if (S.hm.card.needed === null && days <= 21) {
     out.push({ sev:'low', text:'The corporate card question is unanswered. If Jordan will travel, they need the agreement ready to sign on their second day.',
@@ -4412,8 +4439,8 @@ function hmWaitingOnNewHire() {
 
 const NH_TASK_LABELS = {
   startdate:'Confirm the start date', bgcheck:'Start the background check',
-  equipment:'Choose equipment', details:'Bank, tax and emergency contacts', check:'Checked their details (optional)',
-  intro:'Badge photo and a hello (optional)',
+  rtw:'Right to work, their part', equipment:'Choose equipment', details:'Bank, tax and emergency contacts', check:'Checked their details',
+  intro:'Badge photo and a hello',
   policies:'Handbooks and notices',
 };
 
@@ -4426,6 +4453,8 @@ function nhProgressRows() {
     { key:'startdate', group:'pre', label:NH_TASK_LABELS.startdate, status:startdateStatus() },
     { key:'bgcheck', group:'pre', label:NH_TASK_LABELS.bgcheck, status:bgcheckStatus(), sensitive:true,
       hidden:'You can see the check is running. What it contains is never shown to you.' },
+    { key:'rtw', group:'pre', label:NH_TASK_LABELS.rtw, status:rtwStatus(), sensitive:true,
+      hidden:'You see that it is done. The documents are never shown to you.' },
     { key:'equipment', group:'pre', label:NH_TASK_LABELS.equipment, status:equipmentStatus() },
     { key:'check', group:'optional', label:NH_TASK_LABELS.check, status:checkStatus() },
     { key:'intro', group:'optional', label:NH_TASK_LABELS.intro, status:introStatus() },
@@ -4435,7 +4464,7 @@ function nhProgressRows() {
       hidden:'Which notices were acknowledged, and when, is recorded for audit, not shown to you.' },
   ];
 }
-const NP_GROUPS = { pre:'Before Day 1', optional:'Optional', day1:'Day 1', week1:'First week' };
+const NP_GROUPS = { pre:'Before Day 1', optional:'Up next', day1:'Day 1', week1:'First week' };
 
 /* ---------- Everyone else, as one strip (M-02) ----------
    Not a pie: three third-party items are three equal thirds, and a pie of
@@ -4526,12 +4555,25 @@ function renderHmHome() {
           <p class="lede">${startDateText()}. ${hire.role}, ${hire.loc}, ${hire.arrangement}.</p>
           ${sidekickAskBar('hm')}
         </div>
-        <div class="scene-stats">
-          ${(() => { const pre = tasks.filter(t => !t.phase), d = pre.filter(t => t.done).length;
-            return `<div class="stat"><b>${d}/${pre.length}</b><span class="stat-l">yours done</span>
-            <span class="stat-s">before Day 1</span></div>`; })()}
-          <div class="stat"><b>${R.theirs.done}/${R.theirs.total}</b><span class="stat-l">${HIRE.preferred}’s done</span>
-            <div class="three">${nhProgressRows().filter(r => r.group === 'pre').map(r => `<i class="${r.status === 'done' ? 'on' : ''}"></i>`).join('')}</div></div>
+        <div class="scene-stats hm3">
+          ${(() => {
+            // Your own tasks, three ways (Janine, 6 Nov): what you can do now,
+            // what is done out of everything, and what is still to come.
+            // Equipment is the new hire's, so it is never yours to do.
+            // The two quick confirmations count too, so this matches Sidekick.
+            const mine = tasks.filter(t => t.id !== 'computer');
+            const quick = [S.hm.contactConfirmed, S.hm.channels.accepted];
+            const now = skHmOpenCount();
+            const done = mine.filter(t => t.done).length + quick.filter(Boolean).length;
+            const later = mine.filter(t => t.phase && !t.done).length;
+            return `<div class="stat"><b>${now}</b><span class="stat-l">to do now</span>
+              <span class="stat-s">yours, before Day 1</span></div>
+            <div class="stat"><b>${done}/${mine.length + quick.length}</b><span class="stat-l">done</span>
+              <span class="stat-s">all of yours</span></div>
+            <div class="stat"><b>${later}</b><span class="stat-l">coming up</span>
+              <span class="stat-s">from Day 1</span></div>`; })()}
+          <div class="stat-line">${HIRE.preferred} has done <b>${R.theirs.done} of ${R.theirs.total}</b> of their own things before Day 1.
+            <span class="three">${nhProgressRows().filter(r => r.group === 'pre').map(r => `<i class="${r.status === 'done' ? 'on' : ''}"></i>`).join('')}</span></div>
         </div>
       </div>
     </div>
@@ -4632,7 +4674,7 @@ function renderHmHome() {
               ${r.sensitive ? `<span class="np-lock" title="${r.hidden}">${ic('lock.svg','sm')}Detail hidden</span>` : '<span></span>'}
               ${(g === 'day1' || g === 'week1') && r.status !== 'done'
                 ? `<span class="chip waiting">${g === 'day1' ? 'Opens on Day 1' : 'First week'}</span>`
-                : g === 'optional' && r.status === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(r.status)}
+                : chip(r.status)}
             </div>`).join('')}`).join('')}
           <div class="np-note pnote">${ic('info-circle.svg','sm')}
             <span>You can see that Jordan has finished something, not what they put in it. Everything personal stays in
@@ -4743,7 +4785,7 @@ function hmRail() {
         <li><a data-ext="guide">${ic('file-alt.svg','sm')}Manager Onboarding Guide ${am('M-15')} ${am('A-81')}</a></li>
         <li><a data-goto="#/handoffs">${ic('users-connected.svg','sm')}How the portals connect</a></li>
       </ul>
-      ${buddy ? `<div class="rail-note">Buddy assigned: <b>${buddy.name}</b>${S.hm.buddy.notified ? ', notified' : ''}.</div>` : ''}
+      ${buddy ? `<div class="rail-note">Onboarding Buddy assigned: <b>${buddy.name}</b>${S.hm.buddy.notified ? ', notified' : ''}.</div>` : ''}
     </div>
   </div>`;
 }
@@ -4817,6 +4859,16 @@ function renderHmLogistics() {
             to <b>act on your behalf</b> and <b>see a new hire's status</b> as a standing arrangement, and People Experience
             need the same capability. What a proxy can actually see and do is still undefined. ${am('M-20')}</div>
           </div>` : ''}
+
+          <div class="field" data-assume="A-87">
+            <label>When will you first be in the office with Jordan? ${am('A-87')}</label>
+            <div class="radio-row">
+              <label><input type="radio" name="inoffice" data-inoffice="day1" ${L.firstInOffice !== 'later' ? 'checked' : ''}>On Day 1</label>
+              <label><input type="radio" name="inoffice" data-inoffice="later" ${L.firstInOffice === 'later' ? 'checked' : ''}>Later</label>
+              ${L.firstInOffice === 'later' ? `<input type="date" id="lgInOffice" aria-label="First day in the office together" value="${esc(L.firstInOfficeDate)}">` : ''}
+            </div>
+            <div class="note">Jordan’s badge is ready for that day. Not everyone starts in the office.</div>
+          </div>
 
           <div class="field" style="max-width:560px;">
             <label>Anything team-specific they should know <span class="opt">(optional)</span></label>
@@ -4907,42 +4959,26 @@ function renderHmComputer() {
    The role's standard list comes ticked; the manager unticks anything that
    isn't needed and adds what the role list misses.
    ============================================================ */
-function hmAppsChosen() {
-  const A = S.hm.software;
-  return [...ROLE_APPS.filter(a => !A.removed.includes(a)), ...A.added];
-}
+function hmAppsChosen() { return S.hm.software.added.slice(); }
 function renderHmSoftware() {
   const A = S.hm.software;
   const n = hmAppsChosen().length;
   return `
   <div class="page">
-    ${hmCrumbs('Confirm Jordan’s apps')}
+    ${hmCrumbs('Choose Jordan’s apps')}
     <div class="task-head" data-assume="M-04">
-      <h1>Confirm Jordan’s apps ${am('M-04')}</h1>
-      <p class="why">The apps people in Jordan’s role usually get are already ticked. Confirm them, or change what
-      Jordan needs.</p>
-      ${dispBanner('reduce', 'Exception-only: a standard list for the role that you glance at and confirm.', 'M-04')}
+      <h1>Choose Jordan’s apps ${am('M-04')}</h1>
+      <p class="why">Email, Teams and the basics come with every laptop. Pick anything else Jordan needs on their first day.</p>
+      ${dispBanner('reduce', 'Exception-only: one standard list for every new hire, and most managers pick a few or none.', 'M-04')}
     </div>
 
     <div class="task-shell">
       <div class="wiz-body">
         <div class="form-sec">
-          <h3>Standard for ${esc(HIRE.role)}</h3>
-          <p class="sec-note">Set by IT for the role. Untick anything Jordan won’t use.</p>
+          <h3>The standard list for new hires</h3>
+          <p class="sec-note">Each one becomes its own request, with that app’s usual approval and wait time.</p>
           <div class="acc-grid">
-            ${ROLE_APPS.map(a => `
-              <label class="check acc">
-                <input type="checkbox" data-swstd="${esc(a)}" ${A.removed.includes(a) ? '' : 'checked'}>
-                <span>${a}</span>
-              </label>`).join('')}
-          </div>
-        </div>
-        <div class="form-sec">
-          <h3>Anything else <span class="opt">(optional)</span></h3>
-          <p class="sec-note">From the IT catalogue. Each one becomes its own request, with that app’s usual approval
-          and wait time.</p>
-          <div class="acc-grid">
-            ${SOFTWARE_CATALOG.map(a => `
+            ${STANDARD_APPS.map(a => `
               <label class="check acc">
                 <input type="checkbox" data-sw="${esc(a)}" ${A.added.includes(a) ? 'checked' : ''}>
                 <span>${a}</span>
@@ -4950,14 +4986,13 @@ function renderHmSoftware() {
           </div>
           <div class="callout pnote mt16">
             ${ic('question-circle.svg')}
-            <div><b>Can a manager remove a standard app?</b> The requirements cover additions in detail and never
-            mention removals. It matters: if the standard list is authoritative, removal should be blocked; if you are
-            accountable for the cost, it should not. Drawn here as allowed. ${am('M-04')}</div>
+            <div><b>No lists by role, for now</b> (Janine, 6 Nov). Whether this list exists today, and what happens to
+            these requests, is to confirm with End User Technology. Software may not be in the first release at all. ${am('M-04')}</div>
           </div>
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic('save.svg','sm')}${n} app${n === 1 ? '' : 's'} for Day 1</span>
+        <span class="saved-state">${ic('save.svg','sm')}${n ? `${n} app${n === 1 ? '' : 's'} picked` : 'Nothing picked beyond the basics'}</span>
         <span class="missing"></span>
         <button class="btn primary" id="swConfirm">${A.confirmed ? 'Update' : 'Confirm the apps'}</button>
       </div>
@@ -4966,14 +5001,14 @@ function renderHmSoftware() {
 }
 
 /* ============================================================
-   H-07: assign a buddy
+   H-07: assign an Onboarding Buddy
    ============================================================ */
 /* ============================================================
    H-07: name who they should meet  (M-07 revised, M-26)
 
    One screen, one named role. No suggested people: the direction is a plain
    list of everyone in the org, because on first rollout anybody can be a
-   buddy and the certified programme is years away. A name is not enough
+   Onboarding Buddy and the certified programme is years away. A name is not enough
    either. It has to be accepted before it counts.
    ============================================================ */
 function renderHmMeet() {
@@ -5022,21 +5057,24 @@ function renderHmMeet() {
     ${hmCrumbs('Name who they should meet')}
     <div class="task-head">
       <h1>Name who they should meet</h1>
-      <p class="why">One buddy, in Jordan’s function, and anyone else worth an early conversation.
-      Both are your call, and a buddy has to say yes before anything is booked.</p>
-      ${dispBanner('keep', 'Two screens became one, and the second named role went with them. The suggestion logic is gone too, because on first rollout anybody can be a buddy and there is nothing to suggest from yet.', 'M-07')}
+      <p class="why">One Onboarding Buddy, in Jordan’s function, and anyone else worth an early conversation.
+      Both are your call, and an Onboarding Buddy has to say yes before anything is booked.</p>
+      ${dispBanner('keep', 'Two screens became one, and the second named role went with them. The suggestion logic is gone too, because on first rollout anybody can be an Onboarding Buddy and there is nothing to suggest from yet.', 'M-07')}
     </div>
 
     <div class="task-shell">
       <div class="wiz-body">
-        ${slot('buddy', buddy, 'Buddy',
+        ${slot('buddy', buddy, 'Onboarding Buddy',
           'Someone on Jordan’s team or in their function, for culture and logistics and the questions they would rather not ask you. Any employee can do it today. There is no certified list to pick from yet.', 'M-07')}
 
         ${buddyBrief(buddy)}
 
         <div class="form-sec" data-assume="M-10 L-06">
           <h3>Anyone else they should meet ${am('M-10')}</h3>
-          <p class="sec-note">Up to fifteen people. Write why each one matters, because Jordan sees the reason you write.</p>
+          <p class="sec-note">Up to fifteen people. Write why each one matters, because Jordan sees the reason you write.
+          Jordan meets them from the end of the first week, not on Day 1 or 2: those days are for you and the Onboarding Buddy.</p>
+          <p class="sec-note pnote">Assumes the portal can see and book Outlook calendars. Without that, you set these up in
+          Outlook yourself, for the Thursday or Friday of Jordan’s first week or the week after. ${am('M-10')}</p>
           <div class="meet-others">
             ${ORG_PEOPLE.filter(p => p.id !== B.assigned).map(p => {
               const on = N.named[p.id] !== undefined;
@@ -5072,14 +5110,14 @@ function renderHmMeet() {
             <div class="hp-row ${B.notified ? 'done' : ''}">${ic(B.notified ? 'check-circle.svg' : 'clock.svg','sm')}
               <span>Everyone named is asked, not told, and has to accept. ${am('L-09')}</span></div>
             <div class="hp-row ${B.accepted ? 'done' : ''}">${ic(B.accepted ? 'check-circle.svg' : 'clock.svg','sm')}
-              <span>Once the buddy accepts, the system reads their calendar and books the first month.
+              <span>Once the Onboarding Buddy accepts, the system reads their calendar and books the first month.
               Nothing here does that yet. ${am('M-27')}</span></div>
             <div class="hp-row ${buddyVisibleToNH() ? 'done' : ''}">${ic(buddyVisibleToNH() ? 'check-circle.svg' : 'clock.svg','sm')}
               <span>${buddyVisibleToNH()
-                ? 'Jordan can see the buddy contact card now.'
-                : 'Jordan sees the buddy’s contact card as soon as you name them.'}</span></div>
+                ? 'Jordan can see the Onboarding Buddy contact card now.'
+                : 'Jordan sees the Onboarding Buddy’s contact card as soon as you name them.'}</span></div>
             <div class="hp-row">${ic('info-circle.svg','sm')}<span>You can change any of this until 3 days before Jordan starts.
-              Nobody is assigned automatically, so if you name nobody Jordan starts without a buddy. ${am('M-07')}</span></div>
+              Nobody is assigned automatically, so if you name nobody Jordan starts without an Onboarding Buddy. ${am('M-07')}</span></div>
           </div>
         </div>
 
@@ -5092,30 +5130,30 @@ function renderHmMeet() {
   </div>`;
 }
 
-/* What the buddy is sent when the manager asks them (M-34). ServiceNow gives
-   the buddy a task that only needs "complete", and a link. Here the ask says
+/* What the Onboarding Buddy is sent when the manager asks them (M-34). ServiceNow gives
+   the Onboarding Buddy a task that only needs "complete", and a link. Here the ask says
    what the job is, and accepting is the answer. The steps stand in for the
-   buddy playbook until it is written. */
+   Onboarding Buddy playbook until it is written. */
 const BUDDY_STEPS = [
   ['Before Day 1', 'Say hello once the start date is confirmed. A short message is enough.'],
   ['Day 1', 'Find Jordan after orientation, for lunch or a coffee.'],
   ['First month', 'Half an hour a week, for the questions they would rather not ask their manager.'],
 ];
 function buddyBrief(buddy) {
-  const who = buddy ? buddy.name.split(' ')[0] : 'Your buddy';
+  const who = buddy ? buddy.name.split(' ')[0] : 'Your Onboarding Buddy';
   return `
         <div class="form-sec" data-assume="M-34">
-          <h3>What ${buddy ? who : 'your buddy'} gets when you ask ${am('M-34')}</h3>
-          <p class="sec-note">A message from Sidekick in Teams that says what being a buddy means. Accepting is the answer.</p>
+          <h3>What ${buddy ? who : 'your Onboarding Buddy'} gets when you ask ${am('M-34')}</h3>
+          <p class="sec-note">A message from Sidekick in Teams that says what being an Onboarding Buddy means. Accepting is the answer.</p>
           <div class="bb-brief">
             <div class="bb-from">${ic('comment-lines.svg','sm')}<b>Sidekick</b><span>in Teams</span></div>
-            <p class="bb-lead">${HIRE.manager.split(' ')[0]} would like you to be ${HIRE.preferred}’s buddy. ${HIRE.preferred} starts as
+            <p class="bb-lead">${HIRE.manager.split(' ')[0]} would like you to be ${HIRE.preferred}’s Onboarding Buddy. ${HIRE.preferred} starts as
             ${HIRE.role} on ${startDateText()}. Here is what that means:</p>
             <ol class="bb-steps">
               ${BUDDY_STEPS.map(([when, what]) => `<li><b>${when}</b><span>${what}</span></li>`).join('')}
             </ol>
             <div class="bb-acts"><span class="bb-btn">Accept</span><span class="bb-btn q">Not this time</span>
-              <span class="bb-link">${ic('file-alt.svg','sm')}The buddy playbook</span></div>
+              <span class="bb-link">${ic('file-alt.svg','sm')}The Onboarding Buddy playbook</span></div>
           </div>
         </div>`;
 }
@@ -5199,7 +5237,7 @@ function renderHmCalendar() {
    H-10: welcome email
    ============================================================ */
 const WELCOME_TODO = {
-  details:'enter your personal details in Workday', rtw2:'bring your right to work documents',
+  details:'add your bank, tax and emergency contacts', rtw2:'bring your right to work documents',
   policies:'sign the handbooks and notices',
 };
 function renderHmWelcome() {
@@ -5457,7 +5495,7 @@ function renderHmSurvey() {
     ${hmCrumbs('How hiring went')}
     <div class="task-head" data-assume="M-35">
       <h1>Tell us how hiring Jordan went ${am('M-35')}</h1>
-      <p class="why">Nine questions about the recruiting, asked on Jordan’s first day while it is fresh.
+      <p class="why">Eight questions about the recruiting, asked on Jordan’s first day while it is fresh.
       Sidekick brings them to you in Teams, and you can answer here too.</p>
     </div>
 
@@ -5524,9 +5562,9 @@ const SUBTRACTION = [
       cond:'Pre-fill from the employee record.', marker:'M-18' },
   ]},
   { group:'reduce', title:'Reduce to exception-only: visible, but most managers should never touch it', rows:[
-    { task:'Confirm the new hire’s apps', today:'Heavy. The manager requests access and software by hand',
-      why:'A standard list for the role that the manager glances at and confirms.',
-      cond:'Roles linked to standard app lists. The prototype assumes they are; today they aren’t, so IT has to build the mapping.', marker:'M-04' },
+    { task:'Choose the new hire’s apps', today:'Heavy. The manager requests access and software by hand',
+      why:'One standard list for every new hire, picked from in one go.',
+      cond:'A standard list agreed with End User Technology. No lists by role for now.', marker:'M-04' },
     { task:'Review and personalise the welcome email', today:'Manual. Written from scratch',
       why:'Pre-filled boilerplate plus a personal line is most of the saving.',
       cond:'Boilerplate authored and approved; the first-week block generated from the new hire’s real task list.', marker:'M-08' },
@@ -5535,9 +5573,9 @@ const SUBTRACTION = [
       cond:'Suggestion logic good enough to be worth accepting.', marker:'M-10' },
   ]},
   { group:'keep', title:'Keep: needs a manager’s judgement', rows:[
-    { task:'Assign a buddy', today:'Manual. Select a buddy',
+    { task:'Assign an Onboarding Buddy', today:'Manual. Select a buddy',
       why:'A judgement about people, with a suggestion to make agreement one tap.',
-      cond:'Buddy policy defined: criteria, load limits, decline process, plus a privacy position on the performance signal.', marker:'M-07' },
+      cond:'Onboarding Buddy policy defined: criteria, load limits, decline process, plus a privacy position on the performance signal.', marker:'M-07' },
     { task:'Someone to act for the manager', today:'Informal. Cover is arranged by asking someone',
       why:'The requirement gives both managers and People Experience a standing stand-in who can act on their behalf and see a new hire’s status. That is wider than the Day 1 cover this prototype captures.',
       cond:'A permission model. Nobody has said what a stand-in is allowed to see or do.', marker:'M-20' },
@@ -5636,9 +5674,9 @@ function handoffRows() {
       done: S.equipment.submitted,
       state: S.equipment.submitted ? 'Ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
       hmRoute:'#/hm/', nhRoute:'#/equipment' },
-    { dir:'hm', from:'Assign a buddy', to:'Jordan’s “Your people” card',
+    { dir:'hm', from:'Assign an Onboarding Buddy', to:'Jordan’s “Your people” card',
       done: !!buddy,
-      state: !buddy ? 'No buddy named, and Jordan’s card says so' : `${buddy.name} assigned and visible to Jordan now`,
+      state: !buddy ? 'No Onboarding Buddy named, and Jordan’s card says so' : `${buddy.name} assigned and visible to Jordan now`,
       hmRoute:'#/hm/buddy', nhRoute:'#/' },
     { dir:'hm', from:'Name the team network', to:'Jordan’s suggested network', marker:'L-06',
       done: H.network.submitted,
@@ -5748,7 +5786,7 @@ const HM_ROUTES = {
   '#/hm/buddy': renderHmMeet,
   '#/hm/calendar': renderHmCalendar,
   '#/hm/welcome': renderHmWelcome,
-  // Not a mistake: naming a buddy and naming a suggested network were two
+  // Not a mistake: naming an Onboarding Buddy and naming a suggested network were two
   // screens and are now one (M-07). The old route is kept as an alias so
   // links written against it still land somewhere sensible.
   '#/hm/network': renderHmMeet,
@@ -5773,6 +5811,11 @@ function bindHm(route) {
       if (H.logistics.available) H.logistics.proxy = '';
       save(); rerender();
     }));
+    $$('[data-inoffice]').forEach(r => r.addEventListener('change', () => {
+      H.logistics.firstInOffice = r.dataset.inoffice; save(); rerender();
+    }));
+    const io = $('#lgInOffice');
+    if (io) io.addEventListener('change', () => { H.logistics.firstInOfficeDate = io.value; save(); });
     const p = $('#lgProxy');
     if (p) p.addEventListener('change', () => { H.logistics.proxy = p.value; save(); updateLgChrome(); });
     const c = $('#lgConfirm');
@@ -5789,11 +5832,6 @@ function bindHm(route) {
     $$('[data-sw]').forEach(cb => cb.addEventListener('change', () => {
       const a = cb.dataset.sw;
       H.software.added = cb.checked ? [...H.software.added, a] : H.software.added.filter(x => x !== a);
-      save(); rerender();
-    }));
-    $$('[data-swstd]').forEach(cb => cb.addEventListener('change', () => {
-      const a = cb.dataset.swstd;
-      H.software.removed = cb.checked ? H.software.removed.filter(x => x !== a) : [...H.software.removed, a];
       save(); rerender();
     }));
     const c = $('#swConfirm');
@@ -6120,7 +6158,7 @@ function pexWithLiveJordan(list) {
     buddy: !!H.buddy.assigned,
     proxy: !!(H.logistics.proxy && H.logistics.proxy.trim()),
     photo: S.photo.done || S.photo.confirmedExisting,
-    rtw: false,
+    rtw: S.rtw.done,
     medicalNeeded: S.country === 'JP', medicalDone: false,
     bgcheck: S.bgcheck.launched,
     compliance: Object.values(S.policies.acked).filter(Boolean).length,
@@ -6167,14 +6205,14 @@ const PEX_QUEUES = [
     reason: h => `Waiting on ${h.blockedBy}`,
     waiting: h => h.blockedBy, action:'Remind' },
 
-  /* Reframed: auto-assignment was cut. The PRD's SLA assigned a buddy from a
+  /* Reframed: auto-assignment was cut. The PRD's SLA assigned an Onboarding Buddy from a
      pool at Day −1 if the manager had not, which made this queue a window in
      which a considered choice was still possible. With no safety net, nothing
      catches it at all — an unworked row here means a new hire starts without
-     a buddy. The queue got more important, not less. */
-  { id:'buddy', label:'No buddy named', icon:'users-friends.svg', sev:'high',
-    blurb:'Any hire inside three weeks without a buddy',
-    why:'Nothing assigns one automatically. If the manager does not name somebody, the new hire starts without a buddy and this queue is the only thing that catches it.',
+     an Onboarding Buddy. The queue got more important, not less. */
+  { id:'buddy', label:'No Onboarding Buddy named', icon:'users-friends.svg', sev:'high',
+    blurb:'Any hire inside three weeks without an Onboarding Buddy',
+    why:'Nothing assigns one automatically. If the manager does not name somebody, the new hire starts without an Onboarding Buddy and this queue is the only thing that catches it.',
     src:'PRD S2-US18 AC3 gave the manager until Day −3 to change. The pool auto-assignment in that SLA has been cut, so the fallback it described no longer exists.',
     batch:'Yes.',
     test: h => !h.buddy && h.startOff <= 21,
@@ -6512,12 +6550,12 @@ function pexWaitingOn(h) {
 /* The inline three-step stepper the HR sample uses per row. Phase is
    derived, not stored: there is no agreed readiness formula (OI-06),
    so this counts what is done rather than scoring it. */
-/* The same three the new hire and the manager count (A-64). Right to work
-   and the badge photo still show on the record, but they are not counted,
-   so "2 of 3" means the same thing on all three screens. */
+/* The same four the new hire and the manager count (A-64, A-86). The badge
+   photo still shows on the record but is not counted, so "2 of 4" means the
+   same thing on all three screens. */
 function pexPhase(h) {
-  const done = [h.startConfirmed, h.bgcheck, h.eqOrdered].filter(Boolean).length;
-  return { done, total:3, at: done >= 3 ? 2 : done ? 1 : 0 };
+  const done = [h.startConfirmed, h.bgcheck, h.rtw, h.eqOrdered].filter(Boolean).length;
+  return { done, total:4, at: done >= 4 ? 2 : done ? 1 : 0 };
 }
 
 function renderPexCaseload() {
@@ -6783,19 +6821,19 @@ function pexOwnerRows(who, h) {
       note: h.dateMoved ? 'Change requested, sitting with you' : '' },
     { group:'pre', label:'Background check started', state: st(h.bgcheck), sensitive:true,
       note: h.bgcheck ? 'Running with the provider' : 'Not started' },
+    { group:'pre', label:'Right to work, their part', state: st(h.rtw), sensitive:true,
+      note: h.rtw ? 'Done. The rest is checked in person on Day 1.' : 'Not done, in the Right to Work system' },
     { group:'pre', label:'Equipment chosen and ordered', state: st(h.eqOrdered, h.eqChosen),
       note: h.eqOrdered ? `Ships in ${h.eqEta} days` : h.eqChosen ? 'Chosen, order not submitted' : 'Not chosen' },
-    { group:'also', label:'Right to work, their part', state: st(h.rtw), sensitive:true,
-      note: h.rtw ? 'Done. The rest is checked in person on Day 1.' : 'Not done, in the Right to Work system' },
-    { group:'also', label:'Badge photo, optional', state: h.remote ? 'done' : st(h.photo),
+    { group:'also', label:'Badge photo', state: h.remote ? 'done' : st(h.photo),
       note: h.remote ? 'Remote hire, no badge required' : h.photo ? 'Sent to Workplace' : 'Otherwise taken at reception on Day 1' },
-    { group:'later', label:'Personal details, in Workday', state:'later', sensitive:true, note:'Opens on Day 1' },
+    { group:'later', label:'Bank, tax and emergency contacts', state:'later', sensitive:true, note:'Opens on Day 1' },
     { group:'later', label:'Handbooks and notices', state:'later', sensitive:true, note:'Opens in the first week' },
   ];
   if (who === 'hm') return [
     { label:'First-day details confirmed', state: st(h.firstDayDone), owner:h.mgr,
       note: !h.mgrColo && !h.proxy ? 'Nobody to meet them on Day 1' : !h.firstDayDone ? 'Not confirmed yet' : h.mgrColo ? 'Manager will be there' : 'Stand-in will meet them' },
-    { label:'Buddy named', state: st(h.buddy), owner:h.mgr,
+    { label:'Onboarding Buddy named', state: st(h.buddy), owner:h.mgr,
       note: h.buddy ? 'Accepted' : 'Nothing assigns one automatically' },
     { label:'Apps for Day 1', state: h.appsDone ? 'done' : 'open', owner:h.mgr,
       note: h.persona ? 'Confirmed' : h.appsDone ? 'Picked by hand, no standard list for the role' : 'Held up: no standard app list for the role' },
@@ -6824,7 +6862,7 @@ function pexActivity(h) {
   if (h.dateMoved) ev.push([0, 'Start date', `${h.preferred} requested a new start date. Sitting with you.`]);
   if (h.escalations) ev.push([0, 'Help request', `${h.escalations} help request${h.escalations>1?'s':''} passed on from the manager.`]);
   if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Delivery takes ${h.eqEta} days.`]);
-  if (h.buddy) ev.push([2, 'People', `${h.mgr} named a buddy and they accepted.`]);
+  if (h.buddy) ev.push([2, 'People', `${h.mgr} named an Onboarding Buddy and they accepted.`]);
   if (h.bgcheck) ev.push([3, 'Background check', `Launched by ${h.preferred}. Running with the provider.`]);
   if (!h.persona) ev.push([4, 'Apps', 'No standard app list for this role. You were told.']);
   ev.push([6, 'Location', `${h.loc} Day 1 details set by People Experience.`]);
@@ -7016,8 +7054,8 @@ const SK_NH = [
     say: () => {
       const n = nextTask();
       return n
-        ? `Next is <b>${n.name.toLowerCase()}</b>, due ${dueText(dueFor(n.key))}. It’s one of the three things before Day 1, and after those there’s nothing else until you start.`
-        : `Nothing. All three things before Day 1 are done, so the next thing you’ll see is your first-day details, three days before you start.`;
+        ? `Next is <b>${n.name.toLowerCase()}</b>, due ${dueText(dueFor(n.key))}. It’s one of the ${thingsWord()} things before Day 1, and after those there’s nothing else until you start.`
+        : `Nothing. All ${thingsWord()} things before Day 1 are done, so the next thing you’ll see is your first-day details, three days before you start.`;
     } },
   { id:'laptop', q:'When does my laptop arrive?', keys:['laptop','computer','equipment','arrive','deliver','ship','monitor','headset'],
     src:'Equipment for new starters', task:'equipment',
@@ -7035,12 +7073,12 @@ const SK_NH = [
   { id:'pay', q:'How do I set up direct deposit?', keys:['direct deposit','bank','banking','pay','paid','payday','salary','payroll','account'],
     src:'Getting paid: direct deposit for new starters', task:'details',
     say: () => `You add your bank details here in the portal on your first day, with your tax details and emergency contacts. It’s one task, entered once. Before then, it’s worth checking the details we already have, so your first pay goes to the right place.` },
-  { id:'buddy', q:'Who is my buddy?', keys:['buddy','mentor','who can i ask'],
-    src:'Onboarding buddies',
+  { id:'buddy', q:'Who is my Onboarding Buddy?', keys:['buddy','mentor','who can i ask'],
+    src:'Onboarding Buddies',
     say: () => {
       const B = S.hm.buddy, p = B.assigned ? orgPerson(B.assigned) : null;
-      if (!p) return `${HIRE.manager} hasn’t named your buddy yet. When she does, their name and how to reach them appear under Your people.`;
-      return `Your buddy is <b>${p.name}</b>, ${p.role}. They’re under Your people, with Teams and email.`;
+      if (!p) return `${HIRE.manager} hasn’t named your Onboarding Buddy yet. When she does, their name and how to reach them appear under Your people.`;
+      return `Your Onboarding Buddy is <b>${p.name}</b>, ${p.role}. They’re under Your people, with Teams and email.`;
     } },
   { id:'handbook', q:'Do I need to read the handbook before I start?', keys:['handbook','policy','policies','code of conduct','notice','acknowledge','read before'],
     src:'Employee handbooks and notices', task:'policies',
@@ -7073,15 +7111,15 @@ const SK_HM = [
         ? `${soon.length ? 'Due within a week' : 'Nothing is due this week, but still open'}: ${list.join(', ')}. The first one is linked below.`
         : `Nothing. Everything you owe before Day 1 is done.`;
     } },
-  { id:'buddyvis', q:'When does Jordan see their buddy?', keys:['buddy','see their buddy','visible','72'],
-    src:'Onboarding buddies, for managers',
+  { id:'buddyvis', q:'When does Jordan see their Onboarding Buddy?', keys:['buddy','see their buddy','visible','72'],
+    src:'Onboarding Buddies, for managers',
     say: () => `As soon as you name them. They appear under Jordan’s people straight away, so Jordan has someone to talk to before Day 1.` },
   { id:'apps', q:'Which apps will Jordan get?', keys:['apps','applications','software','stack','suggest'],
     src:'Requesting software for a new starter',
-    say: () => `The standard set for a ${esc(HIRE.role)}: ${hmAppsChosen().map(a => `<b>${a}</b>`).join(', ')}. ${S.hm.software.confirmed ? 'You’ve confirmed them.' : 'Confirm them, or add anything else Jordan needs, from the checklist.'}` },
+    say: () => { const a = hmAppsChosen(); return `Email, Teams and the basics come with the laptop. ${a.length ? `You’ve picked ${a.map(x => `<b>${x}</b>`).join(', ')}.` : 'Nothing else is picked yet.'} ${S.hm.software.confirmed ? 'It’s confirmed.' : 'Pick from the standard list in your checklist.'}`; } },
   { id:'nhsees', q:'What does Jordan have to do before Day 1?', keys:['jordan do','before day 1','new hire do','their tasks'],
     src:'What new hires do before Day 1',
-    say: () => `Three things: confirm the start date, start the background check and choose equipment. ${tasksComplete()} of 3 are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
+    say: () => `Four things: confirm the start date, start the background check, do their part of the right to work check, and choose equipment. ${tasksComplete()} of ${COUNTED.length} are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
 ];
 
 
@@ -7274,7 +7312,7 @@ function skWhereCard() {
   return `
   <div class="sk-where" data-assume="A-70">
     <div class="sk-sys-l">${ic('list-tasks.svg','sm')}From your task list, not written by Sidekick</div>
-    <div class="sk-where-n"><b>${tasksComplete()} of 3</b> things done before Day 1</div>
+    <div class="sk-where-n"><b>${tasksComplete()} of ${COUNTED.length}</b> things done before Day 1</div>
     <div class="three dark">${taskList().map(t => `<i class="${t.status === 'done' ? 'on' : ''}"></i>`).join('')}</div>
     ${n ? skSysRow({ name:n.name, meta:`Due ${dueText(dueFor(n.key))} · ${STATUS_CHIP[n.status][1]}`, route:n.route, icon:n.icon })
         : `<div class="sk-where-done">${ic('check-circle.svg','sm')}Nothing else until your first-day details arrive.</div>`}
@@ -7355,13 +7393,13 @@ function skHmChecklist() {
    record, so it always shows the current state. */
 const SK_DO_SAY = {
   logistics: 'Here are Jordan’s first-day details. People Experience set the office part; only the rest is yours.',
-  software: `These are the standard apps for a ${HIRE.role}. Untick anything Jordan won’t use, add anything missing, then confirm.`,
+  software: 'Email, Teams and the basics come with the laptop. Pick anything else Jordan needs from the standard list, then confirm.',
   card: 'One question, and only if they’ll travel on behalf of Equinix.',
-  buddy: 'Pick someone from Jordan’s team or function. I’ll ask them for you, and tell them what being a buddy means.',
+  buddy: 'Pick someone from Jordan’s team or function. I’ll ask them for you, and tell them what being an Onboarding Buddy means.',
   calendar: 'Most of Day 1 is already in your calendar. Check it and confirm.',
   welcome: 'The welcome note is already written. Add a line of your own if you like, and send it.',
   intro: 'Jordan wrote an introduction and said you can share it. Forward it when you’re ready.',
-  survey: 'Nine quick questions about how recruiting went, while it’s fresh.',
+  survey: 'Eight quick questions about how recruiting went, while it’s fresh.',
 };
 function skDo(id) {
   const last = SK_THREAD.filter(m => m.who === 'hm').pop();
@@ -7388,15 +7426,17 @@ function skActCard(id) {
       <div class="tmc-acts">${skOn(L.available, 'data-skset="avail:yes"', 'Yes, I’ll be there')}${skOn(!L.available, 'data-skset="avail:no"', 'No, someone covers')}</div>
       ${!L.available ? `<label class="tmc-lab" for="skProxy">Who covers for you?</label>
       <select class="tm-in" id="skProxy" data-skin="logistics.proxy"><option value="">Choose someone…</option>
-        ${ORG_PEOPLE.filter(p => p.team).map(p => `<option ${L.proxy === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}</select>` : ''}`;
+        ${ORG_PEOPLE.filter(p => p.team).map(p => `<option ${L.proxy === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}</select>` : ''}
+      <div class="tmc-lab">When will you first be in the office with Jordan?</div>
+      <div class="tmc-acts">${skOn(L.firstInOffice !== 'later', 'data-skset="inoffice:day1"', 'On Day 1')}${skOn(L.firstInOffice === 'later', 'data-skset="inoffice:later"', 'Later')}</div>
+      ${L.firstInOffice === 'later' ? `<input class="tm-in" type="date" data-skin="logistics.firstInOfficeDate" aria-label="First day in the office together" value="${esc(L.firstInOfficeDate)}">` : ''}
+      <div class="tmc-p sub">Jordan’s badge is ready for that day.</div>`;
     foot = `<button class="tm-btn primary" type="button" data-skact="logistics" ${ok ? '' : 'disabled'}>${L.confirmed ? 'Update' : 'Confirm'}</button>`;
   } else if (id === 'software') {
     const A = H.software;
-    body = `<div class="tmc-lab">Standard for the role</div>
-      <div class="tmc-chips">${ROLE_APPS.map(a => skOn(!A.removed.includes(a), `data-skset="swstd:${esc(a)}"`, a, 'chip')).join('')}</div>
-      <div class="tmc-lab">Anything else</div>
-      <div class="tmc-chips">${SOFTWARE_CATALOG.map(a => skOn(A.added.includes(a), `data-skset="sw:${esc(a)}"`, a, 'chip')).join('')}</div>`;
-    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : `Confirm ${hmAppsChosen().length} apps`}</button>`;
+    body = `<div class="tmc-lab">The standard list for new hires</div>
+      <div class="tmc-chips">${STANDARD_APPS.map(a => skOn(A.added.includes(a), `data-skset="sw:${esc(a)}"`, a, 'chip')).join('')}</div>`;
+    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : hmAppsChosen().length ? `Confirm ${hmAppsChosen().length} apps` : 'Just the basics'}</button>`;
   } else if (id === 'card') {
     const C = H.card;
     body = `<div class="tmc-p">${CARD_FLOW.managerQuestion}</div>
@@ -7407,7 +7447,7 @@ function skActCard(id) {
     body = p ? `<div class="tmc-p"><b>${p.name}</b>, ${p.role}.
         ${B.accepted ? 'They said yes. Their first month with Jordan gets booked.' : B.notified ? 'I’ve asked them. Waiting for a yes.' : 'Not asked yet.'}</div>
         <div class="tmc-p sub">They get a message from me saying what to do before Day 1, on Day 1 and in the first month.</div>`
-      : `<label class="tmc-lab" for="skBuddy">Buddy</label>
+      : `<label class="tmc-lab" for="skBuddy">Onboarding Buddy</label>
       <select class="tm-in" id="skBuddy" data-skin="buddy"><option value="">Choose someone…</option>
         ${ORG_PEOPLE.filter(o => o.team || o.dept === 'Global FP&A').map(o => `<option value="${o.id}">${o.name}, ${o.role}</option>`).join('')}</select>`;
     foot = !p ? '' : !B.notified ? `<button class="tm-btn primary" type="button" data-skact="buddyask">Ask ${p.name.split(' ')[0]}</button>
@@ -7460,11 +7500,11 @@ function skRefresh() {
 function skSet(spec) {
   const H = S.hm, [k, a, b] = spec.split(':');
   if (k === 'avail') { H.logistics.available = a === 'yes'; if (H.logistics.available) H.logistics.proxy = ''; }
+  else if (k === 'inoffice') H.logistics.firstInOffice = a;
   else if (k === 'card') {
     H.card.needed = a === 'yes';
     toast(H.card.needed ? 'Recorded. The agreement is now on Jordan’s list for Day 2.' : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
   }
-  else if (k === 'swstd') H.software.removed = H.software.removed.includes(a) ? H.software.removed.filter(x => x !== a) : [...H.software.removed, a];
   else if (k === 'sw') H.software.added = H.software.added.includes(a) ? H.software.added.filter(x => x !== a) : [...H.software.added, a];
   else if (k === 'hold') H.calendar.holds[a] = !H.calendar.holds[a];
   else if (k === 'svq') H.survey.answers[a] = +b;
@@ -7475,7 +7515,7 @@ function skAct(what) {
   const done = {
     logistics: () => { H.logistics.confirmed = true; return 'First-day details confirmed. They feed Jordan’s first-day card.'; },
     software:  () => { H.software.confirmed = true; return `Apps confirmed: ${hmAppsChosen().length} for Jordan’s first day.`; },
-    buddyask:  () => { H.buddy.notified = true; return `${who.name} has been asked, with what being a buddy means. Nothing is booked until they say yes.`; },
+    buddyask:  () => { H.buddy.notified = true; return `${who.name} has been asked, with what being an Onboarding Buddy means. Nothing is booked until they say yes.`; },
     buddyaccept: () => { H.buddy.accepted = true; return `${who.name} said yes. A prototype control, so you can see what follows.`; },
     buddyclear: () => { H.buddy = { assigned:null, notified:false, accepted:false }; return ''; },
     calendar:  () => { H.calendar.confirmed = true; return 'Day 1 confirmed.'; },
@@ -7494,6 +7534,7 @@ function skInput(el) {
   const k = el.dataset.skin; if (!k) return false;
   const H = S.hm;
   if (k === 'logistics.whereToBe') H.logistics.whereToBe = el.value;
+  else if (k === 'logistics.firstInOfficeDate') H.logistics.firstInOfficeDate = el.value;
   else if (k === 'welcome.personal') H.welcome.personal = el.value;
   else if (k.startsWith('survey.')) H.survey.answers[k.split('.')[1]] = el.value;
   else if (k === 'logistics.proxy') { H.logistics.proxy = el.value; skRefresh(); return true; }
@@ -7559,7 +7600,7 @@ function skTaskCard(key) {
   if (later) return `<div class="sk-sys">${skSysRow({ name:later.name,
     meta:`${week1Items().includes(later) ? 'Your first week' : `Day 1, ${dueText(startDate())}`} · ${later.sys}`, route:later.route, icon:later.icon })}</div>`;
   if (key === 'intro') return `<div class="sk-sys">${skSysRow({ name:'Add a badge photo, and say hello to your team',
-    meta:`Optional · photo by ${dueText(dueFor('photo'))}`, route:'#/intro', icon:'comment-smile.svg' })}</div>`;
+    meta:`Up next · photo by ${dueText(dueFor('photo'))}`, route:'#/intro', icon:'comment-smile.svg' })}</div>`;
   return '';
 }
 
@@ -7857,7 +7898,7 @@ const SN_FEATURES = [
     feature:'Tasks arrive in stages, each opening on a schedule',
     today:'Five stages, from “Get ready for Day 1” to “Your first month”, each opening at a fixed point and listing its tasks one after another.',
     verdict:'here', route:'#/', find:'Opens on its own before Day 1',
-    here:'Every date is worked out from the start date, and things open on their own when they are due. The new hire sees three things before Day 1, not a stage of tasks.' },
+    here:'Every date is worked out from the start date, and things open on their own when they are due. The new hire sees four things before Day 1, not a stage of tasks.' },
   { id:'SN-02', set:'case', who:'Everyone', slides:'2',
     feature:'Onboarding starts when the hire is completed in Workday',
     today:'The case is created when the Hire process finishes in Workday.',
@@ -7876,8 +7917,8 @@ const SN_FEATURES = [
   { id:'SN-05', set:'case', who:'New hire', slides:'5, 13',
     feature:'Filter and sort the to-do list',
     today:'Filters for who it is assigned to, required or optional, and a sort order.',
-    verdict:'here', route:'#/', find:'Optional, if you have time',
-    here:'With three things to do before Day 1 there is nothing to filter. Optional things sit in their own group, and things another team finishes are listed apart.' },
+    verdict:'here', route:'#/', find:'Up next, when you have time',
+    here:'With four things to do before Day 1 there is nothing to filter. Things for when you have time sit under “Up next”, never labelled optional (Janine, 6 Nov), and things another team finishes are listed apart.' },
   { id:'SN-06', set:'case', who:'New hire and manager', slides:'5, 13',
     feature:'See where each piece of equipment is',
     today:'An “Equipment orders” table on the case: computer, accessories and mobile phone, with “NOT ORDERED YET” and what to do about it.',
@@ -7891,7 +7932,7 @@ const SN_FEATURES = [
   { id:'SN-08', set:'case', who:'Everyone', slides:'5, 14, 29, 33',
     feature:'Due dates and reminders',
     today:'Each task has a due date. Some send the same reminder every day until done.',
-    verdict:'here', route:'#/', find:'Three things, then you’re ready',
+    verdict:'here', route:'#/', find:'Four things, then you’re ready',
     here:'Due dates come from the start date and lead times. Reminders come from Sidekick, once and in context, instead of the same email every day.' },
   { id:'SN-09', set:'case', who:'Manager', slides:'15',
     feature:'Hand a task to someone else',
@@ -7948,13 +7989,13 @@ const SN_FEATURES = [
   { id:'SN-19', set:'ready', who:'Manager', slides:'12, 13',
     feature:'A page per new hire for the manager',
     today:'“New Hire Onboarding – name” under My Requests and My Tasks, with the manager’s tasks listed one after another.',
-    verdict:'here', route:'#/hm/', find:'yours done',
+    verdict:'here', route:'#/hm/', find:'to do now',
     here:'Sidekick in Teams, with one checklist card, and every task can be done from the chat (Gede, 5 Nov). The portal is optional: the full view, for when one chat is not enough, with every hire one tap apart.' },
   { id:'SN-20', set:'ready', who:'Manager', slides:'14',
     feature:'The hiring manager satisfaction survey',
     today:'A Glint survey sent as a task, with a reminder.',
     verdict:'here', route:'#/hm/', find:'Tell us how hiring Jordan went',
-    here:'New in v6: on the manager’s Day 1 list, answered in Teams from Sidekick, with the final survey set’s questions and the recruiter already filled in (M-35).' },
+    here:'On the manager’s Day 1 list, answered in Teams from Sidekick, with the final survey set’s questions and the recruiter already filled in (M-35). The diverse candidates question is gone; reporting measures that (Janine, 6 Nov).' },
   { id:'SN-21', set:'ready', who:'Manager', slides:'15, 16',
     feature:'Order equipment for the new hire',
     today:'The manager says whether the hire needs a computer and any role-specific hardware, then “Order Now” opens tickets for End User Technology.',
@@ -7969,12 +8010,12 @@ const SN_FEATURES = [
     feature:'Choose a buddy',
     today:'A task to tick once done, with links to “role of a buddy” and the buddy programme.',
     verdict:'here', route:'#/hm/buddy', find:'Someone on Jordan’s team or in their function',
-    here:'Pick someone from Jordan’s function. They are asked, and say yes before anything is booked. The buddy playbook replaces the links.' },
+    here:'Pick someone from Jordan’s function. They are asked, and say yes before anything is booked. The Onboarding Buddy playbook replaces the links.' },
   { id:'SN-24', set:'ready', who:'Manager', slides:'19',
     feature:'Request apps and software',
     today:'Links to the app catalogue, a software installation form and E-Bot.',
-    verdict:'here', route:'#/hm/software', find:'The apps people in Jordan’s role usually get are already ticked',
-    here:'The apps come from the role, already ticked, and the manager only confirms, adds or removes (Gede, 5 Nov: assume each role has a list). IT still has to build that mapping, and Janine’s question stands: what happens to these requests today.' },
+    verdict:'here', route:'#/hm/software', find:'Pick anything else Jordan needs on their first day',
+    here:'One standard list every new hire’s manager picks from, no lists by role for now (Janine, 6 Nov). To confirm with End User Technology whether the list exists, and Janine’s question stands: what happens to these requests today.' },
   { id:'SN-25', set:'ready', who:'Manager', slides:'20',
     feature:'Send a welcome email',
     today:'A task with a link to an email template article.',
@@ -7988,13 +8029,13 @@ const SN_FEATURES = [
   { id:'SN-27', set:'ready', who:'Manager', slides:'22',
     feature:'Google Workspace access for some teams',
     today:'Only for Equinix Metal new hires, by cost centre.',
-    verdict:'ask', route:'#/hm/software', find:'Standard for ',
+    verdict:'ask', route:'#/hm/software', find:'The standard list for new hires',
     here:'If it is still needed, it is an app that comes with the role, not a manager task. To confirm with People Experience.' },
   { id:'SN-28', set:'ready', who:'Buddy', slides:'25',
-    feature:'The buddy connects with the new hire',
+    feature:'The Onboarding Buddy connects with the new hire',
     today:'A task for the buddy that only needs “complete”, with a link to the buddy programme.',
-    verdict:'here', route:'#/hm/buddy', find:'A message from Sidekick in Teams that says what being a buddy means',
-    here:'New in v6: the buddy gets a Sidekick message that says what to do before Day 1, on Day 1 and in the first month, and accepts from it (M-34).' },
+    verdict:'here', route:'#/hm/buddy', find:'A message from Sidekick in Teams that says what being an Onboarding Buddy means',
+    here:'New in v6: the Onboarding Buddy gets a Sidekick message that says what to do before Day 1, on Day 1 and in the first month, and accepts from it (M-34).' },
 
   /* ---------- final preparations ---------- */
   { id:'SN-29', set:'final', who:'New hire', slides:'28',
@@ -8321,10 +8362,15 @@ const DEFAULT_STATE = () => ({
   todoPhase: 0,                  // which phase the live to-do view is showing (A-56)
   startdate: { confirmed:false, changeRequested:false, requestedDate:'', reason:'' },
   bgcheck: { launched:false },
+  // The new hire's part of the right to work check: I-9 Section 1 in the US.
+  // It runs in the separate Right to Work system; the portal learns it is done.
+  rtw: { done:false },
   // Checked now, completed on Day 1, both in the portal (A-65). submitted is
   // the Day 1 half; the portal only ever learns that it is done.
-  details: { checked:false, wrong:false, flagged:false, flagText:'', submitted:false },
-  equipment: { choice:'', items:{}, shipOffice:'', shipOther:'', shipPhone:'', submitted:false, comment:'', comments:[],
+  // edits: what the new hire changed themselves. The email is locked (it is
+  // their sign-in), so changing it is a request to People Experience.
+  details: { checked:false, edits:{}, editing:'', wrong:false, flagged:false, flagText:'', submitted:false },
+  equipment: { choice:'', items:{}, shipOffice:'', shipTo:{ street:'', city:'', region:'', postcode:'', country:'' }, shipPhone:'', submitted:false,
     device:'', deviceConfirmed:false },
   // Whether this role maps to one build or offers a choice (A-60). A prototype
   // control, because both states are real and both need reviewing.
@@ -8356,9 +8402,11 @@ const DEFAULT_STATE = () => ({
   hm: {
     contactConfirmed: false, workPhone: '+1 303 555 0188',
     channels: { accepted:false },
-    logistics: { confirmed:false, whereToBe:'', available:true, proxy:'', teamNote:'' },
+    // firstInOffice: when the manager will first be in the office with the new
+    // hire. The badge is issued for that day, not the start date (A-87).
+    logistics: { confirmed:false, whereToBe:'', available:true, proxy:'', teamNote:'', firstInOffice:'day1', firstInOfficeDate:'' },
     computer: { ordered:false, model:'', reason:'' },
-    software: { confirmed:false, added:[], removed:[] },
+    software: { confirmed:false, added:[] },
     // A name is not a commitment. Both roles have to accept (M-27).
     buddy: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
@@ -8420,6 +8468,7 @@ function startdateStatus() {
   return S.startdate.confirmed ? 'done' : 'notstarted';
 }
 function bgcheckStatus() { return S.bgcheck.launched ? 'done' : 'notstarted'; }
+function rtwStatus() { return S.rtw.done ? 'done' : 'notstarted'; }
 function equipmentStatus() {
   if (S.equipment.submitted) return 'done';
   return S.equipment.choice ? 'inprogress' : 'notstarted';
@@ -8440,14 +8489,17 @@ function policiesStatus() {
 }
 function hbSignedCount() { return HANDBOOKS.filter(h => (S.policies.hbSigned || {})[h.id]).length;
 }
-/* v4: three things before Day 1, and only three (A-64). Pre-hire was
-   limited to the background check, equipment and the start date in the
-   September meetings; personal details, the job description and the
-   policies move after the start date, where they are not counted here. */
-const COUNTED = ['startdate','bgcheck','equipment'];
+/* Four things before Day 1, and only four (A-64). v4 had three: the start
+   date, the background check and equipment. Janine added the right to work
+   check on 6 Nov, because I-9 Section 1 must be done by the first day; it
+   goes third, in the order of the process tree. Everything else is not
+   counted here. */
+const COUNTED = ['startdate','bgcheck','rtw','equipment'];
+const NUM_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
+const thingsWord = () => NUM_WORDS[COUNTED.length];
 function taskDone(key) {
   return ({ startdate: startdateStatus()==='done', bgcheck: bgcheckStatus()==='done',
-            equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
+            rtw: rtwStatus()==='done', equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
             intro: introStatus()==='done',
             policies: policiesStatus()==='done' })[key];
 }
@@ -8470,7 +8522,7 @@ function chip(status, overdue) {
 /* ============================================================
    Landing / task list
    ============================================================ */
-/* The three counted pre-Day 1 tasks, in due-date order. Shared, so the
+/* The counted pre-Day 1 tasks, in due-date order. Shared, so the
    landing page, Sidekick and the platform's own to-do view read one list
    (A-56). v3 put the background check first because it runs longest; with
    only three, date order reads cleaner and the start date, which every
@@ -8485,6 +8537,10 @@ function taskList() {
       name:'Start your background check',
       why:'It runs on its own and takes a while, so the sooner it starts the better',
       est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
+    { key:'rtw', route:'#/rtw', icon:'id-card.svg',
+      name: S.country === 'JP' ? 'Share your right to work documents' : 'Complete your I-9, Section 1',
+      why:'The law says this is done by your first day. You do it in the separate Right to Work system',
+      est:'10 min', estMark:'A-23', status:rtwStatus(), marker:'A-86' },
     // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
     { key:'equipment', route:'#/equipment', icon:'laptop.svg',
       name:'Choose your equipment',
@@ -8547,7 +8603,7 @@ function renderLanding() {
         <p class="lede">${all
           ? `Everything we needed before <b>${startDateText()}</b> is done. Your laptop ships and your badge gets printed
              without you, and your first-day details turn up here three days before you start.`
-          : `You start as ${esc(HIRE.role)} on <b>${startDateText()}</b>. Three things to do before then, and you’re ready.
+          : `You start as ${esc(HIRE.role)} on <b>${startDateText()}</b>. ${thingsWord().charAt(0).toUpperCase() + thingsWord().slice(1)} things to do before then, and you’re ready.
              Everything else waits until you’ve started.`} ${am('A-64')}</p>
         ${sidekickAskBar('nh')}
       </div>
@@ -8584,12 +8640,12 @@ function renderLanding() {
       <div>
         <div class="section-h stack">
           <span class="eyebrow">Before Day 1 · now to ${fmtShort(addDays(startDate(), -1))}</span>
-          <h2>Three things, then you’re ready</h2>
+          <h2>${thingsWord().charAt(0).toUpperCase() + thingsWord().slice(1)} things, then you’re ready</h2>
         </div>
         ${open3.length ? `<div class="tcards">${open3.map(taskCard).join('')}</div>`
-          : `<div class="all-done">${ic('check-circle.svg')}<span><b>All three are done.</b> They’re at the bottom of the page, under Done.</span></div>`}
+          : `<div class="all-done">${ic('check-circle.svg')}<span><b>All ${thingsWord()} are done.</b> They’re at the bottom of the page, under Done.</span></div>`}
 
-        <div class="section-h"><h3>Optional, if you have time</h3><span class="hint">Nothing waits on these</span></div>
+        <div class="section-h"><h3>Up next, when you have time</h3><span class="hint">Before Day 1</span></div>
         ${videoCard('pre')}
         <div class="tcards">
           ${checkStatus() !== 'done' ? checkCard() : ''}
@@ -8602,29 +8658,20 @@ function renderLanding() {
                 ? `${HIRE.manager} has named the people you’ll actually work with, and why each one matters`
                 : `${HIRE.manager} hasn’t named anyone yet. This fills in when she does ${am('L-06')}`}</div>
               <div class="t-meta">
-                <span class="m">${ic('clock.svg','sm')}No due date, optional</span>
+                <span class="m">${ic('clock.svg','sm')}Any time before Day 1</span>
                 ${booked ? `<span class="mini-prog"><span class="bar"><i style="width:${(booked/netList.length)*100}%"></i></span>${booked} of ${netList.length} booked</span>` : ''}
               </div>
             </div>
             <div class="t-side">
               ${!netReady ? `<span class="chip waiting">Waiting on your manager</span>`
-                : booked ? `<span class="chip inprogress">${booked} booked</span>` : `<span class="chip waiting">Optional</span>`}
+                : booked ? `<span class="chip inprogress">${booked} booked</span>` : `<span class="chip waiting">Ready to book</span>`}
               ${ic('arrow-right.svg','lg go')}
             </div>
           </div>
         </div>
 
-        <div class="section-h"><h3>Also open now</h3><span class="hint">Yours, but it finishes in another system</span></div>
+        ${jp ? `<div class="section-h"><h3>Also open now</h3><span class="hint">Yours, but it finishes in another system</span></div>` : ''}
         <div class="ocards">
-          <div class="ocard live">
-            <div class="tic">${ic('id-card.svg')}</div>
-            <div class="o-main">
-              <div class="o-name">Right to work documents <span class="chip info">Available now</span></div>
-              <div class="o-note">Proof that you’re allowed to work in the country you’re joining. You can start it now,
-              and you finish it in the separate Right to Work system.</div>
-            </div>
-            <a class="o-go" data-ext="rtw">Open ${ic('external-link.svg','sm')}</a>
-          </div>
           ${jp ? `
           <div class="ocard live" data-assume="A-46">
             <div class="tic">${ic('health.svg')}</div>
@@ -8795,7 +8842,7 @@ function contactRow(p, extra='', tone='') {
   </div>`;
 }
 
-/* The buddy the manager assigned. Shown from assignment (L-01, settled
+/* The Onboarding Buddy the manager assigned. Shown from assignment (L-01, settled
    5 Nov): the new hire has someone to talk to through the quiet weeks. */
 function buddyRailBlock() {
   const B = S.hm.buddy;
@@ -8805,7 +8852,7 @@ function buddyRailBlock() {
     <div class="contact pending" data-assume="L-01">
       <div class="avatar peer">${ic('user.svg','sm')}</div>
       <div>
-        <div class="c-name">Your onboarding buddy</div>
+        <div class="c-name">Your Onboarding Buddy</div>
         <div class="c-role">Not chosen yet</div>
         <div class="c-extra">Someone in your team to ask the things you’d rather not ask your manager.
         <span class="pnote">${HIRE.manager} picks them. Nobody is assigned automatically, so this stays empty
@@ -8814,7 +8861,7 @@ function buddyRailBlock() {
     </div>`;
   }
   return contactRow(
-    { name: assigned.name, role: `Your onboarding buddy, ${assigned.role}`, initials: assigned.initials, cls: 'buddy' },
+    { name: assigned.name, role: `Your Onboarding Buddy, ${assigned.role}`, initials: assigned.initials, cls: 'buddy' },
     `<div class="c-extra">${assigned.tz ? `${ic('clock.svg','sm')} ${assigned.tz}<br>` : ''}Chosen by ${HIRE.manager} ${am('A-31')}</div>`
   );
 }
@@ -8861,7 +8908,7 @@ function landingRail() {
 }
 
 /* Everyone the MANAGER named, with their role (L-06). Keyed by person id
-   now that the buddy and the rest live on one screen.
+   now that the Onboarding Buddy and the rest live on one screen.
    Empty until submitted, which is what the new hire's waiting state shows. */
 function namedNetwork() {
   const H = S.hm, out = [];
@@ -8910,7 +8957,7 @@ function readinessState() {
   // confirms it (M-04).
   out.apps = H.software.confirmed
     ? { at: 2, note: 'Confirmed by the manager.' }
-    : { at: 1, note: 'The standard apps for the role are listed. Waiting for the manager to confirm.' };
+    : { at: 1, note: 'Waiting for the manager to pick from the standard list.' };
 
   // Workspace. Badge collection is not a stage: nothing reports it back.
   let ws = 0;
@@ -8926,7 +8973,7 @@ function readinessState() {
   if (H.buddy.assigned && H.buddy.notified) pp = 2;
   if (pp === 2 && H.network.submitted) pp = 3;
   if (pp === 3 && H.intro.forwarded) pp = 4;
-  out.people = { at: pp, note: H.buddy.assigned ? '' : 'No buddy chosen yet.' };
+  out.people = { at: pp, note: H.buddy.assigned ? '' : 'No Onboarding Buddy chosen yet.' };
 
   // Background check, now its own top-level step. The portal can only see the
   // launch; everything after it happens in the provider's system, so the later
@@ -9191,6 +9238,57 @@ function renderStartDate() {
 /* ============================================================
    Background check (A-50)
    ============================================================ */
+/* ============================================================
+   Right to work, the new hire's part (A-86)
+   US: I-9 Section 1, which must be done on or before Day 1. People
+   Experience finishes Section 2 in person at orientation. It runs in the
+   separate Right to Work system, so this screen explains and hands off.
+   ============================================================ */
+function renderRtw() {
+  const jp = S.country === 'JP';
+  const done = S.rtw.done;
+  return `
+  <div class="page">
+    ${crumbs(jp ? 'Share your right to work documents' : 'Complete your I-9, Section 1')}
+    <div class="task-head" data-assume="A-86">
+      <h1>${jp ? 'Share your right to work documents' : 'Complete your I-9, Section 1'} ${am('A-86')}</h1>
+      <p class="why">${jp
+        ? 'Proof you’re allowed to work in Japan. It has to be in before your first day.'
+        : 'Every new hire in the US confirms they’re allowed to work here. The law says your part is done by your first day.'}
+      It takes about ten minutes, in the separate Right to Work system.</p>
+    </div>
+    <div class="task-shell">
+      <div class="wiz-body">
+        <div class="form-sec">
+          <h3>What happens</h3>
+          <ol class="mech-list">
+            ${jp ? `
+            <li>You upload your residence card, or your passport and work visa.</li>
+            <li>People Experience checks them before you start.</li>`
+            : `
+            <li>You fill in Section 1 online: your details, and which documents you’ll show.</li>
+            <li>On your first day, People Experience sees the original documents at orientation. That’s Section 2.</li>
+            <li>Bring the documents you chose. A passport on its own is enough, or two documents from the lists.</li>`}
+          </ol>
+        </div>
+        ${done ? `<div class="callout soft">${ic('check-circle.svg')}<div><b>Done.</b> ${jp ? 'People Experience has your documents.' : 'Bring the documents you chose on your first day.'}</div></div>` : ''}
+        <div class="callout pnote mt16">
+          ${ic('question-circle.svg')}
+          <div>Added to the things before Day 1 by Janine on 6 Nov, third after the start date and the background
+          check, as in the process tree. A Workday delay hides this task today, so people miss it; one place to see it
+          fixes that from the new hire’s side. ${am('A-86')}</div>
+        </div>
+      </div>
+      <div class="wiz-foot">
+        <span class="saved-state">${ic(done ? 'check-circle.svg' : 'clock.svg','sm')}${done ? 'Done' : 'About 10 minutes'}</span>
+        <span class="missing"></span>
+        ${done ? `<button class="btn secondary" data-goto="#/">Back to your tasks</button>`
+          : `<button class="btn primary" id="rtwOpen">${ic('external-link.svg','sm')} Open the Right to Work system</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderBgCheck() {
   const B = S.bgcheck;
   return `
@@ -9240,16 +9338,20 @@ function renderBgCheck() {
    only place a new hire goes (Gede: ServiceNow is their one interaction
    layer), so Workday, which stores it behind the scenes, is never named.
    ============================================================ */
+/* What Equinix holds from the offer, with anything the new hire has changed
+   laid over it (A-65). lock: the field is not theirs to edit. */
 function detailsOnRecord() {
-  const jp = S.country === 'JP';
+  const jp = S.country === 'JP', E = S.details.edits || {};
   return [
-    ['Legal name', `${HIRE.legalFirst} ${HIRE.legalLast}`],
-    ['Name you go by', HIRE.preferred],
-    ['Personal email', HIRE.email],
-    ['Home address', jp ? HIRE.homeAddressJP : HIRE.homeAddress],
-    ['Country you’re joining in', jp ? 'Japan' : 'United States'],
+    { k:'legal', label:'Legal name', value: E.legal || `${HIRE.legalFirst} ${HIRE.legalLast}` },
+    { k:'preferred', label:'Name you go by', value: E.preferred || HIRE.preferred },
+    { k:'email', label:'Personal email', value: HIRE.email, lock:'It’s how you sign in, so only People Experience can change it.' },
+    { k:'address', label:'Home address', value: E.address || (jp ? HIRE.homeAddressJP : HIRE.homeAddress) },
+    { k:'country', label:'Country you’re joining in', value: jp ? 'Japan' : 'United States', lock:'From your offer.' },
   ];
 }
+/* The home address, as the new hire last confirmed it. Equipment ships here. */
+function homeAddress() { return detailsOnRecord().find(f => f.k === 'address').value; }
 function introCard() {
   const photoBy = dueText(dueFor('photo'));
   return `
@@ -9259,10 +9361,10 @@ function introCard() {
               <div class="t-name">Add a badge photo, and say hello to your team ${am('A-68')}</div>
               <div class="t-why">Send the photo by ${photoBy} and your badge is printed and waiting on Day 1.
                 Or it’s taken at reception when you arrive.</div>
-              <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 5 min, optional</span></div>
+              <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 5 min</span></div>
             </div>
             <div class="t-side">
-              ${introStatus() === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(introStatus())}
+              ${chip(introStatus())}
               ${ic('arrow-right.svg','lg go')}
             </div>
           </div>`;
@@ -9278,7 +9380,7 @@ function checkCard() {
       <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 1 min</span></div>
     </div>
     <div class="t-side">
-      ${st === 'notstarted' ? `<span class="chip waiting">Optional</span>` : chip(st)}
+      ${chip(st)}
       ${ic('arrow-right.svg','lg go')}
     </div>
   </div>`;
@@ -9302,25 +9404,33 @@ function renderDetails() {
       <h1>Check your details ${am('A-65')}</h1>
       <p class="why">${conv
         ? `We already hold your details from your contract role. Check they’re still right.`
-        : `This is what we have for you from your offer. If anything’s wrong, say so now, so your laptop, your badge
-          and your first pay all go to the right place.`}</p>
+        : `This is what we have for you from your offer. Fix anything that’s wrong, so your laptop, your badge and
+          your first pay all go to the right place.`}</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
         <div class="form-sec">
           <h3>What we have</h3>
-          <div class="bp-card">
-            ${detailsOnRecord().map(([k, v]) => `<div class="bp-row"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
+          <div class="bp-card det-card">
+            ${detailsOnRecord().map(f => D.editing === f.k ? `
+              <div class="bp-row det-edit"><dt><label for="detIn">${f.label}</label></dt><dd>
+                <input type="text" id="detIn" value="${esc(f.value)}">
+                <span class="det-acts"><button class="btn primary sm" id="detSave">Save</button>
+                <button class="btn quiet sm" id="detEditCancel">Cancel</button></span></dd></div>` : `
+              <div class="bp-row"><dt>${f.label}</dt><dd>${esc(f.value)}
+                ${(D.edits || {})[f.k] ? `<span class="chip done">Changed</span>` : ''}
+                ${f.lock ? `<span class="det-lock">${ic('lock.svg','sm')}${f.lock}</span>`
+                  : `<button class="det-edit-btn" data-detedit="${f.k}" aria-label="Edit ${f.label.toLowerCase()}">Edit</button>`}</dd></div>`).join('')}
           </div>
           ${D.checked ? `
           <div class="callout soft mt16">${ic('check-circle.svg')}<div><b>Thanks, that’s all right.</b> Nothing else to do until your first day.</div></div>`
           : D.flagged ? `
-          <div class="callout soft mt16">${ic('clock.svg')}<div><b>With ${pex}.</b> She corrects it before anything is sent
-            or printed, and tells you when it’s done. You wrote: “${esc(D.flagText)}”</div></div>`
+          <div class="callout soft mt16">${ic('clock.svg')}<div><b>With ${pex}.</b> She changes your email and tells you
+            how to sign in with it. You asked for: “${esc(D.flagText)}”</div></div>`
           : D.wrong ? `
           <div class="field mt16">
-            <label for="detFlag">What needs changing?</label>
-            <textarea id="detFlag" rows="3" placeholder="e.g. I moved last month. My new address is…">${esc(D.flagText)}</textarea>
+            <label for="detFlag">What should your personal email be?</label>
+            <textarea id="detFlag" rows="2" placeholder="e.g. jordan.reyes@outlook.com, because I no longer use the old one">${esc(D.flagText)}</textarea>
             <div class="note">It goes to ${pex}, your onboarding coordinator, with this screen attached.</div>
           </div>` : ''}
         </div>
@@ -9337,8 +9447,9 @@ function renderDetails() {
           </div>
           <div class="callout pnote mt16">
             ${ic('question-circle.svg')}
-            <div><b>Behind the portal.</b> What’s entered here is stored in Workday, which stays the system of record, so
-            the new hire never has to go there. Still open: whether bank details entered on Day 1 reach the first
+            <div><b>Behind the portal.</b> What’s entered or changed here goes both ways with Workday, which stays the
+            system of record, so the new hire never has to go there. The personal email is locked because it is their
+            sign-in (Janine, 6 Nov). Still open: whether bank details entered on Day 1 reach the first
             payroll run. If not, that one item has to come before Day 1. ${am('A-65')}</div>
           </div>
         </div>
@@ -9350,7 +9461,7 @@ function renderDetails() {
         ${D.checked || D.flagged ? `<button class="btn secondary" data-goto="#/">Back to your tasks</button>`
           : D.wrong ? `<button class="btn quiet" id="detCancel">Cancel</button>
                        <button class="btn primary" id="detSend" ${(D.flagText || '').trim() ? '' : 'disabled'}>Send to ${pex}</button>`
-          : `<button class="btn secondary" id="detWrong">Something’s wrong</button>
+          : `<button class="btn secondary" id="detWrong">Change my email</button>
              <button class="btn primary" id="detOk">These are right</button>`}
       </div>
     </div>
@@ -9365,10 +9476,19 @@ function renderDetails() {
    Everyone else gets an Equinix location or the home address on record,
    because laptops sent to new addresses are how bad actors get inside. */
 function shipAnywhere() { return S.shipRule === 'anywhere'; }
+/* A different address, as separate fields (A-85). Region is the one that
+   not every country uses. */
+const SHIP_FIELDS = [['street', 'Street address'], ['city', 'City'], ['region', 'State, province or region', true],
+  ['postcode', 'Postcode or ZIP'], ['country', 'Country']];
+const SHIP_AUTO = { street:'street-address', city:'address-level2', region:'address-level1', postcode:'postal-code', country:'country-name' };
+function shipToComplete() {
+  const t = S.equipment.shipTo || {};
+  return SHIP_FIELDS.every(([k, , opt]) => opt || (t[k] || '').trim());
+}
 /* Where an order is going, in words, for the screens that report it. */
 function shipDest() {
   const o = S.equipment.shipOffice;
-  return o === 'no' ? 'the home address on their record' : o === 'other' ? 'the address they gave' : 'their Equinix office';
+  return o === 'no' ? 'the home address on their record' : o === 'other' ? 'a different address they gave' : 'their Equinix office';
 }
 function officeAddress() { return S.country === 'JP' ? HIRE.officeAddressJP : HIRE.officeAddress; }
 
@@ -9604,7 +9724,7 @@ function renderEquipment() {
         <div class="form-sec" data-assume="A-38 A-85">
           <h3>Where should it go? ${am('A-38')}</h3>
           <p class="sec-note">An Equinix location, or the home address on your record. ${shipAnywhere()
-            ? 'As an intern or a Senior Director and above, you can also name somewhere else.'
+            ? 'As an intern, or a Senior Director and above, you can also give a different address.'
             : 'Nothing else, so a laptop only ever goes to an address Equinix already knows.'} ${am('A-85')}</p>
           <div class="ship-opts">
             <label class="ship-opt ${E.shipOffice==='yes'?'on':''}">
@@ -9616,22 +9736,27 @@ function renderEquipment() {
             <label class="ship-opt ${E.shipOffice==='no'?'on':''}" data-assume="A-65">
               <input type="radio" name="shipOffice" data-ship="no" ${E.shipOffice==='no'?'checked':''}>
               <span class="so-body"><span class="so-h">Your home, as on your record</span>
-                <span class="so-addr">${S.country === 'JP' ? HIRE.homeAddressJP : HIRE.homeAddress}</span>
+                <span class="so-addr">${esc(homeAddress())}</span>
                 <span class="so-note">The address on your offer. Moved since then? Tell ${PEOPLE.pex.name.split(' ')[0]}, or fix it in
                 <a data-goto="#/details">Check your details</a>, and it’s corrected before anything ships. ${am('A-65')}</span></span>
             </label>
             ${shipAnywhere() ? `
             <label class="ship-opt ${E.shipOffice==='other'?'on':''}">
               <input type="radio" name="shipOffice" data-ship="other" ${E.shipOffice==='other'?'checked':''}>
-              <span class="so-body"><span class="so-h">Somewhere else</span>
+              <span class="so-body"><span class="so-h">A different address</span>
                 <span class="so-note">For interns, and Senior Directors and above.</span></span>
             </label>` : ''}
           </div>
           ${E.shipOffice === 'other' && shipAnywhere() ? `
-            <div class="field mt16">
-              <label for="shipOther">Deliver to</label>
-              <textarea id="shipOther" rows="3" placeholder="Street, city, postcode and country">${esc(E.shipOther || '')}</textarea>
-            </div>` : ''}
+            <div class="addr-grid mt16" data-assume="A-85">
+              ${SHIP_FIELDS.map(([k, label, opt]) => `
+              <div class="field ${k === 'street' ? 'wide' : ''}">
+                <label for="ship-${k}">${label}${opt ? ' <span class="opt">(if your country uses one)</span>' : ''}</label>
+                <input type="text" id="ship-${k}" data-shipto="${k}" value="${esc(E.shipTo[k] || '')}" autocomplete="${SHIP_AUTO[k]}">
+              </div>`).join('')}
+            </div>
+            <p class="pnote">Separate fields so a courier in any country can read it. Which fields each country needs is
+            to confirm with CDW. ${am('A-85')}</p>` : ''}
 
           <div class="field" style="max-width:340px;">
             <label>Phone number for the courier</label>
@@ -9653,7 +9778,7 @@ function eqReady() {
   const E = S.equipment;
   if (!E.choice) return false;
   if (!E.shipOffice) return false;
-  if (E.shipOffice === 'other' && (E.shipOther || '').trim().length < 10) return false;
+  if (E.shipOffice === 'other' && !shipToComplete()) return false;
   if (E.shipPhone.replace(/\D/g,'').length < 7) return false;
   return true;
 }
@@ -9661,7 +9786,7 @@ function eqMissingText() {
   const E = S.equipment;
   if (!E.choice) return 'Choose what you need to continue.';
   const missing = [];
-  if (!E.shipOffice || (E.shipOffice === 'other' && (E.shipOther || '').trim().length < 10)) missing.push('a delivery address');
+  if (!E.shipOffice || (E.shipOffice === 'other' && !shipToComplete())) missing.push('a delivery address');
   if (E.shipPhone.replace(/\D/g,'').length < 7) missing.push('a phone number for the courier');
   return missing.length ? `Still needed: ${missing.join(', ')}.` : 'Everything needed is filled in.';
 }
@@ -9722,21 +9847,20 @@ function incidentCard(picked) {
 
     <div class="inc-body">
       ${tab === 'activity' ? `
-        <div class="inc-lbl">Follow-ups and requests</div>
-        <p class="inc-help">Need something else, or a change to what you ordered? Any question or concern about your
-        equipment goes here, and the tech team handling your order sees it.</p>
-        <div class="inc-add">
-          <input type="text" id="incComment" aria-label="Follow-up or request for the tech team" placeholder="e.g. Could I also get a webcam?">
-          <button class="btn primary sm" id="incSend">Send</button>
+        <div class="inc-lbl">Need something else?</div>
+        <div class="inc-next" data-assume="A-42">
+          <div class="in-opt">
+            <b>Change what you ordered</b>
+            <span>Reopens your order with the same choices, so you can swap or add from what’s on offer.</span>
+            <button class="btn secondary sm" id="eqChange">Change my order</button>
+          </div>
+          <div class="in-opt">
+            <b>A question about your order</b>
+            <span>Get help looks in MyHR first. If that doesn’t answer it, it goes to People Experience, with your order attached.</span>
+            <button class="btn secondary sm" data-openchat="1">${ic('question-circle.svg','sm')} Get help</button>
+          </div>
         </div>
         <div class="inc-feed">
-          ${E.comments.slice().reverse().map(c => `
-            <div class="inc-ev">
-              <div class="avatar sm">${HIRE.initials}</div>
-              <div class="ev-body"><div class="ev-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
-                <div class="ev-text">${esc(c)}</div></div>
-              <span class="ev-when">${ic('clock.svg','sm')}just now</span>
-            </div>`).join('')}
           <div class="inc-ev">
             <div class="avatar sm">${HIRE.initials}</div>
             <div class="ev-body"><div class="ev-name">${HIRE.legalFirst} ${HIRE.legalLast}</div>
@@ -9750,12 +9874,8 @@ function incidentCard(picked) {
             <span class="ev-when">${ic('clock.svg','sm')}just now</span>
           </div>
         </div>
-        <div class="callout soft mt16">
-          ${ic('exclamation-triangle.svg')}
-          <div><b>This is how people amend orders today</b>, by typing into the ticket after submitting.
-          It works, but nobody designed it. A proper “change my order” path would beat a comment thread. ${am('A-42')}</div>
-        </div>
-        <button class="btn secondary mt16" id="eqChange">Change my order</button>`
+        <p class="pnote mt16">No free-text box (Janine, 6 Nov): what can be ordered is set by the system, so changes go
+        back through the same choices, and questions go to Get help. Today people type into the ticket instead. ${am('A-42')}</p>`
       : tab === 'attachments' ? `
         <div class="inc-lbl">Attachments</div>
         <div class="attach">${ic('file-alt.svg','sm')}<b>Accessories Details.csv</b> <span>782 B</span></div>
@@ -9788,10 +9908,21 @@ function incidentCard(picked) {
 /* Slots sit in the week after the start date, so they stay plausible
    on both the two-week and three-month runways (A-45). */
 const SLOT_TIMES = ['10:00', '14:30', '09:00'];
+/* Times to meet the people the manager named. Never Day 1 or Day 2, which
+   are for the manager and the Onboarding Buddy (Janine, 6 Nov): weekdays from
+   the end of the first week into the second. */
+function meetDays() {
+  const days = [];
+  for (let k = 2; days.length < 8; k++) {
+    const d = addDays(startDate(), k);
+    if (d.getDay() !== 0 && d.getDay() !== 6) days.push(d);
+  }
+  return days;
+}
 function slotsFor(id) {
-  const i = ORG_PEOPLE.findIndex(p => p.id === id);
+  const i = Math.max(ORG_PEOPLE.findIndex(p => p.id === id), 0), days = meetDays();
   return SLOT_TIMES.map((t, j) => {
-    const d = addDays(startDate(), 5 + Math.max(i, 0) + j * 2);
+    const d = days[(i + j * 2) % days.length];
     return `${d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' })}, ${t}`;
   });
 }
@@ -9841,7 +9972,7 @@ function renderNetwork() {
 
     <div class="net-grid">
       <div>
-        <div class="section-h"><h2>${list.length} ${list.length===1?'person':'people'}, and why</h2><span class="hint">Optional. Book what’s useful, ignore the rest</span></div>
+        <div class="section-h"><h2>${list.length} ${list.length===1?'person':'people'}, and why</h2><span class="hint">From the end of your first week. Day 1 and 2 are for your manager and your Onboarding Buddy</span></div>
         <div class="net-cards">
           ${list.map((p,i) => `
             <div class="net-card ${booked[p.id]?'booked':''}">
@@ -9878,7 +10009,7 @@ function renderNetwork() {
               <p>Several people, across other teams, for the <b>job itself</b>. Chosen by your manager for your role.</p>
             </div>
             <div class="dist-row">
-              <div class="dr-h">${ic('user-circle.svg','sm')} Your buddy</div>
+              <div class="dr-h">${ic('user-circle.svg','sm')} Your Onboarding Buddy</div>
               <p>One person on your team, for <b>culture and logistics</b>. The questions you would rather not ask your manager.</p>
             </div>
             <div class="dist-row">
@@ -9891,7 +10022,7 @@ function renderNetwork() {
         <div class="rail-card">
           <h3>What happened behind this</h3>
           <ol class="mech-list">
-            <li>${HIRE.manager} named a <b>buddy</b> and anyone else worth meeting early.</li>
+            <li>${HIRE.manager} named an <b>Onboarding Buddy</b> and anyone else worth meeting early.</li>
             <li>Where she wrote a reason, it is on the card. She knows you can see it.</li>
             <li>Each of them was <b>asked</b>, not told, and had to accept. ${am('M-27')}</li>
             <li>You get the list, the reasons, and times you can book.</li>
@@ -9921,9 +10052,9 @@ function renderIntro() {
   <div class="page">
     ${crumbs('A badge photo, and a hello')}
     <div class="task-head" data-assume="A-16 A-68">
-      <div class="eyebrow">Optional · before Day 1</div>
+      <div class="eyebrow">Up next · before Day 1</div>
       <h1>Add a badge photo, and say hello to your team ${am('A-68')}</h1>
-      <p class="why">Both optional, and nothing waits on either. The photo gets your badge printed before you arrive;
+      <p class="why">Two small things that make your first day easier. The photo gets your badge printed before you arrive;
       the hello lets ${HIRE.manager.split(' ')[0]} introduce you to the team in your own words. ${am('A-16')}</p>
     </div>
     <div class="two-sec">
@@ -9931,9 +10062,9 @@ function renderIntro() {
       <div class="sec-card" data-assume="A-14 A-15">
         <div class="sec-top">
           <h2>Introduce yourself</h2>
-          ${introDone ? chip('done') : (S.intro.text ? chip('inprogress') : `<span class="chip waiting">Optional</span>`)}
+          ${introDone ? chip('done') : (S.intro.text ? chip('inprogress') : chip('notstarted'))}
         </div>
-        <div class="due-line">${ic('clock.svg','sm')}Optional, no due date ${am('A-68')}</div>
+        <div class="due-line">${ic('clock.svg','sm')}No due date ${am('A-68')}</div>
         <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:12px;">${HIRE.manager} will share this with the team before you start,
         so nobody has to write a “please welcome…” post from scratch and you get to describe yourself in your own words.</p>
 
@@ -9988,7 +10119,7 @@ function renderIntro() {
           <h2>Photo for your badge</h2>
           ${photoDone ? chip('done') : (S.photo.uploaded ? chip('inprogress') : chip('notstarted'))}
         </div>
-        <div class="due-line">${ic('calendar.svg','sm')}Optional. Send it by <b>${dueText(dueFor('photo'))}</b> and your badge is printed before Day 1. Otherwise it’s taken at reception when you arrive.</div>
+        <div class="due-line">${ic('calendar.svg','sm')}Send it by <b>${dueText(dueFor('photo'))}</b> and your badge is printed before Day 1. Otherwise it’s taken at reception when you arrive.</div>
         <p style="font-size:var(--t-sm); font-weight:var(--fw-book); margin-bottom:14px;">Send it now and your badge is printed and waiting for you on Day 1.</p>
 
         ${conv && !S.photo.replacing ? convPhotoBlock() : uploadBlock()}
@@ -10257,8 +10388,8 @@ function renderFlow() {
     { x:2, lbl:'Offer accepted', sub:'and signed', major:true },
     { x:11, lbl:'Identity verified', sub:'account created' },
     { x:20, lbl:'Portal opens', sub:'you are here', major:true },
-    { x:37, lbl:'13 days before', sub:'three things due' },
-    { x:52, lbl:'8 days before', sub:'optional photo' },
+    { x:37, lbl:'13 days before', sub:'four things due' },
+    { x:52, lbl:'8 days before', sub:'badge photo' },
     { x:66, lbl:'3 days before', sub:'first-day details' },
     { x:82, lbl:'Day 1', sub:'in person', major:true },
     { x:96, lbl:'First week', sub:'policies, benefits' },
@@ -10267,9 +10398,9 @@ function renderFlow() {
     { x:32, r:22, cls:'you', lbl:'Start date', sub:'confirm, 14 days before' },
     { x:38, r:72, cls:'you', lbl:'Background check', sub:'start, 13 days before' },
     { x:44, r:22, cls:'you', lbl:'Equipment', sub:'choose, 12 days before' },
-    { x:52, r:72, cls:'you opt', lbl:'Badge photo', sub:'optional' },
-    { x:58, r:22, cls:'you opt', lbl:'Say hello', sub:'optional' },
-    { x:66, r:72, cls:'you opt', lbl:'Suggested network', sub:'optional' },
+    { x:52, r:72, cls:'you opt', lbl:'Badge photo', sub:'up next' },
+    { x:58, r:22, cls:'you opt', lbl:'Say hello', sub:'up next' },
+    { x:66, r:72, cls:'you opt', lbl:'Suggested network', sub:'up next' },
     { x:82, r:50, cls:'day1', lbl:'Day 1', sub:'badge and laptop waiting' },
   ];
   const after = [
@@ -10316,7 +10447,7 @@ function renderFlow() {
   <div class="page flow-page">
     ${crumbs('The whole flow on one screen')}
     <h1>From the offer to the first week</h1>
-    <p class="flow-sub">Three things before Day 1, and everything else after it: what ${HIRE.preferred} does, what opens on its own,
+    <p class="flow-sub">Four things before Day 1, and everything else after it: what ${HIRE.preferred} does, what opens on its own,
     what other teams handle, and where Sidekick sits across all of it. This is the review screen: argue with the shape here,
     not in the individual pages. ${am('A-64')}</p>
 
@@ -10331,7 +10462,7 @@ function renderFlow() {
         ${axis.map(a => `<div class="axis-pt ${a.major?'major':''}" data-x="${a.x}" style="left:${a.x}%"><div class="apt-dot"></div>
           <div class="apt-lbl">${a.lbl}</div><div class="apt-sub">${a.sub}</div></div>`).join('')}
       </div>
-      ${lane(`Before Day 1: three things in the portal, and three optional`, 'user-circle.svg', you, '', 130)}
+      ${lane(`Before Day 1: four things, and three for when you have time`, 'user-circle.svg', you, '', 130)}
       ${lane('Day 1 and the first week', 'calendar.svg', after, '', 130)}
       ${lane('Opens on its own, or in another system', 'clock.svg', later, '', 130)}
       ${lane('Handled by other teams, nothing for you to do', 'users-friends.svg', other, 'other', 100)}
@@ -10624,7 +10755,7 @@ function applyScenario(name) {
   const hmComplete = () => {
     hmPartial(); namePeople();
     S.hm.computer = { ordered:true, model:'win-std', reason:'' };
-    S.hm.software = { confirmed:true, added:['Tableau'], removed:[] };
+    S.hm.software = { confirmed:true, added:['Tableau'] };
     S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true } };
     S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team. Shout if anything is unclear before the 18th.' };
     S.hm.channels.accepted = true;
@@ -10639,17 +10770,17 @@ function applyScenario(name) {
     S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.network.booked = { 0: slotsFor(0)[0] };
   }
-  // Under review, in v4, is the start date: the job description it used to
-  // hang off is a Day 1 task now (A-67), so it cannot be disputed before start.
+  // Under review is the start date: the job description it used to hang off
+  // is gone (A-67), so there is nothing else to dispute before the start.
   if (name === 'review') {
-    S.bgcheck.launched = true;
+    S.bgcheck.launched = true; S.rtw.done = true;
     S.startdate.changeRequested = true;
     S.startdate.requestedDate = 'Tuesday 1 September 2026';
     S.startdate.reason = 'My notice period runs two weeks longer than I expected.';
     equipComplete(); hmPartial(); namePeople();
   }
   if (name === 'complete') {
-    S.startdate.confirmed = true; S.bgcheck.launched = true;
+    S.startdate.confirmed = true; S.bgcheck.launched = true; S.rtw.done = true;
     equipComplete(); hmComplete();
     S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. I’ll be picking up the forecast for the Americas portfolios. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.intro.consent = true; S.intro.saved = true; S.intro.done = true;
@@ -10664,7 +10795,6 @@ function equipComplete() {
   Object.assign(S.equipment, {
     choice:'more', items:{ monitor:true, keyboard:true, mouse:true },
     shipOffice:'yes', shipPhone:'+1 303 555 0117', submitted:true,
-    comments:['can you please add a webcam'],
   });
 }
 /* a soft neutral placeholder "photo" for the all-complete scenario */
@@ -10768,6 +10898,7 @@ const ROUTES = {
   '#/todos': renderTodos,
   '#/startdate': renderStartDate,
   '#/bgcheck': renderBgCheck,
+  '#/rtw': renderRtw,
   '#/equipment': renderEquipment,
   '#/details': renderDetails,
   '#/intro': renderIntro,
@@ -10924,6 +11055,13 @@ function bindScreen(route) {
   if (route === '#/bgcheck') return bindBgCheck();
   if (route === '#/equipment') bindEquipment();
   if (route === '#/details') bindDetails();
+  if (route === '#/rtw') {
+    const o = $('#rtwOpen');
+    if (o) o.addEventListener('click', () => {
+      S.rtw.done = true; save(); rerender();
+      toast('In the product, this opens the Right to Work system. Marked done here, as if you’d finished it.', 'check-circle.svg');
+    });
+  }
   if (route === '#/intro') bindIntro();
   if (route === '#/policies') bindPolicies();
 }
@@ -11014,8 +11152,9 @@ function bindEquipment() {
   $$('[data-ship]').forEach(r => r.addEventListener('change', () => {
     S.equipment.shipOffice = r.dataset.ship; save(); rerender();
   }));
-  const so = $('#shipOther');
-  if (so) so.addEventListener('input', () => { S.equipment.shipOther = so.value; save(); updateEqChrome(); });
+  $$('[data-shipto]').forEach(f => f.addEventListener('input', () => {
+    S.equipment.shipTo[f.dataset.shipto] = f.value; save(); updateEqChrome();
+  }));
   const ph = $('#shipPhone');
   if (ph) ph.addEventListener('input', () => { S.equipment.shipPhone = ph.value; save(); updateEqChrome(); });
   const sub = $('#eqSubmit');
@@ -11023,17 +11162,10 @@ function bindEquipment() {
     S.equipment.submitted = true; save(); rerender();
     toast('Order submitted. The IT help desk has it as INC6369627.', 'check-circle.svg');
   });
-  const send = $('#incSend');
-  if (send) send.addEventListener('click', () => {
-    const t = $('#incComment');
-    if (!t.value.trim()) return;
-    S.equipment.comments.push(t.value.trim()); save(); rerender();
-    toast('Comment added to the ticket. Someone in Tier 2 will pick it up.');
-  });
   const chg = $('#eqChange');
   if (chg) chg.addEventListener('click', () => {
     S.equipment.submitted = false; save(); rerender();
-    toast('Reopened your order. In the live portal this is where people type into the ticket instead.');
+    toast('Your order is open again. Change what you need and submit it.');
   });
 }
 function updateEqChrome() {
@@ -11044,6 +11176,16 @@ function updateEqChrome() {
 /* ---------- details bindings (A-65) ---------- */
 function bindDetails() {
   const D = S.details;
+  $$('[data-detedit]').forEach(b => b.addEventListener('click', () => { D.editing = b.dataset.detedit; rerender(); const f = $('#detIn'); if (f) f.focus(); }));
+  const ec = $('#detEditCancel');
+  if (ec) ec.addEventListener('click', () => { D.editing = ''; rerender(); });
+  const sv = $('#detSave');
+  if (sv) sv.addEventListener('click', () => {
+    const v = $('#detIn').value.trim();
+    if (v) { D.edits = Object.assign({}, D.edits, { [D.editing]: v }); }
+    D.editing = ''; save(); rerender();
+    toast('Saved. It goes to your record straight away.', 'check-circle.svg');
+  });
   const ok = $('#detOk');
   if (ok) ok.addEventListener('click', () => { D.checked = true; save(); rerender(); toast('Thanks. Your details are confirmed.', 'check-circle.svg'); });
   const wr = $('#detWrong');
@@ -11059,9 +11201,9 @@ function bindDetails() {
   if (sd) sd.addEventListener('click', () => {
     D.flagged = true; D.wrong = false;
     // It lands in the coordinator's Help requests, like any question for a person.
-    S.sidekick.handoffs.push({ who:'nh', q:'Details correction: ' + D.flagText.trim(), at: fmtDate(simToday()) });
+    S.sidekick.handoffs.push({ who:'nh', q:'Email change request: ' + D.flagText.trim(), at: fmtDate(simToday()) });
     save(); rerender();
-    toast(`Sent to ${PEOPLE.pex.name.split(' ')[0]}. She fixes it before anything ships.`, 'check-circle.svg');
+    toast(`Sent to ${PEOPLE.pex.name.split(' ')[0]}. She’ll change it and tell you how to sign in.`, 'check-circle.svg');
   });
 }
 

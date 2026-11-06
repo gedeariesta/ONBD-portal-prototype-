@@ -19,7 +19,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
 
   // 1. v4: three things before Day 1, in due-date order, start date first (A-64)
   const pre = await p.evaluate(() => [...document.querySelectorAll('.landing-grid .tcards')][0].querySelectorAll('.tcard').length);
-  check('three things before Day 1', pre === 3, `${pre} task cards`);
+  check('four things before Day 1', pre === 4, `${pre} task cards`);
   const firstTask = await p.evaluate(() => document.querySelector('.tcard .t-name').innerText.trim());
   check('start date is task 1', /start date/i.test(firstTask), firstTask);
   check('bank, tax and emergency contacts are a Day 1 step', /Add your bank, tax and emergency contacts/.test(await txt()));
@@ -54,9 +54,9 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   check('details screen never mentions Workday', !/Workday/.test(await txt()));
   check('the portal asks for nothing personal before Day 1', await p.evaluate(() => document.querySelectorAll('#app input, #app select, #app textarea').length === 0));
   await p.evaluate(() => document.getElementById('detWrong').click()); await p.waitForTimeout(250);
-  await p.fill('#detFlag', 'I moved last month');
+  await p.fill('#detFlag', 'jordan.reyes@outlook.com');
   await p.evaluate(() => document.getElementById('detSend').click()); await p.waitForTimeout(250);
-  check('a correction reaches the coordinator', await p.evaluate(() => S.details.flagged && S.sidekick.handoffs.some(h => /Details correction/.test(h.q))));
+  check('a correction reaches the coordinator', await p.evaluate(() => S.details.flagged && S.sidekick.handoffs.some(h => /Email change request/.test(h.q))));
 
   // 5b. Policies are first-week work (A-66): readable now, nothing signable
   await go('#/policies');
@@ -251,7 +251,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await p.evaluate(() => document.querySelector('[data-ship="other"]').click()); await p.waitForTimeout(200);
   await p.fill('#shipPhone', '+1 303 555 0117');
   check('somewhere else needs an address', await p.evaluate(() => document.getElementById('eqSubmit').disabled));
-  await p.fill('#shipOther', '400 Main Street, Boulder, Colorado 80302, US');
+  for (const [k, v] of [['street', '400 Main Street'], ['city', 'Boulder'], ['postcode', '80302'], ['country', 'United States']]) await p.fill(`#ship-${k}`, v);
   await p.waitForTimeout(150);
   check('and then the order can go', await p.evaluate(() => !document.getElementById('eqSubmit').disabled));
   await p.evaluate(() => document.querySelector('[data-pc="shipRule:standard"]').click()); await p.waitForTimeout(250);
@@ -261,7 +261,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   // M-35: the manager's Day 1 survey
   await go('#/hm/survey');
   check('survey cannot send unanswered', await p.evaluate(() => document.getElementById('svSend').disabled));
-  for (let n = 1; n <= 7; n++) {
+  for (let n = 1; n <= 6; n++) {
     await p.evaluate(n => document.querySelector(`[data-svq="${n}:4"]`).click(), n); await p.waitForTimeout(80);
   }
   await p.evaluate(() => document.getElementById('svSend').click()); await p.waitForTimeout(250);
@@ -331,7 +331,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await fresh('#/');
   check('the job description task is gone', !/job description/i.test(await txt()));
   await p.evaluate(() => { S.hm.buddy = { assigned: ORG_PEOPLE[0].id, notified:false, accepted:false }; save(); rerender(); });
-  check('the buddy shows from assignment', /Your onboarding buddy/.test(await p.evaluate(() => document.querySelector('.rail').innerText))
+  check('the buddy shows from assignment', /Your Onboarding Buddy/.test(await p.evaluate(() => document.querySelector('.rail').innerText))
     && await p.evaluate(() => buddyVisibleToNH()));
   // finished tasks move to Done at the bottom; coming back home keeps your place
   await p.evaluate(() => { S.startdate.confirmed = true; save(); rerender(); });
@@ -343,8 +343,8 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   check('coming back home keeps your place', Math.abs(await p.evaluate(() => window.scrollY) - 1200) <= 2);
   // the apps list comes from the role
   await go('#/hm/software');
-  check('apps for the role are already ticked', await p.evaluate(() => [...document.querySelectorAll('[data-swstd]')].every(c => c.checked)
-    && !document.querySelector('.blocked-panel')));
+  check('apps come from one standard list, nothing pre-ticked', await p.evaluate(() => document.querySelectorAll('[data-sw]').length === STANDARD_APPS.length
+    && [...document.querySelectorAll('[data-sw]')].every(c => !c.checked)));
   // the manager can do every task from Sidekick, and the portal agrees
   await fresh('#/hm/');
   await p.evaluate(() => openChat()); await p.waitForTimeout(300);
@@ -357,11 +357,22 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await tap('[data-skdo="calendar"]'); await tap('[data-skact="calendar"]');
   await tap('[data-skdo="welcome"]'); await tap('[data-skact="welcome"]');
   await tap('[data-skphone="ok"]'); await tap('[data-skact="channels"]');
-  await tap('[data-skdo="survey"]'); for (let n = 1; n <= 7; n++) await tap(`[data-skset="svq:${n}:4"]`); await tap('[data-skact="survey"]');
+  await tap('[data-skdo="survey"]'); for (let n = 1; n <= 6; n++) await tap(`[data-skset="svq:${n}:4"]`); await tap('[data-skact="survey"]');
   check('every manager task can be done from the chat', await p.evaluate(() =>
     hmTasks().filter(t => t.route && t.id !== 'computer' && t.id !== 'intro').every(t => t.done) && skHmOpenCount() === 0));
   await p.evaluate(() => closePanels());
   check('the portal shows what the chat did', await p.evaluate(() => document.querySelectorAll('.tcard.hm.done').length >= 7));
+
+  // 6 Nov: the email is locked, the rest edits in place; the survey lost Q7
+  await fresh('#/details');
+  check('personal email is locked', await p.evaluate(() => !document.querySelector('[data-detedit="email"]') && !!document.querySelector('[data-detedit="address"]')));
+  await p.evaluate(() => document.querySelector('[data-detedit="address"]').click()); await p.waitForTimeout(200);
+  await p.fill('#detIn', '55 Larimer Street, Denver, Colorado 80205, US');
+  await p.evaluate(() => document.getElementById('detSave').click()); await p.waitForTimeout(200);
+  check('an edited address is where equipment ships', await p.evaluate(() => homeAddress().startsWith('55 Larimer')));
+  check('the diverse candidates question is gone', await p.evaluate(() => !HM_SURVEY.some(q => /diverse/i.test(q.q))));
+  await go('#/');
+  check('nothing on the home page is labelled optional', !/\boptional\b/i.test(await txt()));
 
   check('keyboard focus is visible', hasRing);
 

@@ -1297,16 +1297,12 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .inc-team{font-size:var(--t-meta); color:var(--nickel); margin-left:auto;}
 /* single column now that the incident is tabbed, as the live one is */
 .inc-body{padding:20px 22px;}
-.inc-body .inc-add{margin-top:8px;}
 .inc-lbl{font-size:var(--t-micro); font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px;}
 .inc-val{font-size:var(--t-sm); color:var(--charcoal); font-weight:400;}.attach{
   display:flex; gap:8px; align-items:center; margin-top:14px; padding:9px 12px;
   background:var(--silver); border-radius:var(--radius); font-size:var(--t-meta); color:var(--charcoal); font-weight:400;
 }
-.attach .ic{color:var(--carbon);}.inc-add{display:flex; gap:8px;}
-.inc-add input{flex:1; font-family:inherit; font-size:var(--t-sm); padding:8px 12px; border:1px solid var(--titanium); border-radius:var(--radius); outline:none;}
-.inc-add input:focus{border-color:var(--eq-blue);}
-
+.attach .ic{color:var(--carbon);}
 /* ---------- suggested network (A-43) ---------- */
 .proposed-banner{
   display:flex; gap:14px; align-items:flex-start; max-width:940px; margin-bottom:22px;
@@ -2812,7 +2808,6 @@ body.snmarks .snm{display:inline-flex;}
 .proto-drawer .pc-row.na .pc-btn.on:hover{border-color:var(--eq-aqua); color:var(--charcoal);}
 .proto-drawer .pc-na{font-size:var(--t-micro); color:var(--platinum); font-style:italic; margin-top:6px;}
 
-.inc-help{font-size:var(--t-sm); color:var(--carbon); margin:2px 0 10px; max-width:640px;}
 
 /* v6: the manager does every task from the Teams chat (M-37) */
 .tmc-f{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
@@ -2838,3 +2833,25 @@ body.snmarks .snm{display:inline-flex;}
 .tmc-sq-q{font-size:var(--t-sm); color:var(--tm-text); line-height:1.45;}
 .tmc-scale{display:flex; gap:5px;}
 .tm-btn.sq{width:34px; justify-content:center; padding:5px 0;}
+
+/* A different address, as separate fields (A-85) */
+.addr-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 16px; max-width:620px;}
+.addr-grid .field.wide{grid-column:1 / -1;}
+/* What to do after an order is in: change it, or get help (A-42) */
+.inc-next{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;}
+.in-opt{display:flex; flex-direction:column; gap:4px; align-items:flex-start; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; background:var(--white);}
+.in-opt b{font-size:var(--t-ui); color:var(--charcoal);}
+.in-opt span{font-size:var(--t-sm); color:var(--carbon); margin-bottom:6px;}
+
+/* Check your details: edit in place, or locked (A-65) */
+.det-card dd{display:flex; flex-wrap:wrap; align-items:center; gap:8px;}
+.det-edit-btn{font:inherit; font-size:var(--t-sm); font-weight:700; color:var(--text-link); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;}
+.det-lock{display:inline-flex; align-items:center; gap:5px; font-size:var(--t-meta); font-weight:400; color:var(--carbon);}
+.det-edit dd input{flex:1 1 260px; font:inherit; font-size:var(--t-sm); padding:6px 9px; border:1px solid var(--line-strong); border-radius:var(--radius);}
+.det-acts{display:flex; gap:6px;}
+
+/* The manager's three stats, and the new hire's progress beneath (Janine, 6 Nov) */
+.scene-stats.hm3{display:grid; grid-template-columns:repeat(3, auto); gap:14px 40px; align-items:end;}
+.scene-stats.hm3 .stat b{font-size:72px;}
+.scene-stats .stat-line{grid-column:1 / -1; max-width:420px; font-size:var(--t-sm); color:var(--scene-text); display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.scene-stats .stat-line b{color:var(--white);}

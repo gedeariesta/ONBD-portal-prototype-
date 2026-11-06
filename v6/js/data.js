@@ -21,6 +21,7 @@ const SIM = {
 const DUE_OFFSETS = {
   startdate: -14,   // triggered at offer acceptance (A-49)
   bgcheck: -13,     // launched from the portal, runs externally (A-50)
+  rtw: -13,         // I-9 Section 1, by Day 1 at the latest (A-86)
   equipment: -12,   // earliest of the provisioning tasks, build and ship lead (A-33)
   photo: -10,       // badge print lead
   intro: -7,
@@ -53,7 +54,7 @@ const PEOPLE = {
   recruiter: { name: 'Daniel Okafor', role: 'Recruiter', initials: 'DO', cls: 'rec' },
   manager: { name: 'Priya Anand', role: 'Your manager, Director of FP&A', initials: 'PA', cls: 'mgr' },
   buddy: {
-    name: 'Nina Kowalski', role: 'Your onboarding buddy, Senior Financial Analyst',
+    name: 'Nina Kowalski', role: 'Your Onboarding Buddy, Senior Financial Analyst',
     initials: 'NK', cls: 'buddy', tz: 'Chicago (CT), an hour ahead of you',
     assignedBy: 'Chosen by Priya Anand when your start date was confirmed.',
   },
@@ -116,7 +117,7 @@ const ASSUMPTIONS = [
     resolve:'The earlier spec assumed RITMs throughout. Amendment by comment is what people actually do, and UAT shows it: “can you please add a webcam” typed into the ticket for an item that was left unticked on the form minutes earlier. Either support it with a proper “change my order” path, or route amendments somewhere better. Nothing reads the CSV back, so today a person at the other end has to reconcile the two.', oi:'' },
   { id:'A-43', group:'blocks', prov:'1:1', screen:'Suggested network', route:'#/network',
     assumed:'The manager names at least five people outside the reporting line, writes why each matters, each is notified, and the new hire gets the list plus suggested 1:1 times.',
-    resolve:'Does not exist today. It needs a new manager task, a notification and a booking integration, and it may belong at Day 1 instead of pre-Day 1. It is neither the org chart nor the buddy, so keep all three separate.', oi:'' },
+    resolve:'Does not exist today. It needs a new manager task, a notification and a booking integration, and it may belong at Day 1 instead of pre-Day 1. It is neither the org chart nor the Onboarding Buddy, so keep all three separate.', oi:'' },
   { id:'A-48', group:'blocks', prov:'UAT', screen:'All screens', route:'#/',
     assumed:'The prototype is a single page. The live platform is two levels: a MyHR hub (carousel, videos, countdown, culture links) and a separate task portal you click into.',
     resolve:'Declared, not silently diverged. Decide whether to adopt the split, because it changes navigation, the progress model and where the culture content lives.', oi:'' },
@@ -211,8 +212,8 @@ const ASSUMPTIONS = [
     assumed:'Built for laptop only. No mobile layouts.',
     resolve:'Revisit this before build for the IBX technician persona, who may be more phone-reliant than a desk hire. Analytics from the current portal would settle it.', oi:'' },
   { id:'A-31', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
-    assumed:'The onboarding buddy is visible from the moment they are assigned, with role, timezone and who chose them.',
-    resolve:'An earlier proposal surfaced the buddy 72 hours before the start date. Showing them from assignment gives the new hire someone to talk to during the quiet weeks. Confirm what the buddy programme intends.', oi:'' },
+    assumed:'The Onboarding Buddy is visible from the moment they are assigned, with role, timezone and who chose them.',
+    resolve:'An earlier proposal surfaced the Onboarding Buddy 72 hours before the start date. Showing them from assignment gives the new hire someone to talk to during the quiet weeks. Confirm what the Onboarding Buddy programme intends.', oi:'' },
   { id:'A-32', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
     assumed:'The hiring manager is contactable from the portal before Day 1, by Teams and email.',
     resolve:'Confirm the manager expects to be reachable this early, and that Teams reaches them before the new hire has an Equinix account.', oi:'' },
@@ -297,7 +298,7 @@ const ASSUMPTIONS = [
     resolve:'Said in the Artifacts meeting: the pre-hire experience stays limited to these three, with about three tasks on Day 1 and benefits, compliance and the rest from Day 2 through the first week. The five-or-fewer target is the ceiling, not the plan. Open: whether the limit is strict enough to rule out the optional badge photo and introduction (A-68), and where right to work, which finishes in another system, is counted.', oi:'' },
   { id:'A-65', group:'blocks', prov:'MTG', screen:'Check your details', route:'#/details',
     assumed:'Personal details have two halves, both in the portal. Now, optional: check what Equinix already holds from the offer (name, email, home address) and say if anything is wrong. Day 1: add bank, tax, emergency contacts and voluntary self-identification. The new hire never goes to Workday, which stores it behind the portal.',
-    resolve:'Gede, 5 Nov: a screen the new hire cannot act on is not worth showing, and ServiceNow is the only place they interact, so the Workday wording is gone. Before that, the Artifacts meeting had settled that Workday stays the system of record and the payroll fields are entered once. Open: whether bank details entered on Day 1 reach the first payroll run; if not, that one item has to come before Day 1. A correction lands in the coordinator’s Help requests.', oi:'OI-20' },
+    resolve:'Gede, 5 Nov: a screen the new hire cannot act on is not worth showing, and ServiceNow is the only place they interact, so the Workday wording is gone. Before that, the Artifacts meeting had settled that Workday stays the system of record and the payroll fields are entered once. Open: whether bank details entered on Day 1 reach the first payroll run; if not, that one item has to come before Day 1. A correction lands in the coordinator’s Help requests. Janine, 6 Nov: the new hire edits their own details here (a two-way link with Workday is planned), except the personal email, which is their sign-in, so changing it is a request to People Experience.', oi:'OI-20' },
   { id:'A-66', group:'retired', prov:'MTG', screen:'Policies and notices', route:'#/policies',
     assumed:'Policies and notices open in the first week. Labour notices are acknowledged in ServiceNow, each with its date and time kept for audit. The handbooks are one link to the SharePoint site and one acknowledgment, not a pack of documents. The notices can be read ahead before the start date; nothing can be signed.',
     resolve:'Handbook access starts after the start date, the roughly 35 handbooks need one task rather than one each, and labour notices sit in ServiceNow for the timestamp (all said in the Artifacts meeting). Open: Netherlands and Canada contracts refer to the handbook, which a new hire cannot see before they start; whether acknowledging is mandatory before the next task opens; and which code of conduct and whistleblower acknowledgments can go, since compliance learning already asks for some of them. Retired after the review with Janine: the handbooks are eight acknowledgements nested in one task, not one link and one acknowledgment, and signing goes through DocuSign rather than ServiceNow (A-76).', oi:'' },
@@ -343,9 +344,9 @@ const ASSUMPTIONS = [
   { id:'A-80', group:'content', prov:'MTG', screen:'Onboarding videos', route:'#/',
     assumed:'The portal uses the onboarding videos that already exist: one before Day 1 and one for Day 1. The others stay as supporting links. Nothing new is produced first.',
     resolve:'Janine’s call: Adair’s video for pre-Day 1 and Brandy’s for Day 1, rather than waiting on employee communications for new content. The titles on screen are descriptive, not the videos’ real titles, and the videos are not embedded in the prototype.', oi:'' },
-  { id:'A-81', group:'content', prov:'MTG', screen:'Checklists and buddy content', route:'#/',
-    assumed:'The hiring-manager and candidate checklists do not survive as documents. Their actions become tasks where they need doing, and their guidance becomes HR articles Sidekick can answer from. The buddy programme materials are handled the same way.',
-    resolve:'Janine: the checklists should translate into the AI-first experience rather than be preserved as a standalone document, and Megan’s buddy materials are well advanced. Open: which checklist lines are tasks and which are guidance, line by line.', oi:'' },
+  { id:'A-81', group:'content', prov:'MTG', screen:'Checklists and Onboarding Buddy content', route:'#/',
+    assumed:'The hiring-manager and candidate checklists do not survive as documents. Their actions become tasks where they need doing, and their guidance becomes HR articles Sidekick can answer from. The Onboarding Buddy programme materials are handled the same way.',
+    resolve:'Janine: the checklists should translate into the AI-first experience rather than be preserved as a standalone document, and Megan’s Onboarding Buddy materials are well advanced. Open: which checklist lines are tasks and which are guidance, line by line.', oi:'' },
   { id:'A-82', group:'design', prov:'MTG', screen:'Sidekick, new hire', route:'#/',
     assumed:'Before Day 1 the new hire’s assistant runs on Paradox, at paradox.ai, the same place the candidate journey ran. It is Sidekick powered by Paradox: Sidekick’s answers, rules and system cards in Paradox’s frame, labelled clearly as Paradox and not the full Sidekick. From Day 1 the same help is Sidekick in Microsoft Teams.',
     resolve:'Gede’s direction, after seeing the talent marketplace team’s candidate journey on Paradox: dual-wield rather than make the new hire’s assistant purely generic, because the pre-Day 1 assistant was discussed as training wheels for the full Sidekick. Open: whether Paradox can host Sidekick’s answers and the knowledge articles at all, what the assistant is called on Paradox, and whether the hand-over on Day 1 carries the conversation with it.', oi:'' },
@@ -354,9 +355,18 @@ const ASSUMPTIONS = [
     resolve:'Janine: everything the hiring manager does should be actionable through Sidekick, as one checklist in a Teams chat, and the phone number check is to be added to it, though she wants People Experience to confirm it is needed at all. Open: whether a real Teams integration can be embedded in the portal or only linked, and who builds the Sidekick hiring manager experience with Brian.', oi:'' },
   { id:'A-84', group:'design', prov:'MTG', screen:'Sidekick, coordinator', route:'#/pex/',
     assumed:'The People Experience coordinator has Sidekick too, in the same Teams window. It answers from her queues and the caseload, and the answer is the list itself, drawn by the system. It does not offer to hand her to a person, because she is the person questions are handed to. v4 gave her no assistant for that reason.',
-    resolve:'Gede: the hiring manager and People Experience views are fully Sidekick. Open: which queue questions coordinators actually ask, and whether the nudges she sends from the queues should come from the same chat.', oi:'' },  { id:'A-85', group:'design', prov:'MTG', screen:'Equipment', route:'#/equipment',
-    assumed:'Equipment ships to an Equinix location or to the home address on the new hire’s record, nowhere else. Interns, and Senior Directors and above, can also name another address.',
-    resolve:'Janine, 30 Oct: bad actors have been getting laptops sent to new addresses and getting behind the firewall. The candidate fraud decision is due within a week and may change this. Open: how the portal knows someone is a Senior Director (job level from Workday), and whether “another Equinix site” needs its own picker or stays a message to the coordinator.', oi:'' },
+    resolve:'Gede: the hiring manager and People Experience views are fully Sidekick. Open: which queue questions coordinators actually ask, and whether the nudges she sends from the queues should come from the same chat.', oi:'' },  { id:'A-86', group:'design', prov:'MTG', screen:'Right to work', route:'#/rtw',
+    assumed:'The right to work check is one of the things before Day 1, third after the start date and the background check. In the US it is I-9 Section 1, done in the separate Right to Work system; Section 2 is in person at orientation.',
+    resolve:'Janine, 6 Nov: show the four things they need to do now, in the process tree’s order. Global mobility (3 Nov) said Section 1 is missed today because a Workday contact-verification task arrives 24 hours late and hides it. Open: what other countries need here, and whether the portal can learn the status back from the Right to Work system.', oi:'' },
+  { id:'A-87', group:'design', prov:'MTG', screen:'Confirm the first-day details', route:'#/hm/logistics',
+    assumed:'The manager says when they will first be in the office with the new hire, on Day 1 or a later date. The badge is issued for that day, not for the start date.',
+    resolve:'Janine, 6 Nov: not every Day 1 is in person, and someone may first come in weeks later, so security delivers the badge for the day the manager will meet them in person. Open: whether security can take that date from the portal, and what happens when it moves.', oi:'' },
+  { id:'A-88', group:'content', prov:'MTG', screen:'Task list', route:'#/',
+    assumed:'A “Get ready for Day 1” step opens a week before the start date, with the link to sign up for the live online orientation and what to have ready.',
+    resolve:'Janine, 6 Nov: the first day experience is being redesigned with a consulting firm as a digital session of an hour to an hour and a half, so there is preparation to do before Day 1. Open: the sign-up mechanics, and whether it is a step in the readiness tracker (for Brian).', oi:'' },
+  { id:'A-85', group:'design', prov:'MTG', screen:'Equipment', route:'#/equipment',
+    assumed:'Equipment ships to an Equinix location or to the home address on the new hire’s record, nowhere else. Interns, and Senior Directors and above, can also give a different address, as separate fields (street, city, region, postcode, country).',
+    resolve:'Janine, 30 Oct: bad actors have been getting laptops sent to new addresses and getting behind the firewall. The candidate fraud decision is due within a week and may change this. Open: how the portal knows someone is a Senior Director (job level from Workday), and whether “another Equinix site” needs its own picker or stays a message to the coordinator. Janine, 6 Nov: words have to work in every country (so “a different address”, not “somewhere else”), and the courier may need separate fields; to confirm with CDW.', oi:'' },
 ];
 
 const GROUP_LABELS = {
@@ -384,7 +394,7 @@ const PROV_LABELS = {
 const DECIDE_FIRST = [
   // v4: the two decisions the AI-forward proposal rests on come first. The
   // computer question that used to head this list is settled (A-60).
-  { ids:['A-64','A-68'], head:'How strict “three things before Day 1” is',
+  { ids:['A-64','A-68'], head:'How strict “four things before Day 1” is',
     why:'It decides whether the badge photo and the introduction stay as optional extras, move to Day 1, or go. It is the first thing a new hire sees, and the most visible change from today.',
     when:'Next conversation with Janine.' },
   { ids:['A-70','A-71'], head:'What Sidekick is allowed to do, and what it can see',
@@ -404,7 +414,7 @@ const DECIDE_FIRST = [
     when:'Before the manager task list is fixed.' },
   { ids:['M-27','M-10'], head:'What makes a name count',
     why:'Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
-    when:'Alongside the buddy programme, which is being written now.' },
+    when:'Alongside the Onboarding Buddy programme, which is being written now.' },
   { ids:['A-38'], head:'Shipping to an address a new hire chooses',
     why:'A person who has not started yet can redirect a laptop. Whether the answer is a restriction, a verification or an approval, it belongs in the requirements.',
     when:'Before the equipment flow is built.' },
@@ -568,7 +578,7 @@ const CHAPTER_ART = [
 /* Chapter titles, headlines and content come from the live Inside Equinix
    site. Chapter 03 is "What we do", not the "Our business" an earlier version
    of this prototype guessed at. Every chapter there closes with a reflection
-   prompt pointing at the manager or buddy conversation, which is the part
+   prompt pointing at the manager or Onboarding Buddy conversation, which is the part
    that reaches back into this portal (L-12). */
 const INSIDE_CHAPTERS = [
   { n:'01', title:'Who we are',
@@ -615,7 +625,7 @@ const INSIDE_CHAPTERS = [
    they are written to be picked up in a conversation, not stored in a form. */
 const REFLECT_NOTE =
   'Capture your thoughts, including any questions or areas where you want to learn more. ' +
-  'You will revisit these in your upcoming conversation with your manager or onboarding buddy.';
+  'You will revisit these in your upcoming conversation with your manager or buddy.';
 
 /* ---------- The live to-do timeline (A-56) ----------
    UAT shows the platform's own to-do UI: a phase rail on the left, one phase
@@ -684,7 +694,7 @@ const READINESS = [
   { id:'apps', label:'Applications', icon:'portal-window.svg', sys:'ServiceNow',
     owners:'The manager and IT',
     stages:[
-      { label:'Role list found',    note:'The role decides the standard apps.' },
+      { label:'Standard list ready', note:'One list for every new hire.' },
       { label:'Stack confirmed',    note:'The manager confirms the defaults and adds anything role-specific.' },
       { label:'Licences requested', note:'Each application raises its own request and carries its own status.' },
       { label:'Active on Day 1',    note:'Access switches on with the start date, not before.' },
@@ -702,8 +712,8 @@ const READINESS = [
   { id:'people', label:'People', icon:'users-friends.svg', sys:'Onboarding portal',
     owners:'The manager',
     stages:[
-      { label:'Buddy chosen',     note:'From the team, and changeable up to three days before the start date.' },
-      { label:'Buddy told',       note:'They are notified, including what being a buddy involves.' },
+      { label:'Onboarding Buddy chosen',     note:'From the team, and changeable up to three days before the start date.' },
+      { label:'Onboarding Buddy told',       note:'They are notified, including what being an Onboarding Buddy involves.' },
       { label:'Network named',    note:'The people outside the reporting line, with a reason for each.' },
       { label:'Introduction out', note:'The manager forwards it. Nothing is posted automatically.' },
     ] },
@@ -777,6 +787,10 @@ const COMING_UP = [
     note:'You set up your own laptop, and the IT help desk is open all day', icon:'portal-window.svg',
     expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
     dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
+  { id:'prep', when:'pre', name:'Get ready for Day 1', opens:'1 week before you start', marker:'A-88',
+    note:'Sign up for your online orientation, an hour to an hour and a half, live', icon:'rocket.svg',
+    expl:'Your first day starts with a live online orientation. A week before, this opens with the link to sign up and what to have ready: your laptop charged, a quiet spot, and your sign-in details from the day before.',
+    dnote:'New in v6 (Janine, 6 Nov): orientation is being redesigned with a consulting firm as a live digital session of an hour to an hour and a half, so there is something to prepare. Whether it becomes a step in the readiness tracker is for Brian.' },
   { id:'firstday', when:'pre', name:'Your first day details', opens:'3 days before you start',
     note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
     expl:'Held back until 3 days before you start, so what you see is final.' },
@@ -784,7 +798,7 @@ const COMING_UP = [
     note:'Your username and how to set your password', icon:'lock.svg',
     expl:'Your sign-in details, ready the day before you start.',
     dnote:'A to-do in the live portal that nobody has documented the contents of. Worth pinning down: it sits awkwardly beside the current practice of managers handing over sign-in details.' },
-  { id:'phone', when:'day1', name:'Order a phone', opens:'Day 1, optional', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
+  { id:'phone', when:'day1', name:'Order a phone', opens:'Day 1', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
     expl:'Ordered on or after Day 1, and only if your role needs one.',
     dnote:'Keeping it out of pre-boarding is a choice, not an oversight.' },
   { id:'benefits', when:'week1', name:'Benefits enrolment', opens:'Day 2', marker:'A-77',
@@ -793,8 +807,8 @@ const COMING_UP = [
     dnote:'Q4 scope, per the September meetings: Benefacts countries with links ready by the end of October, and PlanSource for the US. Darwin countries follow from Q1, quarter by quarter.' },
   { id:'infogov', when:'week1', name:'Information governance', opens:'Your first week', note:'Short training on how Equinix handles information', icon:'file-alt.svg', marker:'A-21',
     expl:'Runs in your first week, once you have your Equinix account. It covers how we handle information here.' },
-  { id:'workspace', when:'week1', name:'Complete your at-home workspace setup', opens:'No due date, optional', note:'', icon:'desktop.svg',
-    expl:'Optional, with no due date. Nothing is waiting on you.',
+  { id:'workspace', when:'week1', name:'Complete your at-home workspace setup', opens:'Your first week', note:'', icon:'desktop.svg',
+    expl:'No due date. Do it once you’re set up at home.',
     dnote:'Shipped exactly as the live portal has it, so optional behaviour is visible here.' },
 ];
 
@@ -842,13 +856,13 @@ const DISPOSITIONS = {
 /* ---------- Who a manager can name (M-07 revised, M-26) ----------
    The direction is a plain list of people in the org, with no suggestion
    logic at all: "anybody can be a buddy" on first rollout, and the certified
-   buddy programme is years out. One named role, plus everyone else.
+   Onboarding Buddy programme is years out. One named role, plus everyone else.
 
-     Buddy       within the team or function. Culture and logistics, and the
+     Onboarding Buddy       within the team or function. Culture and logistics, and the
                  questions someone would rather not ask their manager.
 
    The cross-functional second role ("ambassador") was cut: one function-based
-   buddy, and everyone else is simply someone to meet. The name never settled,
+   Onboarding Buddy, and everyone else is simply someone to meet. The name never settled,
    it collided with the Employee Connection Networks, and carrying two named
    roles asked more of a manager than the programme can support on rollout. */
 const PEOPLE_ROLES = {
@@ -932,14 +946,11 @@ function deviceArt(family) {
   </svg>`;
 }
 
-/* The standard apps for Jordan's role (M-04, revised 5 Nov). The prototype
-   assumes roles are linked to app lists, so the manager confirms rather than
-   builds. Illustrative: the real list comes from IT for each role. */
-const ROLE_APPS = ['Anaplan', 'Power BI', 'Workday Adaptive Planning', 'Coupa'];
-/* Everything else in the IT catalogue, for anything the role list misses. */
-const SOFTWARE_CATALOG = [
-  'Tableau', 'Alteryx', 'Bloomberg Terminal', 'Salesforce',
-];
+/* The standard list of apps every new hire's manager picks from (M-04,
+   revised 6 Nov). No lists by role for now: Janine, 6 Nov. Illustrative: the
+   real list is to confirm with End User Technology. */
+const STANDARD_APPS = ['Anaplan', 'Power BI', 'Workday Adaptive Planning', 'Coupa', 'Tableau', 'Alteryx',
+  'Bloomberg Terminal', 'Salesforce'];
 
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
@@ -957,11 +968,11 @@ const DAY1_HOLDS = [
    help desk is available all day, so the pointer belongs in their checklist
    rather than as an hour in the manager's calendar.
 
-   Buddy check-in: moved to the days after Day 1. Day 1 is already full, and
-   a buddy conversation lands better once there is something to ask about. */
+   Onboarding Buddy check-in: moved to the days after Day 1. Day 1 is already full, and
+   an Onboarding Buddy conversation lands better once there is something to ask about. */
 const AFTER_DAY1_HOLDS = [
-  { id:'buddy', label:'Buddy check-in', when:'Day 2 or 3',
-    note:'Booked once the buddy accepts. Day 1 is full enough, and it works better once they have questions.' },
+  { id:'buddy', label:'Onboarding Buddy check-in', when:'Day 2 or 3',
+    note:'Booked once the Onboarding Buddy accepts. Day 1 is full enough, and it works better once they have questions.' },
 ];
 
 /* Teams channels and distribution lists for H-12 */
@@ -975,8 +986,9 @@ const CHANNEL_SUGGESTIONS = [
    save the manager writing it; the point of offering tones is that a
    pre-filled note which does not sound like the sender is worse than none.
    Same facts in each, different register. */
-/* The hiring manager's Day 1 survey: the final survey set, Day 1 block,
-   unchanged from the Glint survey ServiceNow sends today (M-35). */
+/* The hiring manager's Day 1 survey: the final survey set's Day 1 block, as
+   ServiceNow sends it today in Glint, less the diverse candidates question,
+   which is measured through reporting instead (Janine, 6 Nov) (M-35). */
 const HM_SURVEY = [
   { n:1, kind:'scale', q:'I am satisfied with the overall recruitment process.' },
   { n:2, kind:'scale', q:'The recruiter I worked with was a trusted advisor throughout the recruitment process.' },
@@ -984,10 +996,8 @@ const HM_SURVEY = [
   { n:4, kind:'scale', q:'I was provided with qualified candidates that fit the requirements for the role.' },
   { n:5, kind:'scale', q:'I was satisfied with the level of communication with the recruiter throughout our partnership.' },
   { n:6, kind:'scale', q:'I was sufficiently prepared to hold effective interviews.' },
-  { n:7, kind:'scale', q:'I was presented with diverse candidates (representation across more than one racial/ethnic/national background or gender identity).',
-    flag:'With Legal: this one cannot be asked as worded. Janine is reviewing it with Claire.' },
-  { n:8, kind:'text', q:'What would you recommend to help improve the overall recruitment process?' },
-  { n:9, kind:'known', q:'The primary recruiter who supported this hiring process.' },
+  { n:7, kind:'text', q:'What would you recommend to help improve the overall recruitment process?' },
+  { n:8, kind:'known', q:'The primary recruiter who supported this hiring process.' },
 ];
 
 const WELCOME_TEMPLATES = [
@@ -1043,8 +1053,8 @@ const HM_ASSUMPTIONS = [
     assumed:'The manager sees the new hire’s task names and status, but never task content. Sensitive tasks report status only.',
     resolve:'The walkthrough’s cross-persona visibility principle and the Decision Log’s caution point in different directions, and the persona-by-section visibility matrix is unwritten. This is the conservative reading. Argue it before build.', oi:'OI-03' },
   { id:'M-04', side:'hm', group:'design', prov:'MTG', screen:'Software stack', route:'#/hm/software',
-    assumed:'Each role is linked to a standard app list, so the manager sees Jordan’s apps already listed and only confirms, adds or removes.',
-    resolve:'Gede, 5 Nov: assume the role list exists. Before that this screen was drawn blocked and empty, because no list of roles to apps exists in ServiceNow today and the job-family fallback was rejected as inaccurate. That gap is real and still has to be closed with IT. Also open: an application rationalisation is running, so the list itself is moving; whether a manager may remove a standard app; and what happens to these requests today (Janine, 30 Oct).', oi:'OI-04' },
+    assumed:'The manager picks Jordan’s apps from one standard list that every new hire’s manager sees. There are no lists by role.',
+    resolve:'Janine, 6 Nov: no role lists for now, a standard list for every new hire to pick from (on 5 Nov the prototype had assumed role lists). To confirm with End User Technology: whether that list exists today, and what happens to the requests. Janine also doubts software will be in the first release at all.', oi:'OI-04' },
   { id:'M-10', side:'hm', group:'blocks', prov:'1:1', screen:'Team network', route:'#/hm/network',
     assumed:'Naming the new hire’s network is net-new manager work, the only proposal here that adds load instead of removing it.',
     resolve:'Everything else on the disposition review subtracts. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggested list can be close to one tap. It needs an explicit decision.', oi:'OI-26' },
@@ -1080,8 +1090,8 @@ const HM_ASSUMPTIONS = [
     assumed:'The Day 1 one-to-one is auto-created and can be rescheduled but not deleted. The other holds are suggestions the manager accepts.',
     resolve:'Automatic placement is specified for the one-to-one only. Whether the remaining holds auto-create is undecided, and it is the single biggest lever on how much work this screen represents.', oi:'OI-13' },
   { id:'M-07', side:'hm', group:'design', prov:'ASSUMED', screen:'Assign a buddy', route:'#/hm/buddy',
-    assumed:'REVISED. No suggestions at all. A plain list of people in the org, because on first rollout anybody can be a buddy. The capacity warning and the withheld performance signal are both gone with it.',
-    resolve:'The earlier design suggested a buddy and hid why. The direction is simpler and it removes the privacy problem entirely: pick from everyone in the function, and revisit suggestion logic when a certified buddy programme exists, which is years out rather than months. What is still undefined is the decline process, which now matters more because acceptance is a real step (M-27).', oi:'OI-10' },
+    assumed:'REVISED. No suggestions at all. A plain list of people in the org, because on first rollout anybody can be an Onboarding Buddy. The capacity warning and the withheld performance signal are both gone with it.',
+    resolve:'The earlier design suggested an Onboarding Buddy and hid why. The direction is simpler and it removes the privacy problem entirely: pick from everyone in the function, and revisit suggestion logic when a certified Onboarding Buddy programme exists, which is years out rather than months. What is still undefined is the decline process, which now matters more because acceptance is a real step (M-27).', oi:'OI-10' },
   { id:'M-08', side:'hm', group:'design', prov:'ASSUMED', screen:'Welcome email', route:'#/hm/welcome',
     assumed:'Pre-filled boilerplate, an editable personal message, and a read-only first-week block generated from the new hire’s actual task list.',
     resolve:'A superset screen, not in the approved workflow file. The generated first-week block is what makes this cheap instead of a blank page. Confirm the content can actually be generated.', oi:'' },
@@ -1101,7 +1111,7 @@ const HM_ASSUMPTIONS = [
     assumed:'The readiness tracker covers the whole checklist, not only manager tasks: their tasks plus People Experience, IT fulfilment and the badge and workspace items, each carrying its own status.',
     resolve:'Taken from the manager mockup v6.1, which states exactly this. It changes what the manager’s home screen is for: less a to-do list, more a single place to see whether Day 1 will work. Confirm the manager is meant to see other teams’ fulfilment status at all, because M-03 says they cannot see the new hire’s task content.', oi:'' },
   { id:'M-23', side:'hm', group:'content', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
-    assumed:'Manager tasks carry due dates and a recommended order. Four are taken from the mockup, at Day −7 for equipment and location, Day −4 for the application stack and Day −2 for the welcome note and the buddy. The rest are proposed.',
+    assumed:'Manager tasks carry due dates and a recommended order. Four are taken from the mockup, at Day −7 for equipment and location, Day −4 for the application stack and Day −2 for the welcome note and the Onboarding Buddy. The rest are proposed.',
     resolve:'The mockup dates only five tasks. The corporate card, the Day 1 calendar, the team network and forwarding the introduction have no date in any source, so those four are marked. Someone has to set them, because a task with no date is a task with no nudge.', oi:'' },
   { id:'M-24', side:'hm', group:'blocks', prov:'PRIOR', screen:'Equipment', route:'#/equipment',
     assumed:'CONFLICT, unresolved. The mockup dates the equipment order at Day −7 and states a lead time of 5 to 7 business days.',
@@ -1110,8 +1120,8 @@ const HM_ASSUMPTIONS = [
     assumed:'CONFLICT, unresolved. This prototype draws the application stack blocked, because no persona resolves. The mockup shows eight applications auto-assigned from the job family in Workday, with the manager reviewing rather than building the list.',
     resolve:'The platform owner said no full persona list exists and that the job-family fallback is the approach the requirements analysis rejects as inaccurate. The mockup shows that fallback working. One of the two is out of date. This is the single biggest difference between the two manager screens, and it decides whether this task is a review or a data-entry job.', oi:'OI-04' },
   { id:'M-26', side:'hm', group:'retired', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
-    assumed:'Two named roles, not one. A buddy on the team or in the function, and a second cross-functional person who helps the new hire navigate and connect. Expected for executive hires, optional for everyone else, and one screen covers both plus anyone else worth meeting.',
-    resolve:'Decided: one function-based buddy, and the cross-functional role is removed. It never got an agreed name, “ambassador” collided with the Employee Connection Networks, and two named roles asked more of a manager than the buddy programme can carry on first rollout. Anyone who would have been an ambassador is now simply someone to meet. The role may return once the programme is written.', oi:'' },
+    assumed:'Two named roles, not one. An Onboarding Buddy on the team or in the function, and a second cross-functional person who helps the new hire navigate and connect. Expected for executive hires, optional for everyone else, and one screen covers both plus anyone else worth meeting.',
+    resolve:'Decided: one function-based Onboarding Buddy, and the cross-functional role is removed. It never got an agreed name, “ambassador” collided with the Employee Connection Networks, and two named roles asked more of a manager than the Onboarding Buddy programme can carry on first rollout. Anyone who would have been an ambassador is now simply someone to meet. The role may return once the programme is written.', oi:'' },
   { id:'M-27', side:'hm', group:'blocks', prov:'1:1', screen:'Name who they should meet', route:'#/hm/buddy',
     assumed:'Naming someone is a request, not an assignment. They are asked, they accept, and only then is anything booked. Once accepted, the system reads their calendar and books the first month.',
     resolve:'“Assigned and approved and committed” is the bar, and this prototype only draws the first half. The booking side needs a calendar integration nobody has scoped, and the acceptance step needs a decision on what happens when someone says no three days before a start date.', oi:'' },
@@ -1131,15 +1141,15 @@ const HM_ASSUMPTIONS = [
     resolve:'The two-portal picture has a third party in it. Nothing specifies what happens when People Experience edit a blueprint a manager has already confirmed against: whether the task reopens, whether the manager is told, or what the new hire sees in the gap. This prototype reopens it and says so, which is the strict reading. The softer one, updating silently because the blueprint is authoritative anyway, is arguable and cheaper.', oi:'' },
 
   { id:'M-33', side:'hm', group:'design', prov:'1:1', screen:'Set up their first day', route:'#/hm/calendar',
-    assumed:'No IT setup window on Day 1. The new hire sets the machine up themselves, the help desk is open all day, and the pointer sits in their checklist rather than the manager’s calendar. The buddy check-in moves to Day 2 or 3.',
-    resolve:'IT would not commit to a designated setup window, so an hour booked against them was a promise nobody had made. The buddy move is a judgement: Day 1 is full, and the conversation lands better once there is something to ask about. Neither is sourced beyond the conversation they came from.', oi:'' },
+    assumed:'No IT setup window on Day 1. The new hire sets the machine up themselves, the help desk is open all day, and the pointer sits in their checklist rather than the manager’s calendar. The Onboarding Buddy check-in moves to Day 2 or 3.',
+    resolve:'IT would not commit to a designated setup window, so an hour booked against them was a promise nobody had made. The Onboarding Buddy move is a judgement: Day 1 is full, and the conversation lands better once there is something to ask about. Neither is sourced beyond the conversation they came from.', oi:'' },
 
   { id:'M-34', side:'hm', group:'design', prov:'MTG', screen:'Name who they should meet', route:'#/hm/buddy',
-    assumed:'The buddy gets a Sidekick message in Teams saying what being a buddy means and what to do before Day 1, on Day 1 and in the first month, and accepts from it. In ServiceNow today the buddy gets a task that only needs “complete”, with a link to the buddy programme.',
-    resolve:'Janine, 30 Oct: today nothing asks the buddy to do anything, or says why. The words come from the buddy playbook Janine is writing, which replaces the “role of a buddy” article. The three steps here are placeholders until it is written.', oi:'' },
+    assumed:'The Onboarding Buddy gets a Sidekick message in Teams saying what being an Onboarding Buddy means and what to do before Day 1, on Day 1 and in the first month, and accepts from it. In ServiceNow today the Onboarding Buddy gets a task that only needs “complete”, with a link to the Onboarding Buddy programme.',
+    resolve:'Janine, 30 Oct: today nothing asks the Onboarding Buddy to do anything, or says why. The words come from the Onboarding Buddy playbook Janine is writing, which replaces the “role of an Onboarding Buddy” article. The three steps here are placeholders until it is written.', oi:'' },
   { id:'M-35', side:'hm', group:'design', prov:'MTG', screen:'Hiring manager survey', route:'#/hm/survey',
-    assumed:'The hiring manager’s Day 1 survey is a task on their list, answered in Teams from Sidekick. The questions are the final survey set. ServiceNow sends the same questions today as a Glint survey, with a reminder.',
-    resolve:'Janine, 30 Oct: the survey fires out of ServiceNow today, so it has to be in the tree and in the new experience. Open: one question (the diverse candidates one) cannot be asked as worded and is with Legal, and whether answers still land in Glint.', oi:'' },
+    assumed:'The hiring manager’s Day 1 survey is a task on their list, answered in Teams from Sidekick. The questions are the final survey set’s Day 1 block, less the diverse candidates question. ServiceNow sends them today as a Glint survey, with a reminder.',
+    resolve:'Janine, 30 Oct: the survey fires out of ServiceNow today, so it has to be in the tree and in the new experience. Janine, 6 Nov: the diverse candidates question is removed, because it can be measured through reporting (it is reviewed in every QBR). Open: whether answers still land in Glint.', oi:'' },
   { id:'M-36', side:'hm', group:'design', prov:'MTG', screen:'Equipment for your new hire', route:'#/hm/computer',
     assumed:'The new hire has the first chance to choose their equipment. If it is still not chosen 14 days before the start date, the order comes to the manager, with whatever the new hire picked so far.',
     resolve:'Janine, 30 Oct. She also said not to redesign equipment ordering yet, so the manager’s order screen itself is not drawn. Open: role-specific hardware, which ServiceNow asks the manager about today (M-17).', oi:'' },
@@ -1155,8 +1165,8 @@ const HM_ASSUMPTIONS = [
 ];
 
 const LINK_ASSUMPTIONS = [
-  { id:'L-01', side:'link', group:'retired', prov:'MTG', screen:'Buddy → new hire', route:'#/hm/buddy',
-    assumed:'The manager assigns the buddy; the new hire sees them from assignment. The specification had said 72 hours before the start date.',
+  { id:'L-01', side:'link', group:'retired', prov:'MTG', screen:'Onboarding Buddy → new hire', route:'#/hm/buddy',
+    assumed:'The manager assigns the Onboarding Buddy; the new hire sees them from assignment. The specification had said 72 hours before the start date.',
     resolve:'Settled 5 Nov (Gede): from assignment, so the new hire has someone to talk to through the quiet weeks before Day 1. The 72-hour rule and its prototype control are gone. Still worth knowing: if the manager reassigns, the new hire sees the name change.', oi:'OI-22' },
   { id:'L-02', side:'link', group:'blocks', prov:'ASSUMED', screen:'Introduction → manager', route:'#/hm/intro',
     assumed:'The new hire’s introduction arrives in the manager’s portal with an explicit Forward action. Nothing is posted automatically.',
@@ -1186,10 +1196,10 @@ const LINK_ASSUMPTIONS = [
     assumed:'The manager’s welcome email should land before the new hire is asked to write their introduction. The prototype shows the intended order but does not enforce it.',
     resolve:'The merge analysis says sequence, not merge, but nothing enforces the order, and three welcome communications compete for the same week before Day 1.', oi:'' },
   { id:'L-12', side:'link', group:'design', prov:'PRIOR', screen:'Inside Equinix → manager and buddy', route:'#/',
-    assumed:'Every Inside Equinix chapter closes with a reflection prompt that says the new hire will revisit their notes in a conversation with their manager or onboarding buddy. Nothing is stored, and nothing is tracked.',
-    resolve:'That is verbatim from the live site, and it is a promise this portal currently does not keep: neither the manager nor the buddy is told the prompts exist, or given the questions. Either wire it, by putting the same questions in front of the manager before the first 1:1, or change the wording. A prompt that points at a conversation nobody has scheduled is worse than no prompt.', oi:'' },
+    assumed:'Every Inside Equinix chapter closes with a reflection prompt that says the new hire will revisit their notes in a conversation with their manager or Onboarding Buddy. Nothing is stored, and nothing is tracked.',
+    resolve:'That is verbatim from the live site, and it is a promise this portal currently does not keep: neither the manager nor the Onboarding Buddy is told the prompts exist, or given the questions. Either wire it, by putting the same questions in front of the manager before the first 1:1, or change the wording. A prompt that points at a conversation nobody has scheduled is worse than no prompt.', oi:'' },
   { id:'L-09', side:'link', group:'content', prov:'ASSUMED', screen:'Notifications', route:'#/hm/network',
-    assumed:'Named people and the assigned buddy are notified; the prototype shows that a notification was sent but never its content.',
+    assumed:'Named people and the assigned Onboarding Buddy are notified; the prototype shows that a notification was sent but never its content.',
     resolve:'Notification and reminder design is out of scope for both specs and deserves its own pass. Being named in someone’s network is a message to a third party who did not ask for it.', oi:'' },
   { id:'L-13', side:'link', group:'design', prov:'ASSUMED', screen:'Sidekick → Help requests', route:'#/handoffs',
     assumed:'A question passed from Sidekick to a person appears in the coordinator’s Help requests queue for that hire, with the question attached, and on the handoffs screen.',
