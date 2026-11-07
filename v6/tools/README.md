@@ -31,7 +31,7 @@ Two environment knobs, both optional:
 | `dead.js` | Top-level declarations nothing references, across every file in `js/` |
 | `deadcss.js` | CSS classes and custom properties nothing uses, read against every file in `js/` |
 | `qa.js` | 364 screen-states (28 routes × 13 control combinations): console errors, `undefined`/`NaN` in rendered text, near-empty screens, horizontal overflow |
-| `prose.js` | Plain English over 142 screen-states with design notes off, the Sidekick panel on both sides included: a glossary of jargon (spec words and, since v4, AI words) and any space before punctuation, which is what a hidden assumption marker leaves behind |
+| `prose.js` | Plain English over 153 screen-states with design notes off, the Sidekick panel on all three sides included: a glossary of jargon (spec words and, since v4, AI words), any space before punctuation (what a hidden assumption marker leaves behind), and since 7 Nov global English (idioms, phrasal verbs with a one-word alternative, vague place words like Janine's "somewhere else"), the messaging guide's banned words, and sentences over 30 words on the new hire's screens. See `../copy-guide.md` |
 | `a11y.js` | WCAG AA contrast on every route and in the open Sidekick panel, text under 11px, unlabelled controls, missing alt text. Text on the page wash is measured against its darkest blend, text in a scene against its ink, and gradient text stop by stop |
 | `flows.js` | 28 interaction flows end to end: the three-task journey, the Workday handoff, locked first-week policies, Sidekick answers and their sources, the handoff to a person reaching the coordinator, the ask bar, questions that filter the caseload, scroll behaviour and flow-diagram packing |
 | `audit2.js` | Stacked hairlines, fixed overlays covering controls, the chat button over the content column, clipped fixed panels, ragged rows, clipped text, empty controls, at 1440 and 1280px |
@@ -39,6 +39,7 @@ Two environment knobs, both optional:
 | `flowcheck.js` | Flow diagram: nothing outside its track, nothing overlapping, axis dots still on their true dates |
 | `scrollkeep.js` | A state change holds scroll position |
 | `navscroll.js` | Navigation resets to the top |
+| `interact.js` | On 21 screens at 1440 and 1280px: anything clickable a keyboard cannot reach (WCAG 2.1.1), targets under 24px (2.5.8), one h1 and no skipped heading level, focus hidden under the sticky ribbon and header (2.4.11), and sideways scroll |
 | `distcheck.js` | The v4 standalone build over `file://`: fonts, logo, icons, no console or network errors |
 | `ratio.js` | Contrast maths for the tint inks. Run it before inventing a colour. |
 

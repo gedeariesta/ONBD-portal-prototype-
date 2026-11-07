@@ -26,7 +26,7 @@ const DUE_OFFSETS = {
   photo: -10,       // badge print lead
   intro: -7,
   details: -4,
-  policies: -4,
+  policies: 30,     // the required policies: Day 2 to Day 30 (A-76)
 };
 
 const HIRE = {
@@ -138,12 +138,12 @@ const ASSUMPTIONS = [
   { id:'A-17', group:'content', prov:'ASSUMED', screen:'Badge photo', route:'#/intro',
     assumed:'JPG/PNG, under 5MB, at least 600 by 600 px, plus four guideline lines. All conventional values.',
     resolve:'Replace with the real badge specification from the workplace team before build. Printing to the wrong spec is a Day 1 failure.', oi:'OI-13' },
-  { id:'A-19', group:'content', prov:'ASSUMED', screen:'Compliance pack', route:'#/policies',
+  { id:'A-19', group:'retired', prov:'ASSUMED', screen:'Compliance pack', route:'#/policies',
     assumed:'The Securities Trading Policy requires an acknowledgement.',
-    resolve:'Its acknowledgement cell is blank in the commonality workbook. Legal needs to confirm. A missing acknowledgement is a compliance gap.', oi:'OI-06' },
-  { id:'A-20', group:'content', prov:'ASSUMED', screen:'Compliance pack', route:'#/policies',
+    resolve:'Answered 6 Nov: the Compliance Policy Build lists it as an acknowledgement, second of the six.', oi:'OI-06' },
+  { id:'A-20', group:'retired', prov:'ASSUMED', screen:'Compliance pack', route:'#/policies',
     assumed:'Japan is shown as the country-addendum example on the Acceptable Use Policy.',
-    resolve:'Candidate addendum countries are Japan, Korea and France, all pending legal review. The mechanism is the point here, not the content.', oi:'OI-08' },
+    resolve:'Retired 6 Nov: the Compliance Policy Build makes every policy a global core with translations, shown by country, rather than an addendum.', oi:'OI-08' },
   { id:'A-22', group:'retired', prov:'ASSUMED', screen:'Task list', route:'#/',
     assumed:'The job description confirmation and the introduction are due at Day −7.',
     resolve:'Neither has a due date in any source. Day −7 puts them before the manager needs the introduction for a team announcement. Retired in v4: the job description moved to Day 1 (A-67) and the introduction became optional with no due date (A-68).', oi:'' },
@@ -193,12 +193,12 @@ const ASSUMPTIONS = [
   { id:'A-18', group:'design', prov:'ASSUMED', screen:'Badge photo', route:'#/intro',
     assumed:'One consent naming the badge, the internal directory and the Teams profile.',
     resolve:'The photo is intended to serve other profile surfaces, which is broader than a badge. No consent wording exists in any source, so Privacy needs to draft it.', oi:'OI-14' },
-  { id:'A-21', group:'design', prov:'ASSUMED', screen:'Task list', route:'#/',
+  { id:'A-21', group:'retired', prov:'ASSUMED', screen:'Task list', route:'#/',
     assumed:'Information governance appears under “Coming up” as a first-week item.',
-    resolve:'It is the one compliance document placed at Week 1, with no rationale recorded. Shown but not actionable, so the placement is visible and arguable.', oi:'OI-05' },
-  { id:'A-24', group:'design', prov:'ASSUMED', screen:'Multiple screens', route:'#/policies',
+    resolve:'Retired 6 Nov: it is the sixth of the required policies now, inside that task (A-76).', oi:'OI-05' },
+  { id:'A-24', group:'retired', prov:'ASSUMED', screen:'Multiple screens', route:'#/policies',
     assumed:'Acknowledgement checkboxes are disabled until the document has been read to the end.',
-    resolve:'The PRD sets this pattern for the offer letter but does not extend it. Applying it consistently is the defensible reading.', oi:'' },
+    resolve:'Retired 6 Nov: the policies are read in MyHR, so the portal cannot see the scroll. The checkbox opens once the article has been opened (A-76).', oi:'' },
   { id:'A-25', group:'retired', prov:'ASSUMED', screen:'Task list', route:'#/',
     assumed:'Progress = tasks complete out of tasks assigned, plus a phase strip. The invented four milestones are gone, replaced by the live portal’s five phases. See A-44.',
     resolve:'The requirement is for a progress tracker; no source defines its model. Two levels show immediate progress and overall position. Retired in v4: progress counts three things, not seven, and the phase strip left the hero (A-64). The phase names still stand, on the current system’s view (A-44).', oi:'' },
@@ -210,7 +210,7 @@ const ASSUMPTIONS = [
     resolve:'The PRD defines this pattern for a wrong offer letter, not the job description. Reusing it is consistent; the routing target needs confirming. Retired 5 Nov: the job description task is dropped. Janine said it isn’t necessary, when the tree was reviewed; the offer already describes the role.', oi:'' },
   { id:'A-28', group:'design', prov:'ASSUMED', screen:'All screens', route:'#/',
     assumed:'Built for laptop only. No mobile layouts.',
-    resolve:'Revisit this before build for the IBX technician persona, who may be more phone-reliant than a desk hire. Analytics from the current portal would settle it.', oi:'' },
+    resolve:'Revisit this before build for the IBX technician persona, who may be more phone-reliant than a desk hire. Analytics from the current portal would settle it. The 7 Nov audit makes this the largest open gap: before Day 1 a new hire has no Equinix laptop, so the portal is opened on a personal phone or computer, and ServiceNow has moved onboarding into the Now Mobile app with its own pre-hire role. The new hire’s screens should be shown at phone width before the design is handed over.', oi:'' },
   { id:'A-31', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
     assumed:'The Onboarding Buddy is visible from the moment they are assigned, with role, timezone and who chose them.',
     resolve:'An earlier proposal surfaced the Onboarding Buddy 72 hours before the start date. Showing them from assignment gives the new hire someone to talk to during the quiet weeks. Confirm what the Onboarding Buddy programme intends.', oi:'' },
@@ -327,11 +327,11 @@ const ASSUMPTIONS = [
     assumed:'The coordinator’s Today screen opens with Sidekick’s two-sentence read of the queues, and Sidekick turns a question into a caseload filter. What needs the coordinator is still decided by the queue rules; Sidekick only puts the counts in order.',
     resolve:'Janine described a dedicated view of who starts on a given day, who has not finished, and red and orange risk, with filters by region and start date. Summarising structured data is where AI is most reliable, so this is where the AI layer does the most. Open: whether a written summary helps a coordinator who reads the queues anyway.', oi:'' },
   { id:'A-75', group:'design', prov:'MTG', screen:'Sidekick hello and panel; coordinator Today', route:'#/',
-    assumed:'The first time a new hire or a manager lands on their side, Sidekick says hello from its button with the one next thing, once, and then gets out of the way. Their progress, the one thing to do first and “What’s coming up” live in the Sidekick panel, not in a block on the page. The coordinator, who has no panel, gets the same shape at the top of Today: the period, one sentence, one thing first, a count and the rest behind a disclosure.',
+    assumed:'The first time a new hire or a manager lands on their side, Sidekick says hello from its button with the one next thing, once, and then gets out of the way. Their progress, the one thing to do first and “Upcoming” live in the Sidekick panel, not in a block on the page. The coordinator, who has no panel, gets the same shape at the top of Today: the period, one sentence, one thing first, a count and the rest behind a disclosure.',
     resolve:'A layered, one-thing-first Sidekick came out of the review with Janine. A version with the brief on every home was tried and taken out: on the new hire’s and manager’s homes it repeated the task list the page already shows, and the panel does that job. Open, and to settle with user testing: whether people read the difference between things to do and things done, and whether a one-time hello is noticed or dismissed unread.', oi:'' },
-  { id:'A-76', group:'blocks', prov:'MTG', screen:'Handbooks and notices', route:'#/policies',
-    assumed:'Handbooks and notices are one first-week task. The eight handbook acknowledgements sit inside it as eight items rather than eight tasks, and each one is signed in DocuSign, which keeps the date and time. The notices are signed the same way. Nothing can be signed before the start date. The eight handbook names on screen are placeholders.',
-    resolve:'Agreed with Janine. Brian and Janine discussed a DocuSign layer for compliance acknowledgements and offer acceptance, so that acknowledgement does not have to be built into ServiceNow. Open: the real list of eight and whether it varies by country, whether DocuSign returns the signed state to the portal or the portal only links out, and the Netherlands and Canada contracts that refer to a handbook the new hire cannot yet see.', oi:'' },
+  { id:'A-76', group:'blocks', prov:'MTG', screen:'Acknowledge your required policies', route:'#/policies',
+    assumed:'One first-week task, “Acknowledge your required policies”, with six policies inside it in a set order: Acceptable Use, Securities Trading, the Employee Handbook, the Data Privacy Notice, Whistleblower Protection and Information Governance. Each opens in MyHR. The new hire reads it, returns to the portal and ticks “I have read and agree”. The task is visible before the start, can be done from Day 2, is due on Day 30, and completes itself when all six are done. The privacy notice asks “I have read this notice” instead of “I agree”.',
+    resolve:'From Janine’s Compliance Policy Build (30 Oct), which replaces the DocuSign version. Each acknowledgement records the name, the policy, its version and the date and time. Reminders go on Day 14 and 30, then on Days 45, 60 and 90, and an overdue task goes to People Experience or the manager. Open: the ServiceNow task type that records an acknowledgement (the build has it as a URL task); the Code of Business Conduct and the Self-Identification Privacy Notice, which were in the earlier list and are not in the six (compliance learning may already cover the code); whether Legal accepts “I agree” for the privacy notice; and the links, because only the handbook is a MyHR article today, while the others point at SharePoint pages, a personal OneDrive folder and a zip file.', oi:'' },
   { id:'A-77', group:'content', prov:'MTG', screen:'Benefits enrolment', route:'#/',
     assumed:'Benefits enrolment opens on Day 2 and links straight to the enrolment site for the country.',
     resolve:'Janine moved it to Day 2 rather than the pre-Day 1 sequence. The country scope in A-69 still applies: Benefacts countries and PlanSource in the US first, Darwin countries from Q1.', oi:'' },
@@ -364,6 +364,9 @@ const ASSUMPTIONS = [
   { id:'A-88', group:'content', prov:'MTG', screen:'Task list', route:'#/',
     assumed:'A “Get ready for Day 1” step opens a week before the start date, with the link to sign up for the live online orientation and what to have ready.',
     resolve:'Janine, 6 Nov: the first day experience is being redesigned with a consulting firm as a digital session of an hour to an hour and a half, so there is preparation to do before Day 1. Open: the sign-up mechanics, and whether it is a step in the readiness tracker (for Brian).', oi:'' },
+  { id:'A-89', group:'design', prov:'CURRENT', screen:'Sidekick', route:'#/',
+    assumed:'Sidekick says it is an AI assistant the first time it speaks, on all three sides: in its greeting and header for the new hire, and with an “AI assistant” label next to its name in Teams for the manager and the coordinator.',
+    resolve:'The EU AI Act, Article 50(1), applies from 2 August 2026: people must be told clearly, at the latest at the first interaction, that they are talking to an AI system, unless it is obvious. Equinix hires in the EU (Amsterdam, Frankfurt, Dublin). Open: Legal to confirm the wording, and whether Paradox’s own disclosure covers the new hire before Day 1.', oi:'' },
   { id:'A-85', group:'design', prov:'MTG', screen:'Equipment', route:'#/equipment',
     assumed:'Equipment ships to an Equinix location or to the home address on the new hire’s record, nowhere else. Interns, and Senior Directors and above, can also give a different address, as separate fields (street, city, region, postcode, country).',
     resolve:'Janine, 30 Oct: bad actors have been getting laptops sent to new addresses and getting behind the firewall. The candidate fraud decision is due within a week and may change this. Open: how the portal knows someone is a Senior Director (job level from Workday), and whether “another Equinix site” needs its own picker or stays a message to the coordinator. Janine, 6 Nov: words have to work in every country (so “a different address”, not “somewhere else”), and the courier may need separate fields; to confirm with CDW.', oi:'' },
@@ -410,7 +413,7 @@ const DECIDE_FIRST = [
     why:'416 document instances today, a US bundle of 28 where 24 addenda do not apply, Germany uncovered by the shared EU addendum, and no French French version for the francophone countries. Consolidation is the goal and the privacy notice team owns the files.',
     when:'Start now, because it depends on another team’s calendar.' },
   { ids:['M-04'], head:'Whether software provisioning is in phase one at all',
-    why:'The prototype now assumes each role has a standard app list. Still open: an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine.',
+    why:'The prototype now assumes one standard list that every new hire’s manager picks from, with no lists by role (Janine, 6 Nov). Still open: an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine.',
     when:'Before the manager task list is fixed.' },
   { ids:['M-27','M-10'], head:'What makes a name count',
     why:'Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
@@ -429,42 +432,26 @@ const OPEN_BEFORE_BUILD = [
   'IBX badge request: covered by the badge photo task or not? Until that is settled, the photo task is neither merged nor split. (A-47 is reserved if it needs its own entry.)',
 ];
 
-/* ---------- Job description placeholder (A-13) ---------- */
-const FILLER = [
-  'This is placeholder policy text, shown so the reading and acknowledgement flow can be tested at a realistic length. The real document is owned by Legal and served with version control.',
-  'It stands in for several paragraphs of real policy content: definitions of the terms the policy uses, the scope it applies to, the obligations that fall on you as an employee, and the situations where those obligations change.',
-  'A real policy would carry the substance here: what is required, what is prohibited, what needs approval, and who grants it. It would also name the owner of the policy and how often it is reviewed.',
-  'Nothing in this text is a real Equinix policy statement. Invented compliance language would be worse than an obvious gap, so this text stays generic on purpose.',
-  'It would close with where to go with questions: the policy owner, your manager once you have one, or the People Experience team during pre-boarding.',
-  'When the real content is loaded, this section will carry the approved wording, its version number and the language served, all recorded against your acknowledgement.',
-  'You have reached the end of this document.',
+/* The required policies (A-76), from the Compliance Policy Build (30 Oct):
+   one first-week task, six policies in this order. Each is read in MyHR and
+   acknowledged with “I have read and agree”. Versions are placeholders. */
+const POLICIES = [
+  { id:'aup', name:'Acknowledge the Acceptable Use Policy',
+    desc:'How to use Equinix systems, devices and networks' },
+  { id:'stp', name:'Acknowledge the Securities Trading Policy',
+    desc:'The rules for buying and selling Equinix shares' },
+  { id:'hb',  name:'Review and acknowledge your Employee Handbook', nameJP:'Review and acknowledge your Work Rules (就業規則)',
+    desc:'How we work together, and what you can expect from Equinix' },
+  // A privacy notice is read, not agreed to: agreeing can look like consent,
+  // which an employer usually cannot rely on. To confirm with Legal (A-76).
+  { id:'dpn', name:'Review your Data Privacy Notice', agree:'I have read this notice',
+    desc:'What personal data Equinix keeps about you, and why' },
+  { id:'wpp', name:'Acknowledge the Whistleblower Protection Policy',
+    desc:'How to report a concern, and how Equinix protects people who report one' },
+  { id:'ig',  name:'Acknowledge our Information Governance approach',
+    desc:'How we manage and protect information at Equinix' },
 ];
-function docBody(paras) { return paras.map(p => `<p>${p}</p>`).join(''); }
-
-const DOCS = [
-  { id:'aup', title:'Acceptable Use Policy',
-    desc:'How to use Equinix systems, devices and networks', ack:true,
-    body: docBody(FILLER), hasAddendum:true },
-  { id:'cobc', title:'Code of Business Conduct',
-    desc:'The standards we hold each other to', ack:true, external:true },
-  { id:'wpp', title:'Whistleblower Protection Policy',
-    desc:'How to raise a concern, and how you’re protected when you do', ack:true,
-    body: docBody(FILLER) },
-  { id:'stp', title:'Securities Trading Policy',
-    desc:'Rules on trading Equinix shares', ack:true, marker:'A-19',
-    body: docBody(FILLER) },
-  { id:'edpn', title:'Employee Data Privacy Notice',
-    desc:'What personal data we hold about you and why', ack:true,
-    body: docBody(FILLER) },
-  { id:'sidpn', title:'Self-Identification Privacy Notice',
-    desc:'How the voluntary information you shared earlier is used', ack:true,
-    body: docBody(FILLER) },
-];
-
-const JP_ADDENDUM_TEXT = `
-  <p style="font-size:var(--t-meta); font-weight:var(--fw-book); margin-bottom:6px;">Additional provisions on copyright, workplace monitoring and personal devices apply in Japan. They sit here inside the global policy instead of arriving as a separate document, so you acknowledge once and cover both.</p>
-  <p style="font-size:var(--t-meta); color:var(--carbon); font-weight:var(--fw-book);"><em>Illustrative content. The real addendum is pending legal review.</em></p>
-`;
+const POLICY_VERSION = '3.2';
 
 /* ---------- Equipment (A-34 … A-42) ---------- */
 const ACCESSORY_OPTIONS = [
@@ -486,11 +473,11 @@ const NETWORK_POOL = [
   { name:'Ravi Menon', initials:'RM', role:'Director, Revenue Operations', dept:'Go-to-market',
     suggested:true, why:'He owns the bookings data your revenue forecast starts from. If a number looks wrong, he usually knows why first.' },
   { name:'Elena Duarte', initials:'ED', role:'Senior Manager, IBX Finance', dept:'Operations Finance',
-    suggested:true, why:'Your portfolios overlap on the Americas cost base. She’ll save you a fortnight of working out who owns what.' },
+    suggested:true, why:'Your portfolios overlap on the Americas cost base. She can save you two weeks of finding out who owns what.' },
   { name:'Tom Byrne', initials:'TB', role:'Business Partner, Sales Finance', dept:'Commercial Finance',
     suggested:true, why:'He brings the commercial context behind the numbers you’ll be asked to explain in the monthly review.' },
   { name:'Grace Lim', initials:'GL', role:'Manager, FP&A Systems', dept:'Finance Systems',
-    suggested:true, why:'She runs the planning tool you’ll live in. Thirty minutes with her early saves a lot of guessing later.' },
+    suggested:true, why:'She runs the planning tool you’ll use every day. Thirty minutes with her early saves a lot of guessing later.' },
 ];
 
 /* ---------- Inside Equinix (A-35) ----------
@@ -648,7 +635,7 @@ const PHASE_TODOS = {
     { name:'Complete your enterprise training', state:'Upcoming to-do' },
   ], note:'Four of the six were on screen. The other two were below the fold.' },
   3: { seen:false, total:null, items:[
-    { name:'Information governance', state:'Upcoming to-do', marker:'A-21' },
+    { name:'Information governance', state:'Upcoming to-do' },
   ], note:'Not captured in UAT. This one item comes from the compliance workbook, not from the platform.' },
   4: { seen:false, total:null, items:[], note:'Not captured in UAT, and nothing in the sources names what sits here.' },
 };
@@ -730,20 +717,6 @@ const READINESS = [
    Counts are from the current-state business process document list, not invented.
    The mockup's acknowledgement pack is the intended future core; this is the
    reference material that arrives alongside it today. */
-/* v4: the eight handbook acknowledgements, as one task with each one nested
-   inside it, and each signed in DocuSign (A-76). The names are placeholders
-   until the real list is supplied; the count of eight is what was agreed. */
-const HANDBOOKS = [
-  { id:'hb-main', us:'Employee Handbook, United States', jp:'Work rules (就業規則)' },
-  { id:'hb-local', us:'Colorado supplement', jp:'Tokyo office supplement' },
-  { id:'hb-infosec', us:'Information security', jp:'Information security' },
-  { id:'hb-leave', us:'Leave and time off', jp:'Leave and time off' },
-  { id:'hb-respect', us:'Respectful workplace and anti-harassment', jp:'Respectful workplace and anti-harassment' },
-  { id:'hb-safety', us:'Health and safety', jp:'Health and safety' },
-  { id:'hb-hours', us:'Working hours and overtime', jp:'Working hours and overtime' },
-  { id:'hb-travel', us:'Travel and expenses', jp:'Travel and expenses' },
-];
-
 const CURRENT_PACK = {
   US: { handbook:'US Employee Handbook (November 2024)',
         addenda:25, addendaNote:'state supplements. Every US hire gets all of them, whichever state they work in',
@@ -759,7 +732,7 @@ const CURRENT_PACK = {
 const CARD_FLOW = {
   managerQuestion: 'Will Jordan travel on behalf of Equinix and need a corporate card?',
   newHireTask: 'Equinix Corporate Card Request',
-  timing: 'Day 2, after they start rather than before',
+  timing: 'Day 2, after you start',
   mechanics: [
     'You answer yes or no before Jordan starts.',
     'If yes, a task appears for Jordan on Day 2: review the user agreement and sign it electronically.',
@@ -778,7 +751,7 @@ const CARD_FLOW = {
 /* v4: the existing onboarding videos, rather than new content (A-80). One
    before Day 1, one for Day 1; the rest stay as supporting links. */
 const VIDEOS = {
-  pre:  { title:'Welcome to Equinix, before you start', note:'The existing welcome video from the onboarding team. Watch it any time before Day 1.' },
+  pre:  { title:'Welcome to Equinix, before you start', note:'A welcome video from the onboarding team. Watch it any time before Day 1.' },
   day1: { title:'Your first day, explained', note:'The existing Day 1 video: orientation, meeting your team and what happens after.' },
 };
 
@@ -788,7 +761,7 @@ const COMING_UP = [
     expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
     dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
   { id:'prep', when:'pre', name:'Get ready for Day 1', opens:'1 week before you start', marker:'A-88',
-    note:'Sign up for your online orientation, an hour to an hour and a half, live', icon:'rocket.svg',
+    note:'Register for your live online orientation, 60 to 90 minutes', icon:'rocket.svg',
     expl:'Your first day starts with a live online orientation. A week before, this opens with the link to sign up and what to have ready: your laptop charged, a quiet spot, and your sign-in details from the day before.',
     dnote:'New in v6 (Janine, 6 Nov): orientation is being redesigned with a consulting firm as a live digital session of an hour to an hour and a half, so there is something to prepare. Whether it becomes a step in the readiness tracker is for Brian.' },
   { id:'firstday', when:'pre', name:'Your first day details', opens:'3 days before you start',
@@ -802,11 +775,9 @@ const COMING_UP = [
     expl:'Ordered on or after Day 1, and only if your role needs one.',
     dnote:'Keeping it out of pre-boarding is a choice, not an oversight.' },
   { id:'benefits', when:'week1', name:'Benefits enrolment', opens:'Day 2', marker:'A-77',
-    note:'One link, straight to the right enrolment site for your country', icon:'shield-check.svg',
+    note:'One link to the enrolment site for your country', icon:'shield-check.svg',
     expl:'Opens on your second day. The task links you straight to the enrolment site for your country, so there is nothing to look up and nothing to prepare before then.',
     dnote:'Q4 scope, per the September meetings: Benefacts countries with links ready by the end of October, and PlanSource for the US. Darwin countries follow from Q1, quarter by quarter.' },
-  { id:'infogov', when:'week1', name:'Information governance', opens:'Your first week', note:'Short training on how Equinix handles information', icon:'file-alt.svg', marker:'A-21',
-    expl:'Runs in your first week, once you have your Equinix account. It covers how we handle information here.' },
   { id:'workspace', when:'week1', name:'Complete your at-home workspace setup', opens:'Your first week', note:'', icon:'desktop.svg',
     expl:'No due date. Do it once you’re set up at home.',
     dnote:'Shipped exactly as the live portal has it, so optional behaviour is visible here.' },
@@ -901,7 +872,7 @@ const orgPerson = id => ORG_PEOPLE.find(p => p.id === id);
 const DEVICE_CATALOG = [
   { id:'win-std', name:'Standard Windows laptop', sub:'14-inch business ultrabook', family:'win',
     lead:'In stock, ships in 3 days', leadOk:true,
-    fits:'The default build. Email, the finance stack, browser work and calls.',
+    fits:'The standard build, for email, finance apps, web browsing and calls.',
     specs:[['Processor','Intel Core Ultra 5'],['Memory','16 GB'],['Storage','512 GB SSD'],
            ['Display','14-inch, 1920 × 1200'],['Weight','1.4 kg'],['Ports','2 × Thunderbolt 4, HDMI, USB-A']] },
   { id:'win-hp', name:'High-performance Windows laptop', sub:'15-inch mobile workstation', family:'win',
@@ -956,7 +927,7 @@ const STANDARD_APPS = ['Anaplan', 'Power BI', 'Workday Adaptive Planning', 'Coup
 const DAY1_HOLDS = [
   { id:'nho', label:'New Hire Orientation', time:'09:00 to 13:00',
     auto:true, blueprint:true, note:'Set by People Experience for your office, so you can’t move it.' },
-  { id:'oneToOne', label:'Pick up your new hire, 1:1', time:'13:00 to 14:00',
+  { id:'oneToOne', label:'Meet your new hire, 1:1', time:'13:00 to 14:00',
     auto:true, locked:true, note:'Automatically placed, one hour, immediately after orientation ends. You can reschedule it, but not delete it.' },
   { id:'teamIntro', label:'Team introduction', time:'14:30 to 15:00', auto:false },
 ];
@@ -972,7 +943,7 @@ const DAY1_HOLDS = [
    an Onboarding Buddy conversation lands better once there is something to ask about. */
 const AFTER_DAY1_HOLDS = [
   { id:'buddy', label:'Onboarding Buddy check-in', when:'Day 2 or 3',
-    note:'Booked once the Onboarding Buddy accepts. Day 1 is full enough, and it works better once they have questions.' },
+    note:'Booked once the Onboarding Buddy accepts. Day 1 is already full, and it works better once they have questions.' },
 ];
 
 /* Teams channels and distribution lists for H-12 */
@@ -1032,7 +1003,7 @@ const WELCOME_BOILERPLATE = WELCOME_TEMPLATES[0].body;
 
 /* The read-only block the system inserts, generated from the new hire's own task list (M-08) */
 const WELCOME_SYSTEM_BLOCK_NOTE =
-  'Generated from Jordan’s actual task list. You did not write it and you cannot edit it.';
+  'Created from Jordan’s task list, so it is always correct. You cannot edit it.';
 
 /* ============================================================
    Manager-side (M) and connection (L) assumptions.
@@ -1140,7 +1111,7 @@ const HM_ASSUMPTIONS = [
     assumed:'People Experience own the orientation blueprint. When they change it, the manager’s confirmation goes stale, the task reopens and it is raised as a blocker.',
     resolve:'The two-portal picture has a third party in it. Nothing specifies what happens when People Experience edit a blueprint a manager has already confirmed against: whether the task reopens, whether the manager is told, or what the new hire sees in the gap. This prototype reopens it and says so, which is the strict reading. The softer one, updating silently because the blueprint is authoritative anyway, is arguable and cheaper.', oi:'' },
 
-  { id:'M-33', side:'hm', group:'design', prov:'1:1', screen:'Set up their first day', route:'#/hm/calendar',
+  { id:'M-33', side:'hm', group:'design', prov:'1:1', screen:'Plan their first day', route:'#/hm/calendar',
     assumed:'No IT setup window on Day 1. The new hire sets the machine up themselves, the help desk is open all day, and the pointer sits in their checklist rather than the manager’s calendar. The Onboarding Buddy check-in moves to Day 2 or 3.',
     resolve:'IT would not commit to a designated setup window, so an hour booked against them was a promise nobody had made. The Onboarding Buddy move is a judgement: Day 1 is full, and the conversation lands better once there is something to ask about. Neither is sourced beyond the conversation they came from.', oi:'' },
 

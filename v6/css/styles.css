@@ -281,6 +281,8 @@ small{color:var(--text-tertiary);}
 
 /* One focus treatment everywhere: the system's 3px Equinix-Blue glow. */
 :focus-visible{ outline:none; box-shadow:var(--shadow-focus); border-radius:var(--radius-sm); }
+/* The page title takes focus after a navigation; that is for screen readers, not a visible ring */
+#app h1[tabindex="-1"]:focus{ box-shadow:none; outline:none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important;
@@ -298,20 +300,26 @@ small{color:var(--text-tertiary);}
 .ic.lg{width:20px;height:20px;} .ic.xl{width:28px;height:28px;} .ic.sm{width:13px;height:13px;}
 
 /* ---------- Prototype ribbon ---------- */
+/* The ribbon has a set height so the sticky header can sit exactly under it
+   (it was 32px tall with the header stuck at 26px, so the header's top edge
+   slid under it), and every control in it is a 24px target (WCAG 2.5.8). */
+:root{ --ribbon-h:32px; }
+html{ scroll-padding-top:calc(var(--ribbon-h) + 76px); }   /* focus never lands under the sticky bars (WCAG 2.4.11) */
 .proto-ribbon{
   background:var(--eqx-ink); color:var(--nickel);
   font-size:var(--t-meta); font-weight:400; letter-spacing:.02em;
-  display:flex; align-items:center; justify-content:center; gap:14px;
-  padding:5px 24px; position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; justify-content:safe center; gap:14px;
+  height:var(--ribbon-h); padding:0 24px; position:sticky; top:0; z-index:60;
+  overflow-x:auto; scrollbar-width:none;
 }
 .proto-ribbon b{color:var(--white); font-weight:700;}
-.proto-ribbon .rb-link{color:var(--eq-aqua); cursor:pointer; font-weight:400;}
+.proto-ribbon .rb-link{color:var(--eq-aqua); cursor:pointer; font:inherit; font-weight:400; background:none; border:none; padding:0 2px; min-height:24px;}
 .proto-ribbon .rb-link:hover{text-decoration:underline;}
 
 /* ---------- Header ---------- */
 .hdr{
   background:var(--surface); border-bottom:1px solid var(--line);
-  position:sticky; top:26px; z-index:50;
+  position:sticky; top:var(--ribbon-h); z-index:50;
 }
 .hdr-in{
   max-width:var(--maxw); margin:0 auto; padding:14px 32px;
@@ -354,7 +362,7 @@ small{color:var(--text-tertiary);}
 .crumbs{display:flex; align-items:center; gap:8px; font-size:var(--t-sm); color:var(--carbon); margin-bottom:18px;}
 .crumbs .back{
   display:inline-flex; align-items:center; gap:6px; color:var(--action);
-  cursor:pointer; font-weight:700; background:none; border:none; font-size:var(--t-sm);
+  cursor:pointer; font-weight:700; background:none; border:none; font-size:var(--t-sm); min-height:24px;
 }
 .crumbs .back:hover{text-decoration:underline;}
 /* v3 marked every page title with one red rule. The 2026 direction has no
@@ -464,19 +472,6 @@ small{color:var(--text-tertiary);}
 
 /* ---------- Handbooks: one link, one acknowledgment (A-66) ---------- */
 /* Eight handbooks nested in one task, each signed in DocuSign (A-76). */
-.hb-card{margin-bottom:24px;}
-.hb-list{list-style:none; margin:0; padding:0;}
-.hb-item{display:grid; grid-template-columns:22px 1fr auto 170px; align-items:center; gap:14px;
-  padding:10px 0; border-top:var(--border-hairline) solid var(--border-subtle);}
-.hb-item:first-child{border-top:none;}
-.hb-n{width:18px; height:18px; border-radius:50%; border:1px solid var(--border-default); display:flex; align-items:center; justify-content:center;}
-.hb-item.signed .hb-n{background:var(--st-done); border-color:var(--st-done); color:var(--white);}
-.hb-name{font-size:var(--t-ui); font-weight:var(--fw-bold); color:var(--text-primary);}
-.hb-read{font-size:var(--t-meta); color:var(--eqx-blue-dark); cursor:pointer; display:inline-flex; gap:5px; align-items:center;}
-.hb-when{font-size:var(--t-meta); color:var(--ink-on-green); justify-self:end;}
-.hb-item .btn{justify-self:end;}
-.hb-note{display:flex; gap:6px; align-items:center; margin-top:10px; font-size:var(--t-meta); color:var(--text-secondary);}
-.ack-hint{font-size:var(--t-meta); color:var(--text-secondary); align-self:center;}
 
 /* ---------- Personal details, in Workday (A-65) ---------- */
 .wd-list{list-style:none; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px;}
@@ -605,7 +600,7 @@ small{color:var(--text-tertiary);}
 .contact .c-name{font-weight:700; font-size:var(--t-ui); color:var(--text-primary);}
 .contact .c-role{font-size:var(--t-meta); color:var(--ink-faint); margin-bottom:6px;}
 .contact .c-links{display:flex; gap:12px; font-size:var(--t-meta);}
-.contact .c-links a{display:inline-flex; align-items:center; gap:5px; font-weight:700;}
+.contact .c-links a{display:inline-flex; align-items:center; gap:5px; font-weight:700; min-height:24px;}
 .rail-note{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
 /* A row that already draws a bottom rule is the divider; the note adding
    its own on top of it read as one thick 2px line. */
@@ -644,7 +639,7 @@ small{color:var(--text-tertiary);}
 .res-list{list-style:none;}
 .res-list li{padding:7px 0; border-bottom:1px solid var(--line); font-size:var(--t-sm);}
 .res-list li:last-child{border-bottom:none;}
-.res-list a{font-weight:700; display:inline-flex; gap:7px; align-items:center;}
+.res-list a{font-weight:700; display:inline-flex; gap:7px; align-items:center; min-height:24px;}
 .res-list [data-resbody]{display:none;}
 
 /* ---------- Buttons ----------
@@ -713,14 +708,14 @@ small{color:var(--text-tertiary);}
 .field-row .field{flex:1; margin-bottom:16px; max-width:none;}
 .field-row .field.narrow{flex:0 0 130px;}
 
-.check{display:flex; gap:10px; align-items:flex-start; max-width:560px; cursor:pointer;}
+.check{display:flex; gap:10px; align-items:flex-start; max-width:560px; cursor:pointer; min-height:24px;}
 .check input{margin-top:3px; width:16px; height:16px; accent-color:var(--eq-blue); flex:none; cursor:pointer;}
 .check span{font-size:var(--t-sm); color:var(--charcoal); font-weight:400;}
 .check.disabled{opacity:.55; cursor:not-allowed;}
 .check.disabled input{cursor:not-allowed;}
 
 .radio-row{display:flex; gap:18px; flex-wrap:wrap;}
-.radio-row label{display:inline-flex; gap:7px; align-items:center; font-size:var(--t-sm); font-weight:400; color:var(--charcoal); cursor:pointer;}
+.radio-row label{display:inline-flex; gap:7px; align-items:center; font-size:var(--t-sm); font-weight:400; color:var(--charcoal); cursor:pointer; min-height:24px;}
 .radio-row input{accent-color:var(--eq-blue);}
 
 /* verified state */
@@ -744,7 +739,9 @@ small{color:var(--text-tertiary);}
 .saved-state .ic{color:var(--eq-dark-green);}
 
 .form-sec{margin-bottom:26px;}
-.form-sec > h3{margin-bottom:4px; display:flex; align-items:center; gap:8px;}
+.form-sec > h2, .form-sec > h3{margin-bottom:4px; display:flex; align-items:center; gap:8px;}
+/* Section titles are h2 under the page's h1 (no skipped level), drawn at h3 size */
+.form-sec > h2{font-size:var(--t-base); font-weight:var(--fw-extrabold); letter-spacing:normal; line-height:1.35;}
 .form-sec > .sec-note{font-size:var(--t-sm); color:var(--carbon); font-weight:400; margin-bottom:14px; max-width:620px;}
 
 /* collapsible / group cards */
@@ -772,8 +769,6 @@ small{color:var(--text-tertiary);}
 .confirm-panel p{max-width:520px; margin:0 auto 22px; font-weight:400;}
 
 /* ---------- Job description ---------- */
-.scroll-hint{font-size:var(--t-meta); color:var(--ink-faint); font-weight:400; display:flex; gap:6px; align-items:center; margin-top:8px;}
-.scroll-hint.ok{color:var(--ok); font-weight:700;}
 /* <small> would shrink to 0.83em, under the 11px floor; and opacity hid
    its real contrast from the check, so the ink is set, not faded. */
 /* team view */
@@ -852,59 +847,32 @@ small{color:var(--text-tertiary);}
 .onfile-sil{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--platinum);
   background:linear-gradient(160deg,var(--cloud),var(--silver));}
 
-/* ---------- Policies ---------- */
+/* ---------- The required policies (A-76) ---------- */
 .pol-head{display:flex; align-items:center; gap:22px; margin-bottom:18px;}
 .pol-head .prog-count{min-width:180px;}
-.doc-list{display:flex; flex-direction:column; gap:10px;}
-.doc{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-  box-shadow:var(--shadow-1); overflow:hidden;
-}
-.doc.acked{border-color:var(--tint-border-green);}
-.doc-h{display:flex; align-items:center; gap:14px; padding:15px 20px; cursor:pointer;}
-.doc-h .dic{width:34px;height:34px;border-radius:var(--radius);background:var(--silver);display:flex;align-items:center;justify-content:center;color:var(--eq-dark-blue);flex:none;}
-.doc.acked .dic{background:var(--ok-bg); color:var(--ok);}
-.doc-h .d-name{font-weight:800; font-size:var(--t-ui); color:var(--charcoal); display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
-.doc-h .d-desc{font-size:var(--t-sm); color:var(--carbon); font-weight:400; margin-top:2px;}
-.doc-h .d-main{flex:1; min-width:0;}.doc-body{border-top:1px solid var(--line); padding:18px 20px; display:none;}
-.doc.open .doc-body{display:block;}
-.doc-text{
-  border:1px solid var(--line); border-radius:var(--radius); background:var(--silver);
-  max-height:260px; overflow-y:auto; padding:16px 20px; font-size:var(--t-sm); font-weight:400; color:var(--charcoal);
-}
-.doc-text h5{font-size:var(--t-sm); margin:12px 0 4px; color:var(--charcoal);}
-.doc-text h5:first-child{margin-top:0;}
-.doc-text p{margin-bottom:8px; color:var(--charcoal);}
-.addendum{
-  border:1px solid var(--eq-light-blue); border-left:4px solid var(--eq-blue);
-  background:var(--wash-blue); border-radius:var(--radius); padding:12px 16px; margin:12px 0;
-}
-.addendum .add-h{font-weight:800; font-size:var(--t-meta); color:var(--eq-dark-blue); display:flex; gap:8px; align-items:center; margin-bottom:6px;}
-.ack-row{display:flex; align-items:flex-start; gap:12px; margin-top:14px;}
-.ack-row .check{flex:1;}
-.ack-done{display:flex; align-items:center; gap:8px; font-size:var(--t-meta); color:var(--ok); font-weight:700; margin-top:12px;}
-.ack-done .rec-note{color:var(--ink-faint); font-weight:400;}
-/* external doc */
-.doc.external{border-style:solid; border-color:var(--eq-light-violet); background:var(--wash-violet);}
-.doc.external .dic{background:var(--eq-light-violet); color:var(--eq-dark-violet);}
-.ext-banner{
-  display:flex; gap:10px; align-items:flex-start; font-size:var(--t-sm); font-weight:400; color:var(--charcoal);
-  background:var(--eq-light-violet); border-radius:var(--radius); padding:12px 16px; margin-bottom:14px;
-}
-.ext-banner .ic{color:var(--eq-dark-violet); margin-top:1px;}
-.return-banner{
-  display:flex; gap:10px; align-items:center; font-size:var(--t-sm); color:var(--ok); font-weight:700;
-  background:var(--ok-bg); border-radius:var(--radius); padding:11px 16px; margin-bottom:14px;
-}
-/* reading material group */
-.read-group{margin-top:26px;}
-.read-card{
-  background:var(--silver); border:1px solid var(--line); border-radius:var(--radius);
-  padding:14px 18px; display:flex; gap:13px; align-items:center;
-}
-.read-card .o-name{font-weight:700; font-size:var(--t-ui);}
-.read-card .o-note{font-size:var(--t-meta); color:var(--carbon); font-weight:400;}
-.read-cards{display:flex; flex-direction:column; gap:8px;}
+/* six rows, each read in MyHR, then agreed */
+.pol-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+.pol{display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow-1); padding:16px 20px;}
+.pol.acked{border-color:var(--tint-border-green);}
+.pol-n{width:30px; height:30px; border-radius:50%; background:var(--silver); color:var(--eq-dark-blue); flex:none;
+  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:var(--t-sm);}
+.pol.acked .pol-n{background:var(--ok-bg); color:var(--ok);}
+.pol-main{flex:1; min-width:0;}
+.pol-t{font-weight:800; font-size:var(--t-ui); color:var(--charcoal); line-height:1.35;}
+.pol-d{font-size:var(--t-sm); color:var(--carbon); font-weight:400; margin-top:2px;}
+.pol-acts{display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-top:12px;}
+.pol-agree{background:var(--silver); border:1px solid var(--line); border-radius:var(--radius); padding:8px 12px; max-width:none; min-height:36px; align-items:center;}
+.pol-agree input{margin-top:0;}
+.pol-agree:not(.disabled):hover{border-color:var(--eq-light-blue);}
+.pol-hint{font-size:var(--t-meta); color:var(--ink-faint);}
+.pol-rec{display:flex; align-items:center; gap:8px; margin-top:8px; font-size:var(--t-meta); color:var(--ok); font-weight:700;}
+.pol-lock-acts{margin-top:10px;}
+.pol-reset{margin-top:10px;}
+.pol-rec .btn.quiet{min-height:28px; padding:0 8px; margin-left:4px;}
+.pol-done, .pol-lock{margin-bottom:14px;}
+.ucard .u-prog{display:inline-flex; align-items:center; gap:6px; margin-top:8px; font-size:var(--t-meta); font-weight:700; color:var(--eq-dark-blue);}
+.ucard .u-prog.done{color:var(--ok);}
 
 /* ---------- Design notes (prototype commentary) ----------
    Rationale, provenance markers and dispositions are review material, not
@@ -1076,7 +1044,7 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .rb-proto{
   display:inline-flex; align-items:center; gap:6px; cursor:pointer;
   background:none; border:1px solid var(--eq-aqua); color:var(--eq-aqua); border-radius:var(--radius-sm);
-  font-family:inherit; font-size:var(--t-micro); font-weight:700; padding:2px 11px; letter-spacing:.02em;
+  font-family:inherit; font-size:var(--t-micro); font-weight:700; padding:2px 11px; letter-spacing:.02em; min-height:24px;
 }
 .rb-proto:hover, body:has(.proto-drawer.show) .rb-proto{background:var(--eq-aqua); color:var(--charcoal);}
 .proto-drawer{
@@ -1392,7 +1360,7 @@ body:not(.notes) .panel .am{display:inline-flex !important;}
 .view-switch .vs{
   border:1px solid var(--carbon); background:none; color:var(--nickel);
   font-family:inherit; font-size:var(--t-micro); font-weight:700; border-radius:var(--radius-sm);
-  padding:2px 11px; cursor:pointer;
+  padding:2px 11px; cursor:pointer; min-height:24px;
 }
 .view-switch .vs:hover{border-color:var(--eq-aqua); color:var(--eq-aqua);}
 .view-switch .vs.on{background:var(--eq-aqua); border-color:var(--eq-aqua); color:var(--charcoal);}
@@ -1782,13 +1750,15 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
   font-size:var(--t-ui); font-weight:700; color:var(--charcoal); margin-top:3px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.is-dots{display:flex; gap:6px; flex:none;}
+.is-dots{display:flex; gap:4px; flex:none; margin:-8px -8px;}
+/* A 7px dot inside a 24px target (WCAG 2.5.8) */
 .is-dot{
-  width:7px; height:7px; border-radius:50%; border:none; padding:0; cursor:pointer;
-  background:var(--titanium); transition:background .15s, transform .15s;
+  width:24px; height:24px; border-radius:50%; border:none; padding:0; cursor:pointer; background:none;
+  display:inline-flex; align-items:center; justify-content:center;
 }
-.is-dot:hover{background:var(--chrome); transform:scale(1.25);}
-.is-dot.on{background:var(--action);}
+.is-dot::before{content:''; width:7px; height:7px; border-radius:50%; background:var(--titanium); transition:background .15s, transform .15s;}
+.is-dot:hover::before{background:var(--chrome); transform:scale(1.25);}
+.is-dot.on::before{background:var(--action);}
 .is-more{
   display:inline-flex; align-items:center; gap:6px; flex:none;
   font-size:var(--t-meta); font-weight:700; color:var(--action);
@@ -2154,7 +2124,6 @@ body.hm-side .brand .sub{color:var(--eq-dark-violet);}
 .bg-status p{font-size:var(--t-sm); font-weight:400; color:var(--charcoal);}
 
 /* The real document pack (A-51) */
-.read-card.stack{flex-direction:column; align-items:stretch; gap:0;}
 .pack-flag{
   display:flex; gap:9px; align-items:flex-start; margin-top:12px; padding:11px 14px;
   background:var(--warn-bg); border-radius:var(--radius); font-size:var(--t-meta); color:var(--ink-on-warn); font-weight:400; line-height:1.55;
@@ -2495,6 +2464,8 @@ body.pex-side .hdr-in{max-width:1340px;}
 /* The ribbon stays one line at laptop width: its buttons must never wrap. */
 .proto-ribbon > *, .proto-ribbon button{white-space:nowrap;}
 @media (max-width:1400px){ .proto-ribbon .rb-long{display:none;} .proto-ribbon{gap:14px;} }
+/* At 1280 the ribbon was 1,324px wide and gave every page a sideways scroll */
+@media (max-width:1340px){ .proto-ribbon .vs-label{display:none;} .proto-ribbon{gap:10px; padding:0 16px;} }
 
 /* At risk (A-79): the one flashing thing in the product. Reduced motion
    gets a steady dot with a ring instead. */
@@ -2628,6 +2599,9 @@ body.pex-side .hdr-in{max-width:1340px;}
 .tm-h > b{font-size:var(--t-lead); color:var(--tm-text);}
 .tm-tab{font-size:var(--t-ui); color:#424242; padding:16px 2px 13px; border-bottom:3px solid transparent;}
 .tm-tab.on{font-weight:var(--fw-bold); color:var(--tm-text); border-bottom-color:var(--tm-brand);}
+/* Sidekick says it is AI wherever it first speaks (EU AI Act, Article 50(1), from 2 Aug 2026) */
+.ai-badge{display:inline-flex; align-items:center; margin-left:6px; padding:1px 6px; border-radius:4px; font-size:var(--t-micro);
+  font-weight:var(--fw-bold); letter-spacing:.02em; background:var(--tm-brand-soft, #E8EBFA); color:#444791; vertical-align:middle;}
 .tm-sync{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:var(--t-meta); color:var(--tm-sub);}
 .tm-sync i{width:8px; height:8px; border-radius:50%; background:var(--tm-ok);}
 .tm-av{width:28px; height:28px; border-radius:50%; background:var(--grad-pastel); display:inline-flex; align-items:center; justify-content:center; flex:none; padding:2px;}
@@ -2794,7 +2768,7 @@ body.snmarks .snm{display:inline-flex;}
 .bb-link{display:inline-flex; gap:5px; align-items:center; font-size:var(--t-sm); color:var(--text-link); margin-left:6px;}
 
 /* The manager's Day 1 survey (M-35) */
-.svq h3{display:flex; gap:10px; align-items:baseline; font-size:var(--t-ui); line-height:1.45;}
+.svq h2, .svq h3{display:flex; gap:10px; align-items:baseline; font-size:var(--t-ui); line-height:1.45;}
 .svq-n{flex:none; font-size:var(--t-micro); font-weight:800; color:var(--carbon); min-width:16px;}
 .svq-scale{margin:8px 0 0 26px; gap:14px;}
 .svq-text{font:inherit; font-size:var(--t-sm); padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--radius); margin-left:26px; width:calc(100% - 26px); max-width:620px;}
@@ -2845,10 +2819,16 @@ body.snmarks .snm{display:inline-flex;}
 
 /* Check your details: edit in place, or locked (A-65) */
 .det-card dd{display:flex; flex-wrap:wrap; align-items:center; gap:8px;}
-.det-edit-btn{font:inherit; font-size:var(--t-sm); font-weight:700; color:var(--text-link); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;}
+/* The record spans the card like the first-day tiles under it, with room for
+   the longest label ("Country you're joining in") on one line */
+.det-card{max-width:none;}
+.det-card .bp-row{grid-template-columns:190px 1fr;}
+.det-edit-btn{font:inherit; font-size:var(--t-sm); font-weight:700; color:var(--text-link); background:none; border:none; padding:0 4px; min-height:24px; cursor:pointer; text-decoration:underline;}
 .det-lock{display:inline-flex; align-items:center; gap:5px; font-size:var(--t-meta); font-weight:400; color:var(--carbon);}
 .det-edit dd input{flex:1 1 260px; font:inherit; font-size:var(--t-sm); padding:6px 9px; border:1px solid var(--line-strong); border-radius:var(--radius);}
 .det-acts{display:flex; gap:6px;}
+.send-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.send-row .missing{font-size:var(--t-meta); color:var(--carbon); font-weight:400;}
 
 /* The manager's three stats, and the new hire's progress beneath (Janine, 6 Nov) */
 .scene-stats.hm3{display:grid; grid-template-columns:repeat(3, auto); gap:14px 40px; align-items:end;}

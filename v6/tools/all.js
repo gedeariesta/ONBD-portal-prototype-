@@ -11,7 +11,7 @@ const CHECKS = [
   ['dead.js',       'unreferenced declarations'],
   ['deadcss.js',    'unused CSS classes and tokens'],
   ['qa.js',         '364 screen-states across 13 control combinations'],
-  ['prose.js',      'plain English, notes off, including the Sidekick panel'],
+  ['prose.js',      'plain English, global English and brand words, notes off, Sidekick on all three sides'],
   ['a11y.js',       'contrast on the wash and in the scenes, text size, labels, alt text'],
   ['flows.js',      '36 interaction flows end to end, Sidekick included'],
   ['audit2.js',     'hairlines, overlays, floating buttons, ragged rows, clipped text, at 2 widths'],
@@ -20,6 +20,7 @@ const CHECKS = [
   ['flowcheck.js',  'flow diagram packing and axis-dot accuracy'],
   ['scrollkeep.js', 'a state change holds scroll position'],
   ['navscroll.js',  'navigation starts at the top'],
+  ['interact.js',   'keyboard reach, 24px targets, heading order, focus clear of the sticky bars, no sideways scroll'],
 ];
 
 // Each script reports problems in prose rather than by exit code, so match on

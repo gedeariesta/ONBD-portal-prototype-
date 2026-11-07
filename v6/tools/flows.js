@@ -58,14 +58,27 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await p.evaluate(() => document.getElementById('detSend').click()); await p.waitForTimeout(250);
   check('a correction reaches the coordinator', await p.evaluate(() => S.details.flagged && S.sidekick.handoffs.some(h => /Email change request/.test(h.q))));
 
-  // 5b. Policies are first-week work (A-66): readable now, nothing signable
+  // 5b. The required policies (A-76): six in one task, visible now, actionable from Day 2
   await go('#/policies');
-  await p.evaluate(() => document.querySelector('[data-dochead]').click()); await p.waitForTimeout(250);
-  const ackLocked = await p.evaluate(() => [...document.querySelectorAll('[data-ack], [data-hbsign]')].every(x => x.disabled));
-  check('policies cannot be acknowledged before the start date', ackLocked);
-  // A-76: eight handbooks nested in one task, each with its own DocuSign signature
-  const hb = await p.evaluate(() => document.querySelectorAll('.hb-card .hb-item').length);
-  check('eight handbooks sit inside one task', hb === 8, `${hb} items`);
+  const pol = await p.evaluate(() => document.querySelectorAll('.pol-list .pol').length);
+  check('six required policies sit inside one task', pol === 6, `${pol} rows`);
+  check('policies cannot be acknowledged before Day 2',
+    await p.evaluate(() => [...document.querySelectorAll('[data-polread], [data-polagree]')].every(x => x.disabled)));
+  await p.evaluate(() => document.querySelector('[data-polpreview]').click()); await p.waitForTimeout(250);
+  check('a policy can be agreed only once it has been opened in MyHR',
+    await p.evaluate(() => !document.querySelector('[data-polread="aup"]').disabled && document.querySelector('[data-polagree="aup"]').disabled));
+  for (const id of ['aup', 'stp', 'hb', 'dpn', 'wpp', 'ig']) {
+    await p.evaluate(i => document.querySelector(`[data-polread="${i}"]`).click(), id); await p.waitForTimeout(120);
+    await p.evaluate(i => { const c = document.querySelector(`[data-polagree="${i}"]`); c.checked = true; c.dispatchEvent(new Event('change', { bubbles: true })); }, id);
+    await p.waitForTimeout(120);
+  }
+  check('the task closes on its own once all six are agreed',
+    await p.evaluate(() => policiesStatus() === 'done' && /All six are acknowledged/.test(document.getElementById('app').innerText)));
+  check('each agreement shows its version and time',
+    await p.evaluate(() => document.querySelectorAll('.pol-rec').length === 6 && /Version/.test(document.querySelector(".pol-rec").innerText)));
+  await go('#/');
+  check('the first-week card shows the progress', /6 of 6 complete/.test(await txt()));
+  await p.evaluate(() => { S.policies = { opened: {}, acked: {}, preview: false }; save(); });
 
   // 6. Inside Equinix strip: chapter change must not scroll
   await go('#/');

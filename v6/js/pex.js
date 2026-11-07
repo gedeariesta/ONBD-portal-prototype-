@@ -117,7 +117,7 @@ function pexCaseload() {
       remote,
       mgrColo: remote ? r() < 0.3 : r() < 0.75,
       startOff,
-      persona:      r() < (near ? 0.82 : 0.9),
+      apps:         r() < (near ? 0.82 : 0.9),
       buddy:        r() < (near ? 0.72 : 0.45),
       proxy:        r() < 0.55,
       photo:        r() < (near ? 0.74 : 0.35),
@@ -141,7 +141,7 @@ function pexCaseload() {
        Jordan's come from the real state instead (pexWithLiveJordan). */
     Object.assign(h, {
       startConfirmed: !h.dateMoved, detailsDone: h.dataVerified,
-      firstDayDone: h.mgrColo || h.proxy, appsDone: h.persona,
+      firstDayDone: h.mgrColo || h.proxy, appsDone: h.apps,
       welcomeSent: h.startOff < 40, calendarDone: h.startOff < 30,
     });
   }
@@ -164,7 +164,7 @@ function pexWithLiveJordan(list) {
     blueprint: S.country === 'JP' ? 'tokyo' : 'denver',
     remote: false, mgrColo: H.logistics.available !== false,
     startOff: daysToStart(),
-    persona: true,                                    // M-04: Jordan's role has a standard app list
+    apps: !!S.hm.software.confirmed,                  // M-04: chosen by the manager from the standard list
     buddy: !!H.buddy.assigned,
     proxy: !!(H.logistics.proxy && H.logistics.proxy.trim()),
     photo: S.photo.done || S.photo.confirmedExisting,
@@ -207,7 +207,7 @@ const PEX_QUEUES = [
     waiting: () => 'new hire', action:'Remind' },
 
   { id:'blocked', label:'Blocked on another team', icon:'hourglass.svg', sev:'high',
-    blurb:'Equipment, apps, badge or access held up by the team supplying it',
+    blurb:'Equipment, apps, badge or access delayed by the team supplying it',
     why:'The coordinator is the only person watching every queue. The manager sees one hire; the fulfilment teams see one item type.',
     src:'PRD S2-US13 AC2: each request carries its own status tracker visible to NH, HM and PEX.',
     batch:'Yes. Chase by owning team.',
@@ -222,7 +222,7 @@ const PEX_QUEUES = [
      an Onboarding Buddy. The queue got more important, not less. */
   { id:'buddy', label:'No Onboarding Buddy named', icon:'users-friends.svg', sev:'high',
     blurb:'Any hire inside three weeks without an Onboarding Buddy',
-    why:'Nothing assigns one automatically. If the manager does not name somebody, the new hire starts without an Onboarding Buddy and this queue is the only thing that catches it.',
+    why:'Nobody is assigned automatically. If the manager does not name somebody, the new hire starts without an Onboarding Buddy and this queue is the only thing that catches it.',
     src:'PRD S2-US18 AC3 gave the manager until Day −3 to change. The pool auto-assignment in that SLA has been cut, so the fallback it described no longer exists.',
     batch:'Yes.',
     test: h => !h.buddy && h.startOff <= 21,
@@ -230,22 +230,22 @@ const PEX_QUEUES = [
     waiting: () => 'hiring manager', action:'Remind' },
 
   { id:'proxy', label:'No Day 1 host', icon:'user-circle.svg', sev:'high',
-    blurb:'Manager isn’t in the same office and nobody is standing in',
+    blurb:'The manager is in a different office, and no stand-in is named',
     why:'Somebody has to physically meet the new hire. If the manager cannot, and nobody is named, Day 1 has no host.',
     src:'PRD 3.6 makes manager co-location and Day 1 proxy assignment filters. The pairing exists to find this gap.',
     batch:'Yes.',
     test: h => !h.mgrColo && !h.proxy && h.startOff <= 30,
-    reason: () => 'Manager won’t be there and nobody is standing in',
+    reason: () => 'The manager won’t be there, and no stand-in is named',
     waiting: () => 'hiring manager', action:'Assign' },
 
-  { id:'persona', label:'No standard app list', icon:'portal-window.svg', sev:'med',
-    blurb:'The role isn’t linked to a standard set of apps, so the manager picks them by hand',
-    why:'Sourced and explicit: the coordinator is alerted, and until it is resolved the manager gets an empty software stack.',
-    src:'PRD S2-US16 edge case 1. Persona not mapped, empty stack, manager selects from catalogue, coordinator alerted.',
-    batch:'Partly.',
-    test: h => !h.persona,
-    reason: () => 'Manager is picking apps by hand',
-    waiting: () => 'the system', action:'Link role' },
+  { id:'apps', label:'Apps not chosen', icon:'portal-window.svg', sev:'med',
+    blurb:'The manager hasn’t chosen the new hire’s apps, and the start is two weeks away or less',
+    why:'Each app is its own request, with its own approval and wait time, so a late choice can mean a first day without the right tools.',
+    src:'M-04, revised 6 Nov: one standard list for every new hire, no lists by role. Replaces the PRD S2-US16 queue for a role with no app list.',
+    batch:'Yes.',
+    test: h => !h.apps && h.startOff <= 14,
+    reason: () => 'The manager hasn’t chosen the apps yet',
+    waiting: () => 'hiring manager', action:'Remind' },
 
   { id:'rtw', label:'Right to work outstanding', icon:'id-card.svg', sev:'high',
     blurb:'Proof of right to work, where the country requires it, not finished',
@@ -294,7 +294,7 @@ const PEX_QUEUES = [
     waiting: () => 'you', action:'Open' },
 
   { id:'dataver', label:'Recruiting details not checked', icon:'clipboard.svg', sev:'low',
-    blurb:'Details copied over from recruiting that nobody has checked yet',
+    blurb:'Details from recruiting that nobody has checked yet',
     why:'Named as current coordinator work, but with no stated trigger, no SLA and no completion definition.',
     src:'Lucid Fulfiller lane. See Open Items OI-11 — this is real work with no documented shape.',
     batch:'Unknown.',
@@ -345,7 +345,7 @@ function pexAllExceptions() {
    hire's own record; Sidekick only orders them into two sentences. What
    needs the coordinator is decided by the queue rules, never by Sidekick. */
 function pexSummary(groups) {
-  if (!groups.length) return 'Nothing needs you today. Every active hire is on track.';
+  if (!groups.length) return 'Nothing needs you today. Every active hire is on schedule.';
   const top = groups.slice().sort((a, b) => b.hires.length - a.hires.length).slice(0, 2);
   // The soonest start first, and for that hire the most severe queue they sit in.
   const rank = { high:0, med:1, low:2 };
@@ -418,7 +418,7 @@ function renderPexToday() {
       <div class="px-clear">
         ${ic('check-circle.svg','xl')}
         <div><b>Nothing needs you right now.</b>
-        <p>Every active hire is on track. This screen is meant to be empty.</p></div>
+        <p>Every active hire is on schedule. This screen is meant to be empty.</p></div>
       </div>` : groups.map(g => pexQueueBlock(g.q, g.hires)).join('')}
 
     <div class="callout pnote mt16" data-assume="X-00">
@@ -582,7 +582,7 @@ function renderPexCaseload() {
       <div>
         <h1>All new hires</h1>
         <p class="lede">${rows.length} of ${all.length} active${active.length ? ', filtered' : ''}.
-        Every hire you own, whatever state they are in.</p>
+        Every hire you’re responsible for, in any status.</p>
       </div>
       <div class="px-views">
         ${PEX_SAVED_VIEWS.map(v => `
@@ -668,7 +668,7 @@ function pexRow(h) {
              <span>${[...new Set(waiting.map(w => w.who))].join(', ')}</span>
            </button>
            ${pexWaitPopover(h, waiting)}`
-        : `<span class="px-ontrack">${ic('check-circle.svg','sm')}On track</span>`}
+        : `<span class="px-ontrack">${ic('check-circle.svg','sm')}On schedule</span>`}
     </td>
     <td class="px-c-act"><button class="btn secondary sm" data-goto="#/pex/hire/${h.id}">Open</button></td>
   </tr>`;
@@ -771,7 +771,7 @@ function renderPexHire() {
         </div>`).join('')}
     </section>` : `
     <section class="px-clear"><div>${ic('check-circle.svg','xl')}</div>
-      <div><b>Nothing outstanding.</b><p>Every owner is on track for ${fmtDate(pexStart(h))}.</p></div></section>`}
+      <div><b>Nothing outstanding.</b><p>Every owner is on schedule for ${fmtDate(pexStart(h))}.</p></div></section>`}
 
     <div class="px-three" data-assume="X-02 OI-07">
       ${pexOwnerColumn('New hire', 'nh', h)}
@@ -838,15 +838,15 @@ function pexOwnerRows(who, h) {
     { group:'also', label:'Badge photo', state: h.remote ? 'done' : st(h.photo),
       note: h.remote ? 'Remote hire, no badge required' : h.photo ? 'Sent to Workplace' : 'Otherwise taken at reception on Day 1' },
     { group:'later', label:'Bank, tax and emergency contacts', state:'later', sensitive:true, note:'Opens on Day 1' },
-    { group:'later', label:'Handbooks and notices', state:'later', sensitive:true, note:'Opens in the first week' },
+    { group:'later', label:'Required policies', state:'later', sensitive:true, note:'From Day 2, due by Day 30' },
   ];
   if (who === 'hm') return [
     { label:'First-day details confirmed', state: st(h.firstDayDone), owner:h.mgr,
       note: !h.mgrColo && !h.proxy ? 'Nobody to meet them on Day 1' : !h.firstDayDone ? 'Not confirmed yet' : h.mgrColo ? 'Manager will be there' : 'Stand-in will meet them' },
     { label:'Onboarding Buddy named', state: st(h.buddy), owner:h.mgr,
-      note: h.buddy ? 'Accepted' : 'Nothing assigns one automatically' },
+      note: h.buddy ? 'Accepted' : 'Nobody is assigned automatically' },
     { label:'Apps for Day 1', state: h.appsDone ? 'done' : 'open', owner:h.mgr,
-      note: h.persona ? 'Confirmed' : h.appsDone ? 'Picked by hand, no standard list for the role' : 'Held up: no standard app list for the role' },
+      note: h.apps ? 'Chosen from the standard list' : 'Not chosen yet' },
     { label:'Welcome note', state: st(h.welcomeSent), owner:h.mgr },
     { label:'Day 1 calendar', state: st(h.calendarDone), owner:h.mgr },
   ];
@@ -874,7 +874,7 @@ function pexActivity(h) {
   if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Delivery takes ${h.eqEta} days.`]);
   if (h.buddy) ev.push([2, 'People', `${h.mgr} named an Onboarding Buddy and they accepted.`]);
   if (h.bgcheck) ev.push([3, 'Background check', `Launched by ${h.preferred}. Running with the provider.`]);
-  if (!h.persona) ev.push([4, 'Apps', 'No standard app list for this role. You were told.']);
+  if (h.apps) ev.push([4, 'Apps', `${h.mgr} chose the apps from the standard list.`]);
   ev.push([6, 'Location', `${h.loc} Day 1 details set by People Experience.`]);
   ev.push([9, 'Record', `Record created. Recruiting details ${h.dataVerified ? 'checked' : 'not checked yet'}.`]);
 
@@ -955,7 +955,7 @@ function renderPexBlueprints() {
                 ${['12:00','13:00','14:00'].map(t => `<option ${B.until===t?'selected':''}>${t}</option>`).join('')}
               </select></div>
           </div>
-          <div class="note">The manager's Day 1 one-to-one goes in their calendar automatically, straight after this ends.</div>
+          <div class="note">The manager's Day 1 one-to-one goes in their calendar automatically, directly after this ends.</div>
         </div>
 
         <div class="field" style="max-width:none;">

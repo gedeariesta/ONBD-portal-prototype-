@@ -11,7 +11,7 @@ register row.
 | Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` | `v5/` | `v6/` |
 | Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` | `dist/equinix-preday1-portals-v5-paradox-teams.html` | `…-v6-servicenow-rethought.html` |
 | Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick | Same as v4, with Sidekick for the coordinator too | Same as v5, plus the buddy's ask |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 146 · 124 live · 22 retired, plus 52 ServiceNow features |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 147 · 121 live · 26 retired, plus 52 ServiceNow features |
 | Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) | same as v4 | adds the ServiceNow walkthrough (January 2026) and the 30 Oct review |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
@@ -38,10 +38,10 @@ what it does today, where it lives in the prototype now, and a verdict:
 
 | Verdict | Count |
 |---|---|
-| Rethought here | 29 |
+| Rethought here | 28 |
 | Folded in | 6 |
 | Proposed to drop | 4 |
-| Open question (each names who decides) | 5 |
+| Open question (each names who decides) | 6 |
 | Not drawn here (after the first week, or one team's content) | 8 |
 
 44 of them are pinned to their screen by a green `SN-nn` marker. The
@@ -110,6 +110,65 @@ ServiceNow bookkeeping, and `flows.js` fails if one loses its anchor.
   total, and what is coming up, with the new hire's own progress beneath.
 - **Get ready for Day 1** (A-88) opens a week before the start, for the
   live online orientation.
+
+**What the Compliance Policy Build (Janine, 30 Oct) changed** (A-76):
+- **One task, six policies.** "Acknowledge your required policies" replaces
+  the DocuSign handbooks and notices. In order: Acceptable Use, Securities
+  Trading, the Employee Handbook (the Work Rules in Japan), the Data Privacy
+  Notice, Whistleblower Protection and Information Governance, which was a
+  separate first-week item before.
+- **Read in MyHR, then confirm here.** Each policy opens in MyHR; the box
+  "I have read and agree" opens once it has been opened. Each one records
+  the policy version and the date and time. The privacy notice asks "I have
+  read this notice" instead, because agreeing to a privacy notice can look
+  like consent (Legal to confirm).
+- **Visible now, actionable from Day 2, due Day 30.** The task completes
+  itself when all six are done, and the first-week card shows "n of 6
+  complete". The prototype clock never reaches Day 2, so a button on the
+  screen previews it, and another goes back.
+- **Open**, in the design notes: the Code of Business Conduct and the
+  Self-Identification Privacy Notice are not in the six, and only the
+  handbook link in the build document is a MyHR article today.
+
+**The language pass (7 Nov)**, against the Equinix Brand Center (Voice and
+tone, Messaging), the positioning and messaging guide, and Janine's ask to
+put every word "through a global translation layer". The rules are in
+[`v6/copy-guide.md`](v6/copy-guide.md).
+- About 150 strings rewritten across the three sides and Sidekick: idioms
+  out ("have them to hand", "on track", "up next", "shout", "fortnight",
+  "your call"), one verb instead of a phrasal verb where one exists, and one
+  name for one thing (task, new hire, People Experience, sign in).
+- Two copy bugs fixed on the way: the new hire's corporate card note said
+  "after they start", and orientation ended at 12:00 in one place and 13:00
+  in another.
+- Reviewer notes that showed with the design notes off (placeholder badge
+  values, "nothing here does that yet", the product owner's quote) are
+  behind the switch now.
+- `prose.js` fails on the global-English list, the messaging guide's words
+  and new-hire sentences over 30 words, on all three sides.
+
+**The 7 Nov audit and UX check:**
+- **Sidekick says it is AI** wherever it first speaks, on all three sides
+  (A-89). The EU AI Act's Article 50 has required this since 2 August 2026.
+- **The coordinator's app queue** still assumed lists by role. It is now
+  "Apps not chosen": the manager hasn't chosen, and the start is two weeks
+  away or less.
+- **Keyboard and focus.** The task cards on both home pages were divs that
+  a keyboard could not reach (WCAG 2.1.1, Level A). Every card and link that
+  acts on a click now takes focus and works with Enter or Space. After a
+  navigation, focus moves to the new page's title. Confirmations are
+  announced. Nothing focused hides under the sticky ribbon and header.
+- **Targets and structure.** Every control is at least 24px (the carousel
+  dots were 7px). Section titles are h2 under the page's h1.
+- **Spacing.** The ribbon was 1,324px wide, so every page scrolled sideways
+  at 1280. The header sat 6px under the ribbon. Both are fixed. The details
+  record is as wide as the tiles beneath it.
+- **The manager's counts agree.** Jordan's equipment task is shown but
+  never counted as the manager's, so the banner and the task list match.
+- **`interact.js`** checks all of this on 21 screens at two widths.
+- **Not built, flagged:** phone layouts for the new hire's screens (A-28,
+  now the largest open gap), a Japanese portal for a Japan hire (only the
+  policies are translated), and a remote option for I-9 Section 2.
 
 ## v5 — Sidekick where people meet it
 

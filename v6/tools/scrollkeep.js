@@ -7,7 +7,7 @@ const CASES = [
  ['#/hm/buddy',    '[data-meetperson]'],
  ['#/equipment',   '[data-device]'],
  ['#/details',     '#detWrong'],
- ['#/policies',    '[data-doc]'],
+ ['#/policies',    '[data-polpreview]'],
  ['#/pex/caseload','[data-pexfilterfield]'],
  ['#/pex/caseload','[data-pexview]'],
  ['#/pex/',        '[data-pexnudge]'],

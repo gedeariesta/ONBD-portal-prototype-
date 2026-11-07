@@ -37,24 +37,24 @@ const SK_NH = [
     say: () => {
       const n = nextTask();
       return n
-        ? `Next is <b>${n.name.toLowerCase()}</b>, due ${dueText(dueFor(n.key))}. It’s one of the ${thingsWord()} things before Day 1, and after those there’s nothing else until you start.`
+        ? `Next: <b>${n.name}</b>, due ${dueText(dueFor(n.key))}. It’s one of the ${thingsWord()} things before Day 1. After those, there’s nothing else to do until you start.`
         : `Nothing. All ${thingsWord()} things before Day 1 are done, so the next thing you’ll see is your first-day details, three days before you start.`;
     } },
   { id:'laptop', q:'When does my laptop arrive?', keys:['laptop','computer','equipment','arrive','deliver','ship','monitor','headset'],
-    src:'Equipment for new starters', task:'equipment',
+    src:'Equipment for new hires', task:'equipment',
     say: () => S.equipment.submitted
-      ? `It’s ordered. Delivery takes 5 to 7 working days, so it’s on track for ${fmtDate(startDate())}. The table on your equipment task shows where each item is.`
+      ? `It’s ordered. Delivery takes 5 to 7 working days, so it arrives before ${fmtDate(startDate())}. The table on your equipment task shows the status of each item.`
       : `It ships once you place the order on <b>Choose your equipment</b>. Delivery takes 5 to 7 working days, so ordering by ${dueText(dueFor('equipment'))} gets it to you before you start.` },
   { id:'day1', q:'What happens on my first day?', keys:['first day','day 1','day one','orientation','where do i go','reception','parking','arrive on'],
     src: () => `Your first day at Equinix, ${S.country === 'JP' ? 'Tokyo' : 'Denver'}`,
     say: () => {
       const L = S.hm.logistics;
       const where = S.country === 'JP' ? 'Otemachi Financial City Grand Cube, 3rd floor reception' : '1225 17th Street, main reception';
-      return `Orientation runs ${S.pex.blueprint.from} to ${S.pex.blueprint.until} at ${where}. Then ${HIRE.manager} picks you up for a one-to-one.
-        ${L.confirmed ? `She’s confirmed it: “${esc(L.whereToBe)}”.` : ''} The full details, with what to bring, open here three days before you start.`;
+      return `Orientation runs ${S.pex.blueprint.from} to ${S.pex.blueprint.until} at ${where}. Then you meet ${HIRE.manager} for a one-to-one.
+        ${L.confirmed ? `She’s confirmed it: “${esc(L.whereToBe)}”.` : ''} The full details, with what to bring, appear here three days before you start.`;
     } },
   { id:'pay', q:'How do I set up direct deposit?', keys:['direct deposit','bank','banking','pay','paid','payday','salary','payroll','account'],
-    src:'Getting paid: direct deposit for new starters', task:'details',
+    src:'Getting paid: direct deposit for new hires', task:'details',
     say: () => `You add your bank details here in the portal on your first day, with your tax details and emergency contacts. It’s one task, entered once. Before then, it’s worth checking the details we already have, so your first pay goes to the right place.` },
   { id:'buddy', q:'Who is my Onboarding Buddy?', keys:['buddy','mentor','who can i ask'],
     src:'Onboarding Buddies',
@@ -63,23 +63,23 @@ const SK_NH = [
       if (!p) return `${HIRE.manager} hasn’t named your Onboarding Buddy yet. When she does, their name and how to reach them appear under Your people.`;
       return `Your Onboarding Buddy is <b>${p.name}</b>, ${p.role}. They’re under Your people, with Teams and email.`;
     } },
-  { id:'handbook', q:'Do I need to read the handbook before I start?', keys:['handbook','policy','policies','code of conduct','notice','acknowledge','read before'],
-    src:'Employee handbooks and notices', task:'policies',
-    say: () => `No. They open in your first week as one task: eight handbooks and a few notices, each signed in DocuSign, which keeps the date and time. You can read them now if you like; signing opens on your start date.` },
+  { id:'handbook', q:'Do I need to read the policies before I start?', keys:['handbook','policy','policies','code of conduct','notice','acknowledge','read before'],
+    src:'Required policies for new hires', task:'policies',
+    say: () => `No. Six required policies open on your second day, as one task. Each one opens in MyHR. Read it, then return to the portal and confirm “I have read and agree”. They are due 30 days after you start.` },
   { id:'benefits', q:'When do I enrol in benefits?', keys:['benefit','benefits','insurance','medical plan','dental','401k','pension','enrol','enroll'],
-    src:'Benefits enrolment for new starters',
+    src:'Benefits enrolment for new hires',
     say: () => `On your second day. The task links straight to the enrolment site for your country, so there’s nothing to look up or prepare before you start.` },
   // Janine's example (A-78): a question like this is answered from the
   // office's own article first. Handing to a person is the unhappy path.
   { id:'office', q:'Is there a gym in the office?', keys:['gym','fitness','shower','bike','locker','canteen','cafeteria','kitchen','facilities'],
     src: () => `${S.country === 'JP' ? 'Tokyo' : 'Denver'} office guide`,
-    say: () => `The ${S.country === 'JP' ? 'Tokyo' : 'Denver'} office guide lists what’s in the building, including any gym or fitness room, showers, bike storage and where to eat, and who to ask at reception. Your badge works for all of it from Day 1.` },
+    say: () => `The ${S.country === 'JP' ? 'Tokyo' : 'Denver'} office guide lists what’s in the building, such as a gym, showers, bike storage and places to eat. It also says who to ask at reception. Your badge works for all of it from Day 1.` },
   { id:'date', q:'Can I change my start date?', keys:['start date','change my start','move my start','delay','different date','later start'],
     src:'Changing your start date', task:'startdate',
     say: () => `Yes. Ask on <b>Confirm your start date</b>. ${PEOPLE.pex.name.split(' ')[0]} and ${HIRE.manager.split(' ')[0]} both see the request, and your other dates stay as they are until it’s agreed.` },
   { id:'badge', q:'Do I need a photo for my badge?', keys:['badge','photo','picture','building access'],
     src:'Building access badges', task:'intro',
-    say: () => `It helps. Send one by ${dueText(dueFor('photo'))} and your badge is printed and waiting on Day 1. If you don’t, it’s taken at reception when you arrive, and nothing else waits on it.` },
+    say: () => `It helps. Send one by ${dueText(dueFor('photo'))} and your badge will be ready on Day 1. If you don’t, reception takes your photo when you arrive. Nothing else depends on it.` },
 ];
 
 /* ---------- the manager's questions ---------- */
@@ -87,19 +87,22 @@ const SK_HM = [
   { id:'week', q:'What needs me this week?', keys:['this week','needs me','to do','what now','next','overdue','behind'],
     src:'Your tasks, read from the portal', task:'hmnext',
     say: () => {
-      const open = hmTasks().filter(t => !t.done && t.phase === 0 && t.route);
+      // Equipment is the new hire's task, so it is never the manager's to do.
+      const open = hmTasks().filter(t => !t.done && t.phase === 0 && t.route && t.id !== 'computer');
       const soon = open.filter(t => addDays(startDate(), t.dueOff) <= addDays(simToday(), 7));
-      const list = (soon.length ? soon : open).slice(0, 3).map(t => `<b>${t.label.charAt(0).toLowerCase() + t.label.slice(1)}</b>`);
+      // A label that is a question reads badly inside a sentence, so it gets a short form.
+      const name = t => t.id === 'card' ? 'answer the corporate card question' : t.label.charAt(0).toLowerCase() + t.label.slice(1);
+      const list = (soon.length ? soon : open).slice(0, 3).map(t => `<b>${name(t)}</b>`);
       return list.length
         ? `${soon.length ? 'Due within a week' : 'Nothing is due this week, but still open'}: ${list.join(', ')}. The first one is linked below.`
         : `Nothing. Everything you owe before Day 1 is done.`;
     } },
   { id:'buddyvis', q:'When does Jordan see their Onboarding Buddy?', keys:['buddy','see their buddy','visible','72'],
     src:'Onboarding Buddies, for managers',
-    say: () => `As soon as you name them. They appear under Jordan’s people straight away, so Jordan has someone to talk to before Day 1.` },
+    say: () => `As soon as you name them. They appear under Jordan’s people immediately, so Jordan has someone to talk to before Day 1.` },
   { id:'apps', q:'Which apps will Jordan get?', keys:['apps','applications','software','stack','suggest'],
-    src:'Requesting software for a new starter',
-    say: () => { const a = hmAppsChosen(); return `Email, Teams and the basics come with the laptop. ${a.length ? `You’ve picked ${a.map(x => `<b>${x}</b>`).join(', ')}.` : 'Nothing else is picked yet.'} ${S.hm.software.confirmed ? 'It’s confirmed.' : 'Pick from the standard list in your checklist.'}`; } },
+    src:'Requesting software for a new hire',
+    say: () => { const a = hmAppsChosen(); return `Email, Teams and the standard tools come with the laptop. ${a.length ? `You’ve chosen ${a.map(x => `<b>${x}</b>`).join(', ')}.` : 'Nothing else is chosen yet.'} ${S.hm.software.confirmed ? 'It’s confirmed.' : 'Choose from the standard list in your checklist.'}`; } },
   { id:'nhsees', q:'What does Jordan have to do before Day 1?', keys:['jordan do','before day 1','new hire do','their tasks'],
     src:'What new hires do before Day 1',
     say: () => `Four things: confirm the start date, start the background check, do their part of the right to work check, and choose equipment. ${tasksComplete()} of ${COUNTED.length} are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
@@ -130,7 +133,7 @@ const SK_PEX = [
   { id:'nohost', q:'Who has no Day 1 host?', keys:['host','proxy','no one','day 1 host','meet them'],
     src:'Queue: No Day 1 host', list: () => pexRows(pexQueue(pexQ('proxy'))),
     say: () => { const n = pexQueue(pexQ('proxy')).length;
-      return n ? `${n} hire${n === 1 ? ' has' : 's have'} no manager on site and no proxy named. Each manager gets a Sidekick nudge in Teams when you send it.`
+      return n ? `${n} hire${n === 1 ? ' has' : 's have'} no manager on site and no stand-in named. Each manager gets a reminder from Sidekick in Teams when you send it.`
                : 'Every hire starting in the next 30 days has a Day 1 host.'; } },
   { id:'blocked', q:'Who is waiting on another team?', keys:['blocked','waiting','another team','stuck'],
     src:'Queue: Blocked on another team', list: () => pexRows(pexQueue(pexQ('blocked'))),
@@ -163,7 +166,7 @@ const skAt = n => { const m = 16 + n; return `Today ${9 + Math.floor(m / 60)}:${
 
 /* ---------- the brief, on the coordinator's Today (A-74, A-75) ----------
    Top layer: the time period, one sentence, the one thing to do first and
-   a count. "What's coming up" opens the next layer. Every value is read from
+   a count. "Show upcoming tasks" opens the next layer. Every value is read from
    the queues; Sidekick only words the sentence. The new hire and the
    manager get the same content in the Sidekick panel instead of on the page
    (Gede's review: the panel already does the job), and a one-time hello. */
@@ -186,7 +189,7 @@ function skBrief(who, o) {
       <div class="skb-foot">
         <span class="skb-count">${o.count}</span>
         ${o.more && o.more.length ? `<button class="skb-more" type="button" data-skmore="${who}" aria-expanded="${open}">
-          ${open ? 'Hide what’s coming up' : 'What’s coming up'} ${ic(open ? 'chevron-up.svg' : 'chevron-down.svg','sm')}</button>` : ''}
+          ${open ? 'Hide upcoming tasks' : 'Show upcoming tasks'} ${ic(open ? 'chevron-up.svg' : 'chevron-down.svg','sm')}</button>` : ''}
       </div>
       ${open ? `<ul class="skb-list">${o.more.map(m => `<li><span>${m.name}</span><span class="skb-when">${m.when}</span></li>`).join('')}</ul>` : ''}
       <span class="sk-sum-l">${o.note} ${am('A-75')}</span>
@@ -195,7 +198,7 @@ function skBrief(who, o) {
 }
 
 /* What comes after the next task, for the new hire. Shown inside the
-   Sidekick panel behind "What's coming up" (A-75), not on the page: the
+   Sidekick panel behind "Show upcoming tasks" (A-75), not on the page: the
    home already carries the task list, and a second block above it only
    repeated it (Gede's review). */
 function nhComing() {
@@ -229,7 +232,7 @@ function skGreet() {
     el.innerHTML = `
       <span class="pdx-bub">${ic('pdx-bubble.svg','lg')}</span>
       <div class="skh-body">
-        <span class="pdx-tag">Powered by Paradox</span>
+        <span class="pdx-tag">AI assistant · Powered by Paradox</span>
         <b>Hi ${esc(HIRE.preferred)}! Questions before you start?</b>
         <span>${next ? `Ask me anything. First up: <b>${next.name.toLowerCase()}</b>.` : 'Ask me anything. You’re all done before Day 1.'}</span>
         <div class="skh-acts">
@@ -248,7 +251,7 @@ function skGreet() {
       <div class="tmt-app">${ic('tm-chat.svg','sm')}<span>Teams</span><span class="tmt-now">now</span></div>
       <div class="tmt-row">
         <span class="tm-av">${skAv()}</span>
-        <div class="skh-body"><b>Sidekick</b><span>${line}</span></div>
+        <div class="skh-body"><b>Sidekick <span class="ai-badge">AI</span></b><span>${line}</span></div>
       </div>
       <div class="skh-acts">
         <button class="btn tm-primary sm" type="button" data-skhello="open">Open chat</button>
@@ -275,7 +278,7 @@ function skLauncher() {
   const who = skWho();
   if (who === 'nh') {
     f.className = 'chat-fab pdx-fab';
-    f.setAttribute('aria-label', 'Chat with Sidekick, powered by Paradox');
+    f.setAttribute('aria-label', 'Chat with Sidekick, the AI assistant, powered by Paradox');
     f.innerHTML = `<span class="pdx-fab-ic">${ic('pdx-bubble.svg','xl')}</span><span class="cf-label">Questions? Chat with us</span>`;
     if (f.parentElement !== document.body) document.body.appendChild(f);
   } else {
@@ -300,7 +303,7 @@ function skWhereCard() {
     ${n ? skSysRow({ name:n.name, meta:`Due ${dueText(dueFor(n.key))} · ${STATUS_CHIP[n.status][1]}`, route:n.route, icon:n.icon })
         : `<div class="sk-where-done">${ic('check-circle.svg','sm')}Nothing else until your first-day details arrive.</div>`}
     <button class="sk-more" type="button" data-skmore="panel" aria-expanded="${!!SK_MORE.panel}">
-      ${SK_MORE.panel ? 'Hide what’s coming up' : 'What’s coming up'} ${ic(SK_MORE.panel ? 'chevron-up.svg' : 'chevron-down.svg','sm')}</button>
+      ${SK_MORE.panel ? 'Hide upcoming tasks' : 'Show upcoming tasks'} ${ic(SK_MORE.panel ? 'chevron-up.svg' : 'chevron-down.svg','sm')}</button>
     ${SK_MORE.panel ? `<ul class="sk-coming">${nhComing().map(m => `<li><span>${m.name}</span><span>${m.when}</span></li>`).join('')}</ul>` : ''}
   </div>`;
 }
@@ -376,7 +379,7 @@ function skHmChecklist() {
    record, so it always shows the current state. */
 const SK_DO_SAY = {
   logistics: 'Here are Jordan’s first-day details. People Experience set the office part; only the rest is yours.',
-  software: 'Email, Teams and the basics come with the laptop. Pick anything else Jordan needs from the standard list, then confirm.',
+  software: 'Email, Teams and the standard tools come with the laptop. Choose anything else Jordan needs from the standard list, then confirm.',
   card: 'One question, and only if they’ll travel on behalf of Equinix.',
   buddy: 'Pick someone from Jordan’s team or function. I’ll ask them for you, and tell them what being an Onboarding Buddy means.',
   calendar: 'Most of Day 1 is already in your calendar. Check it and confirm.',
@@ -419,7 +422,7 @@ function skActCard(id) {
     const A = H.software;
     body = `<div class="tmc-lab">The standard list for new hires</div>
       <div class="tmc-chips">${STANDARD_APPS.map(a => skOn(A.added.includes(a), `data-skset="sw:${esc(a)}"`, a, 'chip')).join('')}</div>`;
-    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : hmAppsChosen().length ? `Confirm ${hmAppsChosen().length} apps` : 'Just the basics'}</button>`;
+    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : hmAppsChosen().length ? `Confirm ${hmAppsChosen().length} apps` : 'Only the standard tools'}</button>`;
   } else if (id === 'card') {
     const C = H.card;
     body = `<div class="tmc-p">${CARD_FLOW.managerQuestion}</div>
@@ -583,7 +586,7 @@ function skTaskCard(key) {
   if (later) return `<div class="sk-sys">${skSysRow({ name:later.name,
     meta:`${week1Items().includes(later) ? 'Your first week' : `Day 1, ${dueText(startDate())}`} · ${later.sys}`, route:later.route, icon:later.icon })}</div>`;
   if (key === 'intro') return `<div class="sk-sys">${skSysRow({ name:'Add a badge photo, and say hello to your team',
-    meta:`Up next · photo by ${dueText(dueFor('photo'))}`, route:'#/intro', icon:'comment-smile.svg' })}</div>`;
+    meta:`When you have time · photo by ${dueText(dueFor('photo'))}`, route:'#/intro', icon:'comment-smile.svg' })}</div>`;
   return '';
 }
 
@@ -605,10 +608,10 @@ function skMatch(q, who) {
    chatMsgs) exist in both. */
 function skMsgs(who, mode) {
   const intro = who === 'nh'
-    ? `Hi ${esc(HIRE.preferred)}! I’m Sidekick, here on Paradox until you start. Ask me anything about joining Equinix. I’ll point you to the right task, and tell you when I’m not sure.`
+    ? `Hi ${esc(HIRE.preferred)}! I’m Sidekick, the Equinix AI assistant, here on Paradox until you start. Ask me anything about joining Equinix. I’ll point you to the right task, and tell you when I’m not sure.`
     : who === 'hm'
     ? `Hi ${esc(MANAGER.name.split(' ')[0])}. ${hmSummary()} Your checklist for ${esc(HIRE.preferred)} is below; you can do each item from here.`
-    : `Morning, ${esc(PEOPLE.pex.name.split(' ')[0])}. ${pexSummary(PEX_QUEUES.map(q => ({ q, hires: pexQueue(q) })).filter(g => g.hires.length)).split(' Start with')[0]}`;
+    : `Good morning, ${esc(PEOPLE.pex.name.split(' ')[0])}. ${pexSummary(PEX_QUEUES.map(q => ({ q, hires: pexQueue(q) })).filter(g => g.hires.length)).split(' Start with')[0]}`;
   const lead = who === 'hm' ? skHmChecklist()
     : who === 'pex' ? skPexList(SK_PEX[0].list()) : '';
   const all = [{ role:'bot', body:intro, card:lead }, ...SK_THREAD.filter(m => m.who === who)];
@@ -633,7 +636,7 @@ function renderSidekick() {
   const who = skWho(), mode = skMode(who);
   const P = $('#chatPanel');
   P.className = (mode === 'paradox' ? 'panel sk-panel mode-paradox' : 'panel sk-panel mode-teams') + (P.classList.contains('show') ? ' show' : '');
-  P.setAttribute('aria-label', mode === 'paradox' ? 'Sidekick, powered by Paradox' : 'Sidekick chat, as in Microsoft Teams');
+  P.setAttribute('aria-label', mode === 'paradox' ? 'Sidekick, the AI assistant, powered by Paradox' : 'Sidekick, the AI assistant, as in Microsoft Teams');
   const handed = S.sidekick.handoffs.filter(h => h.who === who).length;
   const asked = new Set(SK_THREAD.filter(m => m.who === who && m.role === 'me').map(m => m.text.toLowerCase()));
   const chips = `<div class="chat-quick">${skList(who).filter(it => !asked.has(it.q.toLowerCase())).slice(0, 3)
@@ -646,14 +649,14 @@ function renderSidekick() {
       </div>
       <div class="pdx-h">
         <span class="pdx-bub">${ic('pdx-bubble.svg','lg')}</span>
-        <div class="pdx-id"><b>Onboarding assistant</b><span>Sidekick · powered by Paradox</span></div>
+        <div class="pdx-id"><b>AI onboarding assistant ${am('A-89')}</b><span>Sidekick · powered by Paradox</span></div>
         <span class="pdx-stage">Before Day 1</span>
       </div>
       <div class="panel-b pdx-b" id="chatBody">
         ${skWhereCard()}
         <div class="chat-msgs" id="chatMsgs">${skMsgs(who, mode)}</div>
         ${chips}
-        ${handed ? `<div class="sk-handed">${ic('check-circle.svg','sm')}<span>${handed === 1 ? 'One question is' : `${handed} questions are`} with the People Operations team. They reply by email.</span></div>` : ''}
+        ${handed ? `<div class="sk-handed">${ic('check-circle.svg','sm')}<span>${handed === 1 ? 'One question is' : `${handed} questions are`} with People Experience. They reply by email.</span></div>` : ''}
         ${skDesignNotes(who)}
       </div>
       <div class="pdx-foot">
@@ -661,7 +664,7 @@ function renderSidekick() {
           <input type="text" id="chatInput" placeholder="Type a message…" aria-label="Message Sidekick">
           <button class="pdx-send" id="chatSendBtn" type="button" aria-label="Send">${ic('tm-send.svg')}</button>
         </div>
-        <div class="pdx-person">Rather ask a person? <button class="pdx-link" type="button" data-skhuman="1">Talk to a person</button></div>
+        <div class="pdx-person">Prefer to ask a person? <button class="pdx-link" type="button" data-skhuman="1">Talk to a person</button></div>
         <div class="pdx-note" data-assume="A-82">${ic('info-circle.svg','sm')}<span>Runs on Paradox until your first day; from Day 1 it’s Sidekick in Teams.
           Prototype answers are written in advance. ${am('A-82')}</span></div>
       </div>`;
@@ -681,14 +684,14 @@ function renderSidekick() {
         </nav>
         <section class="tm-chat">
           <div class="tm-h">
-            <span class="tm-av lg">${skAv()}</span><b>Sidekick</b>
+            <span class="tm-av lg">${skAv()}</span><b>Sidekick</b><span class="ai-badge" title="Sidekick is an AI assistant">AI assistant</span>
             <span class="tm-tab on">Chat</span><span class="tm-tab">Shared</span>
             <span class="tm-sync" data-assume="A-83"><i></i>Synced with Teams</span>
           </div>
           <div class="panel-b tm-b" id="chatBody">
             <div class="tm-day">Today</div>
             <div class="chat-msgs tm-msgs" id="chatMsgs">${skMsgs(who, mode)}</div>
-            ${handed ? `<div class="sk-handed">${ic('check-circle.svg','sm')}<span>${handed === 1 ? 'One question is' : `${handed} questions are`} with the People Operations team.</span></div>` : ''}
+            ${handed ? `<div class="sk-handed">${ic('check-circle.svg','sm')}<span>${handed === 1 ? 'One question is' : `${handed} questions are`} with People Experience.</span></div>` : ''}
             ${skDesignNotes(who)}
           </div>
           <div class="tm-foot">
@@ -699,7 +702,7 @@ function renderSidekick() {
               <button class="tm-send" id="chatSendBtn" type="button" aria-label="Send">${ic('tm-send.svg')}</button>
             </div>
             <div class="tm-note">
-              ${who === 'hm' ? `<span>Rather ask a person? <button class="pdx-link tm-link" type="button" data-skhuman="1">Talk to a person</button></span>` : '<span></span>'}
+              ${who === 'hm' ? `<span>Prefer to ask a person? <button class="pdx-link tm-link" type="button" data-skhuman="1">Talk to a person</button></span>` : '<span></span>'}
               <span class="tm-proto">Prototype: drawn to look like Teams; answers are written in advance.</span>
             </div>
           </div>
@@ -748,9 +751,9 @@ function skAsk(q) {
       ? `I can only answer from your queues and the caseload, and nothing there matches that.
          <div class="sk-searched">${ic('search.svg','sm')}Searched ${skSources(who)}. Nothing matched.</div>
          Try one of the questions below, or open the caseload and filter it.`
-      : `I looked, and nothing I can read answers that, so I’d rather not guess.
+      : `I searched, and I couldn’t find an answer, so I won’t guess.
          <div class="sk-searched">${ic('search.svg','sm')}Searched ${skSources(who)}. Nothing matched.</div>
-         A person on the People Operations team can answer it. They’ll see this conversation, so you won’t need to explain again.
+         A person in People Experience can answer it. They’ll see this conversation, so you won’t need to explain again.
          <div class="sk-fb"><button type="button" class="btn brand sm" data-skhuman="1">Talk to a person</button></div>` });
   }
   if (!$('#chatPanel').classList.contains('show')) openChat();
@@ -777,7 +780,7 @@ function skHandoff() {
   const who = skWho();
   S.sidekick.handoffs.push({ who, q: SK_LAST_Q || 'Asked for a person', at: fmtDate(simToday()) });
   save();
-  SK_THREAD.push({ who, role:'note', body:`${ic('check-circle.svg','sm')} Passed to the People Operations support team,
+  SK_THREAD.push({ who, role:'note', body:`${ic('check-circle.svg','sm')} Passed to People Experience,
     with this conversation attached. They answer most questions directly and pass anything complex to a specialist.
     They reply by ${who === 'nh' ? 'email' : 'Teams'}, and ${PEOPLE.pex.name} can see it too. ${am('A-72')}` });
   renderSidekick();
