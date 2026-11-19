@@ -22,13 +22,13 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   check('four things before Day 1', pre === 4, `${pre} task cards`);
   const firstTask = await p.evaluate(() => document.querySelector('.tcard .t-name').innerText.trim());
   check('start date is task 1', /start date/i.test(firstTask), firstTask);
-  check('bank, tax and emergency contacts are a Day 1 step', /Add your bank, tax and emergency contacts/.test(await txt()));
+  // Process tree, 19 Nov: the four are the tree's "Ready for Day 1" line
+  check('the four are the tree\'s Ready for Day 1 line', await p.evaluate(() => COUNTED.join() === 'startdate,profile,rtw,intro'));
+  check('bank, tax and emergency contacts come before the start', /Complete your profile, tax and banking/.test(await txt()) && !/Add your bank, tax and emergency contacts/.test(await txt()));
 
-  // 2. Start the background check
+  // 2. The background check is sent at verbal offer: status only
   await go('#/bgcheck');
-  await p.evaluate(() => { const b=[...document.querySelectorAll('button')].find(x=>/start the check/i.test(x.innerText)); if(b) b.click(); });
-  await p.waitForTimeout(1800); // the launch simulates an external redirect
-  check('background check launches', /launched|started|running|in progress/i.test(await txt()));
+  check('the background check is a status, not a task', await p.evaluate(() => !document.getElementById('bgLaunch') && /in progress|cleared/i.test(document.getElementById('app').innerText)));
 
   // 3. Equipment: confirm the single build
   await go('#/equipment');
@@ -48,11 +48,11 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await p.waitForTimeout(400);
   check('late-delivery warning fires', (await txt()).includes('after you start'));
 
-  // 5. Check your details (A-65, revised 5 Nov): something the new hire can do
-  //    now, in the portal, with no Workday wording. Bank and tax wait for Day 1.
+  // 5. Profile, tax and banking (A-65, process tree): check the details here,
+  //    then tax, banking and emergency contacts in Workday, before the start.
   await go('#/details');
-  check('details screen never mentions Workday', !/Workday/.test(await txt()));
-  check('the portal asks for nothing personal before Day 1', await p.evaluate(() => document.querySelectorAll('#app input, #app select, #app textarea').length === 0));
+  check('tax and banking go to Workday', /Workday/.test(await txt()) && await p.evaluate(() => !!document.getElementById('detWorkday')));
+  check('the portal itself asks for nothing personal', await p.evaluate(() => document.querySelectorAll('#app input, #app select, #app textarea').length === 0));
   await p.evaluate(() => document.getElementById('detWrong').click()); await p.waitForTimeout(250);
   await p.fill('#detFlag', 'jordan.reyes@outlook.com');
   await p.evaluate(() => document.getElementById('detSend').click()); await p.waitForTimeout(250);
@@ -143,7 +143,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await go('#/');
   await p.fill('[data-askinput]', 'When does my laptop arrive?'); await p.keyboard.press('Enter'); await p.waitForTimeout(450);
   check('the ask bar opens Sidekick with an answer', await p.evaluate(() =>
-    document.getElementById('chatPanel').classList.contains('show') && /ships|ordered/.test(document.getElementById('chatMsgs').innerText)));
+    document.getElementById('chatPanel').classList.contains('show') && /ships|order/.test(document.getElementById('chatMsgs').innerText)));
   await p.evaluate(() => document.querySelector('.panel.show .x').click()); await p.waitForTimeout(250);
 
   // 10c. On Today, a question becomes a caseload filter (A-74)
@@ -294,7 +294,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   const pcDrift = await p.evaluate(() => {
     const VIEWS = {
       nh: ['#/', '#/todos', '#/startdate', '#/bgcheck', '#/equipment', '#/details', '#/intro', '#/network', '#/policies', '#/flow'],
-      hm: ['#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy', '#/hm/calendar', '#/hm/welcome', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction'],
+      hm: ['#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/buddy', '#/hm/calendar', '#/hm/welcome', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction'],
       pex: ['#/pex/', '#/pex/caseload', '#/pex/blueprints', '#/pex/hire/jreyes', '#/pex/hire/wzhang'],
     };
     const keep = S, hash = location.hash;
@@ -354,16 +354,22 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await p.evaluate(() => window.scrollTo(0, 1200)); await p.waitForTimeout(150);
   await go('#/equipment'); await go('#/');
   check('coming back home keeps your place', Math.abs(await p.evaluate(() => window.scrollY) - 1200) <= 2);
-  // the apps list comes from the role
-  await go('#/hm/software');
-  check('apps come from one standard list, nothing pre-ticked', await p.evaluate(() => document.querySelectorAll('[data-sw]').length === STANDARD_APPS.length
-    && [...document.querySelectorAll('[data-sw]')].every(c => !c.checked)));
+  // process tree: no apps task; the manager orders the laptop from the new hire's preferences
+  check('there is no apps task', await p.evaluate(() => !hmTasks().some(t => t.id === 'software') && !ROUTES['#/hm/software']));
+  await fresh('#/equipment');
+  await p.evaluate(() => { S.equipment.choice = 'headset'; S.equipment.shipOffice = 'yes'; S.equipment.shipPhone = '+1 303 555 0117'; S.equipment.deviceConfirmed = true; save(); rerender(); });
+  await p.evaluate(() => document.getElementById('eqSubmit').click()); await p.waitForTimeout(250);
+  check('the new hire sends preferences, not an order', await p.evaluate(() => S.equipment.submitted && !S.hm.equip.ordered));
+  await go('#/hm/computer');
+  await p.evaluate(() => document.getElementById('hmEqOrder').click()); await p.waitForTimeout(250);
+  check('the manager places the order', await p.evaluate(() => S.hm.equip.ordered && /Ordered/.test(document.getElementById('app').innerText)));
   // the manager can do every task from Sidekick, and the portal agrees
   await fresh('#/hm/');
   await p.evaluate(() => openChat()); await p.waitForTimeout(300);
   const tap = async sel => { await p.evaluate(x => { const e = [...document.querySelectorAll(x)].pop(); if (!e) throw new Error('missing ' + x); e.click(); }, sel); await p.waitForTimeout(220); };
   await tap('[data-skdo="logistics"]'); await p.fill('#skWhere', '13:00, main reception'); await tap('[data-skact="logistics"]');
-  await tap('[data-skdo="software"]'); await tap('[data-skact="software"]');
+  await tap('[data-skdo="computer"]'); await tap('[data-skact="computer"]');
+  await tap('[data-skdo="plan"]'); await tap('[data-skact="plan"]');
   await tap('[data-skdo="card"]'); await tap('[data-skset="card:no"]');
   await tap('[data-skdo="buddy"]'); await p.selectOption('#skBuddy', { index: 1 }); await p.waitForTimeout(220);
   await tap('[data-skact="buddyask"]'); await tap('[data-skact="buddyaccept"]');
@@ -372,7 +378,7 @@ const check = (name, cond, detail='') => (cond ? ok : bad).push(name + (detail ?
   await tap('[data-skphone="ok"]'); await tap('[data-skact="channels"]');
   await tap('[data-skdo="survey"]'); for (let n = 1; n <= 6; n++) await tap(`[data-skset="svq:${n}:4"]`); await tap('[data-skact="survey"]');
   check('every manager task can be done from the chat', await p.evaluate(() =>
-    hmTasks().filter(t => t.route && t.id !== 'computer' && t.id !== 'intro').every(t => t.done) && skHmOpenCount() === 0));
+    hmTasks().filter(t => !t.phase && t.id !== 'intro').every(t => t.done) && skHmOpenCount() === 0));
   await p.evaluate(() => closePanels());
   check('the portal shows what the chat did', await p.evaluate(() => document.querySelectorAll('.tcard.hm.done').length >= 7));
 

@@ -3,7 +3,6 @@ const { launch, BASE, OUT, outDir } = require('./lib');
 const CASES = [
  ['#/hm/',         '[data-quickconfirm]'],
  ['#/hm/calendar', '[data-hold]'],
- ['#/hm/software', '#app input[type=checkbox]:not([disabled])'],
  ['#/hm/buddy',    '[data-meetperson]'],
  ['#/equipment',   '[data-device]'],
  ['#/details',     '#detWrong'],

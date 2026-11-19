@@ -42,9 +42,9 @@ const SK_NH = [
     } },
   { id:'laptop', q:'When does my laptop arrive?', keys:['laptop','computer','equipment','arrive','deliver','ship','monitor','headset'],
     src:'Equipment for new hires', task:'equipment',
-    say: () => S.equipment.submitted
+    say: () => S.hm.equip.ordered
       ? `It’s ordered. Delivery takes 5 to 7 working days, so it arrives before ${fmtDate(startDate())}. The table on your equipment task shows the status of each item.`
-      : `It ships once you place the order on <b>Choose your equipment</b>. Delivery takes 5 to 7 working days, so ordering by ${dueText(dueFor('equipment'))} gets it to you before you start.` },
+      : `${HIRE.manager} orders it. Send your preferences on <b>Pick your laptop preferences</b> by ${dueText(dueFor('equipment'))}. If nobody orders it 10 days before you start, End User Technology does.` },
   { id:'day1', q:'What happens on my first day?', keys:['first day','day 1','day one','orientation','where do i go','reception','parking','arrive on'],
     src: () => `Your first day at Equinix, ${S.country === 'JP' ? 'Tokyo' : 'Denver'}`,
     say: () => {
@@ -54,8 +54,8 @@ const SK_NH = [
         ${L.confirmed ? `She’s confirmed it: “${esc(L.whereToBe)}”.` : ''} The full details, with what to bring, appear here three days before you start.`;
     } },
   { id:'pay', q:'How do I set up direct deposit?', keys:['direct deposit','bank','banking','pay','paid','payday','salary','payroll','account'],
-    src:'Getting paid: direct deposit for new hires', task:'details',
-    say: () => `You add your bank details here in the portal on your first day, with your tax details and emergency contacts. It’s one task, entered once. Before then, it’s worth checking the details we already have, so your first pay goes to the right place.` },
+    src:'Getting paid: direct deposit for new hires', task:'profile',
+    say: () => `Before you start, in <b>Complete your profile, tax and banking</b>. You check the details we hold, then add your bank, tax and emergency contacts in Workday, so payroll is ready by Day 5.` },
   { id:'buddy', q:'Who is my Onboarding Buddy?', keys:['buddy','mentor','who can i ask'],
     src:'Onboarding Buddies',
     say: () => {
@@ -68,7 +68,8 @@ const SK_NH = [
     say: () => `No. Six required policies open on your second day, as one task. Each one opens in MyHR. Read it, then return to the portal and confirm “I have read and agree”. They are due 30 days after you start.` },
   { id:'benefits', q:'When do I enrol in benefits?', keys:['benefit','benefits','insurance','medical plan','dental','401k','pension','enrol','enroll'],
     src:'Benefits enrolment for new hires',
-    say: () => `On your second day. The task links straight to the enrolment site for your country, so there’s nothing to look up or prepare before you start.` },
+    say: () => S.country === 'JP' ? `On your second day. The task links straight to the enrolment site for your country, so there’s nothing to look up before you start.`
+      : `On Day 5, in PlanSource. Before you start, the benefits overview on your home page explains what you can choose.` },
   // Janine's example (A-78): a question like this is answered from the
   // office's own article first. Handing to a person is the unhappy path.
   { id:'office', q:'Is there a gym in the office?', keys:['gym','fitness','shower','bike','locker','canteen','cafeteria','kitchen','facilities'],
@@ -79,7 +80,7 @@ const SK_NH = [
     say: () => `Yes. Ask on <b>Confirm your start date</b>. ${PEOPLE.pex.name.split(' ')[0]} and ${HIRE.manager.split(' ')[0]} both see the request, and your other dates stay as they are until it’s agreed.` },
   { id:'badge', q:'Do I need a photo for my badge?', keys:['badge','photo','picture','building access'],
     src:'Building access badges', task:'intro',
-    say: () => `It helps. Send one by ${dueText(dueFor('photo'))} and your badge will be ready on Day 1. If you don’t, reception takes your photo when you arrive. Nothing else depends on it.` },
+    say: () => `Yes. Your photo and introduction are one of the four things before Day 1. Send them by ${dueText(dueFor('photo'))} and your badge will be ready on Day 1.` },
 ];
 
 /* ---------- the manager's questions ---------- */
@@ -100,12 +101,13 @@ const SK_HM = [
   { id:'buddyvis', q:'When does Jordan see their Onboarding Buddy?', keys:['buddy','see their buddy','visible','72'],
     src:'Onboarding Buddies, for managers',
     say: () => `As soon as you name them. They appear under Jordan’s people immediately, so Jordan has someone to talk to before Day 1.` },
-  { id:'apps', q:'Which apps will Jordan get?', keys:['apps','applications','software','stack','suggest'],
-    src:'Requesting software for a new hire',
-    say: () => { const a = hmAppsChosen(); return `Email, Teams and the standard tools come with the laptop. ${a.length ? `You’ve chosen ${a.map(x => `<b>${x}</b>`).join(', ')}.` : 'Nothing else is chosen yet.'} ${S.hm.software.confirmed ? 'It’s confirmed.' : 'Choose from the standard list in your checklist.'}`; } },
+  { id:'laptop', q:'Has Jordan’s laptop been ordered?', keys:['laptop','computer','equipment','order','apps','software'],
+    src:'Ordering a laptop for a new hire', task:'computer',
+    say: () => S.hm.equip.ordered ? 'Yes. You ordered it, and the IT help desk has it as INC6369627.'
+      : `Not yet. ${S.equipment.submitted ? 'Jordan sent their preferences, so it is ready to order.' : 'Jordan hasn’t sent preferences yet.'} If nobody orders it 10 days before the start, End User Technology does.` },
   { id:'nhsees', q:'What does Jordan have to do before Day 1?', keys:['jordan do','before day 1','new hire do','their tasks'],
     src:'What new hires do before Day 1',
-    say: () => `Four things: confirm the start date, start the background check, do their part of the right to work check, and choose equipment. ${tasksComplete()} of ${COUNTED.length} are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
+    say: () => `Four things: confirm the start date, complete their profile, tax and banking, do their part of the right to work check, and add a photo and introduction. ${tasksComplete()} of ${COUNTED.length} are done. Everything else starts once they’ve started. You see whether each is done, never what they entered.` },
 ];
 
 
@@ -205,9 +207,9 @@ function nhComing() {
   const next = nextTask();
   return [
     ...taskList().filter(t => t.status !== 'done' && (!next || t.key !== next.key)).map(t => ({ name:t.name, when:`Due ${dueText(dueFor(t.key))}` })),
-    { name:'Your first day details arrive', when:'3 days before you start' },
+    { name:'Your first day details arrive', when:'3 business days before you start' },
     ...day1Items().map(t => ({ name:t.name, when:'Day 1' })),
-    { name:'Benefits enrolment', when:'Day 2' },
+    { name:'Benefits enrolment', when: S.country === 'JP' ? 'Day 2' : 'Day 5' },
     ...week1Items().map(t => ({ name:t.name, when:'First week' })),
   ];
 }
@@ -329,14 +331,12 @@ function skCard(title, sub, body, foot) {
    Every control below writes to the same record the portal screens read. */
 const skPhoneOk = () => !!S.hm.contactConfirmed;
 function skHmOpenCount() {
-  // Equipment is the new hire's to do, so it is shown but never counted as open.
-  return hmTasks().filter(t => !t.phase && !t.done && t.id !== 'computer').length + (skPhoneOk() ? 0 : 1) + (S.hm.channels.accepted ? 0 : 1);
+  return hmTasks().filter(t => !t.phase && !t.done).length + (skPhoneOk() ? 0 : 1) + (S.hm.channels.accepted ? 0 : 1);
 }
 function skHmRow(x) {
   const when = x.dueOff != null ? `Due ${dueText(addDays(startDate(), x.dueOff))}` : '';
   const act = x.done ? '<span class="tmc-st">Done</span>'
-    : x.id === 'computer' ? '<span class="tmc-st">Nothing to do</span>'
-    : x.route ? `<button class="tm-btn" type="button" data-skdo="${x.id}">Do it</button>`
+    : x.route || x.chat ? `<button class="tm-btn" type="button" data-skdo="${x.id}">Do it</button>`
     : '<span class="tmc-st">In your calendar</span>';
   return `
     <div class="tmc-row ${x.done ? 'done' : ''}">
@@ -365,7 +365,7 @@ function skHmChecklist() {
         <span class="tmc-due">${CHANNEL_SUGGESTIONS.length} suggested from your team${chan ? ', queued for Day 1' : ''}</span></span>
       ${chan ? '<span class="tmc-st">Added</span>' : `<button class="tm-btn primary" type="button" data-skact="channels">Add all</button>`}
     </div>`;
-  const mine = pre.filter(x => x.id !== 'computer');
+  const mine = pre;
   const preDone = mine.filter(x => x.done).length + (phone ? 1 : 0) + (chan ? 1 : 0);
   return skCard(`Checklist · ${esc(HIRE.preferred)} ${esc(HIRE.legalLast)}`,
     `Starts ${fmtDate(startDate())} · ${preDone} of ${mine.length + 2} done before Day 1`,
@@ -379,7 +379,9 @@ function skHmChecklist() {
    record, so it always shows the current state. */
 const SK_DO_SAY = {
   logistics: 'Here are Jordan’s first-day details. People Experience set the office part; only the rest is yours.',
-  software: 'Email, Teams and the standard tools come with the laptop. Choose anything else Jordan needs from the standard list, then confirm.',
+  computer: 'Here is what Jordan asked for. Order it here, or wait for their preferences.',
+  plan: 'Draft the plan in the Companion Guide, then mark it drafted here. You agree it with Jordan in their first week.',
+  started: 'Did Jordan start today? A yes moves them to Hired.',
   card: 'One question, and only if they’ll travel on behalf of Equinix.',
   buddy: 'Pick someone from Jordan’s team or function. I’ll ask them for you, and tell them what being an Onboarding Buddy means.',
   calendar: 'Most of Day 1 is already in your calendar. Check it and confirm.',
@@ -418,16 +420,23 @@ function skActCard(id) {
       ${L.firstInOffice === 'later' ? `<input class="tm-in" type="date" data-skin="logistics.firstInOfficeDate" aria-label="First day in the office together" value="${esc(L.firstInOfficeDate)}">` : ''}
       <div class="tmc-p sub">Jordan’s badge is ready for that day.</div>`;
     foot = `<button class="tm-btn primary" type="button" data-skact="logistics" ${ok ? '' : 'disabled'}>${L.confirmed ? 'Update' : 'Confirm'}</button>`;
-  } else if (id === 'software') {
-    const A = H.software;
-    body = `<div class="tmc-lab">The standard list for new hires</div>
-      <div class="tmc-chips">${STANDARD_APPS.map(a => skOn(A.added.includes(a), `data-skset="sw:${esc(a)}"`, a, 'chip')).join('')}</div>`;
-    foot = `<button class="tm-btn primary" type="button" data-skact="software">${A.confirmed ? 'Update' : hmAppsChosen().length ? `Confirm ${hmAppsChosen().length} apps` : 'Only the standard tools'}</button>`;
+  } else if (id === 'computer') {
+    const E = S.equipment, dev = deviceById(E.device) || DEVICE_CATALOG[0];
+    body = `<div class="tmc-p">${E.submitted ? `Jordan asked for the <b>${dev.name}</b>, shipped to ${esc(shipDest())}.`
+      : `No preferences from Jordan yet. The standard build is the <b>${dev.name}</b>.`}</div>
+      <div class="tmc-p sub">If nobody orders it 10 days before the start, End User Technology does.</div>`;
+    foot = H.equip.ordered ? '' : `<button class="tm-btn primary" type="button" data-skact="computer">Place the order</button>`;
+  } else if (id === 'plan') {
+    body = `<div class="tmc-p">Use the Companion Guide to draft goals for Day 30, 60 and 90.</div>`;
+    foot = H.plan.drafted ? '' : `<button class="tm-btn primary" type="button" data-skact="plan">Mark as drafted</button>`;
+  } else if (id === 'started') {
+    body = `<div class="tmc-p">Did ${esc(HIRE.preferred)} start today?</div>`;
+    foot = H.started ? '' : `<button class="tm-btn primary" type="button" data-skact="started">Yes, they started</button>`;
   } else if (id === 'card') {
     const C = H.card;
     body = `<div class="tmc-p">${CARD_FLOW.managerQuestion}</div>
       <div class="tmc-acts">${skOn(C.needed === true, 'data-skset="card:yes"', 'Yes, they’ll travel')}${skOn(C.needed === false, 'data-skset="card:no"', 'No, not needed')}</div>
-      ${C.needed === true ? `<div class="tmc-p sub">Jordan signs the card agreement on Day 2. Nothing else for you.</div>` : ''}`;
+      ${C.needed === true ? `<div class="tmc-p sub">Jordan signs the Citibank authorization on Day 5. Nothing else for you.</div>` : ''}`;
   } else if (id === 'buddy') {
     const B = H.buddy, p = B.assigned ? orgPerson(B.assigned) : null;
     body = p ? `<div class="tmc-p"><b>${p.name}</b>, ${p.role}.
@@ -489,9 +498,8 @@ function skSet(spec) {
   else if (k === 'inoffice') H.logistics.firstInOffice = a;
   else if (k === 'card') {
     H.card.needed = a === 'yes';
-    toast(H.card.needed ? 'Recorded. The agreement is now on Jordan’s list for Day 2.' : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
+    toast(H.card.needed ? 'Recorded. The Citibank authorization is now on Jordan’s list for Day 5.' : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
   }
-  else if (k === 'sw') H.software.added = H.software.added.includes(a) ? H.software.added.filter(x => x !== a) : [...H.software.added, a];
   else if (k === 'hold') H.calendar.holds[a] = !H.calendar.holds[a];
   else if (k === 'svq') H.survey.answers[a] = +b;
   skRefresh();
@@ -500,7 +508,10 @@ function skAct(what) {
   const H = S.hm, who = H.buddy.assigned ? orgPerson(H.buddy.assigned) : null;
   const done = {
     logistics: () => { H.logistics.confirmed = true; return 'First-day details confirmed. They feed Jordan’s first-day card.'; },
-    software:  () => { H.software.confirmed = true; return `Apps confirmed: ${hmAppsChosen().length} for Jordan’s first day.`; },
+    computer:  () => { if (!S.equipment.submitted) { S.equipment.deviceConfirmed = true; S.equipment.device = S.equipment.device || DEVICE_CATALOG[0].id; S.equipment.choice = S.equipment.choice || 'headset'; }
+                       H.equip.ordered = true; return 'Laptop ordered. The IT help desk has it as INC6369627.'; },
+    plan:      () => { H.plan.drafted = true; return 'Plan drafted. You agree it with Jordan in their first week.'; },
+    started:   () => { H.started = true; return 'Thanks. Jordan is moved to Hired.'; },
     buddyask:  () => { H.buddy.notified = true; return `${who.name} has been asked, with what being an Onboarding Buddy means. Nothing is booked until they say yes.`; },
     buddyaccept: () => { H.buddy.accepted = true; return `${who.name} said yes. A prototype control, so you can see what follows.`; },
     buddyclear: () => { H.buddy = { assigned:null, notified:false, accepted:false }; return ''; },

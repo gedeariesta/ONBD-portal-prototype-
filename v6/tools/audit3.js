@@ -1,6 +1,6 @@
 const { launch, BASE, OUT, outDir } = require('./lib');
 const ROUTES=['','#/equipment','#/details','#/intro','#/policies','#/network','#/flow','#/todos',
- '#/handoffs','#/startdate','#/bgcheck','#/hm/','#/hm/logistics','#/hm/computer','#/hm/software','#/hm/buddy',
+ '#/handoffs','#/startdate','#/bgcheck','#/hm/','#/hm/logistics','#/hm/computer','#/hm/buddy',
  '#/hm/calendar','#/hm/welcome','#/hm/intro','#/hm/card','#/hm/subtraction',
  '#/pex/','#/pex/caseload','#/pex/blueprints','#/pex/hire/jreyes','#/pex/hire/wzhang'];
 const WIDTHS=[1280,1440,1680];

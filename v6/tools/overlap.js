@@ -9,7 +9,7 @@
    Japan variant, the brief opened, the Sidekick panel open). */
 const { launch, BASE } = require('./lib');
 const ROUTES = ['', '#/equipment', '#/details', '#/intro', '#/policies', '#/network', '#/flow', '#/todos',
-  '#/handoffs', '#/startdate', '#/bgcheck', '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy',
+  '#/handoffs', '#/startdate', '#/bgcheck', '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/buddy',
   '#/hm/calendar', '#/hm/welcome', '#/hm/network', '#/hm/intro', '#/hm/card', '#/hm/subtraction',
   '#/pex/', '#/pex/caseload', '#/pex/blueprints', '#/pex/hire/jreyes', '#/pex/hire/wzhang'];
 const SEL = 'button, a, input, select, textarea, .chip, .px-waiting, .sys-tag, .tag, .pill, .p-chip, .pxq-n, .risk-dot, .avatar, .ic';

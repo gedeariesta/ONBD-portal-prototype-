@@ -20,12 +20,11 @@ const SIM = {
 /* Due dates as offsets from the start date, so both runways work (A-45). */
 const DUE_OFFSETS = {
   startdate: -14,   // triggered at offer acceptance (A-49)
-  bgcheck: -13,     // launched from the portal, runs externally (A-50)
-  rtw: -13,         // I-9 Section 1, by Day 1 at the latest (A-86)
-  equipment: -12,   // earliest of the provisioning tasks, build and ship lead (A-33)
+  profile: -13,     // profile, tax and banking, in Workday (tree, early pre-hire)
+  rtw: -12,         // I-9 Section 1, by Day 1 at the latest (A-86)
+  equipment: -14,   // laptop preferences, if the start is 14+ days away (tree)
   photo: -10,       // badge print lead
   intro: -7,
-  details: -4,
   policies: 30,     // the required policies: Day 2 to Day 30 (A-76)
 };
 
@@ -217,9 +216,9 @@ const ASSUMPTIONS = [
   { id:'A-32', group:'design', prov:'PRIOR', screen:'People rail', route:'#/',
     assumed:'The hiring manager is contactable from the portal before Day 1, by Teams and email.',
     resolve:'Confirm the manager expects to be reachable this early, and that Teams reaches them before the new hire has an Equinix account.', oi:'' },
-  { id:'A-33', group:'design', prov:'1:1', screen:'Task list', route:'#/',
-    assumed:'Equipment opens immediately and is the earliest of the provisioning tasks. Confirming the start date and launching the background check now sit ahead of it, because both are triggered at offer acceptance.',
-    resolve:'Nothing gates equipment today. The “when your role and location are confirmed” gate does not exist, because nobody performs that confirmation. Confirm the earliest date an accessories order can usefully be placed.', oi:'' },
+  { id:'A-33', group:'design', prov:'MTG', screen:'Task list', route:'#/',
+    assumed:'Laptop preferences open with the portal and are due 14 days before the start, so the manager can order in time.',
+    resolve:'Process tree: the new hire picks if the start is 14 or more days away. Confirm the earliest date an order can usefully be placed.', oi:'' },
   { id:'A-35', group:'design', prov:'UAT', screen:'Good to know', route:'#/',
     assumed:'ANSWERED, and now filled with the real thing. Six chapters from the live Inside Equinix site, with their real titles, headlines and content. Chapter 03 is “What we do”, not the “Our business” this prototype previously guessed at. No tasks, nothing tracked.',
     resolve:'The requirement settles the three-way question: it is both the carousel and the rail link, and it is not a task. The same content also appears in orientation and in the manager’s weekly list, so the remaining question is whether that is reinforcement or repetition. The chapter content is no longer placeholder, but the videos are named rather than embedded. UAT settles the placement question: Inside Equinix is a to-do inside “Your first day at Equinix”, not a pre-Day 1 item, so putting it in front of a new hire before they start is a move, not a reuse.', oi:'' },
@@ -242,9 +241,9 @@ const ASSUMPTIONS = [
   { id:'A-49', group:'blocks', prov:'PRD', screen:'Confirm your start date', route:'#/startdate',
     assumed:'Confirming the start date is its own required task, and requesting a change moves every other due date with it.',
     resolve:'The future-state workflow carries this as a separate required task that “updates dependent due dates and tasks”. It was missing from the earlier prototype. What nobody has defined: who approves a change, how far it can move, and what happens to work already in flight, such as equipment on order or a badge queued for print.', oi:'' },
-  { id:'A-50', group:'design', prov:'PRD', screen:'Background check', route:'#/bgcheck',
-    assumed:'The background check is launched by the new hire from the portal, with status shown here afterwards.',
-    resolve:'The source has this as a required task with an action, not the passive status card the earlier prototype showed. Country treatments and the status integration are both unconfirmed.', oi:'' },
+  { id:'A-50', group:'design', prov:'MTG', screen:'Track your background check', route:'#/bgcheck',
+    assumed:'The background check is sent at verbal offer, before the portal exists, so the portal shows its status and asks for any missing document. It is not a task, and it is not one of the four things.',
+    resolve:'Process tree (Track my status, and the check moved before the offer is signed, Oct). Replaces the launch-from-the-portal task that Janine’s 6 Nov order still listed. Open: a global mobility status beside it, for hires who need a visa or permit (Global mobility call, 3 Nov).', oi:'' },
   { id:'A-51', group:'content', prov:'CURRENT', screen:'Compliance pack', route:'#/policies',
     assumed:'The reference pack the live process sends today is shown alongside the acknowledgement pack, with its real size.',
     resolve:'A US hire currently receives 28 documents in one bundle whichever state they work in: the handbook, 25 state addenda, the benefits booklet and a compliance service. Across all countries the process serves 416 document instances. Which of those survive pre-Day 1, which move later and which retire is the single largest open decision in this workstream.', oi:'' },
@@ -270,10 +269,9 @@ const ASSUMPTIONS = [
     assumed:'The platform already ships a to-do view: a phase rail, one phase open at a time, a count for that phase only, and filters for Assigned to, Type and Sort by. The prototype now carries both that view and its own task list, so the two can be compared.',
     resolve:'The counting model is the decision. The platform counts within a phase, so a new hire in Get Ready for Day 1 sees a small number and no sense of what is still coming. This prototype counts the whole pre-Day 1 list instead. Which is less alarming has never been tested, and the answer changes the home screen. Also worth noting: the filters exist and cost nothing, so any argument for a simpler list has to say why they are being given up. Two Day 1 to-dos were on screen that no source of ours names, Welcome to MyHR and Complete your enterprise training, and two more in that phase were below the fold.', oi:'' },
 
-  { id:'A-60', group:'blocks', prov:'1:1', screen:'Choose your equipment', route:'#/equipment',
-    assumed:'The new hire picks the computer, not the hiring manager. Most roles resolve from role and location to a single build, which the new hire confirms rather than chooses; some roles carry a genuine choice and get the catalogue with specifications. Both states are drawn, switchable from the prototype controls.',
-    resolve:'This reverses the earlier model, where the manager placed the order and nothing moved until they did. Three things are still open. The approved device catalogue sits with End User Technology and has not been supplied, so the models and specifications on screen are illustrative stand-ins. Nobody has defined which roles resolve to one build and which carry a choice, or who maintains that mapping. And monitor and accessory entitlements per role are undefined, so the accessories form below still offers the same two options to everyone.', oi:'' },
-
+  { id:'A-60', group:'blocks', prov:'MTG', screen:'Pick your laptop preferences', route:'#/equipment',
+    assumed:'The new hire states laptop preferences (computer, accessories, where it ships) if the start is 14 or more days away. The manager chooses and places the order. If nobody has ordered it 10 days before the start, End User Technology orders it.',
+    resolve:'Process tree, settled for the first phase on 28 Oct: both can pick, and the manager orders. This replaces the v6 model where the new hire ordered. Today 25% of managers don’t act in time; next year, presets by role remove the manager step. The device catalogue on screen is still illustrative.', oi:'' },
   { id:'A-57', group:'design', prov:'1:1', screen:'All screens', route:'#/',
     assumed:'Match the live feature set, not the mechanism behind it. Where this prototype mirrors today’s wording or flow, that is a starting point to argue from, not a decision to inherit.',
     resolve:'Stated directly: the trap in this kind of project is “but we do it this way”, and the answer is to open up what is possible rather than design inside the existing box. So the working rule is to list what the live portal does, make sure nothing is quietly dropped, and then decide the how separately. Where this prototype does follow today’s mechanism, such as the accessories incident and its comment thread, that is recorded as observed behaviour with a documented reason, not as a preference.', oi:'' },
@@ -294,20 +292,20 @@ const ASSUMPTIONS = [
      what was said and what is still open, so the proposal can be argued
      with rather than taken as agreed. */
   { id:'A-64', group:'blocks', prov:'MTG', screen:'Task list', route:'#/',
-    assumed:'Only three things before Day 1: confirm the start date, start the background check, choose equipment. Everything else is optional before Day 1, or moves to Day 1 or the first week, and only the three are counted.',
-    resolve:'Said in the Artifacts meeting: the pre-hire experience stays limited to these three, with about three tasks on Day 1 and benefits, compliance and the rest from Day 2 through the first week. The five-or-fewer target is the ceiling, not the plan. Open: whether the limit is strict enough to rule out the optional badge photo and introduction (A-68), and where right to work, which finishes in another system, is counted.', oi:'' },
-  { id:'A-65', group:'blocks', prov:'MTG', screen:'Check your details', route:'#/details',
-    assumed:'Personal details have two halves, both in the portal. Now, optional: check what Equinix already holds from the offer (name, email, home address) and say if anything is wrong. Day 1: add bank, tax, emergency contacts and voluntary self-identification. The new hire never goes to Workday, which stores it behind the portal.',
-    resolve:'Gede, 5 Nov: a screen the new hire cannot act on is not worth showing, and ServiceNow is the only place they interact, so the Workday wording is gone. Before that, the Artifacts meeting had settled that Workday stays the system of record and the payroll fields are entered once. Open: whether bank details entered on Day 1 reach the first payroll run; if not, that one item has to come before Day 1. A correction lands in the coordinator’s Help requests. Janine, 6 Nov: the new hire edits their own details here (a two-way link with Workday is planned), except the personal email, which is their sign-in, so changing it is a request to People Experience.', oi:'OI-20' },
+    assumed:'Four things before Day 1, the process tree’s “Ready for Day 1” line: confirm the start date, complete the profile with tax and banking, I-9 Section 1 or right to work, and the photo with the introduction. Everything else is shown but not counted.',
+    resolve:'Process tree, End Points tab. Replaces the 6 Nov count of start date, background check, I-9 and equipment: the check now starts at verbal offer and the laptop is the manager’s to order. The job description acknowledgement stays dropped.', oi:'' },
+  { id:'A-65', group:'blocks', prov:'MTG', screen:'Complete your profile, tax and banking', route:'#/details',
+    assumed:'One task before the start: check the details Equinix has from the offer, then add tax, banking and emergency contacts in Workday. The personal email is locked, because it is the sign-in. Self-identification questionnaires sit here too, where the country has them.',
+    resolve:'Process tree (Profile, tax and banking; Workday, pre-start), which feeds Payroll-ready by Day 5. Replaces Gede’s 5 Nov plan to collect them in the portal on Day 1. Open: whether the self-identification questionnaires can move to Day 1 (Janine wants pre-hire kept to inspiring things).', oi:'OI-20' },
   { id:'A-66', group:'retired', prov:'MTG', screen:'Policies and notices', route:'#/policies',
     assumed:'Policies and notices open in the first week. Labour notices are acknowledged in ServiceNow, each with its date and time kept for audit. The handbooks are one link to the SharePoint site and one acknowledgment, not a pack of documents. The notices can be read ahead before the start date; nothing can be signed.',
     resolve:'Handbook access starts after the start date, the roughly 35 handbooks need one task rather than one each, and labour notices sit in ServiceNow for the timestamp (all said in the Artifacts meeting). Open: Netherlands and Canada contracts refer to the handbook, which a new hire cannot see before they start; whether acknowledging is mandatory before the next task opens; and which code of conduct and whistleblower acknowledgments can go, since compliance learning already asks for some of them. Retired after the review with Janine: the handbooks are eight acknowledgements nested in one task, not one link and one acknowledgment, and signing goes through DocuSign rather than ServiceNow (A-76).', oi:'' },
   { id:'A-67', group:'retired', prov:'ASSUMED', screen:'Job description', route:'#/jd',
     assumed:'The job description is confirmed on Day 1. It can be read now, and a mismatch can be raised now, rather than waiting for the start date.',
     resolve:'Nothing in the meetings places it. The other reading is to drop it: the offer already describes the role, and a mismatch found on Day 1 is late. Raising a mismatch early is kept because it is the one part of the task that is worth more before the start date than after it. Retired 5 Nov: the job description task is dropped. Janine said it isn’t necessary, when the tree was reviewed; the offer already describes the role.', oi:'' },
-  { id:'A-68', group:'design', prov:'ASSUMED', screen:'Badge photo and introduction', route:'#/intro',
-    assumed:'The badge photo and the introduction are optional before Day 1, with no due date. A photo sent by ten days before the start gets the badge printed in time; without one, the photo is taken at reception.',
-    resolve:'The badge needs print time before Day 1, but the photo is not one of the three things. Two readings are open: keep it optional, as drawn, or make it a Day 1 step and accept that nobody arrives with a printed badge. The introduction loses most of its value after Day 1, which is the case for keeping it optional rather than moving it.', oi:'' },
+  { id:'A-68', group:'design', prov:'MTG', screen:'Photo and introduction', route:'#/intro',
+    assumed:'The photo and the introduction are one of the four things before Day 1. The photo goes into the badge request for non-remote hires, and the manager’s team introduction waits on the introduction.',
+    resolve:'Process tree (Photo & introduction, in the Ready for Day 1 line). Replaces the 6 Nov “when you have time” placement.', oi:'' },
   { id:'A-69', group:'retired', prov:'MTG', screen:'Benefits enrolment', route:'#/',
     assumed:'Benefits enrolment is a first-week task that links straight to the enrolment site for the country: Benefacts countries, and PlanSource in the US, with the same experience either way.',
     resolve:'Q4 scope, per the Sidekick meeting: Benefacts countries whose links are ready by the end of October, and PlanSource for the US once its links are supplied. Darwin countries follow from Q1, quarter by quarter, as they move into Darwin. For now benefits stays a ServiceNow task with a page widget linking to enrolment. Retired after the review with Janine: enrolment moves to Day 2 (A-77). The link-per-country scope above still stands.', oi:'' },
@@ -361,9 +359,9 @@ const ASSUMPTIONS = [
   { id:'A-87', group:'design', prov:'MTG', screen:'Confirm the first-day details', route:'#/hm/logistics',
     assumed:'The manager says when they will first be in the office with the new hire, on Day 1 or a later date. The badge is issued for that day, not for the start date.',
     resolve:'Janine, 6 Nov: not every Day 1 is in person, and someone may first come in weeks later, so security delivers the badge for the day the manager will meet them in person. Open: whether security can take that date from the portal, and what happens when it moves.', oi:'' },
-  { id:'A-88', group:'content', prov:'MTG', screen:'Task list', route:'#/',
-    assumed:'A “Get ready for Day 1” step opens a week before the start date, with the link to sign up for the live online orientation and what to have ready.',
-    resolve:'Janine, 6 Nov: the first day experience is being redesigned with a consulting firm as a digital session of an hour to an hour and a half, so there is preparation to do before Day 1. Open: the sign-up mechanics, and whether it is a step in the readiness tracker (for Brian).', oi:'' },
+  { id:'A-88', group:'retired', prov:'MTG', screen:'Task list', route:'#/',
+    assumed:'A “Get ready for Day 1” step opens a week before the start date, with the link to sign up for the live online orientation.',
+    resolve:'Retired 19 Nov: not in the process tree. Day 1 info and the orientation reminder arrive 3 business days before the start, in “Your first day details”.', oi:'' },
   { id:'A-89', group:'design', prov:'CURRENT', screen:'Sidekick', route:'#/',
     assumed:'Sidekick says it is an AI assistant the first time it speaks, on all three sides: in its greeting and header for the new hire, and with an “AI assistant” label next to its name in Teams for the manager and the coordinator.',
     resolve:'The EU AI Act, Article 50(1), applies from 2 August 2026: people must be told clearly, at the latest at the first interaction, that they are talking to an AI system, unless it is obvious. Equinix hires in the EU (Amsterdam, Frankfurt, Dublin). Open: Legal to confirm the wording, and whether Paradox’s own disclosure covers the new hire before Day 1.', oi:'' },
@@ -413,7 +411,7 @@ const DECIDE_FIRST = [
     why:'416 document instances today, a US bundle of 28 where 24 addenda do not apply, Germany uncovered by the shared EU addendum, and no French French version for the francophone countries. Consolidation is the goal and the privacy notice team owns the files.',
     when:'Start now, because it depends on another team’s calendar.' },
   { ids:['M-04'], head:'Whether software provisioning is in phase one at all',
-    why:'The prototype now assumes one standard list that every new hire’s manager picks from, with no lists by role (Janine, 6 Nov). Still open: an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine.',
+    why:'The process tree has no apps task, so the portal has none (19 Nov). Still open: an application rationalisation is running, and nobody has confirmed whether access attaches to the person or to the machine.',
     when:'Before the manager task list is fixed.' },
   { ids:['M-27','M-10'], head:'What makes a name count',
     why:'Naming somebody is a request, not an assignment, and the calendar booking behind acceptance is unscoped.',
@@ -662,29 +660,21 @@ const READINESS = [
   /* Promoted out of Paperwork to the top level: it is the longest-running
      thing in pre-boarding and the one people most want a status on. */
   { id:'bgcheck', label:'Background check', icon:'shield-check.svg', sys:'Background check provider',
-    owners:'The new hire, HR Operations and the check provider',
+    owners:'The check provider, People Experience and the new hire',
     stages:[
-      { label:'Launched',        note:'Started from the portal, then it runs in the provider’s system.' },
-      { label:'Details given',   note:'The new hire completes the provider’s own form, not this one.' },
+      { label:'Invite sent',     note:'At verbal offer, before the portal exists (process tree).' },
+      { label:'Form completed',  note:'The new hire completes the provider’s own form, not this one.' },
       { label:'Checks running',  note:'Lead time varies by country and by what the role requires.' },
-      { label:'Cleared',         note:'The result comes back to HR Operations, not to this portal.' },
+      { label:'Cleared to start', note:'Criminal and ID checks clear by the Wednesday before the start. If not, the target date moves.' },
     ] },
   { id:'equipment', label:'Equipment', icon:'laptop.svg', sys:'ServiceNow',
     owners:'The manager, the new hire and End User Technology',
     stages:[
-      { label:'Order placed',        note:'The new hire picks the computer and the accessories, and one task orders both.' },
+      { label:'Ordered',             note:'The manager orders from the new hire’s preferences. End User Technology orders 10 days before the start if nobody has.' },
       { label:'With IT Procurement', note:'A request is raised and routed. Lead time runs 5 to 7 business days.' },
       { label:'Built and imaged',    note:'Standard build for the role, then the image is applied.' },
       { label:'Shipped',             note:'To the office address, unless the new hire asked for it at home.' },
       { label:'Waiting on the desk', note:'If this would miss Day 1, a loaner is issued automatically.' },
-    ] },
-  { id:'apps', label:'Applications', icon:'portal-window.svg', sys:'ServiceNow',
-    owners:'The manager and IT',
-    stages:[
-      { label:'Standard list ready', note:'One list for every new hire.' },
-      { label:'Stack confirmed',    note:'The manager confirms the defaults and adds anything role-specific.' },
-      { label:'Licences requested', note:'Each application raises its own request and carries its own status.' },
-      { label:'Active on Day 1',    note:'Access switches on with the start date, not before.' },
     ] },
   /* Badge completion is deliberately not a stage. Security has no integration
      and no place to confirm a badge was printed or collected, so a status here
@@ -708,8 +698,8 @@ const READINESS = [
     owners:'The new hire and HR Operations',
     stages:[
       { label:'Start date confirmed', note:'Every other due date is anchored to it.' },
-      { label:'Details submitted',    note:'Personal record, banking, emergency contact and preferences.' },
-      { label:'Policies acknowledged', note:'The pack the new hire has to read and sign off.' },
+      { label:'Profile, tax and banking', note:'In Workday, before the start, so payroll is ready by Day 5.' },
+      { label:'I-9 Section 1 or right to work', note:'By law, no later than Day 1.' },
     ] },
 ];
 
@@ -732,10 +722,10 @@ const CURRENT_PACK = {
 const CARD_FLOW = {
   managerQuestion: 'Will Jordan travel on behalf of Equinix and need a corporate card?',
   newHireTask: 'Equinix Corporate Card Request',
-  timing: 'Day 2, after you start',
+  timing: 'Day 5, after you start',
   mechanics: [
     'You answer yes or no before Jordan starts.',
-    'If yes, a task appears for Jordan on Day 2: review the user agreement and sign it electronically.',
+    'If yes, a task appears for Jordan on Day 5: the Citibank authorization, signed electronically.',
     'Completed agreements are extracted weekly to Accounts Payable.',
     'Accounts Payable submit the file to Citi, who send Jordan an application link directly.',
   ],
@@ -751,8 +741,8 @@ const CARD_FLOW = {
 /* v4: the existing onboarding videos, rather than new content (A-80). One
    before Day 1, one for Day 1; the rest stay as supporting links. */
 const VIDEOS = {
-  pre:  { title:'Welcome to Equinix, before you start', note:'A welcome video from the onboarding team. Watch it any time before Day 1.' },
-  day1: { title:'Your first day, explained', note:'The existing Day 1 video: orientation, meeting your team and what happens after.' },
+  pre:  { title:'Welcome to Equinix, from Adaire', note:'The existing welcome video. Watch it any time before Day 1.' },
+  week1: { title:'Watch Brandi’s video', note:'For your first week, Days 2 to 5. Day 1 stays light.' },
 };
 
 const COMING_UP = [
@@ -760,12 +750,11 @@ const COMING_UP = [
     note:'You set up your own laptop, and the IT help desk is open all day', icon:'portal-window.svg',
     expl:'Setup instructions land here once your equipment ships, so they arrive as fresh as the box does. There is no booked slot with IT on your first day: you work through it at your own pace, and the help desk is there all day if you get stuck.',
     dnote:'IT would not commit to a designated setup window, so the hour that used to sit in the manager’s Day 1 calendar is gone and this points at the help desk instead.' },
-  { id:'prep', when:'pre', name:'Get ready for Day 1', opens:'1 week before you start', marker:'A-88',
-    note:'Register for your live online orientation, 60 to 90 minutes', icon:'rocket.svg',
-    expl:'Your first day starts with a live online orientation. A week before, this opens with the link to sign up and what to have ready: your laptop charged, a quiet spot, and your sign-in details from the day before.',
-    dnote:'New in v6 (Janine, 6 Nov): orientation is being redesigned with a consulting firm as a live digital session of an hour to an hour and a half, so there is something to prepare. Whether it becomes a step in the readiness tracker is for Brian.' },
-  { id:'firstday', when:'pre', name:'Your first day details', opens:'3 days before you start',
-    note:'Where to go, who to ask for, what to bring', icon:'calendar.svg',
+  { id:'benoverview', when:'pre', only:'US', name:'Benefits overview', opens:'Available now',
+    note:'What you can choose, before enrolment opens on Day 5', icon:'shield-check.svg', marker:'A-77',
+    expl:'PlanSource takes new employees only from Day 4 or 5, so the overview comes first and the enrolment link opens on Day 5.' },
+  { id:'firstday', when:'pre', name:'Your first day details', opens:'3 business days before you start',
+    note:'Where to go, who to ask for, what to bring, and a reminder about orientation', icon:'calendar.svg',
     expl:'Held back until 3 days before you start, so what you see is final.' },
   { id:'signin', when:'pre', name:'Get your Equinix sign-in details', opens:'1 day before you start',
     note:'Your username and how to set your password', icon:'lock.svg',
@@ -774,10 +763,18 @@ const COMING_UP = [
   { id:'phone', when:'day1', name:'Order a phone', opens:'Day 1', note:'If your role needs one', icon:'mobile.svg', marker:'A-40',
     expl:'Ordered on or after Day 1, and only if your role needs one.',
     dnote:'Keeping it out of pre-boarding is a choice, not an oversight.' },
-  { id:'benefits', when:'week1', name:'Benefits enrolment', opens:'Day 2', marker:'A-77',
+  { id:'training', when:'week1', name:'Global compliance training', opens:'Day 2', icon:'file-alt.svg',
+    note:'In SumTotal, separate from the policies',
+    expl:'Its own link, opening on your second day.' },
+  { id:'benefits', when:'week1', only:'nonUS', name:'Benefits enrolment', opens:'Day 2', marker:'A-77',
     note:'One link to the enrolment site for your country', icon:'shield-check.svg',
-    expl:'Opens on your second day. The task links you straight to the enrolment site for your country, so there is nothing to look up and nothing to prepare before then.',
-    dnote:'Q4 scope, per the September meetings: Benefacts countries with links ready by the end of October, and PlanSource for the US. Darwin countries follow from Q1, quarter by quarter.' },
+    expl:'Opens on your second day. The task links you straight to the enrolment site for your country (Benifex in most countries), so there is nothing to look up before then.' },
+  { id:'benefitsUS', when:'week1', only:'US', name:'Benefits enrolment', opens:'Day 5', marker:'A-77',
+    note:'One link to PlanSource', icon:'shield-check.svg',
+    expl:'PlanSource takes new employees from Day 4 or 5, so the link opens on Day 5. The benefits overview is available before you start.' },
+  { id:'nhsurvey', when:'week1', name:'Week 1 survey', opens:'Week 1', icon:'comment-lines.svg',
+    note:'Seven quick questions. Then again on Day 30 and Day 90',
+    expl:'Am I set up for success? Equipment, first-week issues, where to get help, meeting your manager, and the onboarding plan.' },
   { id:'workspace', when:'week1', name:'Complete your at-home workspace setup', opens:'Your first week', note:'', icon:'desktop.svg',
     expl:'No due date. Do it once you’re set up at home.',
     dnote:'Shipped exactly as the live portal has it, so optional behaviour is visible here.' },
@@ -917,11 +914,6 @@ function deviceArt(family) {
   </svg>`;
 }
 
-/* The standard list of apps every new hire's manager picks from (M-04,
-   revised 6 Nov). No lists by role for now: Janine, 6 Nov. Illustrative: the
-   real list is to confirm with End User Technology. */
-const STANDARD_APPS = ['Anaplan', 'Power BI', 'Workday Adaptive Planning', 'Coupa', 'Tableau', 'Alteryx',
-  'Bloomberg Terminal', 'Salesforce'];
 
 /* Day 1 calendar holds for H-08 (M-06) */
 const DAY1_HOLDS = [
@@ -1014,18 +1006,18 @@ ASSUMPTIONS.forEach(a => { a.side = 'nh'; });
 
 const HM_ASSUMPTIONS = [
   /* ---------- Blocks build ---------- */
-  { id:'M-01', side:'hm', group:'retired', prov:'UAT', screen:'Equipment for your new hire', route:'#/hm/computer',
-    assumed:'The manager ORDERS the computer today. This is not a confirmation step, and nothing moves until they do it.',
-    resolve:'Decided: equipment selection moved to the new hire (A-60), so the manager no longer orders anything. This was the heaviest row on the manager’s list and its removal is the single largest saving in the subtraction review. What replaces it is an awareness screen recommended for deletion, because the readiness view already carries the status. Still to write: the exception path, for a role needing a machine outside its mapped build, an order landing after the start date, or a cost needing approval.', oi:'OI-24' },
+  { id:'M-01', side:'hm', group:'design', prov:'MTG', screen:'Choose and order the laptop', route:'#/hm/computer',
+    assumed:'The manager chooses and orders the laptop, from the new hire’s preferences, at least 14 days before the start.',
+    resolve:'Process tree (Choose & order laptop, 28 Oct). Restores the manager’s order that v6 had moved to the new hire. Next year, presets by role remove it.', oi:'' },
   { id:'M-02', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'REVISED. Two numbers, not one: your tasks as a figure in the hero, their tasks as a segmented ring below it, each captioned with whose work it counts. Other teams report status only, with no progress bar.',
     resolve:'One combined percentage could not answer the first question a manager asks, which is whether the number is about them or about the new hire. Other teams came out of the count because they will not be users in this system, so there is nothing to count and the manager does not need their progress task by task. Still undefined: weighting, and what a good score even is.', oi:'OI-02' },
   { id:'M-03', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Readiness view', route:'#/hm/',
     assumed:'The manager sees the new hire’s task names and status, but never task content. Sensitive tasks report status only.',
     resolve:'The walkthrough’s cross-persona visibility principle and the Decision Log’s caution point in different directions, and the persona-by-section visibility matrix is unwritten. This is the conservative reading. Argue it before build.', oi:'OI-03' },
-  { id:'M-04', side:'hm', group:'design', prov:'MTG', screen:'Software stack', route:'#/hm/software',
-    assumed:'The manager picks Jordan’s apps from one standard list that every new hire’s manager sees. There are no lists by role.',
-    resolve:'Janine, 6 Nov: no role lists for now, a standard list for every new hire to pick from (on 5 Nov the prototype had assumed role lists). To confirm with End User Technology: whether that list exists today, and what happens to the requests. Janine also doubts software will be in the first release at all.', oi:'OI-04' },
+  { id:'M-04', side:'hm', group:'retired', prov:'MTG', screen:'Software stack', route:'#/hm/',
+    assumed:'The manager picks the new hire’s apps from one standard list.',
+    resolve:'Retired 19 Nov: there is no apps task in the process tree, and Janine doubted software would be in the first release. Email, Teams and the standard tools come with the laptop.', oi:'OI-04' },
   { id:'M-10', side:'hm', group:'blocks', prov:'1:1', screen:'Team network', route:'#/hm/network',
     assumed:'Naming the new hire’s network is net-new manager work, the only proposal here that adds load instead of removing it.',
     resolve:'Everything else on the disposition review subtracts. The case for it rests on a named new-hire failure, not knowing who to talk to, and on the fact that accepting a suggested list can be close to one tap. It needs an explicit decision.', oi:'OI-26' },
@@ -1099,10 +1091,9 @@ const HM_ASSUMPTIONS = [
   { id:'M-28', side:'hm', group:'design', prov:'1:1', screen:'Readiness view', route:'#/hm/',
     assumed:'Overdue is its own state and it is loud. Anything past its date and still open appears in red above everything else, with a route straight to the task.',
     resolve:'The earlier version of this screen folded overdue items into a general attention list, on the assumption that a manager has enough control to work it out. That is too much credit. Managers are doing their own job alongside this, so a risk to Day 1 has to be unmissable. The open question is the other half of the same balance: how far to go before the screen is telling an experienced manager how to do their job.', oi:'' },
-  { id:'M-30', side:'hm', group:'blocks', prov:'ASSUMED', screen:'Manager tasks', route:'#/hm/',
-    assumed:'The manager’s list runs past the start date: Day 1, first week and first month phases, carrying meeting the new hire, agreeing the 30/60/90 plan, an end-of-week check-in and a first-month review.',
-    resolve:'Everything a manager owed was drawn as pre-Day 1, which made the after-start half of the job invisible. These four are proposed, not sourced: no document says a manager owes them, where the 30/60/90 plan lives, or whether this portal owns anything after the start date at all. The first-month review should be designed alongside the day 30 survey, since they ask the same question a week apart.', oi:'' },
-
+  { id:'M-30', side:'hm', group:'blocks', prov:'MTG', screen:'Manager tasks', route:'#/hm/',
+    assumed:'The manager’s list runs to Day 90: the 30/60/90 plan drafted before Day 1, the Day 1 meeting and the start confirmation, then check-ins at Month 1, Day 60 and Day 90, with the Day 30 and Day 90 surveys.',
+    resolve:'Process tree (pre-Day 1 checklist, 29 Oct; Day 1 and check-in rows). Replaces the proposed first-week check-in and first-month review. Open: where the 30/60/90 plan lives, and how Performance Every Day folds in.', oi:'' },
   { id:'M-31', side:'hm', group:'content', prov:'1:1', screen:'Send a welcome note', route:'#/hm/welcome',
     assumed:'Three tones for the same note: warm, brief and formal. Same facts, different register. Switching replaces the draft; the personal line survives.',
     resolve:'Pre-filling the note is most of the saving, but a pre-filled note that does not sound like the sender is worse than none, which is the argument for tones. Open: whether three is the right number, whether the set should vary by region or seniority, and whether a manager’s choice should be remembered for their next hire.', oi:'' },
@@ -1121,9 +1112,9 @@ const HM_ASSUMPTIONS = [
   { id:'M-35', side:'hm', group:'design', prov:'MTG', screen:'Hiring manager survey', route:'#/hm/survey',
     assumed:'The hiring manager’s Day 1 survey is a task on their list, answered in Teams from Sidekick. The questions are the final survey set’s Day 1 block, less the diverse candidates question. ServiceNow sends them today as a Glint survey, with a reminder.',
     resolve:'Janine, 30 Oct: the survey fires out of ServiceNow today, so it has to be in the tree and in the new experience. Janine, 6 Nov: the diverse candidates question is removed, because it can be measured through reporting (it is reviewed in every QBR). Open: whether answers still land in Glint.', oi:'' },
-  { id:'M-36', side:'hm', group:'design', prov:'MTG', screen:'Equipment for your new hire', route:'#/hm/computer',
-    assumed:'The new hire has the first chance to choose their equipment. If it is still not chosen 14 days before the start date, the order comes to the manager, with whatever the new hire picked so far.',
-    resolve:'Janine, 30 Oct. She also said not to redesign equipment ordering yet, so the manager’s order screen itself is not drawn. Open: role-specific hardware, which ServiceNow asks the manager about today (M-17).', oi:'' },
+  { id:'M-36', side:'hm', group:'design', prov:'MTG', screen:'Choose and order the laptop', route:'#/hm/computer',
+    assumed:'If nobody has ordered the laptop 10 days before the start, End User Technology orders it. The new hire’s preferences, if any, go with it.',
+    resolve:'Process tree (Pre-hire checklist prompt and Choose & order laptop). Replaces the 14-day handover to the manager (Janine, 30 Oct). Overdue manager tasks remind the manager first, then their manager.', oi:'' },
   { id:'M-37', side:'hm', group:'design', prov:'MTG', screen:'Sidekick, hiring manager', route:'#/hm/',
     assumed:'Every manager task can be done from Sidekick in Teams: “Do it” opens the task as a card in the chat, writing to the same record the portal reads. The portal is optional, for seeing everything at once.',
     resolve:'Gede, 5 Nov, from the Sidekick demo: unlike Paradox, Sidekick can act, so a manager should never need to open the portal. Open: whether the real Sidekick can write to every one of these records, and what it shows when a write fails.', oi:'' },
@@ -1155,8 +1146,8 @@ const LINK_ASSUMPTIONS = [
     assumed:'The manager’s confirmed contact details feed the card the new hire sees, and the manager is explicitly told the new hire can reach them before Day 1.',
     resolve:'Pre-hire contact scope is not settled in any source, and nothing on the manager’s side tells them the new hire has their details, or sets any expectation about responding.', oi:'OI-23' },
   { id:'L-04', side:'link', group:'design', prov:'UAT', screen:'Equipment → both sides', route:'#/hm/computer',
-    assumed:'Both sides read one equipment table. The new hire’s computer choice and their accessories order update the same three rows, and the manager reads the result.',
-    resolve:'Confirmed in the live product, though the direction has since reversed: both orders are now the new hire’s (A-60), so this join runs new hire to manager rather than the other way. The value of it is unchanged: “where is my equipment?” is answered identically on both screens, naming the same person and the same unblocking task.', oi:'' },
+    assumed:'Both sides read one equipment table. The new hire’s preferences reach the manager’s order task, and the manager’s order shows on the new hire’s table.',
+    resolve:'Confirmed in the live product. With the process tree the join runs both ways: preferences from the new hire, the order from the manager.', oi:'' },
   { id:'L-06', side:'link', group:'design', prov:'ASSUMED', screen:'Team network → new hire', route:'#/hm/network',
     assumed:'The people the manager names, and the reasons they write, are shown to the new hire verbatim.',
     resolve:'No source says whether the reason is shown to the new hire or kept manager-private. Showing it is what makes the task worth doing at all. It also means the manager is writing for an audience, which changes what they write.', oi:'' },

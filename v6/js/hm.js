@@ -29,20 +29,15 @@ function hmTasks() {
         ? `People Experience moved orientation to finish at ${S.pex.blueprint.until}. What you confirmed no longer matches.`
         : 'Only you know if you’ll be there on Day 1, and who takes your place if not.',
       dispNote:'Kept, but narrowed. The location facts come from the orientation blueprint, not from you.' },
-    // The new hire picks their own machine now (A-60), so this is no longer
-    // an order. What is left is an awareness row, and the case for removing
-    // it outright is the strongest on the list.
-    { id:'computer', label:'Equipment for your new hire', disp:'remove', route:'#/hm/computer',
-      done: S.equipment.submitted, icon:'laptop.svg', marker:'A-60', dueOff:-7, sys:'ServiceNow', srcDue:true,
-      why:'Jordan chooses and orders this themselves. You don’t need to do anything.',
-      dispNote:'Recommended for deletion. The order moved to the new hire, so all this does is tell you it happened, which the readiness view already does.' },
-    { id:'software', label:'Choose Jordan’s apps', disp:'reduce', route:'#/hm/software',
-      done: H.software.confirmed, icon:'portal-window.svg', marker:'M-04',
-      dueOff:-4, sys:'ServiceNow', srcDue:true,
-      why:'Email and Teams come with every laptop. Choose anything else from the standard list.',
-      dispNote:'Exception-only: most managers glance and confirm.' },
+    // Process tree: the new hire states preferences, the manager chooses and
+    // orders, and End User Technology orders at T-10 if nobody has (A-60).
+    { id:'computer', label:'Choose and order the laptop', disp:'keep', route:'#/hm/computer',
+      done: H.equip.ordered, icon:'laptop.svg', marker:'A-60', dueOff:-14, sys:'ServiceNow', srcDue:true,
+      why: S.equipment.submitted ? 'Jordan sent their preferences. Check them and place the order.'
+        : 'Jordan can send preferences first. If nobody orders it 10 days before the start, End User Technology does.',
+      dispNote:'Kept for the first phase (process tree, 28 Oct). Next year, presets by role would remove it.' },
     { id:'buddy', label:'Name who they should meet', disp:'keep', route:'#/hm/buddy',
-      done: !!H.buddy.assigned && H.buddy.accepted, icon:'users-friends.svg', marker:'M-07', dueOff:-2, sys:'Onboarding portal', srcDue:true,
+      done: !!H.buddy.assigned && H.buddy.accepted, icon:'users-friends.svg', marker:'M-07', dueOff:-14, sys:'Onboarding portal', srcDue:true,
       why:'One Onboarding Buddy in their function, and anyone else they should meet early.',
       dispNote:'Two screens merged into one, and the second named role was dropped. Your judgement, so it stays, but nothing is suggested for you.' },
     { id:'calendar', label:'Plan their first day', disp:'automate', route:'#/hm/calendar',
@@ -54,8 +49,8 @@ function hmTasks() {
       why:'The first thing Jordan hears from you rather than from a system.',
       dispNote:'Written for you. Reduced to adding a personal line and pressing send.' },
   ];
-  list.splice(3, 0, { id:'card', label:'Will Jordan need a corporate card?', disp:'undecided', route:'#/hm/card',
-    done: H.card.needed !== null, icon:'banking.svg', marker:'M-19', dueOff:-7, sys:'Accounts Payable', marker2:'M-23',
+  list.splice(2, 0, { id:'card', label:'Will Jordan need a corporate card?', disp:'undecided', route:'#/hm/card',
+    done: H.card.needed !== null, icon:'banking.svg', marker:'M-19', dueOff:-14, sys:'Accounts Payable', marker2:'M-23',
     why:'One question, and only if they will travel on behalf of Equinix.',
     dispNote:'Was undecided while the source row was truncated. Now specified, and it really is one tap.' });
   if (introReady || H.intro.forwarded) {
@@ -64,6 +59,12 @@ function hmTasks() {
       why:'Jordan wrote it and agreed you can share it. It goes nowhere until you send it.',
       dispNote:'Arrived because Jordan completed their side. Nothing is posted automatically.' });
   }
+  // The plan draft is in the tree's pre-Day 1 checklist (29 Oct). It has no
+  // screen of its own: it is drafted with the Companion Guide and marked in Sidekick.
+  list.push({ id:'plan', label:'Draft their 30/60/90 plan', disp:'keep', route:null, chat:true,
+    done: H.plan.drafted, icon:'list-tasks.svg', marker:'M-30', dueOff:-14, sys:'Companion Guide',
+    why:'Start from the Companion Guide. You agree it with Jordan in their first week.',
+    dispNote:'In the process tree’s pre-Day 1 checklist. Where the plan lives is still open.' });
   // Everything above is pre-Day 1. What a manager owes after the start date
   // has never been written down as tasks, so these are proposed rather than
   // sourced, and marked as such on screen (M-30).
@@ -76,18 +77,30 @@ function hmTasks() {
       done: H.survey.sent, icon:'comment-lines.svg', marker:'M-35', dueOff:0, sys:'Teams',
       why:'Eight questions about recruiting. Sidekick brings them to you in Teams.',
       dispNote:'The same questions ServiceNow sends today as a Glint survey, now on the list with everything else.' },
-    { id:'plan', label:'Agree their 30, 60 and 90 day plan', disp:'keep', route:null, phase:2,
-      done:false, icon:'list-tasks.svg', marker:'M-30', dueOff:4, sys:'Not decided',
-      why:'The goals for each checkpoint, agreed with Jordan, not only sent to them.',
-      dispNote:'Nothing in any source says where this plan lives or whether the portal owns it.' },
-    { id:'week1', label:'End of first week check-in', disp:'keep', route:null, phase:2,
-      done:false, icon:'comment-lines.svg', marker:'M-30', dueOff:5, sys:'Outlook',
-      why:'Half an hour to find what is not working, while it is still easy to fix.',
-      dispNote:'Proposed. A recurring hold would make this a habit rather than a task.' },
-    { id:'month1', label:'First month review', disp:'keep', route:null, phase:3,
-      done:false, icon:'flag.svg', marker:'M-30', dueOff:30, sys:'Outlook',
-      why:'The first full review of whether the plan you agreed is the right one.',
-      dispNote:'Proposed. Lines up with the day 30 survey, so the two should be designed together.' },
+    { id:'started', label:'Confirm Jordan started today', disp:'keep', route:null, chat:true, phase:1,
+      done: H.started, icon:'check-circle.svg', marker:'M-30', dueOff:0, sys:'Sidekick',
+      why:'One tap in Sidekick moves Jordan to Hired. If you are away, your named stand-in confirms.',
+      dispNote:'Process tree (28 Oct): the manager confirms the start, not People Experience.' },
+    { id:'month1', label:'Month 1 check-in', disp:'keep', route:null, phase:2,
+      done:false, icon:'comment-lines.svg', marker:'M-30', dueOff:30, sys:'Outlook',
+      why:'How the first month went, against the plan you agreed.',
+      dispNote:'From the process tree.' },
+    { id:'survey30', label:'Day 30 survey', disp:'keep', route:null, phase:2,
+      done:false, icon:'comment-lines.svg', marker:'M-35', dueOff:30, sys:'Teams',
+      why:'A few questions on how the first month went. Sidekick brings them to you.',
+      dispNote:'From the final survey set, as the process tree has it.' },
+    { id:'day60', label:'60-day check-in', disp:'keep', route:null, phase:3,
+      done:false, icon:'comment-lines.svg', marker:'M-30', dueOff:60, sys:'Outlook',
+      why:'Halfway to Day 90. Finalise their priorities.',
+      dispNote:'From the process tree.' },
+    { id:'day90', label:'90-day check-in', disp:'keep', route:null, phase:3,
+      done:false, icon:'flag.svg', marker:'M-30', dueOff:90, sys:'Outlook',
+      why:'The end of onboarding.',
+      dispNote:'From the process tree.' },
+    { id:'survey90', label:'Day 90 survey', disp:'keep', route:null, phase:3,
+      done:false, icon:'comment-lines.svg', marker:'M-35', dueOff:90, sys:'Teams',
+      why:'The last onboarding survey. Sidekick brings it to you.',
+      dispNote:'From the final survey set, as the process tree has it.' },
   );
   return list.map(t => Object.assign({ phase:0 }, t));
 }
@@ -95,7 +108,7 @@ function hmTasks() {
 /* The manager's own timeline, mirroring the new hire's phase strip. Their
    work has always been drawn as one flat pre-Day 1 list, which is why the
    after-start half of the job was invisible. */
-const HM_PHASES = ['Before Day 1', 'Day 1', 'First week', 'First month'];
+const HM_PHASES = ['Before Day 1', 'Day 1', 'By Day 30', 'Days 60 to 90'];
 
 /* The same device as the new hire's hero strip, so the two sides read as one
    product (M-30). */
@@ -119,9 +132,8 @@ function hmPhaseStrip() {
   </div>`;
 }
 
-/* The manager's own tasks. Equipment is listed for the manager to see, but it
-   is the new hire's task, so no count of "yours" includes it. */
-function hmMine() { return hmTasks().filter(t => t.id !== 'computer'); }
+/* The manager's own tasks. Since the process tree, the laptop order is one of them. */
+function hmMine() { return hmTasks(); }
 function hmPhaseCounts() {
   const t = hmMine();
   return HM_PHASES.map((_, i) => {
@@ -194,7 +206,7 @@ function hmBlockers() {
       action:'See status', route:'#/hm/buddy', marker:'M-27', short:'wait for the Onboarding Buddy to accept' });
   }
   if (S.hm.card.needed === null && days <= 21) {
-    out.push({ sev:'low', text:'The corporate card question is unanswered. If Jordan will travel, they need the agreement ready to sign on their second day.',
+    out.push({ sev:'low', text:'The corporate card question is unanswered. If Jordan will travel, they sign the Citibank authorization on Day 5.',
       action:'Answer it', route:'#/hm/card', short:'answer the corporate card question' });
   }
   return out;
@@ -205,47 +217,40 @@ function hmBlockers() {
    tasks, and the manager's only move is to ask. */
 function hmWaitingOnNewHire() {
   const out = [];
-  const days = daysToStart();
-  if (!S.equipment.submitted) {
-    out.push({ text: S.equipment.deviceConfirmed
-      ? 'Equipment is chosen but the order has not been submitted yet.'
-      : 'Equipment has not been chosen yet. Delivery takes 5 to 7 working days.',
-      marker:'M-24' });
-  }
-  if (!S.bgcheck.launched) out.push({ text:'The background check has not been started. It takes the longest of all the steps.' });
+  if (profileStatus() !== 'done') out.push({ text:'Profile, tax and banking is not done yet. Payroll needs it.' });
+  if (rtwStatus() !== 'done') out.push({ text:'Their part of the right to work check is not done yet. By law it is due by Day 1.' });
+  if (introStatus() !== 'done') out.push({ text:'Their photo and introduction are not in yet. Your team introduction waits on them.' });
   if (!S.startdate.confirmed && !S.startdate.changeRequested) out.push({ text:'The start date is not confirmed yet, so every other date is still provisional.' });
   if (S.startdate.changeRequested) out.push({ text:`Jordan has asked to start on ${esc(S.startdate.requestedDate)} instead. People Experience has the request.`, marker:'L-11' });
   return out;
 }
 
 const NH_TASK_LABELS = {
-  startdate:'Confirm the start date', bgcheck:'Start the background check',
-  rtw:'Right to work, their part', equipment:'Choose equipment', details:'Bank, tax and emergency contacts', check:'Checked their details',
-  intro:'Badge photo and a hello',
+  startdate:'Confirm the start date', profile:'Profile, tax and banking',
+  rtw:'Right to work, their part', intro:'Photo and introduction',
+  equipment:'Laptop preferences', bgcheck:'Background check',
   policies:'Required policies',
 };
 
 /* New hire progress as the manager may see it (M-03 / L-05): names and
-   status only, never content, sensitive items marked. v4 groups it the way
-   the new hire's own journey is grouped (A-64): the three things before
-   Day 1 are counted, the rest are shown with when they open. */
+   status only, never content, sensitive items marked. Grouped the way the
+   new hire's own journey is (A-64): the four things before Day 1 are counted. */
 function nhProgressRows() {
   return [
     { key:'startdate', group:'pre', label:NH_TASK_LABELS.startdate, status:startdateStatus() },
-    { key:'bgcheck', group:'pre', label:NH_TASK_LABELS.bgcheck, status:bgcheckStatus(), sensitive:true,
-      hidden:'You can see the check is running. What it contains is never shown to you.' },
+    { key:'profile', group:'pre', label:NH_TASK_LABELS.profile, status:profileStatus(), sensitive:true,
+      hidden:'Private to Jordan. You see only that it is done.' },
     { key:'rtw', group:'pre', label:NH_TASK_LABELS.rtw, status:rtwStatus(), sensitive:true,
       hidden:'You see that it is done. The documents are never shown to you.' },
-    { key:'equipment', group:'pre', label:NH_TASK_LABELS.equipment, status:equipmentStatus() },
-    { key:'check', group:'optional', label:NH_TASK_LABELS.check, status:checkStatus() },
-    { key:'intro', group:'optional', label:NH_TASK_LABELS.intro, status:introStatus() },
-    { key:'details', group:'day1', label:NH_TASK_LABELS.details, status:detailsStatus(), sensitive:true,
-      hidden:'Private to Jordan. You see only that it is done.' },
+    { key:'intro', group:'pre', label:NH_TASK_LABELS.intro, status:introStatus() },
+    { key:'equipment', group:'optional', label:NH_TASK_LABELS.equipment, status:equipmentStatus() },
+    { key:'bgcheck', group:'optional', label:NH_TASK_LABELS.bgcheck, status:bgcheckStatus(), sensitive:true,
+      hidden:'You can see the check is running. What it contains is never shown to you.' },
     { key:'policies', group:'week1', label:NH_TASK_LABELS.policies, status:policiesStatus(), sensitive:true,
       hidden:'Which notices were acknowledged, and when, is recorded for audit, not shown to you.' },
   ];
 }
-const NP_GROUPS = { pre:'Before Day 1', optional:'When you have time', day1:'Day 1', week1:'First week' };
+const NP_GROUPS = { pre:'Before Day 1', optional:'Also before Day 1', day1:'Day 1', week1:'First week' };
 
 /* ---------- Everyone else, as one strip (M-02) ----------
    Not a pie: three third-party items are three equal thirds, and a pie of
@@ -671,17 +676,20 @@ function renderHmLogistics() {
    H-04: order the computer  (M-01: an order, not a confirmation)
    ============================================================ */
 function renderHmComputer() {
-  const E = S.equipment;
+  const E = S.equipment, H = S.hm;
   const dev = deviceById(E.device) || DEVICE_CATALOG[0];
-  const ordered = E.submitted;
+  const ordered = H.equip.ordered, prefs = E.submitted;
+  const accs = E.choice === 'more' ? ACCESSORY_OPTIONS.filter(o => E.items[o.id]).map(o => o.label) : [];
 
   return `
   <div class="page">
-    ${hmCrumbs('Equipment for your new hire')}
+    ${hmCrumbs('Choose and order the laptop')}
     <div class="task-head" data-assume="A-60">
-      <h1>Equipment for your new hire ${am('A-60')}</h1>
-      <p class="why">Jordan chooses their own computer and places the order. There is nothing here for you to do.</p>
-      ${dispBanner('remove', 'This screen is the argument for deleting the task. The order moved to the new hire, so what is left tells you something happened that the readiness view already shows. Keeping it means a manager opens a task to read a status.', 'M-01')}
+      <h1>Choose and order the laptop ${am('A-60')}</h1>
+      <p class="why">${prefs ? 'Jordan sent their preferences. Check them and place the order.'
+        : 'Jordan hasn’t sent preferences yet. You can wait, or order the standard build now.'}
+      If nobody orders it 10 days before the start, End User Technology orders it. ${am('M-36')}</p>
+      ${dispBanner('keep', 'Kept for the first phase (process tree, 28 Oct): the new hire states preferences and you order. Next year, presets by role would remove this task.', 'M-01')}
     </div>
 
     ${equipmentTable(true)}
@@ -689,93 +697,29 @@ function renderHmComputer() {
     <div class="task-shell mt24">
       <div class="wiz-body">
         <div class="form-sec">
-          <h2>What Jordan chose</h2>
-          ${E.deviceConfirmed ? `
-            <div class="dev-card fixed">
-              <div class="dev-art ${dev.family}">${deviceArt(dev.family)}</div>
-              <div class="dev-body">
-                <div class="dev-h"><div>
-                  <div class="dev-name">${dev.name}</div>
-                  <div class="dev-sub">${dev.sub}</div>
-                </div></div>
-                <dl class="dev-specs">
-                  ${dev.specs.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
-                </dl>
-                <div class="dev-lead ${dev.leadOk ? '' : 'late'}">
-                  ${ic(dev.leadOk ? 'check-circle.svg' : 'exclamation-triangle.svg','sm')}${dev.lead}
-                </div>
-              </div>
+          <h2>${prefs ? 'What Jordan asked for' : 'The standard build'}</h2>
+          <div class="dev-card fixed">
+            <div class="dev-art ${dev.family}">${deviceArt(dev.family)}</div>
+            <div class="dev-body">
+              <div class="dev-h"><div>
+                <div class="dev-name">${dev.name}</div>
+                <div class="dev-sub">${dev.sub}</div>
+              </div></div>
+              <dl class="dev-specs">
+                ${dev.specs.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
+              </dl>
             </div>
-            <p class="sec-note mt12">${ordered
-              ? `Ordered. It ships to ${shipDest()}.`
-              : 'Chosen, not yet ordered. The order goes in when Jordan submits the task.'}</p>
-          ` : `
-            <div class="blocked-state">
-              ${ic('hourglass.svg','xl')}
-              <div>
-                <b>Jordan has not chosen yet.</b>
-                <p>Jordan chooses first, and nothing is waiting on you. If nothing is chosen
-                14 days before they start, the order comes to you, with any choices Jordan has made. ${am('M-36')}</p>
-              </div>
-            </div>`}
-        </div>
-
-        <div class="form-sec pnote" data-assume="M-17">
-          <h2>When a manager would step in ${am('M-17')}</h2>
-          <p class="sec-note">Three cases were raised and none is specified: a role that needs a machine outside
-          its mapped build, an order that would land after the start date, and a cost that needs approving.
-          Until those are written, an exception path cannot be drawn, so this screen shows none.</p>
+          </div>
+          ${prefs ? `<p class="sec-note mt12">Accessories: headset${accs.length ? ', ' + accs.join(', ').toLowerCase() : ''}.
+            Ships to ${shipDest()}.</p>` : ''}
+          <p class="sec-note mt12">Email, Teams and the standard tools come with every laptop.</p>
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic('info-circle.svg','sm')}Nothing on this screen is yours to do</span>
-        <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ============================================================
-   H-05: confirm the application stack (M-04)
-   One standard list for every new hire (M-04, 6 Nov): email and Teams come
-   with the laptop, and the manager picks anything else from the list.
-   ============================================================ */
-function hmAppsChosen() { return S.hm.software.added.slice(); }
-function renderHmSoftware() {
-  const A = S.hm.software;
-  const n = hmAppsChosen().length;
-  return `
-  <div class="page">
-    ${hmCrumbs('Choose Jordan’s apps')}
-    <div class="task-head" data-assume="M-04">
-      <h1>Choose Jordan’s apps ${am('M-04')}</h1>
-      <p class="why">Email, Teams and the standard tools come with every laptop. Pick anything else Jordan needs on their first day.</p>
-      ${dispBanner('reduce', 'Exception-only: one standard list for every new hire, and most managers pick a few or none.', 'M-04')}
-    </div>
-
-    <div class="task-shell">
-      <div class="wiz-body">
-        <div class="form-sec">
-          <h2>The standard list for new hires</h2>
-          <p class="sec-note">Each one becomes its own request, with that app’s usual approval and wait time.</p>
-          <div class="acc-grid">
-            ${STANDARD_APPS.map(a => `
-              <label class="check acc">
-                <input type="checkbox" data-sw="${esc(a)}" ${A.added.includes(a) ? 'checked' : ''}>
-                <span>${a}</span>
-              </label>`).join('')}
-          </div>
-          <div class="callout pnote mt16">
-            ${ic('question-circle.svg')}
-            <div><b>No lists by role, for now</b> (Janine, 6 Nov). Whether this list exists today, and what happens to
-            these requests, is to confirm with End User Technology. Software may not be in the first release at all. ${am('M-04')}</div>
-          </div>
-        </div>
-      </div>
-      <div class="wiz-foot">
-        <span class="saved-state">${ic('save.svg','sm')}${n ? `${n} app${n === 1 ? '' : 's'} picked` : 'No apps added to the standard tools'}</span>
+        <span class="saved-state">${ic(ordered ? 'check-circle.svg' : 'clock.svg','sm')}${ordered ? 'Ordered. The IT help desk has it as INC6369627.' : `Due ${dueText(addDays(startDate(), -14))}`}</span>
         <span class="missing"></span>
-        <button class="btn primary" id="swConfirm">${A.confirmed ? 'Update' : 'Confirm the apps'}</button>
+        ${ordered ? `<button class="btn secondary" data-goto="#/hm/">Back to your hires</button>`
+          : `<button class="btn primary" id="hmEqOrder">Place the order</button>`}
       </div>
     </div>
   </div>`;
@@ -1019,8 +963,8 @@ function renderHmCalendar() {
    H-10: welcome email
    ============================================================ */
 const WELCOME_TODO = {
-  details:'add your bank, tax and emergency contacts', rtw2:'bring your right to work documents',
-  policies:'acknowledge the required policies',
+  profile:'complete your profile, tax and banking', intro:'add a photo and an introduction',
+  rtw2:'bring your right to work documents', policies:'acknowledge the required policies',
 };
 function renderHmWelcome() {
   const W = S.hm.welcome;
@@ -1032,8 +976,8 @@ function renderHmWelcome() {
   const join = (a, last = ' and ') => a.length > 1 ? a.slice(0, -1).join(', ') + last + a[a.length - 1] : a[0];
   const firstWeek = [
     `Before you start: ${join(taskList().map(say))}`,
-    `On your first day: ${join(day1Items().map(say))}`,
-    `In your first week: ${join(['enrol in benefits on Day 2', ...week1Items().map(say)])}`,
+    ...(day1Items().length ? [`On your first day: ${join(day1Items().map(say))}`] : []),
+    `In your first week: ${join([S.country === 'JP' ? 'enrol in benefits on Day 2' : 'enrol in benefits on Day 5', ...week1Items().map(say)])}`,
   ];
   const sysList = `<b>What to expect before and after you start</b>
           <ol>${firstWeek.map(f => `<li>${f}</li>`).join('')}</ol>`;
@@ -1235,7 +1179,7 @@ function renderHmCard() {
           </ol>
           <div class="callout soft">
             ${ic('info-circle.svg')}
-            <div><b>Note the timing.</b> Jordan’s part is on <b>Day 2</b>, after they start. It already shows on their
+            <div><b>Note the timing.</b> Jordan’s part is on <b>Day 5</b>, after they start. It already shows on their
             portal as an upcoming task, so they know it is in progress. ${am('L-10')}</div>
           </div>
           <div class="callout pnote">
@@ -1253,7 +1197,7 @@ function renderHmCard() {
         </div>` : ''}
       </div>
       ${C.needed !== null ? `<div class="wiz-foot">
-        <span class="saved-state">${ic('check-circle.svg','sm')}Answered. ${C.needed ? 'Jordan will sign the agreement on Day 2' : 'Nothing scheduled'}</span>
+        <span class="saved-state">${ic('check-circle.svg','sm')}Answered. ${C.needed ? 'Jordan will sign the Citibank authorization on Day 5' : 'Nothing scheduled'}</span>
         <span class="missing"></span>
         <button class="btn secondary" data-goto="#/hm/">Back to your hires</button>
       </div>` : ''}
@@ -1322,8 +1266,8 @@ const SUBTRACTION = [
     { task:'Receive portal login credentials', today:'None. This is not in the current manager checklist',
       why:'A manager is an existing employee who already signs in to Equinix systems. The row records itself as inferred from workflow analysis rather than drawn from a source, and its open question reads as new-hire sign-in logic applied to the wrong person.',
       cond:'Confirm no system access or licence set-up is hiding behind the row.', marker:'M-11' },
-    { task:'Order the computer', today:'Gone. The new hire chooses and orders their own machine',
-      why:'This was the heaviest row on the list and the largest single saving: the manager used to place the order, and nothing moved until they did. Equipment selection is now a new hire task, so the manager step has no work left in it.',
+    { task:'Order the computer', today:'The manager orders it, from the new hire’s preferences (process tree, first phase)',
+      why:'Still the heaviest row on the list. Next year, presets by role remove it. Until then the new hire’s preferences make the order a quick check, and End User Technology orders at T-10.',
       cond:'An exception path still has to be written: a role needing a machine outside its mapped build, an order landing after the start date, or a cost that needs approving. None of the three is specified.', marker:'M-01' },
     { task:'Provide the new hire’s username', today:'Manager obtains and passes on credentials, two checklist items',
       why:'Already superseded: the candidate receives their credential email directly and creates their own password.',
@@ -1344,9 +1288,6 @@ const SUBTRACTION = [
       cond:'Pre-fill from the employee record.', marker:'M-18' },
   ]},
   { group:'reduce', title:'Reduce to exception-only: visible, but most managers should never touch it', rows:[
-    { task:'Choose the new hire’s apps', today:'Heavy. The manager requests access and software by hand',
-      why:'One standard list for every new hire, picked from in one go.',
-      cond:'A standard list agreed with End User Technology. No lists by role for now.', marker:'M-04' },
     { task:'Review and personalise the welcome email', today:'Manual. Written from scratch',
       why:'Pre-filled boilerplate plus a personal line is most of the saving.',
       cond:'Boilerplate authored and approved; the first-week block generated from the new hire’s real task list.', marker:'M-08' },
@@ -1373,7 +1314,7 @@ const SUBTRACTION = [
   ]},
   { group:'undecided', title:'Undecided: not enough is known to decide', rows:[
     { task:'Confirm corporate card requirement, NOW SPECIFIED', today:'Was not established; the source row was truncated with seven attributes blank',
-      why:'Resolved. It is a manager yes/no, but framed around travel rather than entitlement, and the new hire’s half is an e-signature on Day 2. Built, and it belongs under Keep now.',
+      why:'Resolved. It is a manager yes/no, but framed around travel rather than entitlement, and the new hire’s half is an e-signature on Day 5. Built, and it belongs under Keep now.',
       cond:'Nothing blocking. Two details still open: the task’s final name in the portal, and whether cost centre and approver are captured with the yes.', marker:'M-19' },
     { task:'Secure office location and seating', today:'Manual. Determine office seating if applicable',
       why:'The design walkthrough calls this a placeholder and suggests it could probably be removed from the manager’s tasks.',
@@ -1401,7 +1342,7 @@ function renderHmSubtraction() {
     <h1>What should stop existing</h1>
     <p class="flow-sub">The goal on this side is to reduce what a manager is asked to do, not to organise it better.
     Every manager task carries a verdict and the condition that has to hold for it. <b>${removed} tasks are recommended
-    for removal or automation outright</b>; four more should shrink to exception-only. Showing all of them as equal
+    for removal or automation outright</b>; ${(counts.reduce||0)} more should shrink to exception-only. Showing all of them as equal
     peers would misrepresent the intent. ${am('M-09')}</p>
 
     <div class="disp-legend">
@@ -1446,16 +1387,14 @@ function handoffRows() {
         ? 'Office details changed. The manager’s confirmation is out of date and the task has reopened'
         : 'Office details unchanged. The manager is confirming what’s current',
       hmRoute:'#/hm/logistics', nhRoute:'#/' },
-    { dir:'nh', from:'Choose your equipment', to:'Equipment status table', marker:'L-04',
-      done: S.equipment.deviceConfirmed,
-      state: S.equipment.deviceConfirmed
-        ? `Computer chosen by Jordan, and Priya’s table names it`
-        : 'Not chosen yet, and Priya sees it’s with Jordan',
-      hmRoute:'#/hm/computer', nhRoute:'#/equipment' },
-    { dir:'nh', from:'Equipment order submitted', to:'Readiness view + equipment table', marker:'L-04',
+    { dir:'nh', from:'Laptop preferences', to:'The manager’s laptop task', marker:'L-04',
       done: S.equipment.submitted,
-      state: S.equipment.submitted ? 'Ordered, visible to Priya' : 'Not ordered, and Priya sees it waiting on Jordan',
-      hmRoute:'#/hm/', nhRoute:'#/equipment' },
+      state: S.equipment.submitted ? 'Sent, and Priya sees them on her laptop task' : 'Not sent yet. Priya can order the standard build',
+      hmRoute:'#/hm/computer', nhRoute:'#/equipment' },
+    { dir:'hm', from:'Choose and order the laptop', to:'Jordan’s equipment table', marker:'L-04',
+      done: S.hm.equip.ordered,
+      state: S.hm.equip.ordered ? 'Ordered by Priya, and Jordan sees the order' : 'Not ordered yet',
+      hmRoute:'#/hm/computer', nhRoute:'#/equipment' },
     { dir:'hm', from:'Assign an Onboarding Buddy', to:'Jordan’s “Your people” card',
       done: !!buddy,
       state: !buddy ? 'No Onboarding Buddy named, and Jordan’s card says so' : `${buddy.name} assigned and visible to Jordan now`,
@@ -1483,10 +1422,10 @@ function handoffRows() {
       done: H.contactConfirmed,
       state: H.contactConfirmed ? 'Confirmed, and the number is shown to Jordan' : 'Unconfirmed, so Jordan sees the record value, which may be stale',
       hmRoute:'#/hm/', nhRoute:'#/' },
-    { dir:'hm', from:'Corporate card answer', to:'Day 2 card agreement', marker:'L-10',
+    { dir:'hm', from:'Corporate card answer', to:'Day 5 Citibank authorization', marker:'L-10',
       done: H.card.needed !== null,
       state: H.card.needed === null ? 'Unanswered, so Jordan sees nothing about a card'
-        : H.card.needed ? 'Yes, and the agreement is on Jordan’s list for Day 2'
+        : H.card.needed ? 'Yes, and the authorization is on Jordan’s list for Day 5'
         : 'No, so nothing is created and Jordan never sees the subject',
       hmRoute:'#/hm/card', nhRoute:'#/' },
     { dir:'nh', from:'Start date confirmation', to:'Readiness view + every due date', marker:'L-11',
@@ -1564,7 +1503,6 @@ const HM_ROUTES = {
   '#/hm/': renderHmHome,
   '#/hm/logistics': renderHmLogistics,
   '#/hm/computer': renderHmComputer,
-  '#/hm/software': renderHmSoftware,
   '#/hm/buddy': renderHmMeet,
   '#/hm/calendar': renderHmCalendar,
   '#/hm/welcome': renderHmWelcome,
@@ -1607,19 +1545,12 @@ function bindHm(route) {
     });
   }
 
-  // #/hm/computer has no bindings any more: the order moved to the new hire
-  // (A-60), so the manager's screen is read-only.
-
-  if (route === '#/hm/software') {
-    $$('[data-sw]').forEach(cb => cb.addEventListener('change', () => {
-      const a = cb.dataset.sw;
-      H.software.added = cb.checked ? [...H.software.added, a] : H.software.added.filter(x => x !== a);
-      save(); rerender();
-    }));
-    const c = $('#swConfirm');
-    if (c) c.addEventListener('click', () => {
-      H.software.confirmed = true; save(); rerender();
-      toast(`Apps confirmed: ${hmAppsChosen().length} for Jordan’s first day.`, 'check-circle.svg');
+  if (route === '#/hm/computer') {
+    const o = $('#hmEqOrder');
+    if (o) o.addEventListener('click', () => {
+      if (!S.equipment.submitted) { S.equipment.deviceConfirmed = true; S.equipment.device = S.equipment.device || DEVICE_CATALOG[0].id; S.equipment.choice = S.equipment.choice || 'headset'; }
+      H.equip.ordered = true; save(); rerender();
+      toast('Laptop ordered. The IT help desk has it as INC6369627.', 'check-circle.svg');
     });
   }
 
@@ -1717,7 +1648,7 @@ function bindHm(route) {
       S.hm.card.needed = r.dataset.card === 'yes';
       save(); rerender();
       toast(S.hm.card.needed
-        ? 'Recorded. The agreement is now on Jordan’s list for Day 2.'
+        ? 'Recorded. The Citibank authorization is now on Jordan’s list for Day 5.'
         : 'Recorded. Jordan is not asked about a card at all.', 'check-circle.svg');
     }));
   }

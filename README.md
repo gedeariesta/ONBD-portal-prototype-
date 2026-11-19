@@ -11,7 +11,7 @@ register row.
 | Sources | `index.html`, `css/`, `js/` | `v2/` | `v3/` | `v4/` | `v5/` | `v6/` |
 | Single file | `dist/equinix-preday1-prototype.html` | `…-v2.html` | `dist/equinix-preday1-portals-v3.html` | `dist/equinix-preday1-portals-v4-ai-forward.html` | `dist/equinix-preday1-portals-v5-paradox-teams.html` | `…-v6-servicenow-rethought.html` |
 | Sides | New hire | New hire | New hire **and** hiring manager | New hire, manager, coordinator, plus Sidekick | Same as v4, with Sidekick for the coordinator too | Same as v5, plus the buddy's ask |
-| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 147 · 121 live · 26 retired, plus 52 ServiceNow features |
+| Register | 28 assumptions | 47 · 46 marked · 1 retired | 74 · 73 marked (47 NH · 18 HM · 9 connection) | 135 · 118 live · 17 retired | 138 · 121 live · 17 retired | 147 · 120 live · 27 retired, plus 52 ServiceNow features |
 | Provenance | all inferred | UAT / 1:1 / PRIOR / ASSUMED | same, plus a side filter | adds `MTG` (the September 2026 meetings) | same as v4 | adds the ServiceNow walkthrough (January 2026) and the 30 Oct review |
 
 A clickable, first-pass prototype of the Equinix new-hire pre-boarding portal
@@ -39,9 +39,9 @@ what it does today, where it lives in the prototype now, and a verdict:
 | Verdict | Count |
 |---|---|
 | Rethought here | 28 |
-| Folded in | 6 |
+| Folded in | 7 |
 | Proposed to drop | 4 |
-| Open question (each names who decides) | 6 |
+| Open question (each names who decides) | 5 |
 | Not drawn here (after the first week, or one team's content) | 8 |
 
 44 of them are pinned to their screen by a green `SN-nn` marker. The
@@ -169,6 +169,37 @@ put every word "through a global translation layer". The rules are in
 - **Not built, flagged:** phone layouts for the new hire's screens (A-28,
   now the largest open gap), a Japanese portal for a Japan hire (only the
   policies are translated), and a remote option for I-9 Section 2.
+
+**What the process tree alignment changed (19 Nov).** Every process in the
+portal now follows the reimagined process tree. Where the two disagreed, the
+tree won.
+- **The four things** are the tree's "Ready for Day 1" line: confirm the
+  start date, complete the profile with tax and banking, I-9 Section 1 or
+  right to work, and the photo with the introduction (A-64).
+- **Profile, tax and banking** happen before the start, in Workday: check
+  the details here, then "Open Workday". Payroll is ready by Day 5 (A-65).
+- **The background check** is sent at verbal offer, so the portal shows its
+  status and asks for a missing document. It is no longer a task (A-50).
+- **The laptop.** The new hire sends preferences if the start is 14 or more
+  days away; the manager chooses and orders. End User Technology orders at
+  T-10 if nobody has (A-60, M-01, M-36).
+- **The manager's list** runs to Day 90: the 30/60/90 plan drafted before
+  Day 1 with the Companion Guide, "Did Jordan start today?" on Day 1, check-ins
+  at Month 1, Day 60 and Day 90, and the Day 30 and Day 90 surveys (M-30).
+  The apps task is gone (M-04 retired); email, Teams and the standard tools
+  come with the laptop.
+- **Dates.** Benefits enrolment on Day 5 in PlanSource (US) with an overview
+  before the start, or Day 2 elsewhere. The Citibank authorization on Day 5.
+  Global compliance training on Day 2, in SumTotal. Brandi's video moves to
+  Days 2 to 5. New hire surveys in Week 1, Day 30 and Day 90. First day
+  details 3 business days before the start. "Get ready for Day 1" is retired
+  (A-88).
+- **The coordinator's queues** follow: "Laptop not ordered" replaces "Apps
+  not chosen", and the late queue watches the four.
+- **Not built yet from the tree:** the global mobility persona (only a line
+  on the background check page), the unhappy paths (withdrawal, no-show,
+  failed ID or background check, preboarding not done by T-3), and welcome
+  swag for emerging talent. "Order a phone" is not in the tree and stays.
 
 ## v5 — Sidekick where people meet it
 

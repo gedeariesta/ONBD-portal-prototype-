@@ -117,7 +117,7 @@ function pexCaseload() {
       remote,
       mgrColo: remote ? r() < 0.3 : r() < 0.75,
       startOff,
-      apps:         r() < (near ? 0.82 : 0.9),
+      profile:      r() < (near ? 0.82 : 0.9),
       buddy:        r() < (near ? 0.72 : 0.45),
       proxy:        r() < 0.55,
       photo:        r() < (near ? 0.74 : 0.35),
@@ -141,7 +141,7 @@ function pexCaseload() {
        Jordan's come from the real state instead (pexWithLiveJordan). */
     Object.assign(h, {
       startConfirmed: !h.dateMoved, detailsDone: h.dataVerified,
-      firstDayDone: h.mgrColo || h.proxy, appsDone: h.apps,
+      firstDayDone: h.mgrColo || h.proxy,
       welcomeSent: h.startOff < 40, calendarDone: h.startOff < 30,
     });
   }
@@ -164,24 +164,24 @@ function pexWithLiveJordan(list) {
     blueprint: S.country === 'JP' ? 'tokyo' : 'denver',
     remote: false, mgrColo: H.logistics.available !== false,
     startOff: daysToStart(),
-    apps: !!S.hm.software.confirmed,                  // M-04: chosen by the manager from the standard list
+    profile: profileStatus() === 'done',              // profile, tax and banking (tree)
     buddy: !!H.buddy.assigned,
     proxy: !!(H.logistics.proxy && H.logistics.proxy.trim()),
-    photo: S.photo.done || S.photo.confirmedExisting,
+    photo: introStatus() === 'done',                  // photo and introduction (tree)
     rtw: S.rtw.done,
     medicalNeeded: S.country === 'JP', medicalDone: false,
-    bgcheck: S.bgcheck.launched,
+    bgcheck: bgcheckStatus() === 'done',              // cleared to start
     compliance: Object.values(S.policies.acked).filter(Boolean).length,
-    eqChosen: S.equipment.deviceConfirmed,
-    eqOrdered: S.equipment.submitted,
+    eqChosen: S.equipment.submitted,                  // preferences sent
+    eqOrdered: S.hm.equip.ordered,                    // the manager ordered
     eqEta: (deviceById(S.equipment.device) || DEVICE_CATALOG[0]).leadOk ? 5 : 18,
     blockedBy: 'End User Technology',
-    blocked: !S.equipment.submitted && daysToStart() <= 10,
+    blocked: !S.hm.equip.ordered && daysToStart() <= 10,
     escalations: S.sidekick.handoffs.length,
     dataVerified: true,
     dateMoved: S.startdate.changeRequested,
-    startConfirmed: S.startdate.confirmed, detailsDone: S.details.submitted,
-    firstDayDone: H.logistics.confirmed, appsDone: H.software.confirmed,
+    startConfirmed: S.startdate.confirmed, detailsDone: profileStatus() === 'done',
+    firstDayDone: H.logistics.confirmed,
     welcomeSent: H.welcome.sent, calendarDone: H.calendar.confirmed,
     live: true,
     nudged: S.pex ? (S.pex.nudged[HIRE.username] || {}) : {},
@@ -202,12 +202,12 @@ const PEX_QUEUES = [
     why:'Every downstream date is anchored to the start date, which does not move. A late task compresses everything after it.',
     src:'PRD 3.6 requires SLA measurement by timestamps between activities.',
     batch:'Partly. Nudging is batchable, resolving is not.',
-    test: h => h.startOff <= 10 && (!h.bgcheck || !h.eqChosen || !h.startConfirmed),
-    reason: h => !h.bgcheck ? 'Background check not started' : !h.eqChosen ? 'Equipment not chosen' : 'Start date not confirmed',
+    test: h => h.startOff <= 10 && (!h.rtw || !h.profile || !h.startConfirmed),
+    reason: h => !h.rtw ? 'Right to work not done' : !h.profile ? 'Profile, tax and banking not done' : 'Start date not confirmed',
     waiting: () => 'new hire', action:'Remind' },
 
   { id:'blocked', label:'Blocked on another team', icon:'hourglass.svg', sev:'high',
-    blurb:'Equipment, apps, badge or access delayed by the team supplying it',
+    blurb:'Equipment, badge or access delayed by the team supplying it',
     why:'The coordinator is the only person watching every queue. The manager sees one hire; the fulfilment teams see one item type.',
     src:'PRD S2-US13 AC2: each request carries its own status tracker visible to NH, HM and PEX.',
     batch:'Yes. Chase by owning team.',
@@ -238,15 +238,14 @@ const PEX_QUEUES = [
     reason: () => 'The manager won’t be there, and no stand-in is named',
     waiting: () => 'hiring manager', action:'Assign' },
 
-  { id:'apps', label:'Apps not chosen', icon:'portal-window.svg', sev:'med',
-    blurb:'The manager hasn’t chosen the new hire’s apps, and the start is two weeks away or less',
-    why:'Each app is its own request, with its own approval and wait time, so a late choice can mean a first day without the right tools.',
-    src:'M-04, revised 6 Nov: one standard list for every new hire, no lists by role. Replaces the PRD S2-US16 queue for a role with no app list.',
+  { id:'laptop', label:'Laptop not ordered', icon:'laptop.svg', sev:'med',
+    blurb:'The manager hasn’t ordered the laptop, and the start is two weeks away or less',
+    why:'End User Technology orders it 10 days before the start if nobody has, so a reminder now avoids a rushed order.',
+    src:'Process tree: the manager orders at 14+ days before the start; End User Technology at T-10.',
     batch:'Yes.',
-    test: h => !h.apps && h.startOff <= 14,
-    reason: () => 'The manager hasn’t chosen the apps yet',
+    test: h => !h.eqOrdered && h.startOff <= 14,
+    reason: () => 'The manager hasn’t ordered the laptop',
     waiting: () => 'hiring manager', action:'Remind' },
-
   { id:'rtw', label:'Right to work outstanding', icon:'id-card.svg', sev:'high',
     blurb:'Proof of right to work, where the country requires it, not finished',
     why:'Section 2 is validated in person at orientation. If Section 1 is not done beforehand, Day 1 stalls.',
@@ -278,11 +277,11 @@ const PEX_QUEUES = [
     why:'Triggers either an escalation to the fulfilment team or the loaner process. Both need a human decision.',
     src:'PRD S2-US07 AC4. Auto-escalate or route to loaner where delivery lands after the start date.',
     batch:'No. Case by case.',
-    test: h => h.eqOrdered ? h.eqEta > h.startOff : (h.startOff <= 9 && !h.eqChosen),
+    test: h => h.eqOrdered ? h.eqEta > h.startOff : h.startOff <= 9,
     reason: h => h.eqOrdered
       ? `Delivery takes ${h.eqEta} days, and they start in ${h.startOff}`
       : 'Not chosen yet, and there’s no longer time to deliver it',
-    waiting: h => h.eqOrdered ? 'End User Technology' : 'new hire', action:'Lend a laptop' },
+    waiting: h => h.eqOrdered ? 'End User Technology' : 'hiring manager', action:'Lend a laptop' },
 
   { id:'escalated', label:'Help requests', icon:'comment-lines.svg', sev:'high',
     blurb:'Questions a new hire or manager has passed to you',
@@ -564,7 +563,7 @@ function pexWaitingOn(h) {
    photo still shows on the record but is not counted, so "2 of 4" means the
    same thing on all three screens. */
 function pexPhase(h) {
-  const done = [h.startConfirmed, h.bgcheck, h.rtw, h.eqOrdered].filter(Boolean).length;
+  const done = [h.startConfirmed, h.profile, h.rtw, h.photo].filter(Boolean).length;   // the tree's Ready for Day 1
   return { done, total:4, at: done >= 4 ? 2 : done ? 1 : 0 };
 }
 
@@ -829,15 +828,14 @@ function pexOwnerRows(who, h) {
   if (who === 'nh') return [
     { group:'pre', label:'Start date confirmed', state: h.dateMoved ? 'wait' : st(h.startConfirmed),
       note: h.dateMoved ? 'Change requested, sitting with you' : '' },
-    { group:'pre', label:'Background check started', state: st(h.bgcheck), sensitive:true,
-      note: h.bgcheck ? 'Running with the provider' : 'Not started' },
+    { group:'pre', label:'Profile, tax and banking', state: st(h.profile), sensitive:true,
+      note: h.profile ? 'Done in Workday' : 'Not done' },
     { group:'pre', label:'Right to work, their part', state: st(h.rtw), sensitive:true,
       note: h.rtw ? 'Done. The rest is checked in person on Day 1.' : 'Not done, in the Right to Work system' },
-    { group:'pre', label:'Equipment chosen and ordered', state: st(h.eqOrdered, h.eqChosen),
-      note: h.eqOrdered ? `Ships in ${h.eqEta} days` : h.eqChosen ? 'Chosen, order not submitted' : 'Not chosen' },
-    { group:'also', label:'Badge photo', state: h.remote ? 'done' : st(h.photo),
-      note: h.remote ? 'Remote hire, no badge required' : h.photo ? 'Sent to Workplace' : 'Otherwise taken at reception on Day 1' },
-    { group:'later', label:'Bank, tax and emergency contacts', state:'later', sensitive:true, note:'Opens on Day 1' },
+    { group:'pre', label:'Photo and introduction', state: st(h.photo),
+      note: h.photo ? 'In. The badge request has the photo' : 'Not in yet' },
+    { group:'also', label:'Laptop preferences', state: st(h.eqChosen || h.eqOrdered),
+      note: h.eqOrdered ? 'Ordered by the manager' : h.eqChosen ? 'Sent to the manager' : 'Not sent. The manager can order without them' },
     { group:'later', label:'Required policies', state:'later', sensitive:true, note:'From Day 2, due by Day 30' },
   ];
   if (who === 'hm') return [
@@ -845,8 +843,8 @@ function pexOwnerRows(who, h) {
       note: !h.mgrColo && !h.proxy ? 'Nobody to meet them on Day 1' : !h.firstDayDone ? 'Not confirmed yet' : h.mgrColo ? 'Manager will be there' : 'Stand-in will meet them' },
     { label:'Onboarding Buddy named', state: st(h.buddy), owner:h.mgr,
       note: h.buddy ? 'Accepted' : 'Nobody is assigned automatically' },
-    { label:'Apps for Day 1', state: h.appsDone ? 'done' : 'open', owner:h.mgr,
-      note: h.apps ? 'Chosen from the standard list' : 'Not chosen yet' },
+    { label:'Laptop ordered', state: st(h.eqOrdered), owner:h.mgr,
+      note: h.eqOrdered ? `Ships in ${h.eqEta} days` : h.eqChosen ? 'The new hire’s preferences are in' : 'Not ordered yet' },
     { label:'Welcome note', state: st(h.welcomeSent), owner:h.mgr },
     { label:'Day 1 calendar', state: st(h.calendarDone), owner:h.mgr },
   ];
@@ -871,10 +869,9 @@ function pexActivity(h) {
   const ev = [];
   if (h.dateMoved) ev.push([0, 'Start date', `${h.preferred} requested a new start date. Sitting with you.`]);
   if (h.escalations) ev.push([0, 'Help request', `${h.escalations} help request${h.escalations>1?'s':''} passed on from the manager.`]);
-  if (h.eqOrdered) ev.push([1, 'Equipment', `Order submitted by ${h.preferred}. Delivery takes ${h.eqEta} days.`]);
+  if (h.eqOrdered) ev.push([1, 'Equipment', `Laptop ordered by ${h.mgr}. Delivery takes ${h.eqEta} days.`]);
   if (h.buddy) ev.push([2, 'People', `${h.mgr} named an Onboarding Buddy and they accepted.`]);
-  if (h.bgcheck) ev.push([3, 'Background check', `Launched by ${h.preferred}. Running with the provider.`]);
-  if (h.apps) ev.push([4, 'Apps', `${h.mgr} chose the apps from the standard list.`]);
+  ev.push([3, 'Background check', h.bgcheck ? 'Cleared to start.' : 'Invite sent at verbal offer. Running with the provider.']);
   ev.push([6, 'Location', `${h.loc} Day 1 details set by People Experience.`]);
   ev.push([9, 'Record', `Record created. Recruiting details ${h.dataVerified ? 'checked' : 'not checked yet'}.`]);
 

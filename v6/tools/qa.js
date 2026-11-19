@@ -2,7 +2,7 @@ const { launch, BASE, OUT, outDir } = require('./lib');
 
 const ROUTES = ['', '#/equipment', '#/details', '#/intro', '#/policies', '#/network',
   '#/flow', '#/todos', '#/handoffs', '#/startdate', '#/bgcheck',
-  '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/software', '#/hm/buddy',
+  '#/hm/', '#/hm/logistics', '#/hm/computer', '#/hm/buddy',
   '#/hm/calendar', '#/hm/welcome', '#/hm/network', '#/hm/intro', '#/hm/card', '#/hm/survey', '#/hm/subtraction', '#/servicenow',
   '#/pex/', '#/pex/caseload', '#/pex/blueprints', '#/pex/hire/jreyes', '#/pex/hire/wzhang'];
 

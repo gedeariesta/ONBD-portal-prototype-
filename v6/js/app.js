@@ -58,6 +58,7 @@ const DEFAULT_STATE = () => ({
   // the Day 1 half; the portal only ever learns that it is done.
   // edits: what the new hire changed themselves. The email is locked (it is
   // their sign-in), so changing it is a request to People Experience.
+  // submitted = the tax, banking and emergency contacts part, done in Workday (tree: Profile, tax & banking).
   details: { checked:false, edits:{}, editing:'', wrong:false, flagged:false, flagText:'', submitted:false },
   equipment: { choice:'', items:{}, shipOffice:'', shipTo:{ street:'', city:'', region:'', postcode:'', country:'' }, shipPhone:'', submitted:false,
     device:'', deviceConfirmed:false },
@@ -96,8 +97,10 @@ const DEFAULT_STATE = () => ({
     // firstInOffice: when the manager will first be in the office with the new
     // hire. The badge is issued for that day, not the start date (A-87).
     logistics: { confirmed:false, whereToBe:'', available:true, proxy:'', teamNote:'', firstInOffice:'day1', firstInOfficeDate:'' },
-    computer: { ordered:false, model:'', reason:'' },
-    software: { confirmed:false, added:[] },
+    // The laptop: the new hire states preferences, the manager orders (process tree).
+    equip: { ordered:false },
+    plan: { drafted:false },      // the 30/60/90 plan draft, before Day 1 (tree)
+    started: false,               // "Did your new hire start today?" on Day 1 (tree)
     // A name is not a commitment. Both roles have to accept (M-27).
     buddy: { assigned:null, notified:false, accepted:false },
     calendar: { confirmed:false, holds:{} },
@@ -151,17 +154,24 @@ function dueFor(key) { return addDays(startDate(), DUE_OFFSETS[key]); }
 const isOverdue = key => simToday() > dueFor(key) && !taskDone(key);
 
 /* ---------------- task status model (A-25) ---------------- */
-function detailsStatus() { return S.details.submitted ? 'done' : 'notstarted'; }
-/* The part a new hire can do now: check what Equinix already holds. */
-function checkStatus() { return S.details.checked ? 'done' : S.details.flagged ? 'review' : 'notstarted'; }
+/* Profile, tax and banking (tree, early pre-hire): check what Equinix holds,
+   then tax, banking and emergency contacts in Workday. Required for Day 1. */
+function profileStatus() {
+  const D = S.details;
+  if (D.checked && D.submitted) return 'done';
+  return D.checked || D.submitted || D.flagged ? 'inprogress' : 'notstarted';
+}
 function startdateStatus() {
   if (S.startdate.changeRequested) return 'review';
   return S.startdate.confirmed ? 'done' : 'notstarted';
 }
-function bgcheckStatus() { return S.bgcheck.launched ? 'done' : 'notstarted'; }
+/* The check is sent at verbal offer, before the portal exists (tree), so the
+   portal only shows its status. Cleared the Wednesday before the start. */
+function bgcheckStatus() { return daysToStart() <= 6 ? 'done' : 'inprogress'; }
 function rtwStatus() { return S.rtw.done ? 'done' : 'notstarted'; }
+/* Laptop preferences: the new hire's to give, the manager's to order (tree). */
 function equipmentStatus() {
-  if (S.equipment.submitted) return 'done';
+  if (S.equipment.submitted || S.hm.equip.ordered) return 'done';
   return S.equipment.choice ? 'inprogress' : 'notstarted';
 }
 function introStatus() {
@@ -180,17 +190,17 @@ function policiesStatus() {
   if (n === POLICIES.length) return 'done';
   return n || Object.keys(S.policies.opened).length ? 'inprogress' : 'notstarted';
 }
-/* Four things before Day 1, and only four (A-64). v4 had three: the start
-   date, the background check and equipment. Janine added the right to work
-   check on 6 Nov, because I-9 Section 1 must be done by the first day; it
-   goes third, in the order of the process tree. Everything else is not
-   counted here. */
-const COUNTED = ['startdate','bgcheck','rtw','equipment'];
+/* Four things before Day 1, the tree's "Ready for Day 1" line (A-64, revised
+   19 Nov): the start date, profile with tax and banking, I-9 Section 1 or
+   right to work, and the photo with the introduction. The background check
+   is sent at verbal offer, before the portal, and the laptop is the
+   manager's to order, so neither is counted here. */
+const COUNTED = ['startdate','profile','rtw','intro'];
 const NUM_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
 const thingsWord = () => NUM_WORDS[COUNTED.length];
 function taskDone(key) {
   return ({ startdate: startdateStatus()==='done', bgcheck: bgcheckStatus()==='done',
-            rtw: rtwStatus()==='done', equipment: equipmentStatus()==='done', details: detailsStatus()==='done',
+            rtw: rtwStatus()==='done', equipment: equipmentStatus()==='done', profile: profileStatus()==='done',
             intro: introStatus()==='done',
             policies: policiesStatus()==='done' })[key];
 }
@@ -224,19 +234,18 @@ function taskList() {
       name:'Confirm your start date',
       why:'Everything else is dated from it',
       est:'1 min', estMark:'A-23', status:startdateStatus(), marker:'A-49' },
-    { key:'bgcheck', route:'#/bgcheck', icon:'shield-check.svg',
-      name:'Start your background check',
-      why:'It can take a couple of weeks, so start it early',
-      est:'5 min', estMark:'A-23', status:bgcheckStatus(), marker:'A-50' },
+    { key:'profile', route:'#/details', icon:'user-circle.svg',
+      name:'Complete your profile, tax and banking',
+      why:'Check what we have, then add your bank, tax and emergency contacts in Workday',
+      est:'10 min', estMark:'A-23', status:profileStatus(), marker:'A-65' },
     { key:'rtw', route:'#/rtw', icon:'id-card.svg',
       name: S.country === 'JP' ? 'Share your right to work documents' : 'Complete your I-9, Section 1',
       why:'US law requires it by your first day. You complete it in the Right to Work system',
       est:'10 min', estMark:'A-23', status:rtwStatus(), marker:'A-86' },
-    // Equipment, the earliest of the provisioning tasks. Nothing gates it today (A-33)
-    { key:'equipment', route:'#/equipment', icon:'laptop.svg',
-      name:'Choose your equipment',
-      why:'Your computer and accessories, built and shipped in time for Day 1',
-      est:'4 min', estMark:'A-23', status:equipmentStatus(), marker:'A-60' },
+    { key:'intro', route:'#/intro', icon:'comment-smile.svg',
+      name:'Add your photo and introduction',
+      why:'Your photo goes on your badge, and Priya shares your introduction with the team',
+      est:'5 min', estMark:'A-23', status:introStatus(), marker:'A-68' },
   ];
 }
 
@@ -248,9 +257,6 @@ function nextTask() { return taskList().find(t => t.status !== 'done') || null; 
 function day1Items() {
   const jp = S.country === 'JP';
   return [
-    { key:'details', route:'#/details', icon:'user-circle.svg', sys:'This portal', marker:'A-65',
-      name:'Add your bank, tax and emergency contacts',
-      why:'Enter them here once, on your first day. Have your bank and tax details ready' },
     ...(jp ? [] : [{ key:'rtw2', icon:'id-card.svg', sys:'In person',
       name:'Show your right to work documents',
       why:'At orientation, to finish the check you start online',
@@ -277,8 +283,7 @@ function renderLanding() {
   const open3 = tasks.filter(t => t.status !== 'done');
   const doneList = [
     ...tasks.filter(t => t.status === 'done').map(taskCard),
-    ...(checkStatus() === 'done' ? [checkCard()] : []),
-    ...(introStatus() === 'done' ? [introCard()] : []),
+    ...(S.equipment.submitted || S.hm.equip.ordered ? [equipCard()] : []),
   ];
 
   const booked = Object.keys(S.network.booked).length;
@@ -341,8 +346,8 @@ function renderLanding() {
         <div class="section-h"><h3>Next, when you have time</h3><span class="hint">Before Day 1</span></div>
         ${videoCard('pre')}
         <div class="tcards">
-          ${checkStatus() !== 'done' ? checkCard() : ''}
-          ${introStatus() !== 'done' ? introCard() : ''}
+          ${S.equipment.submitted || S.hm.equip.ordered ? '' : equipCard()}
+          ${statusCard()}
           <div class="tcard optional ${netReady?'':'pending'}" data-task="#/network" data-assume="A-43 L-06">
             <div class="tic">${ic('users-connected.svg','lg')}</div>
             <div class="t-main">
@@ -386,12 +391,11 @@ function renderLanding() {
           <span class="hint">Orientation in person, and the short tasks below</span>
         </div>
         <div class="lcards">${day1Items().map(laterCard).join('')}${comingCards('day1')}</div>
-        ${videoCard('day1')}
 
         <div class="section-h stack journey-h">
           <span class="eyebrow">First week</span>
           <h2>Your first week</h2>
-          <span class="hint">Benefits and your required policies, from your second day</span>
+          <span class="hint">Policies, training and benefits, from your second day</span>
         </div>
         <div class="lcards">${week1Items().map(laterCard).join('')}
           ${S.hm.card.needed === true ? `
@@ -402,12 +406,13 @@ function renderLanding() {
                 <span class="u-open">${ic('clock.svg','sm')}${CARD_FLOW.timing}</span>
               </div>
               <div class="u-note">${HIRE.manager} says you’ll travel for work, so we’re requesting a corporate card for you</div>
-              <div class="u-expl">On your second day, you review the card agreement and sign it electronically. It is after
+              <div class="u-expl">On Day 5, you sign the Citibank authorization electronically. It is after
                 you start on purpose. Once you sign, the card provider sends you an application link directly. There is
                 nothing to do until then. ${am('L-10')}</div>
             </div>` : ''}
           ${comingCards('week1')}
         </div>
+        ${videoCard('week1')}
         <div class="overflow-line">${ic('info-circle.svg','sm')}<b>You may get more tasks after you start.</b></div>
 
         <div class="section-h"><h3>Handled by other teams</h3><span class="hint">Nothing for you to do</span><span class="hint pnote">Listed on purpose, so a reviewer can see nothing has been forgotten</span></div>
@@ -416,8 +421,8 @@ function renderLanding() {
             <div class="tic">${ic('id-card.svg')}</div>
             <div class="o-main">
               <div class="o-name">Tax forms <span class="chip info">Payroll</span></div>
-              <div class="o-note">Payroll sends these separately, on its own schedule. You enter your tax details here
-              on your first day, with your other personal details. ${am('A-65')}</div>
+              <div class="o-note">Payroll sends any country forms separately, on its own schedule. Your tax and bank
+              details go into Workday before you start, in your profile task. ${am('A-65')}</div>
             </div>
           </div>
         </div>
@@ -444,7 +449,8 @@ function renderLanding() {
 /* The coming-up cards for one part of the journey. Each explains itself in
    place rather than opening a screen, because there is nothing to do yet. */
 function comingCards(when) {
-  return COMING_UP.map((u, i) => u.when !== when ? '' : `
+  const us = S.country !== 'JP';
+  return COMING_UP.map((u, i) => u.when !== when || (u.only === 'US' && !us) || (u.only === 'nonUS' && us) ? '' : `
     <div class="ucard" data-ucard="${i}" ${u.id === 'firstday' ? 'data-assume="L-07"' : ''}>
       <div class="u-row">
         ${ic(u.icon)}
@@ -642,16 +648,10 @@ function readinessState() {
   // Both the computer and the accessories are the new hire's now (A-60), so
   // one submitted task starts the whole order rather than two people's.
   let eq = 0;
-  if (E.submitted) { eq = 1; if (d <= 9) eq = 2; if (d <= 6) eq = 3; if (d <= 3) eq = 4; }
-  out.equipment = { at: eq, note: E.submitted ? '' :
-    (E.deviceConfirmed ? 'Computer chosen. The order goes in when the task is submitted.'
-      : 'No order placed. The computer has not been chosen yet.') };
-
-  // Applications: the role's standard list is found, then the manager
-  // confirms it (M-04).
-  out.apps = H.software.confirmed
-    ? { at: 2, note: 'Confirmed by the manager.' }
-    : { at: 1, note: 'Waiting for the manager to pick from the standard list.' };
+  if (H.equip.ordered) { eq = 1; if (d <= 9) eq = 2; if (d <= 6) eq = 3; if (d <= 3) eq = 4; }
+  out.equipment = { at: eq, note: H.equip.ordered ? '' :
+    (E.submitted ? 'The new hire sent preferences. Waiting for the manager to order.'
+      : 'Not ordered yet. End User Technology orders it 10 days before the start if nobody has.') };
 
   // Workspace. Badge collection is not a stage: nothing reports it back.
   let ws = 0;
@@ -672,15 +672,15 @@ function readinessState() {
   // Background check, now its own top-level step. The portal can only see the
   // launch; everything after it happens in the provider's system, so the later
   // stages are walked by the simulated clock rather than claimed as known.
-  let bg = 0;
-  if (S.bgcheck.launched) { bg = 1; if (d <= 11) bg = 2; if (d <= 7) bg = 3; if (d <= 4) bg = 4; }
-  out.bgcheck = { at: bg, note: S.bgcheck.launched ? '' : 'Not started. It runs longest, so it costs the most to leave.' };
+  let bg = 2;
+  if (d <= 11) bg = 3; if (d <= 6) bg = 4;
+  out.bgcheck = { at: bg, note: '' };
 
   // Paperwork.
   let pw = 0;
   if (S.startdate.confirmed) pw = 1;
-  if (pw === 1 && S.details.submitted) pw = 2;
-  if (pw === 2 && policiesStatus() === 'done') pw = 3;
+  if (pw === 1 && profileStatus() === 'done') pw = 2;
+  if (pw === 2 && rtwStatus() === 'done') pw = 3;
   out.paperwork = { at: pw, note: S.startdate.confirmed ? '' : 'Everything else is dated from the start date.' };
 
   return out;
@@ -984,40 +984,32 @@ function renderRtw() {
 }
 
 function renderBgCheck() {
-  const B = S.bgcheck;
+  const d = daysToStart(), cleared = bgcheckStatus() === 'done';
+  const stage = cleared ? 4 : d <= 11 ? 3 : 2;
+  const steps = [
+    ['Invite sent', 'At your verbal offer, by our screening provider'],
+    ['Your form', 'You filled in the provider’s form'],
+    ['Checks running', 'How long depends on your country'],
+    ['Cleared to start', 'Confirmed the Wednesday before your start date'],
+  ];
   return `
   <div class="page">
-    ${crumbs('Start your background check')}
+    ${crumbs('Track your background check')}
     <div class="task-head" data-assume="A-50">
-      <h1>Start your background check ${am('A-50')}</h1>
-      <p class="why">After you start it, the check runs without you. It can take a couple of weeks, so start it early to avoid a delay to your start date.</p>
+      <h1>Track your background check ${am('A-50')}</h1>
+      <p class="why">The check started when you accepted your verbal offer, so there is nothing to start here. This page
+      shows its status, and asks for a document if the provider needs one.</p>
     </div>
     <div class="task-shell">
       <div class="wiz-body">
-        ${B.launched ? `
-          <div class="bg-status">
-            ${ic('shield-check.svg','xl')}
-            <div>
-              <div class="bg-state">${ic('clock.svg','sm')}In progress. Nothing more to do</div>
-              <p>You’ve sent what the check needs. Our screening provider runs it from here, and tells you if anything is
-              missing. ${HIRE.manager} and ${PEOPLE.pex.name} can see that the check is in progress, but not its details.</p>
-            </div>
-          </div>
-          <div class="callout soft mt16">${ic('info-circle.svg')}
-            <div>What the check covers, and how long it takes, depends on your country. ${PEOPLE.pex.name.split(' ')[0]}
-            can tell you what applies to you. ${am('A-50')}</div></div>
-          <button class="btn quiet mt16" id="bgUndo">Undo (prototype)</button>
-        ` : `
-          <p style="font-size:var(--t-ui); font-weight:var(--fw-book); max-width:640px; margin-bottom:16px;">
-            Our screening provider does the check, not this portal. We send them your details, so you don’t type them
-            again, and the status then appears on this page.</p>
-          <div class="callout">
-            ${ic('external-link.svg')}
-            <div><b>This opens the screening provider’s website.</b> Complete the steps there. The status then appears
-            on this page automatically. This portal stores no details of the check.</div>
-          </div>
-          <button class="btn primary mt16" id="bgLaunch">${ic('external-link.svg','sm')} Start the check</button>
-        `}
+        <ol class="bg-steps">
+          ${steps.map(([t, n], i) => `<li class="${i < stage ? 'done' : i === stage ? 'now' : ''}">
+            <span class="bg-dot">${i < stage ? ic('check.svg','sm') : ''}</span><div><b>${t}</b><span>${n}</span></div></li>`).join('')}
+        </ol>
+        <div class="callout soft mt16">${ic('info-circle.svg')}
+          <div>${HIRE.manager} and ${PEOPLE.pex.name} can see that the check is in progress, but not its details.
+          No visa or work permit is needed for your move. If one were, its status would show here too. ${am('A-50')}</div></div>
+        <button class="btn secondary mt16" id="bgUpload">${ic('file-alt.svg','sm')}Upload a missing document</button>
       </div>
     </div>
   </div>`;
@@ -1026,11 +1018,10 @@ function renderBgCheck() {
 /* ============================================================
    Your details (A-65, revised 5 Nov)
 
-   Two halves on one screen. Now: check what Equinix already holds from the
-   offer, because the laptop, the badge and the first pay go by it. Day 1:
-   add bank, tax and emergency contacts. Both happen here. The portal is the
-   only place a new hire goes (Gede: ServiceNow is their one interaction
-   layer), so Workday, which stores it behind the scenes, is never named.
+   Process tree, 19 Nov: one task before the start. Check what Equinix has
+   from the offer here, then add tax, banking and emergency contacts in
+   Workday, so payroll is ready by Day 5. Replaces the 5 Nov plan to collect
+   them in the portal on Day 1.
    ============================================================ */
 /* What Equinix holds from the offer, with anything the new hire has changed
    laid over it (A-65). lock: the field is not theirs to edit. */
@@ -1046,37 +1037,34 @@ function detailsOnRecord() {
 }
 /* The home address, as the new hire last confirmed it. Equipment ships here. */
 function homeAddress() { return detailsOnRecord().find(f => f.k === 'address').value; }
-function introCard() {
-  const photoBy = dueText(dueFor('photo'));
+/* Laptop preferences (tree: new hire picks if the start is 14+ days away,
+   the manager orders, End User Technology orders at T-10). */
+function equipCard() {
+  const st = equipmentStatus(), by = dueText(dueFor('equipment'));
   return `
-          <div class="tcard optional ${introStatus() === 'done' ? 'done' : ''}" data-task="#/intro" data-assume="A-68">
-            <div class="tic">${ic('comment-smile.svg','lg')}</div>
-            <div class="t-main">
-              <div class="t-name">Add a badge photo, and say hello to your team ${am('A-68')}</div>
-              <div class="t-why">Send a photo by ${photoBy} and your badge will be ready on Day 1.
-                If not, reception takes your photo when you arrive.</div>
-              <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 5 min</span></div>
-            </div>
-            <div class="t-side">
-              ${chip(introStatus())}
-              ${ic('arrow-right.svg','lg go')}
-            </div>
-          </div>`;
-}
-function checkCard() {
-  const st = checkStatus();
-  return `
-  <div class="tcard optional ${st === 'done' ? 'done' : ''}" data-task="#/details" data-assume="A-65">
-    <div class="tic">${ic('user-circle.svg','lg')}</div>
+  <div class="tcard optional ${st === 'done' ? 'done' : ''}" data-task="#/equipment" data-assume="A-60">
+    <div class="tic">${ic('laptop.svg','lg')}</div>
     <div class="t-main">
-      <div class="t-name">Check your details ${am('A-65')}</div>
-      <div class="t-why">Your name, email and home address, as we have them. We use them for your laptop, your badge and your first pay.</div>
-      <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 1 min</span></div>
+      <div class="t-name">Pick your laptop preferences ${am('A-60')}</div>
+      <div class="t-why">${S.hm.equip.ordered ? `Ordered by ${HIRE.manager}.`
+        : S.equipment.submitted ? `Sent to ${HIRE.manager}, who places the order.`
+        : `By ${by}. ${HIRE.manager} orders it. If you don’t pick, she chooses for you.`}</div>
+      <div class="t-meta"><span class="m">${ic('clock.svg','sm')}About 4 min</span></div>
     </div>
-    <div class="t-side">
-      ${chip(st)}
-      ${ic('arrow-right.svg','lg go')}
+    <div class="t-side">${chip(st)}${ic('arrow-right.svg','lg go')}</div>
+  </div>`;
+}
+/* Track my status (tree): visibility, not a task. */
+function statusCard() {
+  const st = bgcheckStatus();
+  return `
+  <div class="tcard optional" data-task="#/bgcheck" data-assume="A-50">
+    <div class="tic">${ic('shield-check.svg','lg')}</div>
+    <div class="t-main">
+      <div class="t-name">Track your background check ${am('A-50')}</div>
+      <div class="t-why">The check started when you accepted your verbal offer. Its status, and any document it still needs, are here.</div>
     </div>
+    <div class="t-side"><span class="chip ${st === 'done' ? 'done' : 'inprogress'}">${st === 'done' ? 'Cleared' : 'In progress'}</span>${ic('arrow-right.svg','lg go')}</div>
   </div>`;
 }
 function renderDetails() {
@@ -1089,13 +1077,13 @@ function renderDetails() {
     ['banking.svg', 'Bank details, so you get paid'],
     ['file-alt.svg', jp ? 'Tax and social insurance details' : 'Tax withholding'],
     ['users-friends.svg', 'One or two emergency contacts'],
-    ['shield-check.svg', 'Voluntary self-identification, if you choose to'],
+    ['shield-check.svg', 'Self-identification questionnaires, where your country has them. Voluntary'],
   ];
   return `
   <div class="page">
-    ${crumbs('Check your details')}
+    ${crumbs('Complete your profile, tax and banking')}
     <div class="task-head" data-assume="A-65">
-      <h1>Check your details ${am('A-65')}</h1>
+      <h1>Complete your profile, tax and banking ${am('A-65')}</h1>
       <p class="why">${conv
         ? `We already have your details from your contract role. Check that they’re still correct.`
         : `These details are from your offer. Correct anything that’s wrong, so your laptop, your badge and your
@@ -1117,7 +1105,7 @@ function renderDetails() {
                   : `<button class="det-edit-btn" data-detedit="${f.k}" aria-label="Edit ${f.label.toLowerCase()}">Edit</button>`}</dd></div>`).join('')}
           </div>
           ${D.checked ? `
-          <div class="callout soft mt16">${ic('check-circle.svg')}<div><b>Thanks, that’s all right.</b> Nothing else to do until your first day.</div></div>`
+          <div class="callout soft mt16">${ic('check-circle.svg')}<div><b>Thanks, that’s all right.</b></div></div>`
           : D.flagged ? `
           <div class="callout soft mt16">${ic('clock.svg')}<div><b>With ${pex}.</b> She changes your email and tells you
             how to sign in with it. You asked for: “${esc(D.flagText)}”</div></div>`
@@ -1130,8 +1118,8 @@ function renderDetails() {
         </div>
 
         <div class="form-sec">
-          <h2>On your first day, here</h2>
-          <p class="sec-note">You add these once, in this portal${pre ? `, on ${fmtLong(startDate())}` : ''}. Have your bank and tax details ready.</p>
+          <h2>Tax, banking and emergency contacts, in Workday</h2>
+          <p class="sec-note">Do this before you start, so you are paid on time. Have your bank and tax details ready.</p>
           <ul class="wd-list">
             ${day1.map(([i, t]) => `<li>${ic(i,'sm')}<span>${t}</span></li>`).join('')}
           </ul>
@@ -1139,18 +1127,21 @@ function renderDetails() {
             ${ic('lock.svg')}
             <div><b>Private to you.</b> ${HIRE.manager} and People Experience see only that it’s done, never what you entered.</div>
           </div>
+          <div class="mt16">${D.submitted
+            ? `<span class="chip done">${ic('check.svg','sm')}Done in Workday</span>`
+            : `<button class="btn secondary" id="detWorkday">${ic('external-link.svg','sm')}Open Workday</button>`}</div>
           <div class="callout pnote mt16">
             ${ic('question-circle.svg')}
-            <div><b>Behind the portal.</b> What’s entered or changed here goes both ways with Workday, which stays the
-            system of record, so the new hire never has to go there. The personal email is locked because it is their
-            sign-in (Janine, 6 Nov). Still open: whether bank details entered on Day 1 reach the first
-            payroll run. If not, that one item has to come before Day 1. ${am('A-65')}</div>
+            <div><b>Behind the portal.</b> The process tree puts tax, banking and emergency contacts in Workday before
+            the start, so payroll is ready by Day 5. This replaces the 5 Nov plan to collect them here on Day 1. The
+            personal email is locked because it is the sign-in (Janine, 6 Nov). Open: whether the self-identification
+            questionnaires can move to Day 1. ${am('A-65')}</div>
           </div>
         </div>
       </div>
       <div class="wiz-foot">
-        <span class="saved-state">${ic(D.checked ? 'check-circle.svg' : 'clock.svg','sm')}${D.checked
-          ? 'Checked. The rest opens on your first day.' : D.flagged ? `Sent to ${pex}.` : 'About a minute'}</span>
+        <span class="saved-state">${ic(profileStatus() === 'done' ? 'check-circle.svg' : 'clock.svg','sm')}${profileStatus() === 'done'
+          ? 'Done.' : D.checked ? 'Details checked. Workday is next.' : D.flagged ? `Sent to ${pex}.` : 'About 10 minutes'}</span>
         <span class="missing"></span>
         ${D.checked || D.flagged ? `<button class="btn secondary" data-goto="#/">Back to your tasks</button>`
           : D.wrong ? `<button class="btn quiet" id="detCancel">Cancel</button>
@@ -1258,17 +1249,18 @@ function equipmentRows(forManager) {
     // their choice rather than waiting on the manager to place an order.
     { item:'Computer', icon:'laptop.svg',
       status: E.deviceConfirmed ? 'Chosen' : 'Not chosen yet', ok: E.deviceConfirmed,
-      unblock: E.deviceConfirmed
-        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, chosen by ${who}. It’s ordered when ${who === 'you' ? 'you submit' : first + ' submits'} the order below.`
-        : forManager ? `${first} hasn’t chosen yet. It’s their task, so you don’t need to do anything.`
-        : `Choose your computer above to order it.`,
+      unblock: S.hm.equip.ordered ? `Ordered by ${HIRE.manager}.`
+        : E.deviceConfirmed
+        ? `${(deviceById(E.device) || DEVICE_CATALOG[0]).name}, picked by ${who}. ${HIRE.manager} places the order.`
+        : forManager ? `${first} hasn’t picked yet. You can order the standard build without waiting.`
+        : `Pick your computer above. ${HIRE.manager} places the order.`,
       marker:'A-60' },
     { item:'Computer accessories', icon:'desktop.svg',
-      status: E.submitted ? 'Ordered' : 'Not ordered yet', ok:E.submitted,
-      unblock: E.submitted
-        ? `Order INC6369627, with the IT help desk. ${forManager ? 'Ordered by ' + first + '.' : ''}`
-        : forManager ? `${first} orders these themselves, on their equipment task.`
-        : `Choose your accessories below and submit the order.` },
+      status: S.hm.equip.ordered ? 'Ordered' : 'Not ordered yet', ok:S.hm.equip.ordered,
+      unblock: S.hm.equip.ordered
+        ? `Order INC6369627, with the IT help desk. Ordered by ${HIRE.manager}.`
+        : forManager ? `Ordered with the computer, from ${first}’s preferences.`
+        : `Pick your accessories below. They are ordered with the computer.` },
     { item:'Mobile phone', icon:'mobile.svg',
       status:'Not ordered yet', ok:false,
       unblock:`${whoCap} can order one on the first day, if the role needs it.`, marker:'A-40' },
@@ -1343,7 +1335,7 @@ function devicePicker() {
 
 function renderEquipment() {
   const E = S.equipment;
-  if (E.submitted) return equipmentSubmitted();
+  if (E.submitted || S.hm.equip.ordered) return equipmentSubmitted();
   // A saved "somewhere else" from a hire who can no longer use it (A-85).
   if (E.shipOffice === 'other' && !shipAnywhere()) E.shipOffice = '';
 
@@ -1351,11 +1343,12 @@ function renderEquipment() {
 
   return `
   <div class="page">
-    ${crumbs('Choose your equipment')}
+    ${crumbs('Pick your laptop preferences')}
     <div class="task-head" data-assume="A-33 A-34 A-60">
-      <h1>Choose your equipment ${am('A-60')}</h1>
-      <p class="why">Early on your list, so there’s time to build it, ship it and have it waiting for you. ${am('A-33')}
-      Your computer and your accessories are both yours to pick. A phone is a Day 1 choice if your role needs one.</p>
+      <h1>Pick your laptop preferences ${am('A-60')}</h1>
+      <p class="why">Tell ${HIRE.manager} what you would like and where it should ship, by ${dueText(dueFor('equipment'))}.
+      She places the order. If you don’t pick, she chooses for you, and if nobody orders it 10 days before you start,
+      End User Technology orders it. ${am('A-33')}</p>
     </div>
 
     ${devicePicker()}
@@ -1432,7 +1425,7 @@ function renderEquipment() {
               <span class="so-body"><span class="so-h">Your home, as on your record</span>
                 <span class="so-addr">${esc(homeAddress())}</span>
                 <span class="so-note">The address on your offer. Moved since then? Tell ${PEOPLE.pex.name.split(' ')[0]}, or fix it in
-                <a data-goto="#/details">Check your details</a>, and it’s corrected before anything ships. ${am('A-65')}</span></span>
+                <a data-goto="#/details">Complete your profile, tax and banking</a>, and it’s corrected before anything ships. ${am('A-65')}</span></span>
             </label>
             ${shipAnywhere() ? `
             <label class="ship-opt ${E.shipOffice==='other'?'on':''}">
@@ -1462,7 +1455,7 @@ function renderEquipment() {
       <div class="wiz-foot">
         <span class="saved-state">${ic('save.svg','sm')}Your choices are saved automatically</span>
         <span class="missing" id="eqMissing">${eqMissingText()}</span>
-        <button class="btn primary" id="eqSubmit" ${eqReady()?'':'disabled'}>Submit my order</button>
+        <button class="btn primary" id="eqSubmit" ${eqReady()?'':'disabled'}>Send my preferences</button>
       </div>
     </div>
   </div>`;
@@ -1486,21 +1479,23 @@ function eqMissingText() {
 }
 
 function equipmentSubmitted() {
-  const E = S.equipment;
+  const E = S.equipment, ordered = S.hm.equip.ordered;
   const picked = ['Standard Zoom-optimized headset (automatic)']
     .concat(E.choice === 'more' ? ACCESSORY_OPTIONS.filter(o => E.items[o.id]).map(o => o.label) : []);
 
   return `
   <div class="page">
-    ${crumbs('Choose your equipment')}
+    ${crumbs('Pick your laptop preferences')}
     <div class="task-head">
-      <h1>Your equipment order</h1>
-      <p class="why">Submitted. Here is where your order is, and how to change it.</p>
+      <h1>${ordered ? 'Your laptop order' : 'Your laptop preferences'}</h1>
+      <p class="why">${ordered ? `${HIRE.manager} placed the order. Here is where it is, and how to get help.`
+        : `Sent to ${HIRE.manager}, who places the order. If nobody orders it 10 days before you start, End User Technology orders it.`}</p>
     </div>
 
     ${equipmentTable(false)}
 
-    ${incidentCard(picked)}
+    ${ordered ? incidentCard(picked) : `
+    <div class="mt24"><button class="btn secondary" id="eqChange">Change my preferences</button></div>`}
 
     <div class="mt24"><button class="btn primary" data-goto="#/">Back to your tasks</button></div>
   </div>`;
@@ -1544,8 +1539,8 @@ function incidentCard(picked) {
         <div class="inc-lbl">Need something else?</div>
         <div class="inc-next" data-assume="A-42">
           <div class="in-opt">
-            <b>Change what you ordered</b>
-            <span>Opens your order again with the same choices, so you can change or add items.</span>
+            <b>Change what was ordered</b>
+            <span>Opens your preferences again. ${HIRE.manager} orders again once you send them.</span>
             <button class="btn secondary sm" id="eqChange">Change my order</button>
           </div>
           <div class="in-opt">
@@ -1745,7 +1740,7 @@ function renderIntro() {
   <div class="page">
     ${crumbs('A badge photo and an introduction')}
     <div class="task-head" data-assume="A-16 A-68">
-      <div class="eyebrow">When you have time · before Day 1</div>
+      <div class="eyebrow">Before Day 1 · by ${dueText(dueFor('photo'))}</div>
       <h1>Add a badge photo, and say hello to your team ${am('A-68')}</h1>
       <p class="why">Two small things that make your first day easier. With your photo, we print your badge before you
       arrive. With your introduction, ${HIRE.manager.split(' ')[0]} can introduce you to the team in your own words. ${am('A-16')}</p>
@@ -2001,28 +1996,26 @@ function renderFlow() {
   ];
   const you = [
     { x:32, r:22, cls:'you', lbl:'Start date', sub:'confirm, 14 days before' },
-    { x:38, r:72, cls:'you', lbl:'Background check', sub:'start, 13 days before' },
-    { x:44, r:22, cls:'you', lbl:'Equipment', sub:'choose, 12 days before' },
-    { x:52, r:72, cls:'you opt', lbl:'Badge photo', sub:'when you have time' },
-    { x:58, r:22, cls:'you opt', lbl:'Say hello', sub:'when you have time' },
+    { x:38, r:72, cls:'you', lbl:'Profile, tax, banking', sub:'in Workday, 13 days before' },
+    { x:44, r:22, cls:'you', lbl:'Right to work', sub:'I-9 §1, 12 days before' },
+    { x:52, r:72, cls:'you', lbl:'Photo and intro', sub:'10 days before' },
+    { x:58, r:22, cls:'you opt', lbl:'Laptop preferences', sub:'when you have time' },
     { x:66, r:72, cls:'you opt', lbl:'Suggested network', sub:'when you have time' },
     { x:82, r:50, cls:'day1', lbl:'Day 1', sub:'badge and laptop waiting' },
   ];
   const after = [
-    { x:80, r:22, cls:'later', lbl:'Personal details', sub:'Day 1, in the portal' },
     { x:95, r:22, cls:'later', lbl:'Required policies', sub:'Day 2' },
-    { x:96, r:72, cls:'later', lbl:'Benefits', sub:'first week, one link' },
+    { x:96, r:72, cls:'later', lbl:'Benefits', sub:'Day 2, or Day 5 in the US' },
   ];
   const later = [
-    { x:22, r:30, cls:'later', lbl:'Right to work', sub:'open now, other system' },
     ...(S.country === 'JP' ? [{ x:24, r:74, cls:'later', lbl:'Medical check', sub:'some countries only' }] : []),
     { x:64, r:74, cls:'later', lbl:'Setup instructions', sub:'3 days before' },
-    { x:68, r:30, cls:'later', lbl:'First day details', sub:'3 days before' },
+    { x:68, r:30, cls:'later', lbl:'First day details', sub:'3 business days before' },
     { x:76, r:74, cls:'later', lbl:'Sign-in details', sub:'1 day before' },
   ];
   const other = [
-    { x:30, r:50, cls:'other', lbl:'Background check', sub:'running, nothing for you to do' },
-    { x:50, r:50, cls:'other', lbl:'Laptop delivery', sub:'5 to 7 working days' },
+    { x:30, r:50, cls:'other', lbl:'Background check', sub:'sent at verbal offer, status here' },
+    { x:50, r:50, cls:'other', lbl:'Laptop', sub:'ordered by your manager' },
     { x:70, r:50, cls:'other', lbl:'Badge printing', sub:'not tracked here' },
     { x:92, r:50, cls:'other', lbl:'Tax forms, Payroll', sub:'their schedule' },
   ];
@@ -2358,8 +2351,8 @@ function applyScenario(name) {
   };
   const hmComplete = () => {
     hmPartial(); namePeople();
-    S.hm.computer = { ordered:true, model:'win-std', reason:'' };
-    S.hm.software = { confirmed:true, added:['Tableau'] };
+    S.hm.equip = { ordered:true };
+    S.hm.plan = { drafted:true };
     S.hm.calendar = { confirmed:true, holds:{ teamIntro:true, buddy:true } };
     S.hm.welcome = { sent:true, body:WELCOME_BOILERPLATE, personal:'Looking forward to having you on the team. Message me if anything is unclear before the 18th.' };
     S.hm.channels.accepted = true;
@@ -2367,9 +2360,8 @@ function applyScenario(name) {
 
   if (name === 'inprogress') {
     S.startdate.confirmed = true;
-    S.bgcheck.launched = true;
+    S.details.checked = true;
     hmPartial();
-    S.hm.computer = { ordered:true, model:'win-std', reason:'' };
     S.equipment.choice = 'more'; S.equipment.items = { monitor:true };
     S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.network.booked = { 0: slotsFor(0)[0] };
@@ -2377,14 +2369,15 @@ function applyScenario(name) {
   // Under review is the start date: the job description it used to hang off
   // is gone (A-67), so there is nothing else to dispute before the start.
   if (name === 'review') {
-    S.bgcheck.launched = true; S.rtw.done = true;
+    S.rtw.done = true;
     S.startdate.changeRequested = true;
     S.startdate.requestedDate = 'Tuesday 1 September 2026';
     S.startdate.reason = 'My notice period runs two weeks longer than I expected.';
     equipComplete(); hmPartial(); namePeople();
   }
   if (name === 'complete') {
-    S.startdate.confirmed = true; S.bgcheck.launched = true; S.rtw.done = true;
+    S.startdate.confirmed = true; S.rtw.done = true;
+    S.details.checked = true; S.details.submitted = true;
     equipComplete(); hmComplete();
     S.intro.text = 'I’m Jordan, joining the FP&A team from a fintech in Denver. I’ll be picking up the forecast for the Americas portfolios. Outside work you’ll usually find me on a trail or attempting sourdough.';
     S.intro.consent = true; S.intro.saved = true; S.intro.done = true;
@@ -2750,13 +2743,8 @@ function bindStartDate() {
 
 /* ---------- background check bindings ---------- */
 function bindBgCheck() {
-  const l = $('#bgLaunch');
-  if (l) l.addEventListener('click', () => {
-    toast('Opening the screening provider in a new tab (simulated).', 'external-link.svg');
-    setTimeout(() => { S.bgcheck.launched = true; save(); rerender(); }, 1300);
-  });
-  const u = $('#bgUndo');
-  if (u) u.addEventListener('click', () => { S.bgcheck.launched = false; save(); rerender(); });
+  const u = $('#bgUpload');
+  if (u) u.addEventListener('click', () => toast('This opens the screening provider’s upload page (simulated).', 'external-link.svg'));
 }
 
 /* ---------- equipment bindings ---------- */
@@ -2766,7 +2754,7 @@ function bindEquipment() {
     S.equipment.deviceConfirmed = true;
     S.equipment.device = DEVICE_CATALOG[0].id;
     save(); rerender();
-    toast('Computer confirmed. It is ordered when you submit this task.', 'check-circle.svg');
+    toast('Computer confirmed. Send your preferences when you’re ready.', 'check-circle.svg');
   });
   $$('[data-device]').forEach(el => el.addEventListener('click', () => {
     S.equipment.device = el.dataset.device;
@@ -2794,11 +2782,11 @@ function bindEquipment() {
   const sub = $('#eqSubmit');
   if (sub) sub.addEventListener('click', () => {
     S.equipment.submitted = true; save(); rerender();
-    toast('Order submitted. The IT help desk has it as INC6369627.', 'check-circle.svg');
+    toast(`Preferences sent to ${HIRE.manager}. She places the order.`, 'check-circle.svg');
   });
   const chg = $('#eqChange');
   if (chg) chg.addEventListener('click', () => {
-    S.equipment.submitted = false; save(); rerender();
+    S.equipment.submitted = false; S.hm.equip.ordered = false; save(); rerender();
     toast('Your order is open again. Change what you need and submit it.');
   });
 }
@@ -2820,6 +2808,8 @@ function bindDetails() {
     D.editing = ''; save(); rerender();
     toast('Saved. It goes to your record immediately.', 'check-circle.svg');
   });
+  const wd = $('#detWorkday');
+  if (wd) wd.addEventListener('click', () => { D.submitted = true; save(); rerender(); toast('Done in Workday (simulated). Payroll is ready by Day 5.', 'check-circle.svg'); });
   const ok = $('#detOk');
   if (ok) ok.addEventListener('click', () => { D.checked = true; save(); rerender(); toast('Thanks. Your details are confirmed.', 'check-circle.svg'); });
   const wr = $('#detWrong');

@@ -14,7 +14,7 @@
 const { launch, BASE } = require('./lib');
 
 const ROUTES = ['#/', '#/startdate', '#/bgcheck', '#/rtw', '#/equipment', '#/details', '#/intro', '#/policies', '#/network',
-  '#/hm/', '#/hm/logistics', '#/hm/software', '#/hm/buddy', '#/hm/calendar', '#/hm/welcome', '#/hm/card', '#/hm/survey',
+  '#/hm/', '#/hm/logistics', '#/hm/buddy', '#/hm/calendar', '#/hm/welcome', '#/hm/card', '#/hm/survey',
   '#/pex/', '#/pex/caseload', '#/pex/blueprints', '#/pex/hire/jreyes'];
 
 (async () => {
