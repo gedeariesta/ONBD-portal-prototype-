@@ -47,12 +47,12 @@ window.ONBD = {
         src: 'Glint via Helix', type: 'Survey item, % yes', note: 'New survey question: did the manager meet the new hire on their first day?' },
     ] },
     { key: 'pex', label: 'PEX', sub: 'From offer accepted', cols: 3, tiles: [
-      { name: 'Start Date Held', phase: 'ns', value: '86%', target: 'Goal 90%', gap: '4.2 days shifted', kind: 'sample', status: 'r',
-        src: 'Workday (PEX onboarding SLA)', type: 'Measure %, KPI vs goal', note: "PEX's onboarding SLA: hire date on or before the original date, plus average days shifted when it changed. Where the original date lives (offer letter or requisition) is open." },
-      { name: 'Onboarding QA', phase: 'ns', value: '94%', target: 'Goal 98%', kind: 'sample', status: 'r',
-        src: 'PEX QA audits', type: 'Measure %, KPI vs goal', note: 'Audited onboarding transactions with no critical error. Still to define: audit quality, or how many questions come in to PEX (and from recruiters or new hires).' },
-      { name: 'Onboarding Cases per New Hire', phase: 'ns', value: '1.3', target: 'Lower is better', kind: 'sample', status: 'a',
-        src: 'ServiceNow + Workday', type: 'Ratio, KPI + trend', note: 'Onboarding cases from new hires and their managers, divided by new hires that month. Fewer cases means the portal is answering more questions.' },
+      { name: 'Cases Resolved in SLA', phase: 'p1', value: '88%', target: 'Goal 90%', gap: 'TET', kind: 'sample', status: 'g',
+        src: 'ServiceNow via Helix', type: 'Measure %, KPI vs goal', note: 'Total elapsed time (TET): share of onboarding cases resolved within the time PEX promises. A top metric for PEX leadership.' },
+      { name: 'Onboarding QA', phase: 'p1', value: '94%', target: 'Goal 98%', kind: 'sample', status: 'g',
+        src: 'PEX QA via Helix', type: 'Measure %, KPI vs goal', note: 'Audited onboarding transactions with no critical error. Already a PEX metric (critical and overall).' },
+      { name: 'Onboarding Cases per New Hire', phase: 'p1', value: '1.3', target: 'Lower is better', kind: 'sample', status: 'g',
+        src: 'ServiceNow + Workday via Helix', type: 'Ratio, KPI + trend', note: 'Onboarding cases from new hires and their managers, divided by new hires that month. Fewer cases means the portal is answering more questions.' },
     ] },
   ],
 

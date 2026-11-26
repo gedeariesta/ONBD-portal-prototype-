@@ -106,7 +106,7 @@
   /* ---------------- Tabs ---------------- */
   document.querySelectorAll('.tab-tabs button').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('.tab-tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-    document.querySelectorAll('body > section').forEach(s => s.hidden = s.id !== b.dataset.tab);
+    document.querySelectorAll('.tab-root > section').forEach(s => s.hidden = s.id !== b.dataset.tab);
     $('#sizebarWrap').hidden = b.dataset.tab === 'defs';
     applyZoom();
   }));
@@ -138,6 +138,7 @@ ${sheet('Design Choices (v0.6)', table(['Choice', 'Why'], [
   ['No exit survey', 'Offboarding is outside what this program controls.'],
   ['First 90 Days trend', 'Shows whether sentiment tracks up or down across Week 1, Day 30 and Day 90, without assuming a dip.'],
   ['PEX measures start at offer accepted', 'Earlier steps (job requisition, offer letter) are outside the program.'],
+  ['PEX tiles match PEX leadership metrics', 'Volume, QA, CSAT and TET (cases resolved within SLA), so PEX and this dashboard agree. Confirmed with PEX workforce insights, Nov 26.'],
   ['Data status shown as a colored bar on each tile', 'A bar plus a legend reads as data status, not performance.'],
   ['Everything filters by region and function', 'Same filters on every sheet.'],
   ['Start Cohort and Talent Type filters', 'New hires grouped by start month or quarter; executive vs emerging talent from job level 2.'],
@@ -147,10 +148,12 @@ ${sheet('Design Choices (v0.6)', table(['Choice', 'Why'], [
 ${sheet('Open Questions', table(['Item', 'Detail'], [
   ['Laptop by Day 1 denominator', '586 of 601 with a delivery date = 97.5%. 586 of 604 requests = 97.0%.'],
   ['Region names', 'HAM uses NA, EU, AP, LATAM. PEX CSAT uses AMER, EMEA, APAC. Needs one region, country, work location hierarchy across sources.'],
-  ['Targets', 'Set: Laptop by Day 1 (98%) and PEX\'s standard goals for On-Time Start (90%) and Onboarding QA (98%). All others open.'],
+  ['Targets', 'Set: Laptop by Day 1 (98%) and PEX\'s standard goals for cases in SLA (TET, 90%) and Onboarding QA (98%). All others open.'],
   ['Overall Onboarding Score', 'Which 8 or 9 questions, and how are they weighted?'],
-  ['Start Date Held', 'Where the original start date lives: offer letter or requisition.'],
-  ['Onboarding QA', 'Audit quality, or how many questions come in to PEX (and from whom)?'],
+  ['Start Date Held', 'Probably not PEX\'s: PEX doesn\'t set start dates. Kwabena is checking with the PEX onboarding team. Likely Workday, so in Helix and joinable to the Employee 360 model.'],
+  ['PEX Operations data', 'Helix doesn\'t usually hold operational data. A daily Workday refresh into Helix may be enough. Kwabena is looking into it.'],
+  ['Workday or ServiceNow', 'After the portal revamp, which data lives where? Both already integrate into Helix.'],
+  ['AI deflection', 'How PEX will measure Sidekick deflection is still being worked out.'],
   ['Start Cohort', 'Default to month or quarter?'],
   ['Equipment', 'Power BI source, update cadence and backup owner.'],
 ], ['32%', '']))}
@@ -163,7 +166,7 @@ ${sheet('Build Notes', table(['Sheet', 'Build'], [
   ['Filters', 'Region, country, function, work location, talent type (job level 2), start cohort, period, remote / on-site. Apply to all sheets. Persona: Regular, NTC, Exec. Interns and apprentices are out of MVP.'],
 ], ['32%', '']))}
 ${sheet('Other Views (Drafted as Sheets in This Workbook)', table(['View', 'Audience', 'Refresh', 'Contents'], [
-  ['PEX Detail', 'Leaders, PEX leads', 'Monthly', 'Drill-down from the Executive View: start date held and days shifted, QA, where delays happen, self-service, satisfaction, workload, future support-tier measures.'],
+  ['PEX Detail', 'Leaders, PEX leads', 'Monthly', 'Drill-down from the Executive View: cases in SLA (TET), QA, cases per new hire, start date held (owner TBC), where delays happen, self-service, satisfaction, workload, future support-tier measures.'],
   ['PEX Operations', 'PEX coordinators', 'Daily', 'New hires starting soon with status and flags; pre-Day 1 task status; stuck items by owner; nudges; open escalations (Day 1-90).'],
   ['My New Hires (HM)', 'Hiring managers', 'Daily', 'Readiness score; progress grid per hire (equipment, access, badge, buddy, Day 1 meeting); my to-do list; countdown to Day 1.'],
 ], ['16%', '16%', '14%', '']))}

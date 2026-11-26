@@ -107,6 +107,59 @@
   .src { font-size: 15px; color: var(--pencil); }
   .src a { color: var(--blue); }
 
+
+  /* ---------- Portal chrome (matches the HR Analytics Tableau portal house style) ---------- */
+  .portal { padding: 0; overflow: hidden; }
+  .pt-crumb { font-size: 14px; color: var(--pencil); padding: 6px 12px; background: #F7F7F7; border-bottom: 1px solid #DDD; }
+  .pt-crumb a { color: var(--blue); text-decoration: none; }
+  .pt-bar { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: #2C5378; color: #fff; font-size: 14px; padding: 5px 12px; }
+  .pt-bar .sh { background: #fff; color: #2C5378; padding: 0 8px; border-radius: 3px; }
+  .pt-canvas { padding: 14px 16px 16px; }
+  .pt-title b { display: block; font-size: 34px; line-height: 1; letter-spacing: .5px; }
+  .pt-title span { font-size: 18px; color: #444; }
+  .pt-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0 6px; }
+  .pt-nav span { background: #1B2A38; color: #fff; text-align: center; font-size: 14px; padding: 3px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pt-nav span.on { background: #8DBBE0; color: #fff; }
+  .pt-page { display: flex; justify-content: space-between; gap: 12px; border: 1.5px solid #CFCFCF; padding: 8px 10px; }
+  .pt-page h3 { font-size: 26px; font-weight: normal; margin: 0 0 4px; }
+  .pt-page p { margin: 2px 0; font-size: 16px; max-width: 980px; }
+  .pt-fb { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: none; }
+  .pt-btn { border: 2px solid #333; background: #E8F0EC; padding: 0 10px; font-size: 14px; white-space: nowrap; }
+  .pt-body { display: grid; grid-template-columns: 1fr 190px; gap: 14px; margin-top: 10px; }
+  .pt-main { min-width: 0; }
+  .pt-params { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: flex-end; font-size: 14px; }
+  .pt-params label, .pt-rail label { display: block; font-size: 14px; color: #444; }
+  .pt-dd { position: relative; display: block; min-width: 130px; border: 1.5px solid #666; background: #fff; padding: 0 22px 0 6px; font-size: 14px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pt-dd::after { content: "v"; position: absolute; right: 6px; top: 0; color: var(--pencil); }
+  .pt-dd.new { border-color: var(--blue); color: var(--blue); }
+  .pt-rail { background: #E3E3E3; padding: 8px 10px; align-self: start; display: grid; gap: 6px; }
+  .pt-rail .pt-dd { min-width: 0; }
+  .portal .grp-title { background: #E6E6E6; color: #333; border: 0; padding: 1px 8px; }
+  .portal .grp-title small { font-size: 13px; }
+  .n { display: inline-block; min-width: 22px; height: 22px; border-radius: 11px; background: var(--red); color: #fff; text-align: center; font-size: 15px; line-height: 22px; margin-right: 6px; padding: 0 4px; vertical-align: 1px; }
+  .talk { margin-top: 10px; }
+  .talk h4 { font-size: 20px; font-weight: normal; margin: 0 0 4px; }
+  .talk ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 22px; }
+  .talk li { font-size: 17px; }
+  .mini { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .mini th, .mini td { border-bottom: 1px solid #CCC; padding: 2px 6px; text-align: left; font-weight: normal; white-space: nowrap; }
+  .mini th { color: var(--pencil); border-bottom: 1.5px solid #555; }
+  .pill { display: inline-block; font-size: 12px; padding: 0 6px; border-radius: 8px; color: #fff; }
+  .pill.ok { background: #4E79A7; } .pill.risk { background: #F28E2B; } .pill.stuck { background: #E15759; }
+  .stk { display: flex; height: 14px; border: 1.5px solid #555; border-radius: 3px; overflow: hidden; }
+  .stk i { display: block; height: 100%; }
+  .hm { border-collapse: collapse; font-size: 14px; width: 100%; }
+  .hm td, .hm th { border: 2px solid #fff; padding: 1px 6px; text-align: center; font-weight: normal; }
+  .hm td:first-child, .hm th:first-child { text-align: left; }
+  @media (max-width: 900px) {
+    .pt-body { grid-template-columns: 1fr; }
+    .pt-rail { grid-template-columns: 1fr 1fr; }
+    .pt-nav { grid-template-columns: repeat(3, 1fr); }
+    .talk ol { grid-template-columns: 1fr; }
+    .pt-page { flex-direction: column; }
+    .pt-fb { flex-direction: row; align-items: center; }
+  }
+
   @media (max-width: 900px) {
     .two { grid-template-columns: 1fr; }
     .r5, .r4, .r3 { grid-template-columns: 1fr 1fr !important; }
@@ -123,9 +176,11 @@
 
 <div class="page">
   <h1>Onboarding Tableau View, v0.7 sketch</h1>
-  <div class="sub">Onboarding Reimagined | work in progress, a starting point for discussion | Oct 2026</div>
+  <div class="sub">Onboarding Reimagined | work in progress, a starting point for discussion | updated Nov 2026</div>
   <p style="margin-top:12px">A draft of what an onboarding dashboard could show. The measures and layout don't depend on a particular tool: Tableau, Looker or Power BI could all build it. Dashboard work starts March 4, once the new survey questions are live.</p>
   <p class="key" style="margin-top:6px"><span class="ph p1">Phase 1</span> possible by March, data exists or flows through Helix &nbsp; <span class="ph tbc">TBC</span> data exists, path into Helix unclear &nbsp; <span class="ph ns">Later</span> needs data that isn't captured yet (around 2028)</p>
+  <p style="margin-top:10px"><b>After the PEX walkthrough (Nov 26):</b> PEX's QA, cases, CSAT, chat-to-case and total elapsed time (TET) already exist and will sit in Helix, so they move to Phase 1. TET joins the PEX tiles, because PEX leadership tracks it. Start Date Held probably isn't PEX's to own, so it stays on PEX Detail as "owner to confirm".</p>
+  <p style="margin-top:10px"><b>Nov update:</b> section 1 now follows the layout of the dashboards already on the HR Analytics Tableau site, shows all three pages PEX would use (Executive View, PEX Detail, PEX Operations), and has a short "How to describe it" note under each page.</p>
   <p style="margin-top:10px">What changed since v0.6:</p>
   <ul class="rules" style="margin-top:2px">
     <li>Every tile shows its <b>phase</b>: what's possible by March and what waits for later.</li>
@@ -137,140 +192,361 @@
   </ul>
 
   <!-- =========================== WIREFRAME =========================== -->
-  <h2><span>1. The page</span></h2>
-  <div class="bx frame wide">
-    <div class="wf-hdr"><b>Onboarding Dashboard | Executive View</b><span class="r">Glint (via Helix), Workday, Power BI, ServiceNow<br>refreshed monthly</span></div>
-    <div class="filters">
-      <span class="chip">Region</span><span class="chip">Country</span><span class="chip new">Function</span><span class="chip">Work Location</span><span class="chip new">Talent Type</span><span class="chip new">Start Cohort</span><span class="chip">Period</span><span class="chip">Remote / On-Site</span>
-      <span class="legend"><span><span class="sw" style="background:#4CAF50"></span>data flows</span><span><span class="sw" style="background:#FFC107"></span>partial</span><span><span class="sw" style="background:#F44336"></span>no source</span></span>
-    </div>
+  <h2><span>1. The pages</span></h2>
+  <p>Laid out like the dashboards already on the HR Analytics Tableau site: buttons across the top to move between pages, a short description of each page with a "Best for" line, dropdowns at the top left and filters in a grey panel on the right. The red numbers match the "How to describe it" notes under each page.</p>
 
-    <!-- Row 1: the 35,000 ft view -->
-    <div class="row r4" style="grid-template-columns: 1.2fr 1fr 1fr 1fr">
-      <div style="grid-column: 1 / -1"><div class="grp-title" style="margin-bottom:0"><span>Program Outcomes</span><small>the 35,000 ft view: is onboarding working?</small></div></div>
-      <div class="bx thin tile a"><span class="nm">Overall Onboarding Score<span class="ph p1">Phase 1</span></span><span class="v">__% <small>fav</small></span><svg viewBox="0 0 80 26"><path d="M4 18 L40 10 L76 13" fill="none" stroke="#1F4E99" stroke-width="2"/><circle cx="4" cy="18" r="2.5" fill="#1F4E99"/><circle cx="40" cy="10" r="2.5" fill="#1F4E99"/><circle cx="76" cy="13" r="2.5" fill="#1F4E99"/></svg><span class="meta">weighted average of 8 or 9 survey questions</span></div>
-      <div class="bx thin tile a"><span class="nm">Productive by Day 90<span class="ph p1">Phase 1</span></span><span class="v">__ <small>/ 100</small></span><span class="meta">manager rating, shown as change since Day 30</span></div>
-      <div class="bx thin tile g"><span class="nm">Quality of Hire<span class="ph p1">Phase 1</span></span><span class="v">__</span><span class="meta">already exists</span></div>
-      <div class="bx thin tile g"><span class="nm">1st-Year Attrition<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">Workday</span></div>
-    </div>
+  <!-- ====== Page 1: Executive View ====== -->
+  <div class="bx frame wide portal">
+    <div class="pt-crumb"><a>Explore</a> / <a>Analytics</a> / <a>HR Analytics</a> / <a>Onboarding Reimagined</a> / Executive View</div>
+    <div class="pt-bar"><span>undo &nbsp; redo &nbsp; revert &nbsp; | &nbsp; View: Original &nbsp; Save Custom View</span><span>Data Guide &nbsp; Watch &nbsp; <span class="sh">Share</span></span></div>
+    <div class="pt-canvas">
+      <div class="pt-title"><b>Onboarding Reimagined</b><span>Onboarding Tableau View</span></div>
+      <div class="pt-nav"><span class="on">Executive View</span><span>PEX Detail</span><span>PEX Operations</span><span>My New Hires</span><span>Definitions</span></div>
+      <div class="pt-page">
+        <div>
+          <h3>Executive View</h3>
+          <p>One page that answers "is onboarding working?", from offer accepted to Day 90: overall results, what new hires and hiring managers tell us, and how PEX is doing.</p>
+          <p><b>Best for:</b> leadership updates, QBR prep, spotting a region or function that needs attention.</p>
+          <p class="muted" style="font-size:14px">Data: Glint (via Helix), Workday, Power BI, ServiceNow. Refreshed monthly.</p>
+        </div>
+        <div class="pt-fb"><span class="pt-btn">Provide Feedback</span><svg width="22" height="30" viewBox="0 0 22 30" aria-hidden="true"><path d="M11 2a8 8 0 0 0-5 14c1.5 1.3 2 2.5 2 4h6c0-1.5.5-2.7 2-4A8 8 0 0 0 11 2z" fill="#F7D74A" stroke="#555" stroke-width="1.5"/><path d="M8 23h6M8 26h6" stroke="#555" stroke-width="1.5"/></svg></div>
+      </div>
 
-    <!-- Row 2: new hire -->
-    <div class="row" style="grid-template-columns: 1fr">
-      <div>
-        <div class="grp-title"><span>New Hire Success</span><small>what the new hire experiences: survey buckets + equipment</small></div>
-        <div class="tiles r5" style="grid-template-columns: repeat(6, 1fr)">
-          <div class="bx thin tile a"><span class="nm">Early Readiness &amp; Navigation<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
-          <div class="bx thin tile a"><span class="nm">Support &amp; Connection<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
-          <div class="bx thin tile a"><span class="nm">Role Clarity &amp; Ramp-Up<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
-          <div class="bx thin tile a"><span class="nm">Laptop by Day 1<span class="ph tbc">TBC</span></span><span class="v">__% <small>vs 98%</small></span><span class="meta">Power BI</span></div>
-          <div class="bx thin tile a"><span class="nm">Loaner Reliance<span class="ph tbc">TBC</span></span><span class="v">__%</span><span class="meta">Power BI</span></div>
-          <div class="bx thin tile a"><span class="nm">Late Notice (&lt;14 days)<span class="ph tbc">TBC</span></span><span class="v">__%</span><span class="meta">Power BI</span></div>
-        </div>
-      </div>
-    </div>
+      <div class="pt-body">
+        <div class="pt-main">
+          <div class="pt-params">
+            <div><label>Timeperiod Format</label><span class="pt-dd">Month</span></div>
+            <div><label>Start Cohort</label><span class="pt-dd new">Oct 2026</span></div>
+            <div><label>Period</label><span class="pt-dd">YTD</span></div>
+            <span class="legend"><span><span class="sw" style="background:#4CAF50"></span>data flows</span><span><span class="sw" style="background:#FFC107"></span>partial</span><span><span class="sw" style="background:#F44336"></span>no source</span></span>
+          </div>
 
-    <!-- Row 3: the people around the new hire -->
-    <div class="row r3" style="grid-template-columns: 4fr 3fr">
-      <div>
-        <div class="grp-title"><span>Hiring Managers</span><small>manager survey</small></div>
-        <div class="tiles r4" style="grid-template-columns: repeat(4, 1fr)">
-          <div class="bx thin tile a"><span class="nm">HM Readiness<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
-          <div class="bx thin tile a"><span class="nm">HM Enablement<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
-          <div class="bx thin tile a"><span class="nm">HM Overall / CSAT<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
-          <div class="bx thin tile a"><span class="nm">Day 1 Manager Meeting<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">new survey question</span></div>
-        </div>
-      </div>
-      <div>
-        <div class="grp-title"><span>PEX</span><small>__ of 3 at goal</small></div>
-        <div class="tiles r3" style="grid-template-columns: 1fr 1fr 1fr">
-          <div class="bx thin tile r"><span class="nm">Start Date Held<span class="ph ns">Later</span></span><span class="v">__% <small>vs 90%</small></span><span class="meta">+ avg days shifted when it changed</span></div>
-          <div class="bx thin tile r"><span class="nm">Onboarding QA<span class="ph ns">Later</span></span><span class="v">__%</span><span class="meta">to define: audit quality, or questions coming in?</span></div>
-          <div class="bx thin tile a"><span class="nm">Cases per New Hire<span class="ph ns">Later</span></span><span class="v">__</span><span class="meta">lower is better</span></div>
-        </div>
-        <div class="click">click the header for the PEX detail sheet (below)</div>
-      </div>
-    </div>
+          <div class="row r4" style="grid-template-columns: 1.2fr 1fr 1fr 1fr">
+            <div style="grid-column: 1 / -1"><div class="grp-title" style="margin-bottom:0"><span><span class="n">1</span>Program Outcomes</span><small>is onboarding working?</small></div></div>
+            <div class="bx thin tile a"><span class="nm">Overall Onboarding Score<span class="ph p1">Phase 1</span></span><span class="v">__% <small>fav</small></span><svg viewBox="0 0 80 26"><path d="M4 18 L40 10 L76 13" fill="none" stroke="#1F4E99" stroke-width="2"/><circle cx="4" cy="18" r="2.5" fill="#1F4E99"/><circle cx="40" cy="10" r="2.5" fill="#1F4E99"/><circle cx="76" cy="13" r="2.5" fill="#1F4E99"/></svg><span class="meta">weighted average of 8 or 9 survey questions</span></div>
+            <div class="bx thin tile a"><span class="nm">Productive by Day 90<span class="ph p1">Phase 1</span></span><span class="v">__ <small>/ 100</small></span><span class="meta">manager rating, shown as change since Day 30</span></div>
+            <div class="bx thin tile g"><span class="nm">Quality of Hire<span class="ph p1">Phase 1</span></span><span class="v">__</span><span class="meta">already exists</span></div>
+            <div class="bx thin tile g"><span class="nm">1st-Year Attrition<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">Workday</span></div>
+          </div>
 
-    <!-- Row 4: trend + volume -->
-    <div class="row r3" style="grid-template-columns: 1.5fr 1fr">
-      <div>
-        <div class="grp-title"><span>First 90 Days<span class="ph p1">Phase 1</span></span><small>% favorable at each survey wave</small></div>
-        <div class="bx thin" style="min-height:150px">
-          <svg viewBox="0 0 320 110" style="width:100%;height:130px">
-            <line x1="40" y1="95" x2="300" y2="95" stroke="#888"/>
-            <text x="50" y="108" font-size="11" fill="#6B6B6B">Week 2</text><text x="160" y="108" font-size="11" fill="#6B6B6B">Day 30</text><text x="270" y="108" font-size="11" fill="#6B6B6B">Day 90</text>
-            <path d="M65 30 L175 38 L285 34" fill="none" stroke="#1F4E99" stroke-width="2"/><path d="M65 50 L175 46 L285 40" fill="none" stroke="#4CAF50" stroke-width="2"/><path d="M65 62 L175 58 L285 60" fill="none" stroke="#F28E2B" stroke-width="2"/><path d="M65 44 L175 52 L285 48" fill="none" stroke="#B07AA1" stroke-width="2" stroke-dasharray="5 4"/>
-          </svg>
-          <div class="sub-lbl">One line per bucket (dashed = hiring managers). Shows whether we're tracking up or down, by region or function.</div>
+          <div class="row" style="grid-template-columns: 1fr">
+            <div>
+              <div class="grp-title"><span><span class="n">2</span>New Hire Success</span><small>survey buckets + equipment</small></div>
+              <div class="tiles r5" style="grid-template-columns: repeat(6, 1fr)">
+                <div class="bx thin tile a"><span class="nm">Early Readiness &amp; Navigation<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
+                <div class="bx thin tile a"><span class="nm">Support &amp; Connection<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
+                <div class="bx thin tile a"><span class="nm">Role Clarity &amp; Ramp-Up<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">survey bucket</span></div>
+                <div class="bx thin tile a"><span class="nm">Laptop by Day 1<span class="ph tbc">TBC</span></span><span class="v">__% <small>vs 98%</small></span><span class="meta">Power BI</span></div>
+                <div class="bx thin tile a"><span class="nm">Loaner Reliance<span class="ph tbc">TBC</span></span><span class="v">__%</span><span class="meta">Power BI</span></div>
+                <div class="bx thin tile a"><span class="nm">Late Notice (&lt;14 days)<span class="ph tbc">TBC</span></span><span class="v">__%</span><span class="meta">Power BI</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row r3" style="grid-template-columns: 4fr 3fr">
+            <div>
+              <div class="grp-title"><span><span class="n">3</span>Hiring Managers</span><small>manager survey</small></div>
+              <div class="tiles r4" style="grid-template-columns: repeat(4, 1fr)">
+                <div class="bx thin tile a"><span class="nm">HM Readiness<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
+                <div class="bx thin tile a"><span class="nm">HM Enablement<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
+                <div class="bx thin tile a"><span class="nm">HM Overall / CSAT<span class="ph p1">Phase 1</span></span><span class="v">__%</span></div>
+                <div class="bx thin tile a"><span class="nm">Day 1 Manager Meeting<span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">new survey question</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">4</span>PEX</span><small>__ of 3 at goal</small></div>
+              <div class="tiles r3" style="grid-template-columns: 1fr 1fr 1fr">
+                <div class="bx thin tile g"><span class="nm">Cases Resolved in SLA<span class="ph p1">Phase 1</span></span><span class="v">__% <small>vs 90%</small></span><span class="meta">total elapsed time (TET)</span></div>
+                <div class="bx thin tile g"><span class="nm">Onboarding QA<span class="ph p1">Phase 1</span></span><span class="v">__% <small>vs 98%</small></span><span class="meta">critical errors, already tracked</span></div>
+                <div class="bx thin tile g"><span class="nm">Cases per New Hire<span class="ph p1">Phase 1</span></span><span class="v">__</span><span class="meta">lower is better</span></div>
+              </div>
+              <div class="click">click the header to open PEX Detail</div>
+            </div>
+          </div>
+
+          <div class="row r3" style="grid-template-columns: 1.5fr 1fr">
+            <div>
+              <div class="grp-title"><span><span class="n">5</span>First 90 Days<span class="ph p1">Phase 1</span></span><small>% favorable at each survey wave</small></div>
+              <div class="bx thin" style="min-height:150px">
+                <svg viewBox="0 0 320 110" style="width:100%;height:130px">
+                  <line x1="40" y1="95" x2="300" y2="95" stroke="#888"/>
+                  <text x="50" y="108" font-size="11" fill="#6B6B6B">Week 2</text><text x="160" y="108" font-size="11" fill="#6B6B6B">Day 30</text><text x="270" y="108" font-size="11" fill="#6B6B6B">Day 90</text>
+                  <path d="M65 30 L175 38 L285 34" fill="none" stroke="#1F4E99" stroke-width="2"/><path d="M65 50 L175 46 L285 40" fill="none" stroke="#4CAF50" stroke-width="2"/><path d="M65 62 L175 58 L285 60" fill="none" stroke="#F28E2B" stroke-width="2"/><path d="M65 44 L175 52 L285 48" fill="none" stroke="#B07AA1" stroke-width="2" stroke-dasharray="5 4"/>
+                </svg>
+                <div class="sub-lbl">One line per bucket (dashed = hiring managers).</div>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">6</span>Volume</span><small>Workday</small></div>
+              <div class="bx thin" style="min-height:90px">
+                <div>New hires by region (map) <span class="muted">+ trend by start cohort</span><span class="ph p1">Phase 1</span></div>
+                <svg viewBox="0 0 200 60" style="width:100%;height:50px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#1F4E99" stroke-width="2"/></svg>
+              </div>
+              <div class="bx thin tile dash" style="margin-top:8px; min-height:52px; color:#6B6B6B"><span class="nm">NHO Attendance (future)</span><span class="meta">live vs virtual, once attendance is recorded</span></div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div>
-        <div class="grp-title"><span>Volume</span><small>Workday</small></div>
-        <div class="bx thin" style="min-height:90px">
-          <div>New hires by region (map) <span class="muted">+ trend by start cohort</span><span class="ph p1">Phase 1</span></div>
-          <svg viewBox="0 0 200 60" style="width:100%;height:50px"><path d="M5 45 L35 50 L65 38 L95 36 L125 28 L155 22 L195 30" fill="none" stroke="#1F4E99" stroke-width="2"/></svg>
-        </div>
-        <div class="bx thin tile dash" style="margin-top:8px; min-height:52px; color:#6B6B6B"><span class="nm">NHO Attendance (future)</span><span class="meta">live vs virtual, once attendance is recorded</span></div>
+
+        <aside class="pt-rail">
+          <div><label>Region</label><span class="pt-dd">(All)</span></div>
+          <div><label>Country</label><span class="pt-dd">(All)</span></div>
+          <div><label>Function</label><span class="pt-dd new">(All)</span></div>
+          <div><label>Talent Type</label><span class="pt-dd new">(All)</span></div>
+          <div><label>Work Location</label><span class="pt-dd">(All)</span></div>
+          <div><label>Remote / On-Site</label><span class="pt-dd">(All)</span></div>
+        </aside>
       </div>
     </div>
   </div>
+  <div class="bx dash talk">
+    <h4>How to describe it</h4>
+    <ol>
+      <li><span class="n">1</span>The four headline numbers: one onboarding score from the surveys, productivity at Day 90, Quality of Hire and first-year attrition.</li>
+      <li><span class="n">2</span>What new hires tell us, in three survey buckets, and whether their laptop was ready on Day 1.</li>
+      <li><span class="n">3</span>What hiring managers tell us, including whether they met their new hire on Day 1.</li>
+      <li><span class="n">4</span>PEX's part in three numbers PEX leadership already tracks: cases resolved within SLA, onboarding QA, and cases per new hire. Click it for PEX Detail.</li>
+      <li><span class="n">5</span>Whether scores go up or down from Week 2 to Day 30 to Day 90.</li>
+      <li><span class="n">6</span>How many people started, and where.</li>
+    </ol>
+    <p class="key" style="margin-top:6px">Around the page: buttons at the top switch pages, the dropdowns set the time period, and the grey panel on the right filters everything by region, function and so on.</p>
+  </div>
 
-  <!-- =========================== PEX DETAIL SHEET =========================== -->
-  <p style="margin-top:22px">Sheet 2: <b>PEX Success detail</b>, opened from the PEX header. Same filters, split by talent type.</p>
+  <!-- ====== Page 2: PEX Detail ====== -->
+  <p style="margin-top:26px">Page 2: <b>PEX Detail</b>, opened from the PEX header or the button at the top. Same filters.</p>
   <p class="key"><span class="tag std">take</span> PEX's SLA as it is &nbsp; <span class="tag comb">combine</span> PEX data joined with another source &nbsp; <span class="tag cust">new</span> doesn't exist yet</p>
-  <div class="bx frame wide">
-    <div class="wf-hdr"><b>PEX Success | Detail</b><span class="r">from offer accepted to start date<br>ServiceNow + Workday</span></div>
-    <div class="filters">
-      <span class="chip">Region</span><span class="chip">Country</span><span class="chip">Talent Type</span><span class="chip">Start Cohort</span>
-      <span class="legend"><span class="chip" style="padding-right:10px">&lt; Back to Executive View</span></span>
-    </div>
+  <div class="bx frame wide portal">
+    <div class="pt-crumb"><a>Explore</a> / <a>Analytics</a> / <a>HR Analytics</a> / <a>Onboarding Reimagined</a> / PEX Detail</div>
+    <div class="pt-bar"><span>undo &nbsp; redo &nbsp; revert &nbsp; | &nbsp; View: Original &nbsp; Save Custom View</span><span>Data Guide &nbsp; Watch &nbsp; <span class="sh">Share</span></span></div>
+    <div class="pt-canvas">
+      <div class="pt-title"><b>Onboarding Reimagined</b><span>Onboarding Tableau View</span></div>
+      <div class="pt-nav"><span>Executive View</span><span class="on">PEX Detail</span><span>PEX Operations</span><span>My New Hires</span><span>Definitions</span></div>
+      <div class="pt-page">
+        <div>
+          <h3>PEX Detail</h3>
+          <p>How PEX is doing from offer accepted to start date, using the numbers PEX leadership already tracks: whether cases close within SLA, QA, whether people help themselves before raising a case, and how case volume is trending.</p>
+          <p><b>Best for:</b> PEX leads, monthly SLA reviews, finding the step that causes delays.</p>
+          <p class="muted" style="font-size:14px">Data: ServiceNow and Workday, both already flowing into Helix. PEX QA in Helix.</p>
+        </div>
+        <div class="pt-fb"><span class="pt-btn">Provide Feedback</span><svg width="22" height="30" viewBox="0 0 22 30" aria-hidden="true"><path d="M11 2a8 8 0 0 0-5 14c1.5 1.3 2 2.5 2 4h6c0-1.5.5-2.7 2-4A8 8 0 0 0 11 2z" fill="#F7D74A" stroke="#555" stroke-width="1.5"/><path d="M8 23h6M8 26h6" stroke="#555" stroke-width="1.5"/></svg></div>
+      </div>
 
-    <div class="row r3" style="grid-template-columns: 1.4fr 1fr 1fr">
-      <div>
-        <div class="grp-title"><span>Where delays happen</span><small>on time % by step</small></div>
-        <div class="bx thin" style="padding-top:26px">
-          <div class="bars">
-            <span>Background Check <span class="tag std">take</span></span><div class="track first"><div class="bar" style="width:88%"></div></div><span class="pct">__%</span>
-            <span>Start date held <span class="tag std">take</span></span><div class="track"><div class="bar" style="width:78%"></div></div><span class="pct">__%</span>
+      <div class="pt-body">
+        <div class="pt-main">
+          <div class="pt-params">
+            <div><label>Timeperiod Format</label><span class="pt-dd">Month</span></div>
+            <div><label>Start Cohort</label><span class="pt-dd new">Oct 2026</span></div>
           </div>
-          <div class="sub-lbl" style="margin-top:8px">Each bar is a PEX SLA. Hover a bar for the HR services behind the misses.</div>
-        </div>
-      </div>
-      <div>
-        <div class="grp-title"><span>Self-service</span><small>is the portal doing the work?</small></div>
-        <div class="tiles" style="grid-template-columns: 1fr">
-          <div class="bx thin tile a" style="min-height:84px"><span class="nm">HR-Raised %<span class="tag std">take</span></span><span class="v">__% <small>goal 2% or less</small></span><span class="meta">onboarding cases HR opened on someone's behalf</span></div>
-          <div class="bx thin tile a" style="min-height:84px"><span class="nm">Chat-to-Case Conversion<span class="tag std">take</span></span><span class="v">__%</span><span class="meta">onboarding chats that had to become a case</span></div>
-        </div>
-      </div>
-      <div>
-        <div class="grp-title"><span>Satisfaction</span><small>case surveys</small></div>
-        <div class="tiles" style="grid-template-columns: 1fr">
-          <div class="bx thin tile a" style="min-height:84px"><span class="nm">Onboarding Case CSAT<span class="tag std">take</span></span><span class="v">__% <small>satisfied</small></span><span class="meta">__% responded. Goals 85% and 5%</span></div>
-          <div class="bx thin" style="min-height:84px"><div class="sub-lbl">Off the main page: few people answer case surveys, and new-hire sentiment already comes from Glint.</div></div>
-        </div>
-      </div>
-    </div>
 
-    <div class="row r3" style="grid-template-columns: 1.4fr 2fr">
-      <div>
-        <div class="grp-title"><span>Workload</span><small>onboarding cases</small></div>
-        <div class="bx thin" style="min-height:120px">
-          <div><span class="blue">received</span> vs <span class="muted">closed</span> <span class="tag std">take</span></div>
-          <svg viewBox="0 0 220 60" style="width:100%;height:60px"><path d="M5 40 L45 34 L85 38 L125 26 L165 30 L215 22" fill="none" stroke="#1F4E99" stroke-width="2"/><path d="M5 46 L45 42 L85 40 L125 34 L165 33 L215 28" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="5 4"/></svg>
-          <div class="sub-lbl">Two different pools, so both lines show.</div>
+          <div class="row" style="grid-template-columns: 1fr">
+            <div>
+              <div class="grp-title"><span><span class="n">1</span>Headline</span><small>PEX's own goals</small></div>
+              <div class="tiles r5" style="grid-template-columns: repeat(6, 1fr)">
+                <div class="bx thin tile g"><span class="nm">Cases in SLA (TET)<span class="tag std">take</span><span class="ph p1">Phase 1</span></span><span class="v">__% <small>goal 90%</small></span><span class="meta">resolved within the time promised</span></div>
+                <div class="bx thin tile g"><span class="nm">QA (Critical)<span class="tag std">take</span><span class="ph p1">Phase 1</span></span><span class="v">__% <small>goal 98%</small></span><span class="meta">audits with no critical error</span></div>
+                <div class="bx thin tile g"><span class="nm">QA (Overall)<span class="tag std">take</span><span class="ph p1">Phase 1</span></span><span class="v">__% <small>goal 98%</small></span><span class="meta">the rest of the QA form</span></div>
+                <div class="bx thin tile g"><span class="nm">Cases per New Hire<span class="tag comb">combine</span><span class="ph p1">Phase 1</span></span><span class="v">__</span><span class="meta">lower is better</span></div>
+                <div class="bx thin tile a"><span class="nm">Start Date Held<span class="ph tbc">TBC</span></span><span class="v">__% <small>goal 90%</small></span><span class="meta">owner to confirm, likely Workday</span></div>
+                <div class="bx thin tile a"><span class="nm">Days Shifted<span class="ph tbc">TBC</span></span><span class="v">__ <small>days</small></span><span class="meta">average move, when a date changed</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row r3" style="grid-template-columns: 1.4fr 1fr 1fr">
+            <div>
+              <div class="grp-title"><span><span class="n">2</span>Where Delays Happen</span><small>% resolved within SLA (TET), by step</small></div>
+              <div class="bx thin" style="padding-top:26px">
+                <div class="bars">
+                  <span>Background check</span><div class="track first"><div class="bar" style="width:93%"></div></div><span class="pct">__%</span>
+                  <span>Other onboarding cases</span><div class="track"><div class="bar" style="width:88%"></div></div><span class="pct">__%</span>
+                </div>
+                <div class="sub-lbl" style="margin:10px 0 4px">Start date held by region <span class="ph tbc">TBC</span></div>
+                <div class="bars">
+                  <span>AMER</span><div class="track"><div class="bar" style="width:84%;background:#CFE5E3"></div></div><span class="pct">__%</span>
+                  <span>EMEA</span><div class="track"><div class="bar" style="width:88%;background:#CFE5E3"></div></div><span class="pct">__%</span>
+                  <span>APAC</span><div class="track"><div class="bar" style="width:87%;background:#CFE5E3"></div></div><span class="pct">__%</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">3</span>Self-Service</span><small>is the portal doing the work?</small></div>
+              <div class="tiles" style="grid-template-columns: 1fr">
+                <div class="bx thin tile a" style="min-height:84px"><span class="nm">HR-Raised %<span class="tag std">take</span></span><span class="v">__% <small>goal 2% or less</small></span><span class="meta">cases HR opened on someone's behalf</span></div>
+                <div class="bx thin tile a" style="min-height:84px"><span class="nm">Chat-to-Case Conversion<span class="tag std">take</span><span class="ph p1">Phase 1</span></span><span class="v">__%</span><span class="meta">chats that had to become a case</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">4</span>Satisfaction</span><small>case surveys</small></div>
+              <div class="tiles" style="grid-template-columns: 1fr">
+                <div class="bx thin tile a" style="min-height:84px"><span class="nm">Onboarding Case CSAT<span class="tag std">take</span><span class="ph p1">Phase 1</span></span><span class="v">__% <small>goal 85%</small></span><span class="meta">rated satisfied or very satisfied</span></div>
+                <div class="bx thin tile a" style="min-height:84px"><span class="nm">Survey Response Rate<span class="tag std">take</span><span class="ph p1">Phase 1</span></span><span class="v">__% <small>goal 5%</small></span><span class="meta">few answer, so Glint carries new-hire sentiment</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row r3" style="grid-template-columns: 1.4fr 2fr">
+            <div>
+              <div class="grp-title"><span><span class="n">5</span>Workload<span class="ph p1">Phase 1</span></span><small>onboarding cases (volume)</small></div>
+              <div class="bx thin" style="min-height:120px">
+                <div><span class="blue">received</span> vs <span class="muted">closed</span> <span class="tag std">take</span></div>
+                <svg viewBox="0 0 220 60" style="width:100%;height:60px"><path d="M5 40 L45 34 L85 38 L125 26 L165 30 L215 22" fill="none" stroke="#1F4E99" stroke-width="2"/><path d="M5 46 L45 42 L85 40 L125 34 L165 33 L215 28" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="5 4"/></svg>
+                <div class="sub-lbl">By month. A gap between the lines means a backlog.</div>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">6</span>Future Measures</span><small>once the new support model and portal are live</small></div>
+              <div class="tiles" style="grid-template-columns: 1fr 1fr 1fr">
+                <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Tier 0: AI Deflection<span class="tag cust">new</span></span><span class="meta">questions Sidekick answers so no case is opened. Being worked out</span></div>
+                <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Tier 1: Resolved by PEX<span class="tag cust">new</span></span><span class="meta">resolved by the PEX team, and how fast</span></div>
+                <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Escalated to Tier 2<span class="tag cust">new</span></span><span class="meta">cases that need the next level</span></div>
+                <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Clean Start Rate<span class="tag comb">combine</span></span><span class="meta">date held, no critical QA error, laptop by Day 1</span></div>
+                <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Pre-Day 1 Tasks On Time<span class="tag cust">new</span></span><span class="meta">portal tasks done by their due date</span></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div>
-        <div class="grp-title"><span>Future measures</span><small>support model and process, once live</small></div>
-        <div class="tiles" style="grid-template-columns: 1fr 1fr">
-          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Tier 0: Self-Service<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">questions answered in myHR (pre-hire sign-in, knowledge articles) without a case</span></div>
-          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Tier 1: Resolved by PEX<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">cases the PEX team resolves in the system, and how fast</span></div>
-          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Escalated to Tier 2<span class="tag cust">new</span></span><span class="v">__%</span><span class="meta">share of cases that need the next level</span></div>
-          <div class="bx thin tile dash" style="min-height:84px"><span class="nm">Clean Start Rate<span class="tag comb">combine</span></span><span class="v">__%</span><span class="meta">start date held, no critical QA error, laptop by Day 1</span></div>
-        </div>
+
+        <aside class="pt-rail">
+          <div><label>Region</label><span class="pt-dd">(All)</span></div>
+          <div><label>Country</label><span class="pt-dd">(All)</span></div>
+          <div><label>Function</label><span class="pt-dd">(All)</span></div>
+          <div><label>Talent Type</label><span class="pt-dd">(All)</span></div>
+          <div><label>HR Service</label><span class="pt-dd new">(All)</span></div>
+        </aside>
       </div>
     </div>
+  </div>
+  <div class="bx dash talk">
+    <h4>How to describe it</h4>
+    <ol>
+      <li><span class="n">1</span>The numbers PEX leadership already tracks: cases resolved within SLA (TET), QA and cases per new hire. Start dates sit at the end until we know who owns them.</li>
+      <li><span class="n">2</span>Which step runs past its SLA, against the 90% goal line. Background checks first, since PEX owns part of that process.</li>
+      <li><span class="n">3</span>Whether people help themselves: how often HR raises a case for someone, and how often a chat turns into a case. AI deflection comes later.</li>
+      <li><span class="n">4</span>Case survey results, with the response rate next to them so nobody over-reads a small sample.</li>
+      <li><span class="n">5</span>Cases coming in versus cases closed each month.</li>
+      <li><span class="n">6</span>What we'd add once the new support tiers and portal are live. Dotted boxes don't have data yet.</li>
+    </ol>
+  </div>
+
+  <!-- ====== Page 3: PEX Operations ====== -->
+  <p style="margin-top:26px">Page 3: <b>PEX Operations</b>, a daily working page rather than a report. Everything on it is <span class="tag cust">new</span> <span class="ph tbc">TBC</span>. Helix doesn't usually hold day-to-day operational data, but Workday refreshes into Helix daily, which may be enough. Kwabena is looking into it.</p>
+  <div class="bx frame wide portal">
+    <div class="pt-crumb"><a>Explore</a> / <a>Analytics</a> / <a>HR Analytics</a> / <a>Onboarding Reimagined</a> / PEX Operations</div>
+    <div class="pt-bar"><span>undo &nbsp; redo &nbsp; revert &nbsp; | &nbsp; View: Original &nbsp; Save Custom View</span><span>Data Guide &nbsp; Watch &nbsp; <span class="sh">Share</span></span></div>
+    <div class="pt-canvas">
+      <div class="pt-title"><b>Onboarding Reimagined</b><span>Onboarding Tableau View</span></div>
+      <div class="pt-nav"><span>Executive View</span><span>PEX Detail</span><span class="on">PEX Operations</span><span>My New Hires</span><span>Definitions</span></div>
+      <div class="pt-page">
+        <div>
+          <h3>PEX Operations</h3>
+          <p>Who starts soon, what's still open for each of them, and what needs chasing today.</p>
+          <p><b>Best for:</b> PEX coordinators each morning, chasing stuck items, deciding who needs a nudge.</p>
+          <p class="muted" style="font-size:14px">Data: Workday (daily refresh into Helix) for tasks and start dates; ServiceNow for cases.</p>
+        </div>
+        <div class="pt-fb"><span class="pt-btn">Provide Feedback</span><span class="pt-btn" style="background:#333;color:#fff">Download Table</span></div>
+      </div>
+
+      <div class="pt-body">
+        <div class="pt-main">
+          <div class="row" style="grid-template-columns: 1fr; margin-top:4px">
+            <div>
+              <div class="grp-title"><span><span class="n">1</span>Today</span><small>counts for the next 14 days</small></div>
+              <div class="tiles r5" style="grid-template-columns: repeat(5, 1fr)">
+                <div class="bx thin tile a" style="min-height:76px"><span class="nm">Starting in 14 Days</span><span class="v">__</span></div>
+                <div class="bx thin tile g" style="min-height:76px"><span class="nm">On Track</span><span class="v">__</span><span class="meta">tasks done so far</span></div>
+                <div class="bx thin tile a" style="min-height:76px"><span class="nm">At Risk</span><span class="v">__</span><span class="meta">task due in 3 days, not started</span></div>
+                <div class="bx thin tile r" style="min-height:76px"><span class="nm">Stuck Items</span><span class="v">__</span><span class="meta">no progress 3+ days</span></div>
+                <div class="bx thin tile a" style="min-height:76px"><span class="nm">Open Escalations</span><span class="v">__</span><span class="meta">Day 1 to 90</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row r3" style="grid-template-columns: 1.5fr 1fr">
+            <div>
+              <div class="grp-title"><span><span class="n">2</span>New Hires Starting Soon</span><small>click a row to open the case</small></div>
+              <div class="bx thin" style="overflow-x:auto">
+                <table class="mini">
+                  <tr><th>New hire</th><th>Start</th><th>Days</th><th>Region</th><th>Tasks</th><th>Status</th><th>Flags</th></tr>
+                  <tr><td>NH-10482</td><td>Nov 10</td><td>5</td><td>AMER</td><td>11 / 12</td><td><span class="pill ok">On track</span></td><td></td></tr>
+                  <tr><td>NH-10477</td><td>Nov 10</td><td>5</td><td>EMEA</td><td>9 / 12</td><td><span class="pill risk">At risk</span></td><td class="red">Not co-located</td></tr>
+                  <tr><td>NH-10491</td><td>Nov 12</td><td>7</td><td>APAC</td><td>7 / 12</td><td><span class="pill stuck">Stuck</span></td><td class="red">Right to work pending</td></tr>
+                  <tr><td>NH-10503</td><td>Nov 13</td><td>8</td><td>AMER</td><td>10 / 12</td><td><span class="pill ok">On track</span></td><td class="red">Date changed (+7)</td></tr>
+                  <tr><td class="muted">...</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                </table>
+                <div class="sub-lbl">Made-up IDs. One row per new hire, soonest start first.</div>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">3</span>Pre-Day 1 Task Status</span><small>% of new hires</small></div>
+              <div class="bx thin">
+                <div class="bars" style="grid-template-columns:auto 1fr; gap:6px 8px; font-size:15px">
+                  <span>Personal details</span><div class="stk"><i style="width:87%;background:#59A14F"></i><i style="width:7%;background:#A0CBE8"></i><i style="width:4%;background:#D4D4D4"></i><i style="width:2%;background:#E15759"></i></div>
+                  <span>Right to work</span><div class="stk"><i style="width:67%;background:#59A14F"></i><i style="width:17%;background:#A0CBE8"></i><i style="width:9%;background:#D4D4D4"></i><i style="width:7%;background:#E15759"></i></div>
+                  <span>Background check</span><div class="stk"><i style="width:72%;background:#59A14F"></i><i style="width:22%;background:#A0CBE8"></i><i style="width:4%;background:#D4D4D4"></i><i style="width:2%;background:#E15759"></i></div>
+                  <span>Equipment confirmed</span><div class="stk"><i style="width:78%;background:#59A14F"></i><i style="width:9%;background:#A0CBE8"></i><i style="width:9%;background:#D4D4D4"></i><i style="width:4%;background:#E15759"></i></div>
+                  <span>Policy sign-offs</span><div class="stk"><i style="width:61%;background:#59A14F"></i><i style="width:13%;background:#A0CBE8"></i><i style="width:24%;background:#D4D4D4"></i><i style="width:2%;background:#E15759"></i></div>
+                </div>
+                <div class="sub-lbl" style="margin-top:6px"><span class="sw" style="background:#59A14F"></span>done <span class="sw" style="background:#A0CBE8"></span>in progress <span class="sw" style="background:#D4D4D4"></span>not started <span class="sw" style="background:#E15759"></span>overdue</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row r3" style="grid-template-columns: 1fr 1fr 1fr">
+            <div>
+              <div class="grp-title"><span><span class="n">4</span>Stuck Items by Owner</span><small>days without progress</small></div>
+              <div class="bx thin">
+                <table class="hm">
+                  <tr><th></th><th>3-5</th><th>6-10</th><th>10+</th></tr>
+                  <tr><td>New hire</td><td style="background:#F4A5A5">3</td><td style="background:#FBDADA">1</td><td style="background:#F7F7F7">0</td></tr>
+                  <tr><td>Hiring manager</td><td style="background:#F7BDBD">2</td><td style="background:#F7BDBD">2</td><td style="background:#FBDADA">1</td></tr>
+                  <tr><td>IT / equipment</td><td style="background:#FBDADA">1</td><td style="background:#FBDADA">1</td><td style="background:#F7F7F7">0</td></tr>
+                  <tr><td>PEX</td><td style="background:#FBDADA">1</td><td style="background:#F7F7F7">0</td><td style="background:#F7F7F7">0</td></tr>
+                </table>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">5</span>Nudges</span><small>reminders before start</small></div>
+              <div class="bx thin">
+                <div class="bars" style="grid-template-columns:auto 1fr; gap:8px; font-size:15px">
+                  <span>Day -7</span><div class="stk"><i style="width:65%;background:#4E79A7"></i><i style="width:23%;background:#A0CBE8"></i><i style="width:12%;background:#D4D4D4"></i></div>
+                  <span>Day -3</span><div class="stk"><i style="width:67%;background:#4E79A7"></i><i style="width:20%;background:#A0CBE8"></i><i style="width:13%;background:#D4D4D4"></i></div>
+                </div>
+                <div class="sub-lbl" style="margin-top:6px"><span class="sw" style="background:#4E79A7"></span>acted on <span class="sw" style="background:#A0CBE8"></span>opened <span class="sw" style="background:#D4D4D4"></span>not opened</div>
+              </div>
+            </div>
+            <div>
+              <div class="grp-title"><span><span class="n">6</span>Open Escalations</span><small>Day 1 to 90</small></div>
+              <div class="bx thin">
+                <table class="mini">
+                  <tr><th>New hire</th><th>Day</th><th>Reason</th><th>Owner</th></tr>
+                  <tr><td>NH-10233</td><td>12</td><td>No system access</td><td>IT</td></tr>
+                  <tr><td>NH-10198</td><td>31</td><td>No manager 1:1</td><td>HM</td></tr>
+                  <tr><td>NH-10251</td><td>6</td><td>Payroll missing</td><td>PEX</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="pt-rail">
+          <div><label>Start Date</label><span class="pt-dd">Next 14 days</span></div>
+          <div><label>Region</label><span class="pt-dd">(All)</span></div>
+          <div><label>Country</label><span class="pt-dd">(All)</span></div>
+          <div><label>Status</label><span class="pt-dd">(All)</span></div>
+          <div><label>Coordinator</label><span class="pt-dd new">Me</span></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+  <div class="bx dash talk">
+    <h4>How to describe it</h4>
+    <ol>
+      <li><span class="n">1</span>Today at a glance: who starts in the next two weeks and how many are on track, at risk or stuck.</li>
+      <li><span class="n">2</span>The working list, one row per new hire, with what's flagged. A click takes you to the case.</li>
+      <li><span class="n">3</span>Which pre-Day 1 tasks are done, in progress, not started or overdue.</li>
+      <li><span class="n">4</span>Who's holding things up, and for how long.</li>
+      <li><span class="n">5</span>Whether the Day -7 and Day -3 reminders get acted on.</li>
+      <li><span class="n">6</span>New joiners flagged in their first 90 days, and who owns the fix.</li>
+    </ol>
   </div>
 
   <!-- =========================== BUCKET MAP =========================== -->
@@ -326,35 +602,36 @@
   <div class="wide">
   <table class="t">
     <tr><th style="width:19%">Measure</th><th class="w">How</th><th>Built from</th><th style="width:15%">PEX target today</th><th class="w">Where</th></tr>
-    <tr><td>Start Date Held, Days Shifted</td><td><span class="tag std">take</span></td><td>PEX's onboarding SLA: hire date on or before the original date. Adds a changed / not changed flag and the days shifted. Where the original date lives (offer letter or requisition) is open</td><td>80% min, 90% goal</td><td>Tile</td></tr>
-    <tr><td>Onboarding QA</td><td><span class="tag std">take</span></td><td>Two readings to settle: PEX's audit pass rate on onboarding transactions, or (as Janine described it) how many questions come in to PEX, and from whom: recruiters or new hires. The second overlaps with Cases per New Hire</td><td>85% min, 98% goal</td><td>Tile (critical), detail (overall)</td></tr>
+    <tr><td>Cases Resolved in SLA (TET)</td><td><span class="tag std">take</span></td><td>Total elapsed time: share of onboarding cases resolved within the time PEX promises. A top metric for PEX leadership</td><td>80% min, 90% goal</td><td>Tile</td></tr>
+    <tr><td>Onboarding QA</td><td><span class="tag std">take</span></td><td>Already a PEX metric, critical and overall</td><td>85% min, 98% goal</td><td>Tile (critical), detail (both)</td></tr>
+    <tr><td>Start Date Held, Days Shifted</td><td><span class="tag comb">combine</span></td><td>Original vs actual start date, plus days shifted. PEX probably doesn't set start dates, so the owner is still to confirm. Likely Workday, which is already in Helix</td><td>90% goal, if it stays</td><td>Detail</td></tr>
     <tr><td>Cases per New Hire</td><td><span class="tag comb">combine</span></td><td>Onboarding cases from new hires and their managers (ServiceNow), divided by new hires that month (Workday)</td><td>None yet. Lower is better</td><td>Tile</td></tr>
-    <tr><td>On Time by Step</td><td><span class="tag std">take</span></td><td>On-time % for the steps after offer accepted: background check and start date</td><td>80% min, 90% goal</td><td>Detail</td></tr>
+    <tr><td>TET by Step</td><td><span class="tag std">take</span></td><td>% resolved within SLA for each step PEX owns after offer accepted, starting with background checks</td><td>80% min, 90% goal</td><td>Detail</td></tr>
     <tr><td>HR-Raised %</td><td><span class="tag std">take</span></td><td>Share of onboarding cases HR opened on someone's behalf. High means people aren't self-serving</td><td>5% max, 2% goal</td><td>Detail</td></tr>
     <tr><td>Chat-to-Case Conversion</td><td><span class="tag std">take</span></td><td>Onboarding chats that had to become a case</td><td>None set</td><td>Detail</td></tr>
     <tr><td>Onboarding Case CSAT</td><td><span class="tag std">take</span></td><td>% satisfied out of responses, with the response rate beside it</td><td>50% min, 85% goal; 5% response</td><td>Detail</td></tr>
     <tr><td>Cases Received vs Closed</td><td><span class="tag std">take</span></td><td>Incoming and completed onboarding cases. Two different pools</td><td>n/a</td><td>Detail</td></tr>
     <tr><td>Clean Start Rate</td><td><span class="tag comb">combine</span></td><td>Per new hire: start date held, onboarding passed QA with no critical error, laptop by Day 1 (Equipment)</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
     <tr><td>Pre-Day 1 Tasks On Time</td><td><span class="tag cust">new</span></td><td>Portal tasks done by their due date, once the new portal is live</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
-    <tr><td>Tier 0, 1 and 2 support</td><td><span class="tag cust">new</span></td><td>Share answered by self-service in myHR, resolved by PEX in the system, and escalated to tier 2</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
+    <tr><td>Tier 0, 1 and 2 support</td><td><span class="tag cust">new</span></td><td>Share answered by AI or self-service (Sidekick deflection, still being defined by PEX), resolved by PEX in the system, and escalated to tier 2</td><td>Set after a baseline</td><td>Detail (future)</td></tr>
   </table>
   </div>
   <ul class="rules">
-    <li><b>Possible framing: two questions, three tiles.</b> Start Date Held and Onboarding QA ask whether PEX is delivering onboarding well. Cases per New Hire asks whether the new experience makes PEX's job easier: if the portal works, people need fewer tickets.</li>
+    <li><b>Match what PEX leadership already tracks:</b> volume, QA, CSAT and TET. Cases in SLA and Onboarding QA ask whether PEX is delivering onboarding well. Cases per New Hire asks whether the new experience makes PEX's job easier: if the portal works, people need fewer tickets.</li>
     <li><b>No blended PEX score.</b> These use different units, and some go the other way (lower is better), so a blend would hide which one slipped. The header shows how many tiles are at goal.</li>
     <li><b>PEX's own targets carry over</b>, so PEX and this dashboard agree on what good looks like.</li>
     <li><b>Start the before picture early.</b> Cases per new hire and HR-raised % exist today, so the comparison after the portal launches has a baseline.</li>
   </ul>
 
   <h2><span>4b. What the ServiceNow PEX setup would need to capture</span></h2>
-  <p>So each PEX tile has a data point behind it, built into the configuration design rather than kept in Excel. A starting list for the conversation with Kwabena and, later, the build team.</p>
+  <p>Most PEX measures already flow from ServiceNow into Helix (cases, chats, CSAT, TET, QA), and Workday is integrated too. What's left is what the revamped portal adds, plus deciding which system each new data point lives in. A starting list for the build team.</p>
   <div class="wide">
   <table class="t">
     <tr><th style="width:24%">Data point</th><th>Feeds</th><th>Notes</th></tr>
-    <tr><td>Original start date</td><td>Start Date Held, Days Shifted</td><td>From the offer letter or the requisition; PEX should know where it lives</td></tr>
+    <tr><td>Original start date</td><td>Start Date Held, Days Shifted</td><td>Probably Workday, so already in Helix and joinable to the Employee 360 model. Owner to confirm (likely not PEX)</td></tr>
     <tr><td>Current start date and a "changed" flag</td><td>Start Date Held, Days Shifted</td><td>Only whether it changed and by how many days; the number of changes doesn't matter</td></tr>
     <tr><td>Each onboarding question or case: who raised it, which channel, which tier resolved it</td><td>Cases per New Hire, support tiers, Onboarding QA (if volume)</td><td>Recruiter, new hire or manager; myHR self-service, PEX team, or tier 2</td></tr>
-    <tr><td>QA result per audited onboarding transaction</td><td>Onboarding QA (if audit quality)</td><td>Critical and overall</td></tr>
+    <tr><td>Which system holds each new task: Workday or ServiceNow</td><td>PEX Operations, My New Hires</td><td>Both are integrated into Helix, so either works. Depends on what DIO builds for the portal</td></tr>
     <tr><td>Each pre-Day 1 task: owner, due date, completed date</td><td>Pre-Day 1 Tasks On Time, PEX Operations, My New Hires</td><td>Comes with the new portal</td></tr>
     <tr><td>Nudges sent and whether acted on</td><td>PEX Operations</td><td>Day -7 and 72-hour reminders</td></tr>
   </table>
@@ -395,8 +672,10 @@
     <tr><td>Quality of Hire</td><td>Existing Tableau content</td><td>Martina</td><td>Existing</td><td><span class="ph p1">Phase 1</span></td></tr>
     <tr><td>1st-Year Attrition, new hires by region and cohort</td><td>Workday</td><td>Martina</td><td>Automatic</td><td><span class="ph p1">Phase 1</span></td></tr>
     <tr><td>Laptop by Day 1, Loaner Reliance, Late Notice</td><td>Power BI report</td><td>Milad</td><td>Possibly a manual upload; source, cadence and backup owner to confirm</td><td><span class="ph tbc">TBC</span></td></tr>
-    <tr><td>Start Date Held, Days Shifted</td><td>Original date (offer letter or requisition) vs hire date</td><td>Kwabena</td><td>To confirm</td><td><span class="ph ns">Later</span></td></tr>
-    <tr><td>PEX measures: QA, cases per new hire, support tiers</td><td>ServiceNow PEX experience in future; Excel today</td><td>Kwabena</td><td>Weekly Excel today</td><td><span class="ph ns">Later</span></td></tr>
+    <tr><td>PEX measures: TET, QA, cases per new hire, chat-to-case, CSAT and response rate, case volume</td><td>ServiceNow and PEX QA, flowing into Helix</td><td>Kwabena</td><td>Automatic</td><td><span class="ph p1">Phase 1</span></td></tr>
+    <tr><td>Start Date Held, Days Shifted</td><td>Likely Workday, so in Helix (Employee 360 model)</td><td>Kwabena is checking with the PEX onboarding team who owns it</td><td>Automatic, if it's Workday</td><td><span class="ph tbc">TBC</span></td></tr>
+    <tr><td>PEX Operations, My New Hires (tasks, status)</td><td>Workday daily refresh into Helix; ServiceNow for cases</td><td>Kwabena is looking into it</td><td>Daily</td><td><span class="ph tbc">TBC</span></td></tr>
+    <tr><td>AI deflection, support tiers</td><td>Sidekick; source still being worked out</td><td>Kwabena</td><td>To define</td><td><span class="ph ns">Later</span></td></tr>
     <tr><td>NHO attendance</td><td>Not captured yet</td><td>-</td><td>-</td><td><span class="ph ns">Later</span></td></tr>
   </table>
   </div>
@@ -423,9 +702,10 @@
     <div>
       <p><b>Later (2028)</b></p>
       <ul class="rules">
-        <li>Where does the original start date live, so days shifted can be measured?</li>
-        <li>Is Onboarding QA about audit quality, or about how many questions come in to PEX?</li>
-        <li>What should PEX's ServiceNow setup capture so QA and the support tiers can be measured?</li>
+        <li>Who owns start dates? If it's recruiting, the Integrated Talent Solutions dashboard's "Offer to Ready for Hire" stage may be the place to look.</li>
+        <li>After the portal revamp, which data lives in Workday and which in ServiceNow?</li>
+        <li>Is a daily Workday refresh enough for PEX Operations, or does it need something closer to live?</li>
+        <li>How will PEX measure AI deflection once Sidekick is in place?</li>
         <li>How should NHO attendance be recorded?</li>
       </ul>
       <p><b>People</b></p>

@@ -242,12 +242,12 @@
 <section id="pex" hidden>
   <div class="stage"><div class="stage-inner"><div class="dash">
     <div class="hdr"><div><h1>Onboarding Dashboard | PEX Detail</h1><div class="sub">From offer accepted to start date | opened from the PEX header on the Executive View</div></div>
-      <div class="asof">Sources: Workday, ServiceNow (future PEX setup)<br>Phase: Later. All values are samples</div></div>
+      <div class="asof">Sources: ServiceNow, PEX QA and Workday, via Helix<br>Mostly Phase 1. All values are samples</div></div>
     <div class="fbar"><div class="tab-filter"><div class="f-title">Region</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Country</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Function</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Talent Type</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Start Cohort</div><select><option>(All)</option></select></div><div class="tab-filter"><div class="f-title">Period</div><select><option>Jan-Sep 2026</option></select></div><button class="tab-nav-btn" style="margin-left:auto" data-goto="exec">&lt; Back to Executive View</button></div>
     <div class="vbody">
-      <div class="vrow" style="grid-template-columns:repeat(5,1fr)" id="pexTiles"></div>
+      <div class="vrow" style="grid-template-columns:repeat(6,1fr)" id="pexTiles"></div>
       <div class="vrow" style="grid-template-columns:1.3fr 1fr 1fr">
-        <div class="panel"><div class="tab-sheet-title">Where Delays Happen</div><div class="cap">On-time % for each PEX step after offer accepted. Goal line at 90%.</div><div id="pexSteps"></div><div class="sub-title" style="margin-top:6px">Start Date Held by Region</div><div id="pexRegion"></div></div>
+        <div class="panel"><div class="tab-sheet-title">Where Delays Happen</div><div class="cap">% of cases resolved within SLA (TET) for each PEX step. Goal line at 90%.</div><div id="pexSteps"></div><div class="sub-title" style="margin-top:6px">Start Date Held by Region (owner TBC)</div><div id="pexRegion"></div></div>
         <div class="panel"><div class="tab-sheet-title">Self-Service</div><div class="cap">Is the portal doing the work?</div><div class="ktiles" style="grid-template-columns:1fr" id="pexSelf"></div></div>
         <div class="panel"><div class="tab-sheet-title">Satisfaction</div><div class="cap">Onboarding case surveys</div><div class="ktiles" style="grid-template-columns:1fr" id="pexSat"></div></div>
       </div>
@@ -256,7 +256,7 @@
         <div class="panel"><div class="tab-sheet-title">Future Measures</div><div class="cap">Once the new support model and portal are live.</div><div class="futs" id="pexFuture"></div></div>
       </div>
     </div>
-    <div class="foot">Mock-up for discussion (v0.7). Sample values. PEX goals are PEX's own standard goals. Start date source (offer letter or requisition) and the Onboarding QA definition are still open.</div>
+    <div class="foot">Mock-up for discussion (v0.7). Sample values. PEX goals are PEX's own standard goals. Who owns start dates is still open (likely not PEX). AI deflection is still being defined.</div>
   </div></div></div>
 </section>
 

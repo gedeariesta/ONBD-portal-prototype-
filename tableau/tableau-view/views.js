@@ -1,6 +1,7 @@
 /* Extra sheets: PEX Detail, PEX Operations, My New Hires (hiring manager).
-   All values are samples. Phase for all three: Later (needs the future ServiceNow PEX setup
-   and the new onboarding portal). Kit: ../design-package. */
+   All values are samples. PEX Detail measures mostly exist and flow into Helix (Phase 1).
+   Operations and My New Hires depend on the new portal and a daily Workday refresh (TBC).
+   Kit: ../design-package. */
 (function () {
   'use strict';
   const V = window.TabViz, UI = window.ONBD_UI;
@@ -13,29 +14,30 @@
 
   /* ======================= PEX Detail ======================= */
   tiles('#pexTiles', [
-    T('Start Date Held', '86%', 'Goal 90%', 'r', "PEX's onboarding SLA: hire date on or before the original date. Source of the original date is open.", { type: 'Measure %, KPI vs goal' }),
-    T('Days Shifted', '4.2', 'avg days, when changed', 'r', 'Average days a start date moved, for hires whose date changed (14% of hires). Flag: changed / not changed.', { type: 'Measure, days' }),
-    T('Onboarding QA (Critical)', '94%', 'Goal 98%', 'r', 'Audited onboarding transactions with no critical error. Still to define: audit quality, or how many questions come in to PEX.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
-    T('Onboarding QA (Overall)', '89%', 'Goal 98%', 'r', 'Covers the rest of the QA form. Stricter than critical.', { src: 'PEX QA audits', type: 'Measure %, KPI vs goal' }),
-    T('Cases per New Hire', '1.3', 'Lower is better', 'a', 'Onboarding cases from new hires and their managers, divided by new hires that month.', { type: 'Ratio, KPI + trend' }),
+    T('Cases in SLA (TET)', '88%', 'Goal 90%', 'g', 'Onboarding cases resolved within the total elapsed time PEX promises.', { phase: 'p1', src: 'ServiceNow via Helix', type: 'Measure %, KPI vs goal' }),
+    T('Onboarding QA (Critical)', '94%', 'Goal 98%', 'g', 'Audited onboarding transactions with no critical error. Already a PEX metric.', { phase: 'p1', src: 'PEX QA via Helix', type: 'Measure %, KPI vs goal' }),
+    T('Onboarding QA (Overall)', '89%', 'Goal 98%', 'g', 'Covers the rest of the QA form. Stricter than critical.', { phase: 'p1', src: 'PEX QA via Helix', type: 'Measure %, KPI vs goal' }),
+    T('Cases per New Hire', '1.3', 'Lower is better', 'g', 'Onboarding cases from new hires and their managers, divided by new hires that month.', { phase: 'p1', src: 'ServiceNow + Workday via Helix', type: 'Ratio, KPI + trend' }),
+    T('Start Date Held', '86%', 'Goal 90%', 'a', 'Hire date on or before the original date. Probably not owned by PEX; owner to confirm. Likely Workday, so in Helix.', { phase: 'tbc', src: 'Workday via Helix (owner TBC)', type: 'Measure %, KPI vs goal' }),
+    T('Days Shifted', '4.2', 'avg days, when changed', 'a', 'Average days a start date moved, for hires whose date changed. Same owner question as Start Date Held.', { phase: 'tbc', src: 'Workday via Helix (owner TBC)', type: 'Measure, days' }),
   ]);
-  V.hbar('#pexSteps', { dim: 'Step', measure: 'On time %', format: 'pct', max: 1, refLine: .9, refLabel: ' ', rowHeight: 34,
-    data: [{ label: 'Background check', value: .93 }, { label: 'Start date held', value: .86 }], sort: false });
+  V.hbar('#pexSteps', { dim: 'Step', measure: '% in SLA (TET)', format: 'pct', max: 1, refLine: .9, refLabel: ' ', rowHeight: 34,
+    data: [{ label: 'Background check', value: .93 }, { label: 'Other onboarding cases', value: .88 }], sort: false });
   V.hbar('#pexRegion', { dim: 'Region', measure: 'Start date held', format: 'pct', max: 1, refLine: .9, refLabel: ' ', rowHeight: 28, colorBy: 'none', color: '#76B7B2',
     data: [{ label: 'AMER', value: .84 }, { label: 'EMEA', value: .88 }, { label: 'APAC', value: .87 }], sort: false });
   tiles('#pexSelf', [
     T('HR-Raised %', '1.4%', 'Goal 2% or less', 'a', 'Onboarding cases HR opened on someone\'s behalf. High means people aren\'t self-serving.', { type: 'Measure %' }),
-    T('Chat-to-Case Conversion', '24%', 'Lower is better', 'a', 'Onboarding chats that had to become a case.', { type: 'Measure %' }),
+    T('Chat-to-Case Conversion', '24%', 'Lower is better', 'a', 'Onboarding chats that had to become a case.', { phase: 'p1', type: 'Measure %' }),
   ]);
   tiles('#pexSat', [
-    T('Onboarding Case CSAT', '93%', 'Goal 85%', 'a', 'Share of responses rated satisfied or very satisfied.', { type: 'Measure %' }),
-    T('Survey Response Rate', '7%', 'Goal 5%', 'a', 'Few people answer case surveys, so new-hire sentiment comes from Glint on the Executive View.', { type: 'Measure %' }),
+    T('Onboarding Case CSAT', '93%', 'Goal 85%', 'a', 'Share of responses rated satisfied or very satisfied.', { phase: 'p1', type: 'Measure %' }),
+    T('Survey Response Rate', '7%', 'Goal 5%', 'a', 'Few people answer case surveys, so new-hire sentiment comes from Glint on the Executive View.', { phase: 'p1', type: 'Measure %' }),
   ]);
   $('#pexLoadLegend').innerHTML = V.legend({ title: 'Cases', items: ['Received', 'Closed'], colors: ['#4E79A7', '#BAB0AC'], inline: true });
   V.line('#pexLoad', { x: months, xField: 'Month', dim: 'Cases', measure: 'Onboarding cases (sample)', format: 'int', height: 270, markers: true, zero: false,
     series: [{ name: 'Received', values: [210, 190, 240, 255, 280, 310, 260, 235, 270], color: '#4E79A7' }, { name: 'Closed', values: [195, 200, 225, 250, 265, 300, 270, 230, 255], color: '#BAB0AC', dashed: true }] });
   $('#pexFuture').innerHTML = [
-    ['Tier 0: Self-Service', 'Questions answered in myHR (pre-hire sign-in, knowledge articles) without a case'],
+    ['Tier 0: AI Deflection', 'Questions Sidekick or myHR answers so no case is opened. PEX is still defining this'],
     ['Tier 1: Resolved by PEX', 'Cases the PEX team resolves in the system, and how fast'],
     ['Escalated to Tier 2', 'Share of cases that need the next level of support'],
     ['Clean Start Rate', 'Start date held, no critical QA error and laptop by Day 1, all for the same new hire'],
@@ -44,11 +46,11 @@
 
   /* ======================= PEX Operations ======================= */
   tiles('#opsTiles', [
-    T('Starting in Next 14 Days', '46', 'new hires', 'a', 'New hires with a start date in the next 14 days.', { src: 'Workday' }),
-    T('On Track', '34', '74%', 'a', 'All tasks due so far are done.'),
-    T('At Risk', '8', 'need a nudge', 'a', 'A task is due within 3 days and not started.'),
-    T('Stuck Items', '5', 'no progress 3+ days', 'a', 'Items that haven\'t moved for 3 or more days.'),
-    T('Open Escalations', '3', 'Day 1 to 90', 'a', 'New joiners flagged for follow-up in their first 90 days.'),
+    T('Starting in Next 14 Days', '46', 'new hires', 'a', 'New hires with a start date in the next 14 days.', { phase: 'tbc', src: 'Workday (daily refresh into Helix)' }),
+    T('On Track', '34', '74%', 'a', 'All tasks due so far are done.', { phase: 'tbc', src: 'Workday daily refresh (Kwabena checking)' }),
+    T('At Risk', '8', 'need a nudge', 'a', 'A task is due within 3 days and not started.', { phase: 'tbc', src: 'Workday daily refresh (Kwabena checking)' }),
+    T('Stuck Items', '5', 'no progress 3+ days', 'a', 'Items that haven\'t moved for 3 or more days.', { phase: 'tbc', src: 'Workday daily refresh (Kwabena checking)' }),
+    T('Open Escalations', '3', 'Day 1 to 90', 'a', 'New joiners flagged for follow-up in their first 90 days.', { phase: 'tbc', src: 'Workday daily refresh (Kwabena checking)' }),
   ]);
   const hires = [
     ['NH-10482', 'Nov 10', 5, 'AMER', 'Professional', '11 / 12', 'ok', 'Sent', ''],
